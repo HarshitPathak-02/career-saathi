@@ -1,0 +1,21 @@
+export enum CareerJourneyStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum CurrentLevel {
+  SCHOOL_STUDENT = 'SCHOOL_STUDENT',
+  COLLEGE_STUDENT = 'COLLEGE_STUDENT',
+  FRESHER = 'FRESHER',
+  WORKING_PROFESSIONAL = 'WORKING_PROFESSIONAL',
+  CAREER_SWITCHER = 'CAREER_SWITCHER',
+}
+
+export enum DurationUnit {
+  DAYS = 'DAYS',
+  WEEKS = 'WEEKS',
+  MONTHS = 'MONTHS',
+  YEARS = 'YEARS',
+}

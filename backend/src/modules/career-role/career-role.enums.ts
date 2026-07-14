@@ -1,0 +1,13 @@
+export enum CareerRoleCode {
+    BACKEND_DEVELOPER =
+        'BACKEND_DEVELOPER',
+
+    FRONTEND_DEVELOPER =
+        'FRONTEND_DEVELOPER',
+
+    FULL_STACK_DEVELOPER =
+        'FULL_STACK_DEVELOPER',
+
+    AI_ENGINEER =
+        'AI_ENGINEER',
+}   
