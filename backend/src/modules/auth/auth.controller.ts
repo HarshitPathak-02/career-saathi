@@ -28,7 +28,6 @@ class AuthController {
                 statusCode: HTTP_STATUS.CREATED,
                 message: AUTH_MESSAGES.REGISTER_SUCCESS,
                 data: {
-                    user: result.user,
                     accessToken: result.accessToken,
                 },
             });
@@ -62,10 +61,9 @@ class AuthController {
     me = asyncHandler(
         async (req, res) => {
 
-            const user =
-                await authService.me(
-                    req.user!.userId
-                );
+            const user = await authService.me(
+                req.user!.userId
+            );
 
             return successResponse({
                 res,
@@ -74,7 +72,6 @@ class AuthController {
             });
         }
     );
-
     refresh = asyncHandler(
         async (req, res) => {
             const refreshToken =

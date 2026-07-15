@@ -7,21 +7,55 @@ import {
 } from './assessment-skill-result.repository.js';
 
 import {
+    assessmentRepository,
+} from '../assessment/assessment.repository.js';
+
+import {
     toAssessmentSkillResultResponse,
 } from './assessment-skill-result.mapper.js';
 
-class AssessmentSkillResultService {
+import {
+    AppError,
+} from '../../core/errors/app-error.js';
 
+import {
+    HTTP_STATUS,
+} from '../../core/constants/http-status.constants.js';
+
+class AssessmentSkillResultService {
     async findByAssessment(
-        assessmentId: string
+        assessmentId: string,
+        userId: string
     ): Promise<
         AssessmentSkillResultResponse[]
     > {
-
-        const results =
-            await assessmentSkillResultRepository.findByAssessmentId(
+        const assessment =
+            await assessmentRepository.findById(
                 assessmentId
             );
+
+        if (!assessment) {
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                'Assessment not found.'
+            );
+        }
+
+        if (
+            assessment.userId.toString() !==
+            userId
+        ) {
+            throw new AppError(
+                HTTP_STATUS.FORBIDDEN,
+                'Unauthorized.'
+            );
+        }
+
+        const results =
+            await assessmentSkillResultRepository
+                .findByAssessmentId(
+                    assessmentId
+                );
 
         return results.map(
             toAssessmentSkillResultResponse

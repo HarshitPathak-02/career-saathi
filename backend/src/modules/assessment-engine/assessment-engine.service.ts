@@ -1,10 +1,14 @@
-import mongoose, { ClientSession, Types } from 'mongoose';
+import mongoose, {
+    ClientSession,
+    Types,
+} from 'mongoose';
 
 import { assessmentRepository } from '../assessment/assessment.repository.js';
 import { careerJourneyRepository } from '../career-journey/career-journey.repository.js';
 import { userSkillRepository } from '../skills/skill.repository.js';
 import { assessmentQuestionRepository } from '../assessment-question/assessment-question.repository.js';
 import { assessmentSkillResultRepository } from '../assessment-skill-result/assessment-skill-result.repository.js';
+import { careerRoleRepository } from '../career-role/career-role.repository.js';
 
 import { assessmentEvaluatorService } from '../assessment-evaluator/assessment-evaluator.service.js';
 
@@ -12,7 +16,9 @@ import {
     AssessmentStatus,
 } from '../assessment/assessment.enums.js';
 
-import { QUESTIONS_PER_SKILL } from './assessment-engine.constants.js';
+import {
+    QUESTIONS_PER_SKILL,
+} from './assessment-engine.constants.js';
 
 import {
     StartAssessmentResponse,
@@ -20,20 +26,36 @@ import {
     SubmitAssessmentResponse,
 } from './assessment-engine.types.js';
 
-import { AppError } from '../../core/errors/app-error.js';
-import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
-import { AssessmentQuestionDocument } from '../assessment-question/assessment-question.types.js';
-import { EvaluationResult, SkillEvaluationResult } from '../assessment-evaluator/assessment-evaluator.types.js';
-import { CreateAssessmentSkillResultData } from '../assessment-skill-result/assessment-skill-result.types.js';
-import { ProficiencyLevel } from '../../shared/enums/proficiency-level.enum.js';
+import {
+    AssessmentQuestionDocument,
+} from '../assessment-question/assessment-question.types.js';
+
+import {
+    EvaluationResult,
+    SkillEvaluationResult,
+} from '../assessment-evaluator/assessment-evaluator.types.js';
+
+import {
+    CreateAssessmentSkillResultData,
+} from '../assessment-skill-result/assessment-skill-result.types.js';
+
+import {
+    ProficiencyLevel,
+} from '../../shared/enums/proficiency-level.enum.js';
+
+import {
+    AppError,
+} from '../../core/errors/app-error.js';
+
+import {
+    HTTP_STATUS,
+} from '../../core/constants/http-status.constants.js';
 
 class AssessmentEngineService {
-
     async startAssessment(
         careerJourneyId: string,
         userId: string
     ): Promise<StartAssessmentResponse> {
-
         const journey =
             await careerJourneyRepository.findById(
                 careerJourneyId
@@ -56,73 +78,153 @@ class AssessmentEngineService {
             );
         }
 
-        let assessment =
-            await assessmentRepository.findInProgressByCareerJourneyId(
-                careerJourneyId
+        const existingAssessment =
+            await assessmentRepository
+                .findInProgressByCareerJourneyId(
+                    careerJourneyId
+                );
+
+        if (existingAssessment) {
+            const questions =
+                await assessmentQuestionRepository
+                    .findByIds(
+                        existingAssessment.questionIds.map(
+                            (id) =>
+                                id.toString()
+                        )
+                    );
+
+            if (
+                questions.length !==
+                existingAssessment.questionIds.length
+            ) {
+                throw new AppError(
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                    'Assessment questions are unavailable.'
+                );
+            }
+
+            return {
+                assessmentId:
+                    existingAssessment.id,
+
+                questions:
+                    this.sanitizeQuestions(
+                        questions
+                    ),
+            };
+        }
+
+        const careerRole =
+            careerRoleRepository.findByCode(
+                journey.careerContext
+                    .careerRoleCode
             );
 
-        if (!assessment) {
-
-            assessment =
-                await assessmentRepository.create({
-
-                    userId: new Types.ObjectId(
-                        userId
-                    ),
-
-                    careerJourneyId:
-                        new Types.ObjectId(
-                            careerJourneyId
-                        ),
-
-                    status:
-                        AssessmentStatus.IN_PROGRESS,
-
-                    overallScore: 0,
-
-                    overallLevel:
-                        ProficiencyLevel.BEGINNER,
-
-                    startedAt:
-                        new Date(),
-                });
+        if (!careerRole) {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Career role not found.'
+            );
         }
 
         const userSkills =
-            await userSkillRepository.findByJourneyId(
-                careerJourneyId
-            );
+            await userSkillRepository
+                .findByJourneyId(
+                    careerJourneyId
+                );
 
         if (userSkills.length === 0) {
-
             throw new AppError(
                 HTTP_STATUS.BAD_REQUEST,
                 'No skills found for this journey.'
             );
         }
 
-        const skillCodes =
-            userSkills.map(
-                skill => skill.skillCode
+        const assessmentSkillCodes =
+            new Set(
+                careerRole.skills
+                    .filter(
+                        (skill) =>
+                            skill.assessmentRequired
+                    )
+                    .map(
+                        (skill) =>
+                            skill.skillCode
+                    )
             );
+
+        const skillCodes =
+            userSkills
+                .filter(
+                    (skill) =>
+                        assessmentSkillCodes.has(
+                            skill.skillCode
+                        )
+                )
+                .map(
+                    (skill) =>
+                        skill.skillCode
+                );
+
+        if (skillCodes.length === 0) {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'No skills require assessment for this journey.'
+            );
+        }
 
         const questions =
-            await assessmentQuestionRepository.findRandomQuestionsForSkills(
-                journey.careerContext.careerRoleCode,
-                skillCodes,
-                QUESTIONS_PER_SKILL
-            );
+            await assessmentQuestionRepository
+                .findRandomQuestionsForSkills(
+                    journey.careerContext
+                        .careerRoleCode,
+
+                    skillCodes,
+
+                    QUESTIONS_PER_SKILL
+                );
 
         if (questions.length === 0) {
-
             throw new AppError(
                 HTTP_STATUS.BAD_REQUEST,
                 'No assessment questions available.'
             );
         }
 
-        return {
+        const assessment =
+            await assessmentRepository.create({
+                userId:
+                    new Types.ObjectId(
+                        userId
+                    ),
 
+                careerJourneyId:
+                    new Types.ObjectId(
+                        careerJourneyId
+                    ),
+
+                questionIds:
+                    questions.map(
+                        (question) =>
+                            new Types.ObjectId(
+                                question.id
+                            )
+                    ),
+
+                status:
+                    AssessmentStatus.IN_PROGRESS,
+
+                overallScore: 0,
+
+                overallLevel:
+                    ProficiencyLevel.BEGINNER,
+
+                startedAt:
+                    new Date(),
+            });
+
+        return {
             assessmentId:
                 assessment.id,
 
@@ -138,7 +240,6 @@ class AssessmentEngineService {
         userId: string,
         answers: SubmitAssessmentAnswer[]
     ): Promise<SubmitAssessmentResponse> {
-
         const assessment =
             await assessmentRepository.findById(
                 assessmentId
@@ -171,18 +272,67 @@ class AssessmentEngineService {
             );
         }
 
-        const questionIds = answers.map(
-            answer => answer.questionId
-        );
+        const questionIds =
+            answers.map(
+                (answer) =>
+                    answer.questionId
+            );
+
+        const uniqueQuestionIds =
+            new Set(questionIds);
+
+        if (
+            uniqueQuestionIds.size !==
+            questionIds.length
+        ) {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Duplicate question answers are not allowed.'
+            );
+        }
+
+        if (
+            questionIds.length !==
+            assessment.questionIds.length
+        ) {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'All assessment questions must be answered.'
+            );
+        }
+
+        const assignedQuestionIds =
+            new Set(
+                assessment.questionIds.map(
+                    (id) =>
+                        id.toString()
+                )
+            );
+
+        const hasInvalidQuestion =
+            questionIds.some(
+                (questionId) =>
+                    !assignedQuestionIds.has(
+                        questionId
+                    )
+            );
+
+        if (hasInvalidQuestion) {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Submitted question does not belong to this assessment.'
+            );
+        }
 
         const questions =
-            await assessmentQuestionRepository.findByIds(
-                questionIds
-            );
+            await assessmentQuestionRepository
+                .findByIds(
+                    questionIds
+                );
 
         if (
             questions.length !==
-            answers.length
+            questionIds.length
         ) {
             throw new AppError(
                 HTTP_STATUS.BAD_REQUEST,
@@ -192,18 +342,18 @@ class AssessmentEngineService {
 
         const evaluation =
             assessmentEvaluatorService.evaluate(
+                questions.map(
+                    (question) => ({
+                        id:
+                            question.id,
 
-                questions.map(question => ({
+                        skillCode:
+                            question.skillCode,
 
-                    id: question.id,
-
-                    skillCode:
-                        question.skillCode,
-
-                    correctAnswer:
-                        question.correctAnswer,
-
-                })),
+                        correctAnswer:
+                            question.correctAnswer,
+                    })
+                ),
 
                 answers
             );
@@ -212,43 +362,39 @@ class AssessmentEngineService {
             await mongoose.startSession();
 
         try {
-
             session.startTransaction();
 
-            await assessmentSkillResultRepository.createMany(
+            await assessmentSkillResultRepository
+                .createMany(
+                    this.buildSkillResultDocuments(
+                        assessment.id,
+                        evaluation.skillResults
+                    ),
 
-                this.buildSkillResultDocuments(
-                    assessment.id,
-                    evaluation.skillResults
-                ),
+                    session
+                );
 
-                session
-            );
+            await userSkillRepository
+                .bulkUpdateAssessmentLevels(
+                    this.buildBulkSkillUpdates(
+                        evaluation.skillResults
+                    ),
 
-            await userSkillRepository.bulkUpdateAssessmentLevels(
+                    assessment.careerJourneyId
+                        .toString(),
 
-                this.buildBulkSkillUpdates(
-                    evaluation.skillResults
-                ),
-
-                assessment.careerJourneyId.toString(),
-
-                session
-            );
+                    session
+                );
 
             await this.completeAssessment(
-
                 assessment.id,
-
                 evaluation,
-
                 session
             );
 
             await session.commitTransaction();
 
             return {
-
                 overallScore:
                     evaluation.overallScore,
 
@@ -258,28 +404,22 @@ class AssessmentEngineService {
                 skillResults:
                     evaluation.skillResults,
             };
-
         } catch (error) {
-
             await session.abortTransaction();
 
             throw error;
-
         } finally {
-
             await session.endSession();
-
         }
     }
 
     private sanitizeQuestions(
         questions: AssessmentQuestionDocument[]
     ) {
-
         return questions.map(
-            question => ({
-
-                id: question.id,
+            (question) => ({
+                id:
+                    question.id,
 
                 skillCode:
                     question.skillCode,
@@ -303,43 +443,43 @@ class AssessmentEngineService {
         assessmentId: string,
         skillResults: SkillEvaluationResult[]
     ): CreateAssessmentSkillResultData[] {
+        return skillResults.map(
+            (result) => ({
+                assessmentId:
+                    new Types.ObjectId(
+                        assessmentId
+                    ),
 
-        return skillResults.map(result => ({
+                skillCode:
+                    result.skillCode,
 
-            assessmentId:
-                new Types.ObjectId(
-                    assessmentId
-                ),
+                score:
+                    result.score,
 
-            skillCode:
-                result.skillCode,
+                level:
+                    result.level,
 
-            score:
-                result.score,
+                correctAnswers:
+                    result.correctAnswers,
 
-            level:
-                result.level,
-
-            correctAnswers:
-                result.correctAnswers,
-
-            totalQuestions:
-                result.totalQuestions,
-        }));
+                totalQuestions:
+                    result.totalQuestions,
+            })
+        );
     }
 
     private buildBulkSkillUpdates(
         skillResults: SkillEvaluationResult[]
     ) {
+        return skillResults.map(
+            (result) => ({
+                skillCode:
+                    result.skillCode,
 
-        return skillResults.map(result => ({
-
-            skillCode:
-                result.skillCode,
-
-            assessmentLevel:
-                result.level,
-        }));
+                assessmentLevel:
+                    result.level,
+            })
+        );
     }
 
     private async completeAssessment(
@@ -347,10 +487,10 @@ class AssessmentEngineService {
         evaluation: EvaluationResult,
         session: ClientSession
     ): Promise<void> {
-
         const assessment =
             await assessmentRepository.updateById(
                 assessmentId,
+
                 {
                     status:
                         AssessmentStatus.COMPLETED,
@@ -362,20 +502,19 @@ class AssessmentEngineService {
                         evaluation.overallScore,
 
                     overallLevel:
-                        evaluation.overallLevel as ProficiencyLevel,
+                        evaluation.overallLevel,
                 },
+
                 session
             );
 
         if (!assessment) {
-
             throw new AppError(
                 HTTP_STATUS.INTERNAL_SERVER_ERROR,
                 'Failed to complete assessment.'
             );
         }
     }
-
 }
 
 export const assessmentEngineService =

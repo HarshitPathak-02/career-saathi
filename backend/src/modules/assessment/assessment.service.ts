@@ -1,7 +1,14 @@
-import { Types } from 'mongoose';
+import {
+    Types,
+} from 'mongoose';
 
-import { assessmentRepository } from './assessment.repository.js';
-import { careerJourneyRepository } from '../career-journey/career-journey.repository.js';
+import {
+    assessmentRepository,
+} from './assessment.repository.js';
+
+import {
+    careerJourneyRepository,
+} from '../career-journey/career-journey.repository.js';
 
 import {
     AssessmentStatus,
@@ -11,20 +18,31 @@ import {
     AssessmentResponse,
 } from './assessment.types.js';
 
-import { toAssessmentResponse } from './assessment.mapper.js';
+import {
+    toAssessmentResponse,
+} from './assessment.mapper.js';
 
-import { AppError } from '../../core/errors/app-error.js';
-import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
+import {
+    AppError,
+} from '../../core/errors/app-error.js';
 
-import { ASSESSMENT_MESSAGES } from './assessment.constants.js';
-import { ProficiencyLevel } from '../../shared/enums/proficiency-level.enum.js';
+import {
+    HTTP_STATUS,
+} from '../../core/constants/http-status.constants.js';
+
+import {
+    ASSESSMENT_MESSAGES,
+} from './assessment.constants.js';
+
+import {
+    ProficiencyLevel,
+} from '../../shared/enums/proficiency-level.enum.js';
 
 class AssessmentService {
     async start(
         userId: string,
         careerJourneyId: string
     ): Promise<AssessmentResponse> {
-
         const careerJourney =
             await careerJourneyRepository.findById(
                 careerJourneyId
@@ -48,9 +66,10 @@ class AssessmentService {
         }
 
         const existingAssessment =
-            await assessmentRepository.findInProgressByCareerJourneyId(
-                careerJourneyId
-            );
+            await assessmentRepository
+                .findInProgressByCareerJourneyId(
+                    careerJourneyId
+                );
 
         if (existingAssessment) {
             return toAssessmentResponse(
@@ -60,14 +79,17 @@ class AssessmentService {
 
         const assessment =
             await assessmentRepository.create({
-                userId: new Types.ObjectId(
-                    userId
-                ),
+                userId:
+                    new Types.ObjectId(
+                        userId
+                    ),
 
                 careerJourneyId:
                     new Types.ObjectId(
                         careerJourneyId
                     ),
+
+                questionIds: [],
 
                 status:
                     AssessmentStatus.IN_PROGRESS,
@@ -77,7 +99,8 @@ class AssessmentService {
                 overallLevel:
                     ProficiencyLevel.BEGINNER,
 
-                startedAt: new Date(),
+                startedAt:
+                    new Date(),
             });
 
         return toAssessmentResponse(
@@ -89,7 +112,6 @@ class AssessmentService {
         id: string,
         userId: string
     ): Promise<AssessmentResponse> {
-
         const assessment =
             await assessmentRepository.findById(
                 id
@@ -121,7 +143,6 @@ class AssessmentService {
         careerJourneyId: string,
         userId: string
     ): Promise<AssessmentResponse[]> {
-
         const careerJourney =
             await careerJourneyRepository.findById(
                 careerJourneyId
@@ -145,69 +166,13 @@ class AssessmentService {
         }
 
         const assessments =
-            await assessmentRepository.findByCareerJourneyId(
-                careerJourneyId
-            );
+            await assessmentRepository
+                .findByCareerJourneyId(
+                    careerJourneyId
+                );
 
         return assessments.map(
             toAssessmentResponse
-        );
-    }
-
-    async complete(
-        assessmentId: string,
-        userId: string,
-        overallScore: number,
-        overallLevel: ProficiencyLevel
-    ): Promise<AssessmentResponse> {
-
-        const assessment =
-            await assessmentRepository.findById(
-                assessmentId
-            );
-
-        if (!assessment) {
-            throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                ASSESSMENT_MESSAGES.NOT_FOUND
-            );
-        }
-
-        if (
-            assessment.userId.toString() !==
-            userId
-        ) {
-            throw new AppError(
-                HTTP_STATUS.FORBIDDEN,
-                ASSESSMENT_MESSAGES.UNAUTHORIZED
-            );
-        }
-
-        const updatedAssessment =
-            await assessmentRepository.updateById(
-                assessmentId,
-                {
-                    status:
-                        AssessmentStatus.COMPLETED,
-
-                    completedAt:
-                        new Date(),
-
-                    overallScore,
-
-                    overallLevel,
-                }
-            );
-
-        if (!updatedAssessment) {
-            throw new AppError(
-                HTTP_STATUS.INTERNAL_SERVER_ERROR,
-                'Failed to complete assessment.'
-            );
-        }
-
-        return toAssessmentResponse(
-            updatedAssessment
         );
     }
 }

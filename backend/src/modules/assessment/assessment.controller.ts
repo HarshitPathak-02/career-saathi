@@ -71,27 +71,6 @@ class AssessmentController {
         }
     );
 
-    complete = asyncHandler(
-        async (req: Request, res: Response) => {
-            const user = getAuthUser(req);
-
-            const assessment =
-                await assessmentService.complete(
-                    req.params.id as string,
-                    user.userId,
-                    req.body.overallScore,
-                    req.body.overallLevel
-                );
-
-            return successResponse({
-                res,
-                statusCode: HTTP_STATUS.OK,
-                message:
-                    ASSESSMENT_MESSAGES.COMPLETED,
-                data: assessment,
-            });
-        }
-    );
 }
 
 export const assessmentController =

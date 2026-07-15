@@ -4,6 +4,8 @@ import { asyncHandler } from '../../core/middleware/async-handler.js';
 
 import { careerRoleService } from './career-role.service.js';
 import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
+import { successResponse } from '../../core/responses/successResponse.js';
+import { CAREER_ROLE_MESSAGES } from './career-role.constants.js';
 
 class CareerRoleController {
   findAll = asyncHandler(
@@ -11,6 +13,12 @@ class CareerRoleController {
       const roles =
         careerRoleService.findAll();
 
+        successResponse({
+          res,
+          statusCode: HTTP_STATUS.OK,
+          message: CAREER_ROLE_MESSAGES.FOUND,
+          data: roles
+        })
       res.status(HTTP_STATUS.OK).json({
         success: true,
         data: roles,

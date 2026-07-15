@@ -2,6 +2,7 @@ import { AUTH_MESSAGES } from './auth.constants.js';
 import {
   AuthResponse,
   JwtPayload,
+  RefreshResponse,
   RegisterResponse,
 } from './auth.types.js';
 import { LoginInput, RegisterInput } from './auth.validation.js';
@@ -130,7 +131,7 @@ class AuthService {
 
   async refresh(
     refreshToken: string
-  ): Promise<AuthResponse> {
+  ): Promise<RefreshResponse> {
     const payload =
       verifyRefreshToken(refreshToken);
 
@@ -169,7 +170,6 @@ class AuthService {
       generateRefreshToken(jwtPayload);
 
     return {
-      user: toUserResponse(user),
       accessToken,
       refreshToken: newRefreshToken,
     };
@@ -177,9 +177,18 @@ class AuthService {
 
   async me(
     userId: string
-  ): Promise<UserResponse | null> {
+  ): Promise<UserResponse> {
 
-    return userRepository.findById(userId);
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        "User not found."
+      );
+    }
+
+    return toUserResponse(user);
   }
 }
 

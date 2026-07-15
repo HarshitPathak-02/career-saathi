@@ -26,6 +26,14 @@ const assessmentSchema =
                 index: true,
             },
 
+            questionIds: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "AssessmentQuestion",
+                    required: true,
+                },
+            ],
+
             status: {
                 type: String,
                 enum: Object.values(

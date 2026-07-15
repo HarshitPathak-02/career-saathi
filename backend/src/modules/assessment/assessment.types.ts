@@ -10,6 +10,8 @@ export interface IAssessment {
 
     careerJourneyId: Types.ObjectId;
 
+    questionIds: Types.ObjectId[];
+
     status: AssessmentStatus;
 
     overallScore: number;
@@ -33,6 +35,8 @@ export interface CreateAssessmentData {
 
     careerJourneyId: Types.ObjectId;
 
+    questionIds: Types.ObjectId[];
+
     status: AssessmentStatus;
 
     overallScore: number;
@@ -50,7 +54,7 @@ export interface UpdateAssessmentData
             CreateAssessmentData,
             'userId' | 'careerJourneyId'
         >
-    > {}
+    > { }
 
 export interface AssessmentResponse {
     id: string;

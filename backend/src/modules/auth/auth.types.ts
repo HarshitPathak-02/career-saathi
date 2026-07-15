@@ -15,6 +15,11 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 export type RegisterResponse = AuthResponse;
 
 export type LoginResponse = AuthResponse;
