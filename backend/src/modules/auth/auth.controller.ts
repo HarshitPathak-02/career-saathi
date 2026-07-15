@@ -64,7 +64,7 @@ class AuthController {
 
             const user =
                 await authService.me(
-                    req.user.userId
+                    req.user!.userId
                 );
 
             return successResponse({
@@ -74,7 +74,7 @@ class AuthController {
             });
         }
     );
-    
+
     refresh = asyncHandler(
         async (req, res) => {
             const refreshToken =
