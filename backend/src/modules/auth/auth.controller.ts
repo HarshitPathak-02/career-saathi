@@ -61,13 +61,20 @@ class AuthController {
 
     me = asyncHandler(
         async (req, res) => {
+
+            const user =
+                await authService.me(
+                    req.user.userId
+                );
+
             return successResponse({
                 res,
-                message: 'Authenticated.',
-                data: req.user,
+                message: "Authenticated.",
+                data: user,
             });
         }
     );
+    
     refresh = asyncHandler(
         async (req, res) => {
             const refreshToken =

@@ -20,6 +20,7 @@ import {
   verifyRefreshToken,
 } from '../../shared/utils/jwt.utlil.js';
 import { AccountStatus } from '../users/user.enums.js';
+import { UserResponse } from '../users/user.types.js';
 
 class AuthService {
   async register(
@@ -172,6 +173,13 @@ class AuthService {
       accessToken,
       refreshToken: newRefreshToken,
     };
+  }
+
+  async me(
+    userId: string
+  ): Promise<UserResponse | null> {
+
+    return userRepository.findById(userId);
   }
 }
 
