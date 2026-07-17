@@ -1,32 +1,86 @@
-import { NextFunction, Request, Response } from 'express';
-import { ZodError, ZodSchema } from 'zod';
-import { HTTP_STATUS } from '../constants/http-status.constants.js';
+import { NextFunction, Request, Response } from "express";
+import { ObjectSchema } from "joi";
 
-type ValidationTarget = 'body' | 'params' | 'query';
+interface ValidateRequestOptions {
+    body?: ObjectSchema;
+    params?: ObjectSchema;
+    query?: ObjectSchema;
+}
 
-export const validate =
-  (
-    schema: ZodSchema,
-    target: ValidationTarget = 'body'
-  ) =>
-  (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      req[target] = schema.parse(req[target]);
+export const validateRequest = ({
+    body,
+    params,
+    query,
+}: ValidateRequestOptions) => {
+    return (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            if (body) {
+                const { error, value } = body.validate(req.body, {
+                    abortEarly: false,
+                    stripUnknown: true,
+                });
 
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: 'Validation failed',
-          errors: error.issues,
-        });
-      }
+                if (error) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Validation failed.",
+                        errors: error.details.map((detail) => ({
+                            field: detail.path.join("."),
+                            message: detail.message,
+                        })),
+                    });
+                }
 
-      next(error);
-    }
-  };
+                req.body = value;
+            }
+
+            if (params) {
+                const { error, value } = params.validate(req.params, {
+                    abortEarly: false,
+                    stripUnknown: true,
+                });
+
+                if (error) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Validation failed.",
+                        errors: error.details.map((detail) => ({
+                            field: detail.path.join("."),
+                            message: detail.message,
+                        })),
+                    });
+                }
+
+                Object.assign(req.params, value);
+            }
+
+            if (query) {
+                const { error, value } = query.validate(req.query, {
+                    abortEarly: false,
+                    stripUnknown: true,
+                });
+
+                if (error) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Validation failed.",
+                        errors: error.details.map((detail) => ({
+                            field: detail.path.join("."),
+                            message: detail.message,
+                        })),
+                    });
+                }
+
+                req.query = value;
+            }
+
+            next();
+        } catch (error) {
+            next(error);
+        }
+    };
+};

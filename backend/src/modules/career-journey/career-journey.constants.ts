@@ -1,25 +1,13 @@
-export const CAREER_JOURNEY_MESSAGES = {
-  CREATED:
-    'Career journey created successfully.',
+export const CAREER_JOURNEY_MODEL = "CareerJourney";
 
-  FETCHED:
-    'Career journeys fetched successfully.',
+export const CAREER_JOURNEY_COLLECTION = "career_journeys";
 
-  FETCHED_ONE:
-    'Career journey fetched successfully.',
+export const MIN_TARGET_DURATION_MONTHS = 1;
 
-  UPDATED:
-    'Career journey updated successfully.',
+export const MAX_TARGET_DURATION_MONTHS = 24;
 
-  DELETED:
-    'Career journey deleted successfully.',
+export const MIN_DAILY_STUDY_HOURS = 1;
 
-  ACTIVATED:
-    'Career journey activated successfully.',
+export const MAX_DAILY_STUDY_HOURS = 12;
 
-  NOT_FOUND:
-    'Career journey not found.',
-
-  ACCESS_DENIED:
-    'You are not allowed to access this career journey.',
-} as const;
+export const MAX_CUSTOM_SKILLS = 10;

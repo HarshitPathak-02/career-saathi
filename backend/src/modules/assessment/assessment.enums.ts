@@ -5,3 +5,13 @@ export enum AssessmentStatus {
 
     CANCELLED = 'CANCELLED',
 }
+
+export enum AssessmentContextType {
+    INITIAL = 'INITIAL',
+
+    TASK = 'TASK',
+
+    MISSION = 'MISSION',
+
+    ROADMAP_PHASE = 'ROADMAP_PHASE',
+}

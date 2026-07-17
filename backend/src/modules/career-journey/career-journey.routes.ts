@@ -1,59 +1,66 @@
-import { Router } from 'express';
+import { Router } from "express";
 
-import { careerJourneyController } from './career-journey.controller.js';
-import { careerJourneyIdParamsSchema, createCareerJourneySchema, updateCareerJourneySchema } from './career-journey.validation.js';
+import { careerJourneyController } from "./career-journey.controller.js";
 
-import { authenticate } from '../../core/middleware/authenticate.middleware.js';
-import { validate } from '../../core/middleware/validate.middleware.js';
+import { authenticate } from "../../core/middleware/authenticate.middleware.js";
+import { validateRequest } from "../../core/middleware/validate.middleware.js";
+
+import {
+    careerJourneyIdParamSchema,
+    createCareerJourneySchema,
+    updateCareerJourneySchema,
+    updateCareerJourneyStatusSchema,
+} from "./career-journey.validation.js";
 
 const router = Router();
+
+router.use(authenticate);
+
 router.post(
-    '/',
-    authenticate,
-    validate(createCareerJourneySchema),
-    careerJourneyController.create
+    "/",
+    validateRequest({
+        body: createCareerJourneySchema,
+    }),
+    careerJourneyController.createCareerJourney
 );
 
 router.get(
-    '/',
-    authenticate,
-    careerJourneyController.findAll
+    "/active",
+    careerJourneyController.getActiveCareerJourney
 );
 
 router.get(
-    '/:id',
-    authenticate,
-    validate(careerJourneyIdParamsSchema, "params"),
-    careerJourneyController.findById
+    "/:careerJourneyId",
+    validateRequest({
+        params: careerJourneyIdParamSchema,
+    }),
+    careerJourneyController.getCareerJourneyById
 );
 
 router.patch(
-    '/:id',
-    authenticate,
-    validate(updateCareerJourneySchema),
-    validate(careerJourneyIdParamsSchema, "params"),
-    careerJourneyController.update
+    "/:careerJourneyId",
+    validateRequest({
+        params: careerJourneyIdParamSchema,
+        body: updateCareerJourneySchema,
+    }),
+    careerJourneyController.updateCareerJourney
+);
+
+router.patch(
+    "/:careerJourneyId/status",
+    validateRequest({
+        params: careerJourneyIdParamSchema,
+        body: updateCareerJourneyStatusSchema,
+    }),
+    careerJourneyController.updateCareerJourneyStatus
 );
 
 router.delete(
-    '/:id',
-    authenticate,
-    validate(
-        careerJourneyIdParamsSchema,
-        'params'
-    ),
-    careerJourneyController.delete
+    "/:careerJourneyId",
+    validateRequest({
+        params: careerJourneyIdParamSchema,
+    }),
+    careerJourneyController.deleteCareerJourney
 );
-
-router.patch(
-    '/:id/activate',
-    authenticate,
-    validate(
-        careerJourneyIdParamsSchema,
-        'params'
-    ),
-    careerJourneyController.activate
-);
-
 
 export default router;

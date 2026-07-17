@@ -1,13 +1,20 @@
-import { HydratedDocument, Types } from 'mongoose';
+import {
+    HydratedDocument,
+    Types,
+} from 'mongoose';
 
-import { ProgressStatus } from '../../shared/enums/progress-status.enums.js';
+import {
+    ProgressStatus,
+} from '../../shared/enums/progress-status.enums.js';
 
 import {
     CompletionType,
     TaskType,
 } from './task.enums.js';
 
-import { ResourceType } from '../roadmaps/roadmap.enums.js';
+import {
+    ResourceType,
+} from '../roadmaps/roadmap.enums.js';
 
 export interface ITask {
 
@@ -18,6 +25,10 @@ export interface ITask {
     roadmapPhaseId: Types.ObjectId;
 
     missionId: Types.ObjectId;
+
+    skillCode: string;
+
+    topicCodes: string[];
 
     title: string;
 
@@ -52,17 +63,23 @@ export interface ITask {
 
 export interface TaskResource {
 
-    type: ResourceType;
+    type:
+    ResourceType;
 
-    title: string;
+    title:
+    string;
 
-    url?: string;
+    url?:
+    string;
 
-    platform?: string;
+    platform?:
+    string;
 
-    author?: string;
+    author?:
+    string;
 
-    estimatedMinutes?: number;
+    estimatedMinutes?:
+    number;
 }
 
 export type TaskDocument =
@@ -77,6 +94,10 @@ export interface CreateTaskData {
     roadmapPhaseId: Types.ObjectId;
 
     missionId: Types.ObjectId;
+
+    skillCode: string;
+
+    topicCodes: string[];
 
     title: string;
 
@@ -109,13 +130,21 @@ export interface UpdateTaskData
     extends Partial<
         Omit<
             CreateTaskData,
-            'missionId'
+            | 'missionId'
+            | 'roadmapId'
+            | 'roadmapPhaseId'
+            | 'skillCode'
+            | 'topicCodes'
         >
     > { }
 
 export interface TaskResponse {
 
     id: string;
+
+    skillCode: string;
+
+    topicCodes: string[];
 
     title: string;
 

@@ -6,10 +6,27 @@ import {
 export function toAssessmentResponse(
     assessment: AssessmentDocument
 ): AssessmentResponse {
-    return {
-        id: assessment.id,
 
-        status: assessment.status,
+    return {
+
+        id:
+            assessment.id,
+
+        contextType:
+            assessment.contextType,
+
+        contextId:
+            assessment.contextId
+                ?.toString(),
+
+        status:
+            assessment.status,
+
+        passingScore:
+            assessment.passingScore,
+
+        passed:
+            assessment.passed,
 
         overallScore:
             assessment.overallScore,

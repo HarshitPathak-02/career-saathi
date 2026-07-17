@@ -1,93 +1,101 @@
 import {
-    CareerJourneyDocument,
-    CreateCareerJourneyData,
-    UpdateCareerJourneyData,
-} from './career-journey.types.js';
+    ClientSession,
+    Types,
+} from "mongoose";
 
-import { CareerJourneyModel } from './career-journey.model.js';
-import { CareerJourneyStatus } from './career-journey.enums.js';
-import { ClientSession } from 'mongoose';
+import {
+    CareerJourney,
+    CareerJourneyModel,
+} from "./career-journey.model.js";
 
-class CareerJourneyRepository {
+import { CreateCareerJourneyInput, UpdateCareerJourneyInput } from "./career-journey.types.js";
+import { CareerJourneyStatus } from "./career-journey.enums.js";
+
+export class CareerJourneyRepository {
+
     async create(
-        data: CreateCareerJourneyData,
+        data: CreateCareerJourneyInput,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument> {
-        if (session) {
-            const [journey] =
-                await CareerJourneyModel.create(
-                    [data],
-                    { session }
-                );
+    ): Promise<CareerJourney> {
 
-            return journey;
-        }
+        const [careerJourney] =
+            await CareerJourneyModel.create(
+                [data],
+                {
+                    session,
+                }
+            );
 
-        return CareerJourneyModel.create(data);
+        return careerJourney;
     }
 
-
-    async findById(
-        id: string,
+    async findByIdAndUserId(
+        id: Types.ObjectId,
+        userId: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument | null> {
-        const query =
-            CareerJourneyModel.findById(id);
+    ): Promise<CareerJourney | null> {
 
-        if (session) {
-            query.session(session);
-        }
-
-        return query;
+        return CareerJourneyModel.findOne({
+            _id: id,
+            userId,
+            isDeleted: false,
+        }).session(session ?? null);
     }
 
-
-    async findByUserId(
-        userId: string,
+    async findOne(
+        filter: Record<string, unknown>,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument[]> {
-        const query = CareerJourneyModel
-            .find({
-                userId,
-            })
-            .sort({
-                createdAt: -1,
-            });
+    ): Promise<CareerJourney | null> {
 
-        if (session) {
-            query.session(session);
-        }
-
-        return query;
+        return CareerJourneyModel.findOne({
+            ...filter,
+            isDeleted: false,
+        }).session(session ?? null);
     }
 
+    async exists(
+        filter: Record<string, unknown>,
+        session?: ClientSession
+    ): Promise<boolean> {
+
+        const exists =
+            await CareerJourneyModel.exists({
+                ...filter,
+                isDeleted: false,
+            }).session(session ?? null);
+
+        return Boolean(exists);
+    }
 
     async findActiveByUserId(
-        userId: string,
+        userId: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument | null> {
+    ): Promise<CareerJourney | null> {
 
-        const query =
-            CareerJourneyModel.findOne({
-                userId,
-                status:
+        return CareerJourneyModel.findOne({
+            userId,
+            status: {
+                $in: [
+                    CareerJourneyStatus.DRAFT,
+                    CareerJourneyStatus.READY,
                     CareerJourneyStatus.ACTIVE,
-            });
-
-        if (session) {
-            query.session(session);
-        }
-
-        return query;
+                ],
+            },
+            isDeleted: false,
+        }).session(session ?? null);
     }
 
     async updateById(
-        id: string,
-        data: UpdateCareerJourneyData,
+        id: Types.ObjectId,
+        data: UpdateCareerJourneyInput,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument | null> {
-        return CareerJourneyModel.findByIdAndUpdate(
-            id,
+    ): Promise<CareerJourney | null> {
+
+        return CareerJourneyModel.findOneAndUpdate(
+            {
+                _id: id,
+                isDeleted: false,
+            },
             data,
             {
                 new: true,
@@ -97,19 +105,50 @@ class CareerJourneyRepository {
         );
     }
 
-    async deleteById(
-        id: string,
+    async softDelete(
+        id: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument | null> {
-        return CareerJourneyModel.findByIdAndDelete(
-            id,
-            { session }
+    ): Promise<CareerJourney | null> {
+
+        return CareerJourneyModel.findOneAndUpdate(
+            {
+                _id: id,
+                isDeleted: false,
+            },
+            {
+                $set: {
+                    isDeleted: true,
+                    deletedAt: new Date(),
+                },
+            },
+            {
+                new: true,
+                session,
+            }
         );
     }
 
+    async updateStatus(
+        id: Types.ObjectId,
+        status: CareerJourneyStatus,
+        session?: ClientSession
+    ): Promise<CareerJourney | null> {
+        return CareerJourneyModel.findOneAndUpdate(
+            {
+                _id: id,
+                isDeleted: false,
+            },
+            {
+                status,
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
 }
-
-
 
 export const careerJourneyRepository =
     new CareerJourneyRepository();

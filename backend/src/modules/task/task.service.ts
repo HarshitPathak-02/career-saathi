@@ -1,12 +1,41 @@
-import { ClientSession, Types } from "mongoose";
-import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
-import { AppError } from "../../core/errors/app-error.js";
-import { ProgressStatus } from "../../shared/enums/progress-status.enums.js";
-import { missionService } from "../mission/mission.service.js";
-import { GeneratedTask } from "../roadmaps/roadmap.types.js";
-import { taskRepository } from "./task.repository.js";
-import { TaskDocument, TaskResponse } from "./task.types.js";
-import { toTaskResponse } from "./task.mapper.js";
+import {
+    ClientSession,
+    Types,
+} from 'mongoose';
+
+import {
+    HTTP_STATUS,
+} from '../../core/constants/http-status.constants.js';
+
+import {
+    AppError,
+} from '../../core/errors/app-error.js';
+
+import {
+    ProgressStatus,
+} from '../../shared/enums/progress-status.enums.js';
+
+import {
+    missionService,
+} from '../mission/mission.service.js';
+
+import {
+    GeneratedTask,
+} from '../roadmaps/roadmap.types.js';
+
+import {
+    taskRepository,
+} from './task.repository.js';
+
+import {
+    TaskDocument,
+    TaskResponse,
+} from './task.types.js';
+
+import {
+    toTaskResponse,
+} from './task.mapper.js';
+import { progressionService } from '../progression/progression.service.js';
 
 class TaskService {
 
@@ -14,8 +43,13 @@ class TaskService {
         missionId: string
     ): Promise<TaskResponse[]> {
 
-        return taskRepository.findByMissionId(
-            missionId
+        const tasks =
+            await taskRepository.findByMissionId(
+                missionId
+            );
+
+        return tasks.map(
+            toTaskResponse
         );
     }
 
@@ -51,12 +85,14 @@ class TaskService {
             firstTask.status !==
             ProgressStatus.LOCKED
         ) {
+
             return firstTask;
         }
 
         const updatedTask =
             await taskRepository.updateById(
                 firstTask.id,
+
                 {
                     status:
                         ProgressStatus.AVAILABLE,
@@ -64,6 +100,7 @@ class TaskService {
                     unlockedAt:
                         new Date(),
                 },
+
                 session
             );
 
@@ -83,6 +120,26 @@ class TaskService {
         progress: number
     ): Promise<TaskDocument> {
 
+        if (
+            progress < 0 ||
+            progress > 100
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Task progress must be between 0 and 100.'
+            );
+        }
+
+        if (
+            progress === 100
+        ) {
+
+            return this.completeTask(
+                taskId
+            );
+        }
+
         const task =
             await taskRepository.updateById(
                 taskId,
@@ -99,23 +156,18 @@ class TaskService {
             );
         }
 
-        if (progress === 100) {
-
-            await this.completeTask(
-                task.id
-            );
-        }
-
         return task;
     }
 
-    private async completeTask(
-        taskId: string
-    ): Promise<void> {
+    async completeTask(
+        taskId: string,
+        session?: ClientSession
+    ): Promise<TaskDocument> {
 
         const task =
             await taskRepository.findById(
-                taskId
+                taskId,
+                session
             );
 
         if (!task) {
@@ -126,74 +178,46 @@ class TaskService {
             );
         }
 
-        await taskRepository.updateById(
-            task.id,
-            {
-                status:
-                    ProgressStatus.COMPLETED,
-
-                progress: 100,
-
-                completedAt:
-                    new Date(),
-            }
-        );
-
-        await this.unlockNextTask(
-            task.missionId.toString(),
-            task.order
-        );
-
-        const completedTasks =
-            await taskRepository.findCompletedTasks(
-                task.missionId.toString()
-            );
-
-        const allTasks =
-            await taskRepository.findByMissionId(
-                task.missionId.toString()
-            );
-
-        await missionService.updateProgress(
-            task.missionId.toString(),
-            completedTasks.length,
-            allTasks.length
-        );
-    }
-
-    private async unlockNextTask(
-        missionId: string,
-        currentOrder: number
-    ): Promise<void> {
-
-        const nextTask =
-            await taskRepository.findByOrder(
-                missionId,
-                currentOrder + 1
-            );
-
-        if (!nextTask) {
-            return;
-        }
-
         if (
-            nextTask.status !==
-            ProgressStatus.LOCKED
+            task.status ===
+            ProgressStatus.COMPLETED
         ) {
-            return;
+
+            return task;
         }
 
-        await taskRepository.updateById(
-            nextTask.id,
-            {
-                status:
-                    ProgressStatus.AVAILABLE,
+        const completedTask =
+            await taskRepository.updateById(
+                task.id,
+                {
+                    status:
+                        ProgressStatus.COMPLETED,
 
-                unlockedAt:
-                    new Date(),
-            }
+                    progress:
+                        100,
+
+                    completedAt:
+                        new Date(),
+                },
+                session
+            );
+
+        if (!completedTask) {
+
+            throw new AppError(
+                HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                'Failed to complete task.'
+            );
+        }
+
+        await progressionService.handleTaskCompletion(
+            completedTask.id,
+            session
         );
+
+        return completedTask;
     }
+
     async createFromGeneratedTasks(
         userId: string,
         roadmapId: string,
@@ -204,62 +228,73 @@ class TaskService {
     ): Promise<TaskDocument[]> {
 
         const taskData =
-            tasks.map(task => ({
-                userId:
-                    new Types.ObjectId(
-                        userId
-                    ),
+            tasks.map(
+                (task) => ({
 
-                roadmapId:
-                    new Types.ObjectId(
-                        roadmapId
-                    ),
+                    userId:
+                        new Types.ObjectId(
+                            userId
+                        ),
 
-                roadmapPhaseId:
-                    new Types.ObjectId(
-                        roadmapPhaseId
-                    ),
+                    roadmapId:
+                        new Types.ObjectId(
+                            roadmapId
+                        ),
 
-                missionId:
-                    new Types.ObjectId(
-                        missionId
-                    ),
+                    roadmapPhaseId:
+                        new Types.ObjectId(
+                            roadmapPhaseId
+                        ),
 
-                title:
-                    task.title,
+                    missionId:
+                        new Types.ObjectId(
+                            missionId
+                        ),
 
-                description:
-                    task.description,
+                    title:
+                        task.title,
 
-                order:
-                    task.order,
+                    description:
+                        task.description,
 
-                estimatedHours:
-                    task.estimatedHours,
+                    order:
+                        task.order,
 
-                taskType:
-                    task.taskType,
+                    estimatedHours:
+                        task.estimatedHours,
 
-                completionType:
-                    task.completionType,
+                    taskType:
+                        task.taskType,
 
-                status:
-                    ProgressStatus.LOCKED,
+                    completionType:
+                        task.completionType,
 
-                progress: 0,
+                    skillCode:
+                        task.skillCode,
 
-                optional:
-                    task.optional,
+                    topicCodes:
+                        task.topicCodes,
 
-                resources:
-                    task.resources,
-            }));
+                    status:
+                        ProgressStatus.LOCKED,
+
+                    progress:
+                        0,
+
+                    optional:
+                        task.optional,
+
+                    resources:
+                        task.resources,
+                })
+            );
 
         return taskRepository.createMany(
             taskData,
             session
         );
     }
+
     async getById(
         taskId: string
     ): Promise<TaskResponse> {
@@ -272,9 +307,7 @@ class TaskService {
         if (!task) {
 
             throw new AppError(
-
                 HTTP_STATUS.NOT_FOUND,
-
                 'Task not found.'
             );
         }
@@ -282,6 +315,65 @@ class TaskService {
         return toTaskResponse(
             task
         );
+    }
+
+    async markAssessmentPending(
+        taskId: string,
+        session?: ClientSession
+    ): Promise<TaskDocument> {
+
+        const task =
+            await taskRepository.findById(
+                taskId,
+                session
+            );
+
+        if (!task) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                'Task not found.'
+            );
+        }
+
+        if (
+            task.status ===
+            ProgressStatus.ASSESSMENT_PENDING
+        ) {
+
+            return task;
+        }
+
+        if (
+            task.status ===
+            ProgressStatus.COMPLETED
+        ) {
+
+            return task;
+        }
+
+        const updatedTask =
+            await taskRepository.updateById(
+                task.id,
+                {
+                    status:
+                        ProgressStatus.ASSESSMENT_PENDING,
+
+                    progress:
+                        100,
+                },
+                session
+            );
+
+        if (!updatedTask) {
+
+            throw new AppError(
+                HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                'Failed to mark task assessment as pending.'
+            );
+        }
+
+        return updatedTask;
     }
 }
 

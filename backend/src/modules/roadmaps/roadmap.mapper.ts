@@ -11,6 +11,12 @@ export function toRoadmapResponse(
 
         id: roadmap.id,
 
+        careerJourneyId:
+            roadmap.careerJourneyId.toString(),
+
+        assessmentId:
+            roadmap.assessmentId.toString(),
+
         title:
             roadmap.title,
 

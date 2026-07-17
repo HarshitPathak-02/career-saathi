@@ -1,4 +1,6 @@
-import { ClientSession } from 'mongoose';
+import {
+    ClientSession,
+} from 'mongoose';
 
 import {
     CreateMissionData,
@@ -6,9 +8,13 @@ import {
     UpdateMissionData,
 } from './mission.types.js';
 
-import { MissionModel } from './mission.model.js';
+import {
+    MissionModel,
+} from './mission.model.js';
 
-import { ProgressStatus } from '../../shared/enums/progress-status.enums.js';
+import {
+    ProgressStatus,
+} from '../../shared/enums/progress-status.enums.js';
 
 class MissionRepository {
 
@@ -22,13 +28,17 @@ class MissionRepository {
             const [mission] =
                 await MissionModel.create(
                     [data],
-                    { session }
+                    {
+                        session,
+                    }
                 );
 
             return mission;
         }
 
-        return MissionModel.create(data);
+        return MissionModel.create(
+            data
+        );
     }
 
     async createMany(
@@ -37,9 +47,12 @@ class MissionRepository {
     ): Promise<MissionDocument[]> {
 
         if (session) {
+
             return MissionModel.insertMany(
                 data,
-                { session }
+                {
+                    session,
+                }
             );
         }
 
@@ -54,10 +67,14 @@ class MissionRepository {
     ): Promise<MissionDocument | null> {
 
         const query =
-            MissionModel.findById(id);
+            MissionModel.findById(
+                id
+            );
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;
@@ -76,7 +93,9 @@ class MissionRepository {
             });
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;
@@ -89,15 +108,24 @@ class MissionRepository {
 
         const query =
             MissionModel.findOne({
-
                 roadmapPhaseId,
 
-                status:
-                    ProgressStatus.IN_PROGRESS,
+                status: {
+                    $in: [
+                        ProgressStatus.AVAILABLE,
+                        ProgressStatus.IN_PROGRESS,
+                        ProgressStatus
+                            .ASSESSMENT_PENDING,
+                    ],
+                },
+            }).sort({
+                order: 1,
             });
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;
@@ -116,7 +144,9 @@ class MissionRepository {
             });
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;
@@ -130,14 +160,15 @@ class MissionRepository {
 
         const query =
             MissionModel.findOne({
-
                 roadmapPhaseId,
 
                 order,
             });
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;
@@ -149,19 +180,17 @@ class MissionRepository {
         session?: ClientSession
     ): Promise<MissionDocument | null> {
 
-        const query = MissionModel.findByIdAndUpdate(
+        return MissionModel.findByIdAndUpdate(
             id,
             data,
             {
                 new: true,
+
                 runValidators: true,
+
                 session,
             }
         );
-
-        return query;
-
-
     }
 
     async deleteById(
@@ -184,7 +213,6 @@ class MissionRepository {
 
         const query =
             MissionModel.find({
-
                 roadmapPhaseId,
 
                 status:
@@ -192,7 +220,9 @@ class MissionRepository {
             });
 
         if (session) {
-            query.session(session);
+            query.session(
+                session
+            );
         }
 
         return query;

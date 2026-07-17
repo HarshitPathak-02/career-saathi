@@ -1,9 +1,30 @@
-import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
-import { AppError } from "../../core/errors/app-error.js";
-import { CompletionType } from "../task/task.enums.js";
-import { taskRepository } from "../task/task.repository.js";
-import { taskService } from "../task/task.service.js";
-import { CompleteTaskInput } from "./task-completion.types.js";
+import {
+    HTTP_STATUS,
+} from '../../core/constants/http-status.constants.js';
+
+import {
+    AppError,
+} from '../../core/errors/app-error.js';
+
+import {
+    ProgressStatus,
+} from '../../shared/enums/progress-status.enums.js';
+
+import {
+    CompletionType,
+} from '../task/task.enums.js';
+
+import {
+    taskRepository,
+} from '../task/task.repository.js';
+
+import {
+    taskService,
+} from '../task/task.service.js';
+
+import {
+    CompleteTaskInput,
+} from './task-completion.types.js';
 
 class TaskCompletionService {
 
@@ -24,50 +45,74 @@ class TaskCompletionService {
             );
         }
 
+        if (
+            task.status ===
+            ProgressStatus.LOCKED
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Task is locked.'
+            );
+        }
+
+        if (
+            task.status ===
+            ProgressStatus.COMPLETED
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Task is already completed.'
+            );
+        }
+
+        if (
+            task.status ===
+            ProgressStatus.ASSESSMENT_PENDING
+        ) {
+
+            return task;
+        }
         switch (
-            task.completionType
+        task.completionType
         ) {
 
             case CompletionType.SELF:
 
-                return taskService.updateProgress(
-                    task.id,
-                    100
+                return taskService.completeTask(
+                    task.id
                 );
 
             case CompletionType.QUIZ:
 
-                if (
-                    !input.score ||
-                    input.score < 70
-                ) {
-
-                    throw new AppError(
-                        HTTP_STATUS.BAD_REQUEST,
-                        'Quiz not passed.'
-                    );
-                }
-
-                return taskService.updateProgress(
-                    task.id,
-                    100
+                return taskService.markAssessmentPending(
+                    task.id
                 );
 
             case CompletionType.AI_REVIEW:
 
                 throw new AppError(
-                    HTTP_STATUS.NO_CONTENT,
-                    'AI Review coming soon.'
+                    HTTP_STATUS.BAD_REQUEST,
+                    'AI review is not available yet.'
                 );
 
             case CompletionType.MANUAL:
 
                 throw new AppError(
                     HTTP_STATUS.BAD_REQUEST,
-                    'Awaiting mentor approval.'
+                    'Manual approval is not available yet.'
+                );
+
+            default:
+
+                throw new AppError(
+                    HTTP_STATUS.BAD_REQUEST,
+                    'Unsupported task completion type.'
                 );
         }
     }
 }
 
-export const taskCompletionService = new TaskCompletionService();
+export const taskCompletionService =
+    new TaskCompletionService();

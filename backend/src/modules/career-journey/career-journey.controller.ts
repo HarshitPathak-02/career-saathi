@@ -1,127 +1,155 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import { careerJourneyService } from './career-journey.service.js';
-import { CAREER_JOURNEY_MESSAGES } from './career-journey.constants.js';
-import { CreateCareerJourneyInput } from './career-journey.validation.js';
+import { careerJourneyService } from "./career-journey.service.js";
 
-import { asyncHandler } from '../../core/middleware/async-handler.js';
-import { successResponse } from '../../core/responses/successResponse.js';
-import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
-import { getAuthUser } from '../../shared/utils/get-auth-user.js';
+import {
+    CareerJourneyIdParamDto,
+    CreateCareerJourneyDto,
+    UpdateCareerJourneyDto,
+    UpdateCareerJourneyStatusDto,
+} from "./career-journey.types.js";
 
-class CareerJourneyController {
-    create = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+import { getAuthUser } from "../../shared/utils/get-auth-user.js";
+import { asyncHandler } from "../../core/middleware/async-handler.js";
+
+export class CareerJourneyController {
+
+    createCareerJourney = asyncHandler(
+        async (req: Request, res: Response) => {
+
             const user = getAuthUser(req);
-            const journey =
-                await careerJourneyService.create(
+
+            const body =
+                req.body as CreateCareerJourneyDto;
+
+            const careerJourney =
+                await careerJourneyService.createCareerJourney(
                     user.userId,
-                    req.body as CreateCareerJourneyInput
+                    body
                 );
 
-            return successResponse({
-                res,
-                statusCode: HTTP_STATUS.CREATED,
-                message:
-                    CAREER_JOURNEY_MESSAGES.CREATED,
-                data: journey,
+            return res.status(201).json({
+                success: true,
+                message: "Career journey created successfully.",
+                data: careerJourney,
             });
         }
     );
 
-    findAll = asyncHandler(
-        async (req, res) => {
+    getCareerJourneyById = asyncHandler(
+        async (req: Request, res: Response) => {
+
             const user = getAuthUser(req);
 
-            const journeys =
-                await careerJourneyService.findAll(
+            const { careerJourneyId } =
+                req.params as {
+                    careerJourneyId:string
+                };
+
+            const careerJourney =
+                await careerJourneyService.getCareerJourneyById(
+                    user.userId,
+                    careerJourneyId
+                );
+
+            return res.status(200).json({
+                success: true,
+                data: careerJourney,
+            });
+        }
+    );
+
+    getActiveCareerJourney = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const user = getAuthUser(req);
+
+            const careerJourney =
+                await careerJourneyService.getActiveCareerJourney(
                     user.userId
                 );
 
-            return successResponse({
-                res,
-                message:
-                    CAREER_JOURNEY_MESSAGES.FETCHED,
-                data: journeys,
+            return res.status(200).json({
+                success: true,
+                data: careerJourney,
             });
         }
     );
 
-    findById = asyncHandler(
-        async (req, res) => {
+    updateCareerJourney = asyncHandler(
+        async (req: Request, res: Response) => {
+
             const user = getAuthUser(req);
 
-            const journey =
-                await careerJourneyService.findById(
-                    req.params.id as string,
-                    user.userId
-                );
+            const { careerJourneyId } =
+                req.params as {
+                    careerJourneyId:string
+                };;
 
-            return successResponse({
-                res,
-                message:
-                    CAREER_JOURNEY_MESSAGES.FETCHED_ONE,
-                data: journey,
-            });
-        }
-    );
+            const body =
+                req.body as UpdateCareerJourneyDto;
 
-    update = asyncHandler(
-        async (req, res) => {
-            const user = getAuthUser(req);
-
-            const updatedJourney =
-                await careerJourneyService.update(
-                    req.params.id as string,
+            const careerJourney =
+                await careerJourneyService.updateCareerJourney(
                     user.userId,
-                    req.body
+                    careerJourneyId,
+                    body
                 );
 
-            return successResponse({
-                res,
-                message:
-                    CAREER_JOURNEY_MESSAGES.UPDATED,
-                data: updatedJourney,
+            return res.status(200).json({
+                success: true,
+                message: "Career journey updated successfully.",
+                data: careerJourney,
             });
         }
     );
 
-    delete = asyncHandler(
-        async (req, res) => {
+    updateCareerJourneyStatus = asyncHandler(
+        async (req: Request, res: Response) => {
 
             const user = getAuthUser(req);
 
-            await careerJourneyService.delete(
-                req.params.id as string,
-                user.userId
+            const { careerJourneyId } =
+                req.params as {
+                    careerJourneyId:string
+                };;
+
+            const body =
+                req.body as UpdateCareerJourneyStatusDto;
+
+            const careerJourney =
+                await careerJourneyService.updateCareerJourneyStatus(
+                    user.userId,
+                    careerJourneyId,
+                    body.status
+                );
+
+            return res.status(200).json({
+                success: true,
+                message: "Career journey status updated successfully.",
+                data: careerJourney,
+            });
+        }
+    );
+
+    deleteCareerJourney = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const user = getAuthUser(req);
+
+            const { careerJourneyId } =
+                req.params as {
+                    careerJourneyId:string
+                };;
+
+            await careerJourneyService.deleteCareerJourney(
+                user.userId,
+                careerJourneyId
             );
 
-            return successResponse({
-                res,
-                message:
-                    CAREER_JOURNEY_MESSAGES.DELETED,
-            });
-        }
-    );
-
-    activate = asyncHandler(
-        async (req, res) => {
-            const user = getAuthUser(req);
-
-            const journey =
-                await careerJourneyService.activate(
-                    req.params.id as string,
-                    user.userId
-                );
-
-            return successResponse({
-                res,
-                message:
-                    CAREER_JOURNEY_MESSAGES.ACTIVATED,
-                data: journey,
+            return res.status(200).json({
+                success: true,
+                message: "Career journey deleted successfully.",
             });
         }
     );

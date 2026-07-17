@@ -1,21 +1,24 @@
+export enum PreferredLanguage {
+  ENGLISH = "english",
+
+  HINDI = "hindi",
+
+  MIXED = "mixed",
+}
+
 export enum CareerJourneyStatus {
-  ACTIVE = 'ACTIVE',
-  PAUSED = 'PAUSED',
-  COMPLETED = 'COMPLETED',
-  ARCHIVED = 'ARCHIVED',
+  DRAFT = "draft",
+
+  READY = "ready",
+
+  ACTIVE = "active",
+
+  COMPLETED = "completed",
+
+  ARCHIVED = "archived",
 }
 
-export enum CurrentLevel {
-  SCHOOL_STUDENT = 'SCHOOL_STUDENT',
-  COLLEGE_STUDENT = 'COLLEGE_STUDENT',
-  FRESHER = 'FRESHER',
-  WORKING_PROFESSIONAL = 'WORKING_PROFESSIONAL',
-  CAREER_SWITCHER = 'CAREER_SWITCHER',
-}
-
-export enum DurationUnit {
-  DAYS = 'DAYS',
-  WEEKS = 'WEEKS',
-  MONTHS = 'MONTHS',
-  YEARS = 'YEARS',
+export enum SkillSource {
+  MANUAL = "manual",
+  RESUME = "resume",
 }

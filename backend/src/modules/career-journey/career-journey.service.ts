@@ -1,274 +1,128 @@
-import { CareerJourneyStatus } from './career-journey.enums.js';
+import { Types } from "mongoose";
+
 import {
-    CareerJourneyDocument,
-    CareerJourneyResponse,
-} from './career-journey.types.js';
-import { careerJourneyRepository } from './career-journey.repository.js';
-import { toCareerJourneyResponse } from './career-journey.mapper.js';
+    CreateCareerJourneyDto,
+    UpdateCareerJourneyDto,
+} from "./career-journey.types.js"
 
-import { userRepository } from '../users/user.repository.js';
+import { CareerJourneyStatus } from "./career-journey.enums.js";
 
-import { executeTransaction } from '../../shared/utils/transaction.util.js';
-import { AppError } from '../../core/errors/app-error.js';
-import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
-import { CreateCareerJourneyInput, UpdateCareerJourneyInput } from './career-journey.validation.js';
-import { CAREER_JOURNEY_MESSAGES } from './career-journey.constants.js';
-import { ClientSession } from 'mongoose';
+import { careerJourneyRepository } from "./career-journey.repository.js";
+import { CareerJourneyMapper } from "./career-journey.mapper.js";
+import { AppError } from "../../core/errors/app-error.js";
 
-class CareerJourneyService {
-    private async getOwnedJourney(
-        journeyId: string,
+export class CareerJourneyService {
+    async createCareerJourney(
         userId: string,
-        session?: ClientSession
-    ): Promise<CareerJourneyDocument> {
-        const journey =
-            await careerJourneyRepository.findById(
-                journeyId,
-                session
-            );
+        data: CreateCareerJourneyDto
+    ) {
 
-        if (!journey) {
+        const userObjectId = new Types.ObjectId(userId);
+        const existingJourney =
+            await careerJourneyRepository.findActiveByUserId(userObjectId);
+
+        if (existingJourney) {
             throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                CAREER_JOURNEY_MESSAGES.NOT_FOUND
+                409, "An active career journey already exists."
             );
         }
 
-        if (
-            journey.userId.toString() !== userId
-        ) {
-            throw new AppError(
-                HTTP_STATUS.FORBIDDEN,
-                CAREER_JOURNEY_MESSAGES.ACCESS_DENIED
-            );
-        }
-
-        return journey;
-    }
-
-
-    async create(
-        userId: string,
-        data: CreateCareerJourneyInput
-    ): Promise<CareerJourneyResponse> {
-        return executeTransaction(async (session) => {
-            const user =
-                await userRepository.findById(
-                    userId,
-                    session
-                );
-
-            if (!user) {
-                throw new AppError(
-                    HTTP_STATUS.NOT_FOUND,
-                    'User not found.'
-                );
-            }
-
-            const activeJourney =
-                await careerJourneyRepository.findActiveByUserId(
-                    userId,
-                    session
-                );
-
-            if (activeJourney) {
-                await careerJourneyRepository.updateById(
-                    activeJourney.id,
-                    {
-                        status:
-                            CareerJourneyStatus.PAUSED,
-                    },
-                    session
-                );
-            }
-
-            const journey =
-                await careerJourneyRepository.create(
-                    {
-                        userId: user._id,
-                        ...data,
-                        status:
-                            CareerJourneyStatus.ACTIVE,
-                    },
-                    session
-                );
-
-            await userRepository.updateById(
-                user.id,
-                {
-                    activeCareerJourneyId:
-                        journey._id,
-                },
-                session
-            );
-
-            return toCareerJourneyResponse(journey);
-        });
-    }
-
-    async findAll(
-        userId: string
-    ): Promise<CareerJourneyResponse[]> {
-        const journeys =
-            await careerJourneyRepository.findByUserId(
-                userId
-            );
-
-        return journeys.map(
-            toCareerJourneyResponse
-        );
-    }
-
-    async findById(
-        journeyId: string,
-        userId: string
-    ): Promise<CareerJourneyResponse> {
-        const journey =
-            await this.getOwnedJourney(
-                journeyId,
-                userId,
-            );
-
-        return toCareerJourneyResponse(
-            journey
-        );
-    }
-
-    async update(
-        journeyId: string,
-        userId: string,
-        data: UpdateCareerJourneyInput
-    ): Promise<CareerJourneyResponse> {
-        await this.getOwnedJourney(
-            journeyId,
-            userId
-        );
-
-        const updatedJourney =
-            await careerJourneyRepository.updateById(
-                journeyId,
+        const createInput =
+            CareerJourneyMapper.toCreateInput(
+                userObjectId,
                 data
             );
 
-        if (!updatedJourney) {
-            throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                CAREER_JOURNEY_MESSAGES.NOT_FOUND
-            );
+        return careerJourneyRepository.create(createInput);
+    }
+
+    async getCareerJourneyById(
+        userId: string,
+        careerJourneyId: string
+    ) {
+        const userObjectId = new Types.ObjectId(userId);
+        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const careerJourney =
+            await careerJourneyRepository.findByIdAndUserId(userObjectId, careerJourneyObjectId,);
+
+        if (!careerJourney) {
+            throw new AppError(404, "Career journey not found.");
         }
 
-        return toCareerJourneyResponse(
-            updatedJourney
-        );
+        return careerJourney;
     }
 
-    async delete(
-        journeyId: string,
+    async getActiveCareerJourney(
         userId: string
-    ): Promise<void> {
-        return executeTransaction(
-            async (session) => {
-
-                const journey =
-                    await this.getOwnedJourney(
-                        journeyId,
-                        userId,
-                        session
-                    );
-
-                await careerJourneyRepository.deleteById(
-                    journeyId,
-                    session
-                );
-
-                if (
-                    journey.status ===
-                    CareerJourneyStatus.ACTIVE
-                ) {
-                    await userRepository.updateById(
-                        userId,
-                        {
-                            activeCareerJourneyId: null,
-                        },
-                        session
-                    );
-                }
-            }
+    ) {
+        const userObjectId = new Types.ObjectId(userId);
+        return careerJourneyRepository.findActiveByUserId(
+            userObjectId
         );
     }
 
-    async activate(
-        journeyId: string,
-        userId: string
-    ): Promise<CareerJourneyResponse> {
-        return executeTransaction(
-            async (session) => {
-                const journey =
-                    await this.getOwnedJourney(
-                        journeyId,
-                        userId,
-                        session
-                    );
+    async updateCareerJourney(
+        userId: string,
+        careerJourneyId: string,
+        data: UpdateCareerJourneyDto
+    ) {
+        const userObjectId = new Types.ObjectId(userId);
+        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
-                if (
-                    journey.status ===
-                    CareerJourneyStatus.ACTIVE
-                ) {
-                    return toCareerJourneyResponse(
-                        journey
-                    );
-                }
+        const careerJourney =
+            await careerJourneyRepository.findByIdAndUserId(userObjectId, careerJourneyObjectId);
 
-                const activeJourney =
-                    await careerJourneyRepository.findActiveByUserId(
-                        userId,
-                        session
-                    );
+        if (!careerJourney) {
+            throw new AppError(404, "Career journey not found.");
+        }
 
-                if (activeJourney) {
-                    await careerJourneyRepository.updateById(
-                        activeJourney.id,
-                        {
-                            status:
-                                CareerJourneyStatus.PAUSED,
-                        },
-                        session
-                    );
-                }
+        const updateInput =
+            CareerJourneyMapper.toUpdateInput(data);
 
-                const updatedJourney =
-                    await careerJourneyRepository.updateById(
-                        journey.id,
-                        {
-                            status:
-                                CareerJourneyStatus.ACTIVE,
-                        },
-                        session
-                    );
-
-                await userRepository.updateById(
-                    userId,
-                    {
-                        activeCareerJourneyId:
-                            journey._id,
-                    },
-                    session
-                );
-
-                if (!updatedJourney) {
-                    throw new AppError(
-                        HTTP_STATUS.NOT_FOUND,
-                        CAREER_JOURNEY_MESSAGES.NOT_FOUND
-                    );
-                }
-
-                return toCareerJourneyResponse(
-                    updatedJourney
-                );
-            }
+        return careerJourneyRepository.updateById(
+            careerJourneyObjectId,
+            updateInput
         );
     }
 
+    async updateCareerJourneyStatus(
+        userId: string,
+        careerJourneyId: string,
+        status: CareerJourneyStatus
+    ) {
+        const userObjectId = new Types.ObjectId(userId);
+        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const careerJourney =
+            await careerJourneyRepository.findByIdAndUserId(userObjectId, careerJourneyObjectId);
+
+        if (!careerJourney) {
+            throw new AppError(404, "Career journey not found.");
+        }
+
+        return careerJourneyRepository.updateStatus(
+            careerJourneyObjectId,
+            status
+        );
+    }
+
+    async deleteCareerJourney(
+        userId: string,
+        careerJourneyId: string
+    ) {
+        const userObjectId = new Types.ObjectId(userId);
+        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const careerJourney =
+            await careerJourneyRepository.findByIdAndUserId(userObjectId,careerJourneyObjectId);
+
+        if (!careerJourney) {
+            throw new AppError(404, "Career journey not found.");
+        }
+
+        await careerJourneyRepository.softDelete(careerJourneyObjectId);
+    }
 }
 
 export const careerJourneyService =

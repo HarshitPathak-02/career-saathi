@@ -1,21 +1,28 @@
-import { HydratedDocument, Types } from "mongoose";
-import { ProgressStatus } from "../../shared/enums/progress-status.enums.js";
+import {
+    HydratedDocument,
+    ObjectId,
+    Types,
+} from "mongoose";
+
+import {
+    ProgressStatus,
+} from "../../shared/enums/progress-status.enums.js";
 
 export interface IMission {
 
-    userId: Types.ObjectId;
+    userId: ObjectId;
 
-    roadmapId: Types.ObjectId;
+    roadmapId: ObjectId;
 
-    roadmapPhaseId: Types.ObjectId;
+    weekNumber: number;
 
     title: string;
 
     description: string;
 
-    order: number;
+    weekStart?: Date;
 
-    estimatedDurationDays: number;
+    weekEnd?: Date;
 
     status: ProgressStatus;
 
@@ -45,15 +52,15 @@ export interface CreateMissionData {
 
     roadmapId: Types.ObjectId;
 
-    roadmapPhaseId: Types.ObjectId;
+    weekNumber: number;
 
     title: string;
 
     description: string;
 
-    order: number;
+    weekStart?: Date;
 
-    estimatedDurationDays: number;
+    weekEnd?: Date;
 
     status: ProgressStatus;
 
@@ -74,21 +81,24 @@ export interface UpdateMissionData
     extends Partial<
         Omit<
             CreateMissionData,
-            'roadmapPhaseId'
+            | "userId"
+            | "roadmapId"
         >
-    > { }
+    > {}
 
 export interface MissionResponse {
 
     id: string;
 
+    weekNumber: number;
+
     title: string;
 
     description: string;
 
-    order: number;
+    weekStart?: Date;
 
-    estimatedDurationDays: number;
+    weekEnd?: Date;
 
     status: ProgressStatus;
 

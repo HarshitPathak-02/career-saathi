@@ -66,6 +66,10 @@ export interface RoadmapResponse {
 
     id: string;
 
+    careerJourneyId: string;
+
+    assessmentId: string;
+
     title: string;
 
     description: string;
@@ -127,6 +131,10 @@ export interface GeneratedMission {
 
 export interface GeneratedTask {
 
+    skillCode: string;
+
+    topicCodes: string[];
+
     title: string;
 
     description: string;
@@ -134,6 +142,7 @@ export interface GeneratedTask {
     order: number;
 
     estimatedHours: number;
+
     taskType: TaskType;
 
     completionType: CompletionType;

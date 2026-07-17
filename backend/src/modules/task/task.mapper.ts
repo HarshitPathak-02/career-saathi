@@ -12,6 +12,12 @@ export function toTaskResponse(
         id:
             task.id,
 
+        skillCode:
+            task.skillCode,
+
+        topicCodes:
+            task.topicCodes,
+
         title:
             task.title,
 

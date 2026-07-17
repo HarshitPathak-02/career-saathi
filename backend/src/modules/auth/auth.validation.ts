@@ -1,31 +1,55 @@
-import { z } from 'zod';
+import Joi from "joi";
 
-export const registerSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(3, 'Full name must be at least 3 characters')
-    .max(100),
+export const registerSchema = Joi.object({
+    fullName: Joi.string()
+        .trim()
+        .min(3)
+        .max(100)
+        .required()
+        .messages({
+            "string.min": "Full name must be at least 3 characters",
+            "string.empty": "Full name is required",
+            "any.required": "Full name is required",
+        }),
 
-  email: z
-    .email('Invalid email address')
-    .transform((value) => value.toLowerCase()),
+    email: Joi.string()
+        .trim()
+        .email()
+        .lowercase()
+        .required()
+        .messages({
+            "string.email": "Invalid email address",
+            "string.empty": "Email is required",
+            "any.required": "Email is required",
+        }),
 
-  password: z
-    .string()
-    .min(8, 'Password must contain at least 8 characters')
-    .max(100),
+    password: Joi.string()
+        .min(8)
+        .max(100)
+        .required()
+        .messages({
+            "string.min": "Password must contain at least 8 characters",
+            "string.empty": "Password is required",
+            "any.required": "Password is required",
+        }),
 });
 
-export const loginSchema = z.object({
-  email: z
-    .email('Invalid email address')
-    .transform((value) => value.toLowerCase()),
+export const loginSchema = Joi.object({
+    email: Joi.string()
+        .trim()
+        .email()
+        .lowercase()
+        .required()
+        .messages({
+            "string.email": "Invalid email address",
+            "string.empty": "Email is required",
+            "any.required": "Email is required",
+        }),
 
-  password: z
-    .string()
-    .min(1, 'Password is required'),
+    password: Joi.string()
+        .required()
+        .messages({
+            "string.empty": "Password is required",
+            "any.required": "Password is required",
+        }),
 });
-
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;

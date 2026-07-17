@@ -1,73 +1,79 @@
-import { Types, HydratedDocument } from 'mongoose';
+import { Types } from "mongoose";
 
 import {
     CareerJourneyStatus,
-    CurrentLevel,
-    DurationUnit,
-} from './career-journey.enums.js';
-import { CareerRoleCode } from '../career-role/career-role.enums.js';
+    PreferredLanguage,
+    SkillSource,
+} from "./career-journey.enums.js";
 
-export interface TargetDuration {
-    value: number;
-    unit: DurationUnit;
+export interface SkillInput {
+    skillId: Types.ObjectId;
+    source: SkillSource;
+    confidence?: number | null;
+    verified: boolean;
 }
 
-export interface CareerContext {
-    domain: string;
-
-    goal: string;
-
-    careerRoleCode: CareerRoleCode;
-
-    currentLevel: CurrentLevel;
-
-    targetDuration: TargetDuration;
-
-    dailyAvailability: number;
-}
-
-export interface ICareerJourney {
+export interface CreateCareerJourneyInput {
     userId: Types.ObjectId;
 
-    title: string;
+    domainId: Types.ObjectId;
 
-    careerContext: CareerContext;
+    roleId: Types.ObjectId;
 
-    status: CareerJourneyStatus;
+    targetCompany?: string;
 
-    createdAt: Date,
+    targetDurationMonths: number;
 
-    updatedAt: Date
-}
+    dailyStudyHours: number;
 
-export type CareerJourneyDocument =
-    HydratedDocument<ICareerJourney>;
+    preferredLanguage: PreferredLanguage;
 
-
-export interface CareerJourneyResponse {
-    id: string;
-
-    title: string;
-
-    careerContext: CareerContext;
-
-    status: CareerJourneyStatus;
-    createdAt: Date;
-
-    updatedAt: Date;
-}
-
-export interface CreateCareerJourneyData {
-    userId: Types.ObjectId;
-
-    title: string;
-
-    careerContext: CareerContext;
+    resumeId?: Types.ObjectId | null;
 
     status: CareerJourneyStatus;
 }
 
-export interface UpdateCareerJourneyData
-    extends Partial<
-        Omit<CreateCareerJourneyData, 'userId'>
-    > { }
+export interface UpdateCareerJourneyInput {
+    domainId?: Types.ObjectId;
+
+    roleId?: Types.ObjectId;
+
+    targetCompany?: string;
+
+    targetDurationMonths?: number;
+
+    dailyStudyHours?: number;
+
+    preferredLanguage?: PreferredLanguage;
+
+    resumeId?: Types.ObjectId | null;
+
+}
+
+export interface ExistingSkillDto {
+    skillId: string;
+    source: SkillSource;
+    confidence?: number | null;
+    verified?: boolean;
+}
+
+export interface CreateCareerJourneyDto {
+    domainId: string;
+    roleId: string;
+    targetCompany?: string;
+    targetDurationMonths: number;
+    dailyStudyHours: number;
+    preferredLanguage: PreferredLanguage;
+    resumeId?: string;
+}
+
+export interface UpdateCareerJourneyDto
+    extends Partial<CreateCareerJourneyDto> { }
+
+export interface UpdateCareerJourneyStatusDto {
+    status: CareerJourneyStatus;
+}
+
+export interface CareerJourneyIdParamDto {
+    careerJourneyId: string;
+}

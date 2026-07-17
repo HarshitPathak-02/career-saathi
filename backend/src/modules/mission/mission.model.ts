@@ -1,30 +1,36 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, {
+    Schema,
+} from "mongoose";
 
-import { IMission } from './mission.types.js';
-import { ProgressStatus } from '../../shared/enums/progress-status.enums.js';
+import {
+    IMission,
+} from "./mission.types.js";
+
+import {
+    ProgressStatus,
+} from "../../shared/enums/progress-status.enums.js";
 
 const missionSchema =
     new Schema<IMission>(
         {
-
             userId: {
                 type: Schema.Types.ObjectId,
-                ref: 'User',
+                ref: "User",
                 required: true,
                 index: true,
             },
 
             roadmapId: {
                 type: Schema.Types.ObjectId,
-                ref: 'Roadmap',
-                required: true,
-            },
-
-            roadmapPhaseId: {
-                type: Schema.Types.ObjectId,
-                ref: 'RoadmapPhase',
+                ref: "Roadmap",
                 required: true,
                 index: true,
+            },
+
+            weekNumber: {
+                type: Number,
+                required: true,
+                min: 1,
             },
 
             title: {
@@ -39,25 +45,18 @@ const missionSchema =
                 trim: true,
             },
 
-            order: {
-                type: Number,
-                required: true,
-                min: 1,
+            weekStart: {
+                type: Date,
             },
 
-            estimatedDurationDays: {
-                type: Number,
-                required: true,
-                min: 1,
+            weekEnd: {
+                type: Date,
             },
 
             status: {
                 type: String,
-                enum: Object.values(
-                    ProgressStatus
-                ),
-                default:
-                    ProgressStatus.LOCKED,
+                enum: Object.values(ProgressStatus),
+                default: ProgressStatus.LOCKED,
             },
 
             progress: {
@@ -92,8 +91,8 @@ const missionSchema =
 
 missionSchema.index(
     {
-        roadmapPhaseId: 1,
-        order: 1,
+        roadmapId: 1,
+        weekNumber: 1,
     },
     {
         unique: true,
@@ -101,14 +100,17 @@ missionSchema.index(
 );
 
 missionSchema.index({
-
     userId: 1,
-
     roadmapId: 1,
+});
+
+missionSchema.index({
+    roadmapId: 1,
+    status: 1,
 });
 
 export const MissionModel =
     mongoose.model<IMission>(
-        'Mission',
+        "Mission",
         missionSchema
     );

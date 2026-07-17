@@ -1,7 +1,13 @@
 export enum ProgressStatus {
     LOCKED = 'LOCKED',
+
     AVAILABLE = 'AVAILABLE',
+
     IN_PROGRESS = 'IN_PROGRESS',
+
+    ASSESSMENT_PENDING = 'ASSESSMENT_PENDING',
+
     COMPLETED = 'COMPLETED',
+
     SKIPPED = 'SKIPPED',
 }

@@ -9,7 +9,7 @@ const router =
 
 router.get(
 
-    '/roadmap-phases/:phaseId/missions',
+    '/roadmaps/:roadmapId',
 
     authenticate,
 

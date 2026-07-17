@@ -1,104 +1,146 @@
-import { Schema, model } from 'mongoose';
+import {
+  HydratedDocument,
+  InferSchemaType,
+  Schema,
+  Types,
+  model,
+} from "mongoose";
 
 import {
-  ICareerJourney,
-  CareerJourneyDocument,
-} from './career-journey.types.js';
+  CAREER_JOURNEY_COLLECTION,
+  CAREER_JOURNEY_MODEL,
+} from "./career-journey.constants.js";
 
 import {
   CareerJourneyStatus,
-  CurrentLevel,
-  DurationUnit,
-} from './career-journey.enums.js';
+  PreferredLanguage,
+  SkillSource,
+} from "./career-journey.enums.js";
 
-const careerJourneySchema =
-  new Schema<ICareerJourney>(
-    {
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true,
-      },
+const CareerJourneySchema = new Schema(
+  {
+    userId: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
 
-      title: {
-        type: String,
-        required: true,
-        trim: true,
-      },
+    domainId: {
+      type: Types.ObjectId,
+      ref: "CareerDomain",
+      required: true,
+    },
 
-      careerContext: {
-        domain: {
-          type: String,
-          required: true,
-          trim: true,
-        },
+    roleId: {
+      type: Types.ObjectId,
+      ref: "CareerRole",
+      required: true,
+    },
 
-        goal: {
-          type: String,
-          required: true,
-          trim: true,
-        },
+    targetCompany: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
-        careerRoleCode: {
-          type: String,
-          required: true,
-          trim: true,
-        },
+    targetDurationMonths: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 24,
+    },
 
-        currentLevel: {
-          type: String,
-          enum: Object.values(CurrentLevel),
-          required: true,
-        },
+    dailyStudyHours: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 12,
+    },
 
-        targetDuration: {
-          value: {
-            type: Number,
-            required: true,
-            min: 1,
-          },
+    preferredLanguage: {
+      type: String,
+      enum: Object.values(PreferredLanguage),
+      default: PreferredLanguage.ENGLISH,
+    },
 
-          unit: {
-            type: String,
-            enum: Object.values(DurationUnit),
-            required: true,
-          },
-        },
+    resumeId: {
+      type: Types.ObjectId,
+      ref: "Resume",
+      default: null,
+    },
 
-        dailyAvailability: {
-          type: Number,
-          required: true,
-          min: 1,
-          max: 24,
-        },
-      },
+    resumeUploadedAt: {
+      type: Date,
+      default: null,
+    },
 
+    status: {
+      type: String,
+      enum: Object.values(CareerJourneyStatus),
+      default: CareerJourneyStatus.DRAFT,
+      index: true,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+    strict: "throw",
+    collection: CAREER_JOURNEY_COLLECTION,
+  }
+);
+
+CareerJourneySchema.index(
+  {
+    userId: 1,
+    status: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isDeleted: false,
       status: {
-        type: String,
-        enum: Object.values(
-          CareerJourneyStatus
-        ),
-        default:
+        $in: [
+          CareerJourneyStatus.DRAFT,
+          CareerJourneyStatus.READY,
           CareerJourneyStatus.ACTIVE,
+        ],
       },
     },
-    {
-      timestamps: true,
-    }
-  );
+  }
+);
 
-careerJourneySchema.index({
-  userId: 1,
-  status: 1,
+CareerJourneySchema.index({
+  roleId: 1,
 });
 
-export const CareerJourneyModel =
-  model<ICareerJourney>(
-    'CareerJourney',
-    careerJourneySchema
-  );
+CareerJourneySchema.index({
+  domainId: 1,
+});
 
-export type {
-  CareerJourneyDocument,
-};
+CareerJourneySchema.index({
+  isDeleted: 1,
+});
+
+export type CareerJourney = InferSchemaType<
+  typeof CareerJourneySchema
+>;
+
+export type CareerJourneyDocument =
+  HydratedDocument<CareerJourney>;
+
+export const CareerJourneyModel =
+  model<CareerJourney>(
+    CAREER_JOURNEY_MODEL,
+    CareerJourneySchema
+  );

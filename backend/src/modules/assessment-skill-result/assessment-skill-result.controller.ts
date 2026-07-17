@@ -12,10 +12,6 @@ import {
 } from '../../core/responses/successResponse.js';
 
 import {
-    getAuthUser,
-} from '../../shared/utils/get-auth-user.js';
-
-import {
     assessmentSkillResultService,
 } from './assessment-skill-result.service.js';
 
@@ -27,13 +23,19 @@ import {
     ASSESSMENT_SKILL_RESULT_MESSAGES,
 } from './assessment-skill-result.constants.js';
 
+import {
+    getAuthUser,
+} from '../../shared/utils/get-auth-user.js';
+
 class AssessmentSkillResultController {
+
     findByAssessment =
         asyncHandler(
             async (
                 req: Request,
                 res: Response
             ) => {
+
                 const user =
                     getAuthUser(req);
 
@@ -56,8 +58,7 @@ class AssessmentSkillResultController {
                         ASSESSMENT_SKILL_RESULT_MESSAGES
                             .FETCHED,
 
-                    data:
-                        results,
+                    data: results,
                 });
             }
         );

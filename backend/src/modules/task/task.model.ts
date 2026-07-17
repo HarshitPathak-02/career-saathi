@@ -1,137 +1,236 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, {
+    Schema,
+} from 'mongoose';
 
-import { ProgressStatus } from '../../shared/enums/progress-status.enums.js';
+import {
+    ProgressStatus,
+} from '../../shared/enums/progress-status.enums.js';
 
 import {
     CompletionType,
     TaskType,
 } from './task.enums.js';
 
-import { ResourceType } from '../roadmaps/roadmap.enums.js';
+import {
+    ResourceType,
+} from '../roadmaps/roadmap.enums.js';
 
-import { ITask } from './task.types.js';
+import {
+    ITask,
+} from './task.types.js';
 
 const TaskResourceSchema =
     new Schema(
         {
-
-
-
             type: {
-                type: String,
-                enum: Object.values(
-                    ResourceType
-                ),
-                required: true,
+                type:
+                    String,
+
+                enum:
+                    Object.values(
+                        ResourceType
+                    ),
+
+                required:
+                    true,
             },
 
             title: {
-                type: String,
-                required: true,
-                trim: true,
+                type:
+                    String,
+
+                required:
+                    true,
+
+                trim:
+                    true,
             },
 
-            url: String,
+            url:
+                String,
 
-            platform: String,
+            platform:
+                String,
 
-            author: String,
+            author:
+                String,
 
-            estimatedMinutes: Number,
+            estimatedMinutes:
+                Number,
         },
         {
-            _id: false,
+            _id:
+                false,
         }
     );
 
 const TaskSchema =
     new Schema<ITask>(
         {
-
             userId: {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
-                required: true,
-                index: true,
+                type:
+                    Schema.Types.ObjectId,
+
+                ref:
+                    'User',
+
+                required:
+                    true,
+
+                index:
+                    true,
             },
 
             roadmapId: {
-                type: Schema.Types.ObjectId,
-                ref: 'Roadmap',
-                required: true,
+                type:
+                    Schema.Types.ObjectId,
+
+                ref:
+                    'Roadmap',
+
+                required:
+                    true,
             },
 
             roadmapPhaseId: {
-                type: Schema.Types.ObjectId,
-                ref: 'RoadmapPhase',
-                required: true,
+                type:
+                    Schema.Types.ObjectId,
+
+                ref:
+                    'RoadmapPhase',
+
+                required:
+                    true,
             },
 
             missionId: {
                 type:
                     Schema.Types.ObjectId,
 
-                ref: 'Mission',
+                ref:
+                    'Mission',
 
-                required: true,
+                required:
+                    true,
 
-                index: true,
+                index:
+                    true,
+            },
+
+            skillCode: {
+                type:
+                    String,
+
+                required:
+                    true,
+
+                trim:
+                    true,
+
+                uppercase:
+                    true,
+
+                index:
+                    true,
+            },
+
+            topicCodes: {
+                type: [
+                    {
+                        type:
+                            String,
+
+                        trim:
+                            true,
+
+                        uppercase:
+                            true,
+                    },
+                ],
+
+                required:
+                    true,
+
+                default:
+                    [],
             },
 
             title: {
-                type: String,
+                type:
+                    String,
 
-                required: true,
+                required:
+                    true,
 
-                trim: true,
+                trim:
+                    true,
             },
 
             description: {
-                type: String,
+                type:
+                    String,
 
-                required: true,
+                required:
+                    true,
 
-                trim: true,
+                trim:
+                    true,
             },
 
             order: {
-                type: Number,
+                type:
+                    Number,
 
-                required: true,
+                required:
+                    true,
+
+                min:
+                    1,
             },
 
             estimatedHours: {
-                type: Number,
+                type:
+                    Number,
 
-                required: true,
+                required:
+                    true,
 
-                default: 1,
+                default:
+                    1,
+
+                min:
+                    1,
             },
 
             taskType: {
-                type: String,
+                type:
+                    String,
 
                 enum:
                     Object.values(
                         TaskType
                     ),
 
-                required: true,
+                required:
+                    true,
             },
 
             completionType: {
-                type: String,
+                type:
+                    String,
 
                 enum:
                     Object.values(
                         CompletionType
                     ),
 
-                required: true,
+                required:
+                    true,
             },
 
             status: {
-                type: String,
+                type:
+                    String,
 
                 enum:
                     Object.values(
@@ -143,62 +242,77 @@ const TaskSchema =
             },
 
             progress: {
-                type: Number,
+                type:
+                    Number,
 
-                default: 0,
+                default:
+                    0,
 
-                min: 0,
+                min:
+                    0,
 
-                max: 100,
+                max:
+                    100,
             },
 
             optional: {
-                type: Boolean,
+                type:
+                    Boolean,
 
-                default: false,
+                default:
+                    false,
             },
 
             resources: {
                 type:
                     [TaskResourceSchema],
 
-                default: [],
+                default:
+                    [],
             },
 
-            unlockedAt: Date,
+            unlockedAt:
+                Date,
 
-            startedAt: Date,
+            startedAt:
+                Date,
 
-            completedAt: Date,
+            completedAt:
+                Date,
         },
         {
-            timestamps: true,
+            timestamps:
+                true,
         }
     );
 
 TaskSchema.index({
+    missionId:
+        1,
 
-    missionId: 1,
-
-    order: 1,
+    order:
+        1,
 });
 
 TaskSchema.index({
+    userId:
+        1,
 
-    userId: 1,
-
-    completedAt: 1,
+    completedAt:
+        1,
 });
 
 TaskSchema.index({
+    skillCode:
+        1,
 
-    missionId: 1,
-
-    order: 1,
+    topicCodes:
+        1,
 });
 
 export const TaskModel =
     mongoose.model<ITask>(
         'Task',
+
         TaskSchema
     );

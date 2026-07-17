@@ -1,20 +1,103 @@
+import { Types } from "mongoose";
+
 import {
-  CareerJourneyDocument,
-  CareerJourneyResponse,
-} from './career-journey.types.js';
+  CreateCareerJourneyDto,
+  UpdateCareerJourneyDto,
+} from "./career-journey.types.js";
 
-export const toCareerJourneyResponse = (
-  journey: CareerJourneyDocument
-): CareerJourneyResponse => ({
-  id: journey.id,
+import {
+  CareerJourneyStatus,
+} from "./career-journey.enums.js";
 
-  title: journey.title,
+import {
+  CreateCareerJourneyInput,
+  UpdateCareerJourneyInput,
+} from "./career-journey.types.js";
 
-  careerContext: journey.careerContext,
+export class CareerJourneyMapper {
+  static toCreateInput(
+    userId: Types.ObjectId,
+    dto: CreateCareerJourneyDto
+  ): CreateCareerJourneyInput {
+    return {
+      userId,
 
-  status: journey.status,
+      domainId: new Types.ObjectId(dto.domainId),
 
-  createdAt: journey.createdAt,
+      roleId: new Types.ObjectId(dto.roleId),
 
-  updatedAt: journey.updatedAt,
-});
+      targetCompany: dto.targetCompany,
+
+      targetDurationMonths: dto.targetDurationMonths,
+
+      dailyStudyHours: dto.dailyStudyHours,
+
+      preferredLanguage: dto.preferredLanguage,
+
+      resumeId: dto.resumeId
+        ? new Types.ObjectId(dto.resumeId)
+        : null,
+
+      skills: dto.skills.map((skill) => ({
+        skillId: new Types.ObjectId(skill.skillId),
+        source: skill.source,
+        confidence: skill.confidence,
+        verified: skill.verified ?? false,
+      })),
+
+      customSkills: dto.customSkills,
+
+      status: CareerJourneyStatus.DRAFT,
+    };
+  }
+
+  static toUpdateInput(
+    dto: UpdateCareerJourneyDto
+  ): UpdateCareerJourneyInput {
+    const updateData: UpdateCareerJourneyInput = {};
+
+    if (dto.domainId !== undefined) {
+      updateData.domainId = new Types.ObjectId(dto.domainId);
+    }
+
+    if (dto.roleId !== undefined) {
+      updateData.roleId = new Types.ObjectId(dto.roleId);
+    }
+
+    if (dto.targetCompany !== undefined) {
+      updateData.targetCompany = dto.targetCompany;
+    }
+
+    if (dto.targetDurationMonths !== undefined) {
+      updateData.targetDurationMonths = dto.targetDurationMonths;
+    }
+
+    if (dto.dailyStudyHours !== undefined) {
+      updateData.dailyStudyHours = dto.dailyStudyHours;
+    }
+
+    if (dto.preferredLanguage !== undefined) {
+      updateData.preferredLanguage = dto.preferredLanguage;
+    }
+
+    if (dto.resumeId !== undefined) {
+      updateData.resumeId = dto.resumeId
+        ? new Types.ObjectId(dto.resumeId)
+        : null;
+    }
+
+    if (dto.skills !== undefined) {
+      updateData.skills = dto.skills.map((skill) => ({
+        skillId: new Types.ObjectId(skill.skillId),
+        source: skill.source,
+        confidence: skill.confidence,
+        verified: skill.verified ?? false,
+      }));
+    }
+
+    if (dto.customSkills !== undefined) {
+      updateData.customSkills = dto.customSkills;
+    }
+    return updateData;
+  }
+}

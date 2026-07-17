@@ -10,26 +10,6 @@ import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
 import { ASSESSMENT_MESSAGES } from './assessment.constants.js';
 
 class AssessmentController {
-    start = asyncHandler(
-        async (req: Request, res: Response) => {
-            const user = getAuthUser(req);
-
-            const assessment =
-                await assessmentService.start(
-                    user.userId,
-                    req.body.careerJourneyId
-                );
-
-            return successResponse({
-                res,
-                statusCode:
-                    HTTP_STATUS.CREATED,
-                message:
-                    ASSESSMENT_MESSAGES.CREATED,
-                data: assessment,
-            });
-        }
-    );
 
     getById = asyncHandler(
         async (req: Request, res: Response) => {
