@@ -1,4 +1,4 @@
-import { RoadmapItemDocument } from "../roadmap/roadmap.schema.js";
+import { RoadmapItemDocument } from "../roadmap/roadmap-item.schema.js";
 
 interface BuildDailyTaskPromptInput {
     roadmapItems: RoadmapItemDocument[];
