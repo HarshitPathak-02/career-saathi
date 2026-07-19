@@ -5,6 +5,7 @@ import {
     RoadmapGenerationOutput,
     RoadmapItemOutput,
 } from "../../modules/roadmap/roadmap.types.js";
+import { DailyTaskGenerationOutput, DailyTaskOutput } from "../../modules/daily-task/daily-task.types.js";
 
 class AIValidator {
 
@@ -194,6 +195,136 @@ class AIValidator {
         ) {
             throw new Error(
                 `Roadmap item ${index} has invalid metadata.`
+            );
+        }
+
+    }
+
+    validateDailyTasks(
+        response: unknown
+    ): DailyTaskGenerationOutput {
+
+        if (!Array.isArray(response)) {
+            throw new Error(
+                "AI response must be an array."
+            );
+        }
+
+        if (response.length !== 6) {
+            throw new Error(
+                "AI must generate exactly 6 daily tasks."
+            );
+        }
+
+        const tasks =
+            response as DailyTaskGenerationOutput;
+
+        tasks.forEach((task, index) =>
+            this.validateDailyTask(
+                task,
+                index
+            )
+        );
+
+        const dayNumbers =
+            tasks.map(task => task.dayNumber);
+
+        const uniqueDays =
+            new Set(dayNumbers);
+
+        if (
+            uniqueDays.size !== 6
+        ) {
+            throw new Error(
+                "Duplicate day numbers found."
+            );
+        }
+
+        const sortedDays =
+            [...dayNumbers].sort(
+                (a, b) => a - b
+            );
+
+        sortedDays.forEach(
+            (day, index) => {
+
+                if (
+                    day !== index + 1
+                ) {
+                    throw new Error(
+                        "Day numbers must be sequential from 1 to 6."
+                    );
+                }
+
+            }
+        );
+
+        return tasks;
+    }
+
+    private validateDailyTask(
+        task: DailyTaskOutput,
+        index: number
+    ): void {
+
+        if (
+            !Number.isInteger(task.dayNumber)
+        ) {
+            throw new Error(
+                `Daily task ${index} has an invalid day number.`
+            );
+        }
+
+        if (
+            typeof task.title !== "string" ||
+            task.title.trim().length === 0
+        ) {
+            throw new Error(
+                `Daily task ${index} must contain a title.`
+            );
+        }
+
+        if (
+            typeof task.description !== "string" ||
+            task.description.trim().length === 0
+        ) {
+            throw new Error(
+                `Daily task ${index} must contain a description.`
+            );
+        }
+
+        if (
+            !Array.isArray(task.topics) ||
+            task.topics.length === 0
+        ) {
+            throw new Error(
+                `Daily task ${index} must contain topics.`
+            );
+        }
+
+        task.topics.forEach(
+            (topic, topicIndex) => {
+
+                if (
+                    typeof topic !== "string" ||
+                    topic.trim().length === 0
+                ) {
+                    throw new Error(
+                        `Daily task ${index} has an invalid topic at index ${topicIndex}.`
+                    );
+                }
+
+            }
+        );
+
+        if (
+            !Number.isInteger(
+                task.estimatedMinutes
+            ) ||
+            task.estimatedMinutes <= 0
+        ) {
+            throw new Error(
+                `Daily task ${index} has invalid estimated minutes.`
             );
         }
 

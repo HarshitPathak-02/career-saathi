@@ -1,0 +1,7 @@
+export const DEFAULT_MISSION_SIZE = 6;
+
+export const DEFAULT_DURATION_DAYS = 7;
+
+export const DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION = 3;
+
+export const DEFAULT_WORKLOAD_MULTIPLIER = 1;
