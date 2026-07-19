@@ -1,51 +1,65 @@
-import {
-    Router,
-} from 'express';
+import { Router } from "express";
+
+import { assessmentController } from "./assessment.controller.js";
+
+import { validateRequest } from "../../core/middleware/validate.middleware.js";
 
 import {
-    assessmentController,
-} from './assessment.controller.js';
+    startInitialAssessmentSchema,
+    startWeeklyAssessmentSchema,
+    submitAssessmentSchema,
+    assessmentIdParamSchema,
+} from "./assessment.validator.js";
 
-import {
-    authenticate,
-} from '../../core/middleware/authenticate.middleware.js';
+const assessmentRouter = Router();
 
-import {
-    validate,
-} from '../../core/middleware/validate.middleware.js';
-
-import {
-    assessmentIdParamsSchema,
-} from './assessment.validation.js';
-
-import {
-    careerJourneyIdParamsSchema,
-} from '../career-journey/career-journey.validation.js';
-
-const router = Router();
-
-router.use(authenticate);
-
-router.get(
-    '/career-journey/:careerJourneyId',
-
-    validate(
-        careerJourneyIdParamsSchema,
-        'params'
-    ),
-
-    assessmentController.getByJourney
+/**
+ * Initial Assessment
+ */
+assessmentRouter.post(
+    "/initial/start",
+    validateRequest({
+        body: startInitialAssessmentSchema,
+    }),
+    assessmentController.startInitialAssessment
 );
 
-router.get(
-    '/:id',
-
-    validate(
-        assessmentIdParamsSchema,
-        'params'
-    ),
-
-    assessmentController.getById
+assessmentRouter.post(
+    "/initial/submit",
+    validateRequest({
+        body: submitAssessmentSchema,
+    }),
+    assessmentController.submitInitialAssessment
 );
 
-export default router;
+/**
+ * Weekly Assessment
+ */
+assessmentRouter.post(
+    "/weekly/start",
+    validateRequest({
+        body: startWeeklyAssessmentSchema,
+    }),
+    assessmentController.startWeeklyAssessment
+);
+
+assessmentRouter.post(
+    "/weekly/submit",
+    validateRequest({
+        body: submitAssessmentSchema,
+    }),
+    assessmentController.submitWeeklyAssessment
+);
+
+/**
+ * Assessment
+ */
+assessmentRouter.get(
+    "/:assessmentId",
+    validateRequest({
+        params: assessmentIdParamSchema,
+    }),
+    assessmentController.getAssessmentById
+);
+
+export default assessmentRouter;

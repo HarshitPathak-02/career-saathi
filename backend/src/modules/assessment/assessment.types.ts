@@ -1,150 +1,33 @@
-import {
-    HydratedDocument,
-    Types,
-} from 'mongoose';
+import { Types } from "mongoose";
 
 import {
-    AssessmentContextType,
     AssessmentStatus,
-} from './assessment.enums.js';
+    AssessmentType,
+} from "./assessment.enums.js";
+import { CreateSkillProgressDTO } from "../skill-progress/skill-progress.types.js";
 
-import {
-    ProficiencyLevel,
-} from '../../shared/enums/proficiency-level.enum.js';
+export interface CreateAssessmentDTO {
+    careerJourneyId: Types.ObjectId;
 
-export interface IAssessment {
+    type: AssessmentType;
 
-    userId:
-        Types.ObjectId;
+    weekNumber: number;
 
-    careerJourneyId:
-        Types.ObjectId;
+    title: string;
 
-    contextType:
-        AssessmentContextType;
-
-    contextId?:
-        Types.ObjectId;
-
-    questionIds:
-        Types.ObjectId[];
-
-    status:
-        AssessmentStatus;
-
-    passingScore:
-        number;
-
-    passed:
-        boolean;
-
-    overallScore:
-        number;
-
-    overallLevel:
-        ProficiencyLevel;
-
-    startedAt:
-        Date;
-
-    completedAt?:
-        Date;
-
-    createdAt:
-        Date;
-
-    updatedAt:
-        Date;
+    description?: string;
 }
 
-export type AssessmentDocument =
-    HydratedDocument<IAssessment>;
+export interface UpdateAssessmentStatusDTO {
+    status: AssessmentStatus;
 
-export interface CreateAssessmentData {
-
-    userId:
-        Types.ObjectId;
-
-    careerJourneyId:
-        Types.ObjectId;
-
-    contextType:
-        AssessmentContextType;
-
-    contextId?:
-        Types.ObjectId;
-
-    questionIds:
-        Types.ObjectId[];
-
-    status:
-        AssessmentStatus;
-
-    passingScore:
-        number;
-
-    passed:
-        boolean;
-
-    overallScore:
-        number;
-
-    overallLevel:
-        ProficiencyLevel;
-
-    startedAt:
-        Date;
-
-    completedAt?:
-        Date;
+    completedAt?: Date;
 }
 
-export interface UpdateAssessmentData
-    extends Partial<
-        Omit<
-            CreateAssessmentData,
-            | 'userId'
-            | 'careerJourneyId'
-            | 'contextType'
-            | 'contextId'
-        >
-    > {}
+export interface SubmitAssessmentDTO {
 
-export interface AssessmentResponse {
+    assessmentId: string;
 
-    id:
-        string;
+    skills: CreateSkillProgressDTO[];
 
-    contextType:
-        AssessmentContextType;
-
-    contextId?:
-        string;
-
-    status:
-        AssessmentStatus;
-
-    passingScore:
-        number;
-
-    passed:
-        boolean;
-
-    overallScore:
-        number;
-
-    overallLevel:
-        ProficiencyLevel;
-
-    startedAt:
-        Date;
-
-    completedAt?:
-        Date;
-
-    createdAt:
-        Date;
-
-    updatedAt:
-        Date;
 }

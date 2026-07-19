@@ -28,8 +28,6 @@ export interface CreateCareerJourneyInput {
 
     preferredLanguage: PreferredLanguage;
 
-    resumeId?: Types.ObjectId | null;
-
     status: CareerJourneyStatus;
 }
 
@@ -45,8 +43,6 @@ export interface UpdateCareerJourneyInput {
     dailyStudyHours?: number;
 
     preferredLanguage?: PreferredLanguage;
-
-    resumeId?: Types.ObjectId | null;
 
 }
 
@@ -64,7 +60,6 @@ export interface CreateCareerJourneyDto {
     targetDurationMonths: number;
     dailyStudyHours: number;
     preferredLanguage: PreferredLanguage;
-    resumeId?: string;
 }
 
 export interface UpdateCareerJourneyDto

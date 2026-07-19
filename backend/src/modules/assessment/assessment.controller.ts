@@ -1,53 +1,112 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import { asyncHandler } from '../../core/middleware/async-handler.js';
-import { successResponse } from '../../core/responses/successResponse.js';
-import { getAuthUser } from '../../shared/utils/get-auth-user.js';
+import { asyncHandler } from "../../core/middleware/async-handler.js";
 
-import { assessmentService } from './assessment.service.js';
-
-import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
-import { ASSESSMENT_MESSAGES } from './assessment.constants.js';
+import { assessmentService } from "./assessment.service.js";
+import { assessmentWorkflowService } from "./assessment-workflow.service.js";
 
 class AssessmentController {
 
-    getById = asyncHandler(
+    /**
+     * Start Initial Assessment
+     */
+    startInitialAssessment = asyncHandler(
         async (req: Request, res: Response) => {
-            const user = getAuthUser(req);
 
             const assessment =
-                await assessmentService.getById(
-                    req.params.id as string,
-                    user.userId
+                await assessmentWorkflowService.startInitialAssessment(
+                    req.body.careerJourneyId
                 );
 
-            return successResponse({
-                res,
-                statusCode: HTTP_STATUS.OK,
-                message:
-                    ASSESSMENT_MESSAGES.FETCHED,
+            res.status(201).json({
+                success: true,
+                message: "Initial assessment created successfully.",
                 data: assessment,
             });
+
         }
     );
 
-    getByJourney = asyncHandler(
+    /**
+     * Start Weekly Assessment
+     */
+    startWeeklyAssessment = asyncHandler(
         async (req: Request, res: Response) => {
-            const user = getAuthUser(req);
 
-            const assessments =
-                await assessmentService.getByJourney(
-                    req.params.careerJourneyId as string,
-                    user.userId
+            const assessment =
+                await assessmentWorkflowService.startWeeklyAssessment(
+                    req.body.careerJourneyId
                 );
 
-            return successResponse({
-                res,
-                statusCode: HTTP_STATUS.OK,
-                message:
-                    ASSESSMENT_MESSAGES.LIST_FETCHED,
-                data: assessments,
+            res.status(201).json({
+                success: true,
+                message: "Weekly assessment created successfully.",
+                data: assessment,
             });
+
+        }
+    );
+
+    /**
+     * Submit Initial Assessment
+     */
+    submitInitialAssessment = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const assessment =
+                await assessmentWorkflowService.completeInitialAssessment(
+                    req.body
+                );
+
+            res.status(200).json({
+                success: true,
+                message: "Initial assessment submitted successfully.",
+                data: assessment,
+            });
+
+        }
+    );
+
+    /**
+     * Submit Weekly Assessment
+     */
+    submitWeeklyAssessment = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const assessment =
+                await assessmentWorkflowService.completeWeeklyAssessment(
+                    req.body
+                );
+
+            res.status(200).json({
+                success: true,
+                message: "Weekly assessment submitted successfully.",
+                data: assessment,
+            });
+
+        }
+    );
+
+    /**
+     * Get Assessment By Id
+     */
+    getAssessmentById = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const {assessmentId} = req.params as {
+                assessmentId: string
+            }
+
+            const assessment =
+                await assessmentService.getAssessmentById(
+                    assessmentId
+                );
+
+            res.status(200).json({
+                success: true,
+                data: assessment,
+            });
+
         }
     );
 

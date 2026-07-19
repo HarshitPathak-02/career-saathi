@@ -1,106 +1,118 @@
+import { Types } from "mongoose";
+
+import { AppError } from "../../core/errors/app-error.js";
+
+import {
+    AssessmentStatus,
+} from "./assessment.enums.js";
+
+import {
+    CreateAssessmentDTO,
+} from "./assessment.types.js";
+
+import {
+    AssessmentMessages,
+} from "./assessment.messages.js";
+
 import {
     assessmentRepository,
-} from './assessment.repository.js';
-
-import {
-    careerJourneyRepository,
-} from '../career-journey/career-journey.repository.js';
-
-import {
-    AssessmentResponse,
-} from './assessment.types.js';
-
-import {
-    toAssessmentResponse,
-} from './assessment.mapper.js';
-
-import {
-    AppError,
-} from '../../core/errors/app-error.js';
-
-import {
-    HTTP_STATUS,
-} from '../../core/constants/http-status.constants.js';
-
-import {
-    ASSESSMENT_MESSAGES,
-} from './assessment.constants.js';
+} from "./assessment.repository.js";
 
 class AssessmentService {
 
-    async getById(
-        id: string,
-        userId: string
-    ): Promise<AssessmentResponse> {
+    async createAssessment(
+        data: CreateAssessmentDTO
+    ) {
+        return assessmentRepository.create({
+            ...data,
+            status: AssessmentStatus.PENDING,
+        });
+    }
+
+    async submitAssessment(
+        assessmentId: string
+    ) {
+
+        const assessmentObjectId = new Types.ObjectId(assessmentId)
 
         const assessment =
             await assessmentRepository.findById(
-                id
+                assessmentObjectId
             );
 
         if (!assessment) {
-
             throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                ASSESSMENT_MESSAGES.NOT_FOUND
+                404,
+                AssessmentMessages.NOT_FOUND
             );
         }
 
         if (
-            assessment.userId.toString() !==
-            userId
+            assessment.status ===
+            AssessmentStatus.COMPLETED
         ) {
-
             throw new AppError(
-                HTTP_STATUS.FORBIDDEN,
-                ASSESSMENT_MESSAGES.UNAUTHORIZED
+                409,
+                AssessmentMessages.ALREADY_COMPLETED
             );
         }
 
-        return toAssessmentResponse(
-            assessment
+        return assessmentRepository.updateStatus(
+            assessmentObjectId,
+            AssessmentStatus.COMPLETED
         );
     }
 
-    async getByJourney(
-        careerJourneyId: string,
-        userId: string
-    ): Promise<AssessmentResponse[]> {
+    async getAssessmentById(
+        assessmentId: string
+    ) {
 
-        const careerJourney =
-            await careerJourneyRepository.findById(
-                careerJourneyId
+        const assessmentObjectId = new Types.ObjectId(assessmentId)
+
+        const assessment =
+            await assessmentRepository.findById(
+                assessmentObjectId
             );
 
-        if (!careerJourney) {
-
+        if (!assessment) {
             throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                'Career journey not found.'
+                404,
+                AssessmentMessages.NOT_FOUND
             );
         }
 
-        if (
-            careerJourney.userId.toString() !==
-            userId
-        ) {
+        return assessment;
+    }
 
-            throw new AppError(
-                HTTP_STATUS.FORBIDDEN,
-                ASSESSMENT_MESSAGES.UNAUTHORIZED
-            );
-        }
-
-        const assessments =
-            await assessmentRepository
-                .findByCareerJourneyId(
-                    careerJourneyId
-                );
-
-        return assessments.map(
-            toAssessmentResponse
+    async getAssessmentHistory(
+        careerJourneyId: Types.ObjectId
+    ) {
+        return assessmentRepository.findHistory(
+            careerJourneyId
         );
     }
+
+    async deleteAssessment(
+        assessmentId: Types.ObjectId
+    ) {
+
+        const assessment =
+            await assessmentRepository.findById(
+                assessmentId
+            );
+
+        if (!assessment) {
+            throw new AppError(
+                404,
+                AssessmentMessages.NOT_FOUND
+            );
+        }
+
+        return assessmentRepository.softDelete(
+            assessmentId
+        );
+    }
+
 }
 
 export const assessmentService =

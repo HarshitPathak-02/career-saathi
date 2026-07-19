@@ -11,6 +11,8 @@ import {
   CAREER_ROLE_SKILL_MODEL,
 } from "./career-role-skill.constants.js";
 
+import { SkillPriority } from "./career-role-skill.enums.js";
+
 const CareerRoleSkillSchema = new Schema(
   {
     roleId: {
@@ -33,7 +35,14 @@ const CareerRoleSkillSchema = new Schema(
       min: 1,
     },
 
-    isRequired: {
+    priority: {
+      type: String,
+      enum: Object.values(SkillPriority),
+      default: SkillPriority.MEDIUM,
+      required: true,
+    },
+
+    isMandatory: {
       type: Boolean,
       default: true,
     },
@@ -59,6 +68,11 @@ CareerRoleSkillSchema.index(
 CareerRoleSkillSchema.index({
   roleId: 1,
   displayOrder: 1,
+});
+
+CareerRoleSkillSchema.index({
+  roleId: 1,
+  priority: 1,
 });
 
 export type CareerRoleSkill =

@@ -5,6 +5,7 @@ import {
 
 import {
     CareerJourney,
+    CareerJourneyDocument,
     CareerJourneyModel,
 } from "./career-journey.model.js";
 
@@ -45,7 +46,7 @@ export class CareerJourneyRepository {
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ): Promise<CareerJourney | null> {
+    ): Promise<CareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOne({
             ...filter,

@@ -71,7 +71,9 @@ export class CareerJourneyService {
         const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(userObjectId, careerJourneyObjectId);
+            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
+
+        console.log("career journeysss", careerJourney)
 
         if (!careerJourney) {
             throw new AppError(404, "Career journey not found.");
@@ -95,7 +97,7 @@ export class CareerJourneyService {
         const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(userObjectId, careerJourneyObjectId);
+            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
 
         if (!careerJourney) {
             throw new AppError(404, "Career journey not found.");
@@ -115,7 +117,7 @@ export class CareerJourneyService {
         const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(userObjectId,careerJourneyObjectId);
+            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
 
         if (!careerJourney) {
             throw new AppError(404, "Career journey not found.");

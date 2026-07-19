@@ -19,7 +19,7 @@ router.post(
     "/",
     authenticate,
     resumeUpload.single("resume"),
-    validateRequest({params:createResumeSchema}),
+    validateRequest({body:createResumeSchema}),
     resumeController.uploadResume
 );
 

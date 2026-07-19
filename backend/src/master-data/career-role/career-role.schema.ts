@@ -17,7 +17,6 @@ const CareerRoleSchema = new Schema(
       type: Types.ObjectId,
       ref: "CareerDomain",
       required: true,
-      index: true,
     },
 
     name: {
@@ -32,7 +31,6 @@ const CareerRoleSchema = new Schema(
       required: true,
       trim: true,
       lowercase: true,
-      unique: true,
     },
 
     description: {

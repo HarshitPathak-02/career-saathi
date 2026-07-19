@@ -10,13 +10,14 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "seed:assessment-questions": "tsx src/scripts/seed-assessment-questions.ts"
+    "seed": "tsx src/master-data/database.seed.ts"
   },
   "keywords": [],
   "author": "Harshit Pathak",
   "license": "ISC",
   "description": "Backend API for CareerSaathi",
   "dependencies": {
+    "@google/genai": "^2.12.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
     "compression": "^1.8.1",

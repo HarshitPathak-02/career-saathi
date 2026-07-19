@@ -16,24 +16,6 @@ import {
 } from "./career-journey.constants.js";
 
 /**
- * Existing Skill Schema
- */
-export const existingSkillSchema = Joi.object({
-    skillId: objectIdSchema.required(),
-
-    source: Joi.string()
-        .valid(...Object.values(SkillSource))
-        .required(),
-
-    confidence: Joi.number()
-        .min(0)
-        .max(1)
-        .allow(null),
-
-    verified: Joi.boolean().default(false),
-});
-
-/**
  * Create Career Journey
  */
 export const createCareerJourneySchema = Joi.object({
@@ -61,8 +43,6 @@ export const createCareerJourneySchema = Joi.object({
         .valid(...Object.values(PreferredLanguage))
         .default(PreferredLanguage.ENGLISH),
 
-    resumeId: objectIdSchema.optional(),
-
 });
 
 /**
@@ -80,7 +60,6 @@ export const updateCareerJourneySchema = Joi.object({
         .min(MIN_DAILY_STUDY_HOURS)
         .max(MAX_DAILY_STUDY_HOURS),
     preferredLanguage: Joi.string().valid(...Object.values(PreferredLanguage)),
-    resumeId: objectIdSchema.allow(null),
 }).min(1);
 
 /**

@@ -32,8 +32,8 @@ export class ResumeService {
 
         const careerJourney =
             await careerJourneyRepository.findByIdAndUserId(
-                userObjectId,
-                careerJourneyObjectId
+                careerJourneyObjectId,
+                userObjectId
             );
 
         if (!careerJourney) {
@@ -81,11 +81,11 @@ export class ResumeService {
 
             if (existingResume) {
 
-
-
                 await resumeRepository.softDelete(
                     existingResume._id
                 );
+
+                console.log("After soft delete from db");
 
                 await storageService.deleteFile(
                     existingResume.cloudinaryPublicId

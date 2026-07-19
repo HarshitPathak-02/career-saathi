@@ -1,0 +1,13 @@
+export enum SkillLevel {
+  NOT_STARTED = "NOT_STARTED",
+
+  BEGINNER = "BEGINNER",
+
+  BASIC = "BASIC",
+
+  INTERMEDIATE = "INTERMEDIATE",
+
+  ADVANCED = "ADVANCED",
+
+  EXPERT = "EXPERT",
+}

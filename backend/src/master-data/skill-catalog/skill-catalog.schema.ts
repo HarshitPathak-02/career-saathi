@@ -21,7 +21,6 @@ const SkillCatalogSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
 
     slug: {
@@ -29,7 +28,6 @@ const SkillCatalogSchema = new Schema(
       required: true,
       lowercase: true,
       trim: true,
-      unique: true,
     },
 
     category: {

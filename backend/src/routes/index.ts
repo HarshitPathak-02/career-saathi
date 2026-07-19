@@ -1,17 +1,11 @@
 import { Router } from 'express';
 import authRoutes from '../modules/auth/auth.routes.js';
 import careerJourneyRoutes from '../modules/career-journey/career-journey.routes.js';
-import careerRoleRoutes from '../modules/career-role/career-role.routes.js';
-import userSkillsRoutes from '../modules/skills/skill.routes.js'
-import assessmentRoutes from '../modules/assessment/assessment.routes.js'
-import roadmapsRoutes from "../modules/roadmaps/roadmap.routes.js"
-import dashboardRoutes from '../modules/dashboard/dashboard.routes.js';
-import missionRoutes from '../modules/mission/mission.routes.js';
-import weeklyProgressRoutes from '../modules/weekly-progress/weekly-progress.routes.js';
-import taskCompletionRoutes from '../modules/task-completion/task-completion.routes.js';
-import assessmentSkillResultRoutes from '../modules/assessment-skill-result/assessment-skill-result.routes.js'
-import tasksRoutes from "../modules/task/task.routes.js"
 import { HTTP_STATUS } from '../core/constants/http-status.constants.js';
+import { resumeRoutes } from '../modules/resume/index.js';
+import { userSkillsRoutes } from '../modules/user-skill/index.js';
+import assessmentRoutes from '../modules/assessment/assessment.routes.js'
+import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
 
 const router = Router();
 
@@ -30,54 +24,26 @@ router.use(
 );
 
 router.use(
-  '/career-roles',
-  careerRoleRoutes
+    '/resume',
+    resumeRoutes
 );
 
 router.use(
-  '/user-skills',
-  userSkillsRoutes
-)
-
-router.use(
-  '/assessments',
-  assessmentRoutes
-)
-
-router.use(
-  '/roadmaps',
-  roadmapsRoutes
-)
-
-router.use(
-  '/missions',
-  missionRoutes
-)
-
-router.use(
-  '/dashboard',
-  dashboardRoutes
+    '/user-skills',
+    userSkillsRoutes
 );
 
 router.use(
-    '/weekly-progress',
-    weeklyProgressRoutes
+    '/assessments',
+    assessmentRoutes
 );
 
 router.use(
-    '/tasks',
-    tasksRoutes
+    "/roadmaps",
+    roadmapRoutes
 );
 
-router.use(
-    '/task-completion',
-    taskCompletionRoutes
-);
 
-router.use(
-    '/assessment-skill-results',
-    assessmentSkillResultRoutes
-);
 
 
 export default router;

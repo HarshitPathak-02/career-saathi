@@ -64,17 +64,6 @@ const CareerJourneySchema = new Schema(
       default: PreferredLanguage.ENGLISH,
     },
 
-    resumeId: {
-      type: Types.ObjectId,
-      ref: "Resume",
-      default: null,
-    },
-
-    resumeUploadedAt: {
-      type: Date,
-      default: null,
-    },
-
     status: {
       type: String,
       enum: Object.values(CareerJourneyStatus),

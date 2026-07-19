@@ -1,8 +1,0 @@
-import { CompletionType } from "../task/task.enums.js";
-
-export interface CompleteTaskInput {
-
-    taskId: string;
-
-    githubUrl?: string;
-}

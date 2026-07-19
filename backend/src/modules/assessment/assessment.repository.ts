@@ -1,391 +1,145 @@
 import {
     ClientSession,
-} from 'mongoose';
+    Types,
+    UpdateQuery,
+} from "mongoose";
 
 import {
     AssessmentDocument,
-    CreateAssessmentData,
-    UpdateAssessmentData,
-} from './assessment.types.js';
-
-import {
     AssessmentModel,
-} from './assessment.model.js';
+} from "./assessment.schema.js";
 
-import {
-    AssessmentContextType,
-    AssessmentStatus,
-} from './assessment.enums.js';
+import { AssessmentStatus, AssessmentType } from "./assessment.enums.js";
 
 class AssessmentRepository {
-
     async create(
-        data: CreateAssessmentData,
+        data: Partial<AssessmentDocument>,
         session?: ClientSession
-    ): Promise<AssessmentDocument> {
-
-        if (session) {
-
-            const [assessment] =
-                await AssessmentModel.create(
-                    [data],
-                    {
-                        session,
-                    }
-                );
-
-            return assessment;
-        }
-
-        return AssessmentModel.create(
-            data
+    ) {
+        const [assessment] = await AssessmentModel.create(
+            [data],
+            { session }
         );
+
+        return assessment;
     }
 
     async findById(
-        id: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findById(
-                id
-            );
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
+        id: Types.ObjectId
+    ) {
+        return this.findOne({
+            _id: id,
+        });
     }
 
-    async findByCareerJourneyId(
-        careerJourneyId: string,
+    async findOne(
+        filter: Record<string, unknown>,
         session?: ClientSession
-    ): Promise<AssessmentDocument[]> {
-
-        const query =
-            AssessmentModel.find({
-                careerJourneyId,
-            })
-                .sort({
-                    createdAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
+    ) {
+        return AssessmentModel.findOne({
+            ...filter,
+            isDeleted: false,
+        });
     }
 
-    async findInProgressInitialAssessment(
-        careerJourneyId: string,
+    async findMany(
+        filter: Record<string, unknown>,
         session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
+    ) {
+        return AssessmentModel.find({
+            ...filter,
+            isDeleted: false,
+        });
+    }
 
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.INITIAL,
-
-                status:
-                    AssessmentStatus.IN_PROGRESS,
+    async exists(
+        filter: Record<string, unknown>,
+        session?: ClientSession
+    ) {
+        const exists =
+            await AssessmentModel.exists({
+                ...filter,
+                isDeleted: false,
             });
 
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findCompletedInitialAssessment(
-        careerJourneyId: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.INITIAL,
-
-                status:
-                    AssessmentStatus.COMPLETED,
-            })
-                .sort({
-                    completedAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findInProgressTaskAssessment(
-        careerJourneyId: string,
-        taskId: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.TASK,
-
-                contextId:
-                    taskId,
-
-                status:
-                    AssessmentStatus.IN_PROGRESS,
-            });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findLatestCompletedTaskAssessment(
-        careerJourneyId: string,
-        taskId: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.TASK,
-
-                contextId:
-                    taskId,
-
-                status:
-                    AssessmentStatus.COMPLETED,
-            })
-                .sort({
-                    completedAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findInProgressPhaseAssessment(
-        careerJourneyId: string,
-        phaseId: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.ROADMAP_PHASE,
-
-                contextId:
-                    phaseId,
-
-                status:
-                    AssessmentStatus.IN_PROGRESS,
-            });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findLatestCompletedPhaseAssessment(
-        careerJourneyId: string,
-        phaseId: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType:
-                    AssessmentContextType.ROADMAP_PHASE,
-
-                contextId:
-                    phaseId,
-
-                status:
-                    AssessmentStatus.COMPLETED,
-            })
-                .sort({
-                    completedAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findInProgressByContext(
-        careerJourneyId: string,
-        contextType: AssessmentContextType,
-        contextId?: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType,
-
-                contextId:
-                    contextId ?? null,
-
-                status:
-                    AssessmentStatus.IN_PROGRESS,
-            });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findCompletedByContext(
-        careerJourneyId: string,
-        contextType: AssessmentContextType,
-        contextId?: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType,
-
-                contextId:
-                    contextId ?? null,
-
-                status:
-                    AssessmentStatus.COMPLETED,
-            })
-                .sort({
-                    completedAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
-    }
-
-    async findLatestByContext(
-        careerJourneyId: string,
-        contextType: AssessmentContextType,
-        contextId?: string,
-        session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
-
-        const query =
-            AssessmentModel.findOne({
-
-                careerJourneyId,
-
-                contextType,
-
-                contextId:
-                    contextId ?? null,
-            })
-                .sort({
-                    createdAt: -1,
-                });
-
-        if (session) {
-
-            query.session(
-                session
-            );
-        }
-
-        return query;
+        return Boolean(exists);
     }
 
     async updateById(
-        id: string,
-        data: UpdateAssessmentData,
+        id: Types.ObjectId,
+        update: UpdateQuery<AssessmentDocument>,
         session?: ClientSession
-    ): Promise<AssessmentDocument | null> {
+    ) {
+        return AssessmentModel.findOneAndUpdate(
+            id,
+            update,
+            {
+                new: true,
+                session,
+            }
+        );
+    }
 
-        return AssessmentModel
-            .findByIdAndUpdate(
-                id,
-                data,
-                {
-                    new: true,
+    async updateStatus(
+        id: Types.ObjectId,
+        status: AssessmentStatus,
+        session?: ClientSession
+    ) {
+        return AssessmentModel.findByIdAndUpdate(
+            id,
+            {
+                status,
+                ...(status === AssessmentStatus.COMPLETED && {
+                    completedAt: new Date(),
+                }),
+            },
+            {
+                new: true,
+                session,
+            }
+        );
+    }
 
-                    runValidators: true,
+    async softDelete(
+        id: Types.ObjectId,
+        session?: ClientSession
+    ) {
+        return AssessmentModel.findByIdAndUpdate(
+            id,
+            {
+                isDeleted: true,
+                deletedAt: new Date(),
+            },
+            {
+                new: true,
+                session,
+            }
+        );
+    }
 
-                    session,
-                }
-            );
+    async findHistory(
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+        return AssessmentModel.find({
+            careerJourneyId,
+            isDeleted: false,
+        }).sort({
+            weekNumber: 1,
+        });
+    }
+
+    async findLatestWeeklyAssessment(
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+        return AssessmentModel.findOne({
+            careerJourneyId,
+            type: AssessmentType.WEEKLY,
+            isDeleted: false,
+        }).sort({
+            weekNumber: -1,
+        });
     }
 }
 

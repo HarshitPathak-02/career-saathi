@@ -22,7 +22,6 @@ const CareerDomainSchema = new Schema(
     slug: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },

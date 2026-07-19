@@ -34,19 +34,6 @@ export class CareerJourneyMapper {
 
       preferredLanguage: dto.preferredLanguage,
 
-      resumeId: dto.resumeId
-        ? new Types.ObjectId(dto.resumeId)
-        : null,
-
-      skills: dto.skills.map((skill) => ({
-        skillId: new Types.ObjectId(skill.skillId),
-        source: skill.source,
-        confidence: skill.confidence,
-        verified: skill.verified ?? false,
-      })),
-
-      customSkills: dto.customSkills,
-
       status: CareerJourneyStatus.DRAFT,
     };
   }
@@ -79,25 +66,7 @@ export class CareerJourneyMapper {
     if (dto.preferredLanguage !== undefined) {
       updateData.preferredLanguage = dto.preferredLanguage;
     }
-
-    if (dto.resumeId !== undefined) {
-      updateData.resumeId = dto.resumeId
-        ? new Types.ObjectId(dto.resumeId)
-        : null;
-    }
-
-    if (dto.skills !== undefined) {
-      updateData.skills = dto.skills.map((skill) => ({
-        skillId: new Types.ObjectId(skill.skillId),
-        source: skill.source,
-        confidence: skill.confidence,
-        verified: skill.verified ?? false,
-      }));
-    }
-
-    if (dto.customSkills !== undefined) {
-      updateData.customSkills = dto.customSkills;
-    }
+    
     return updateData;
   }
 }

@@ -1,33 +1,36 @@
 export enum SkillCategory {
-  PROGRAMMING_LANGUAGE = "programming-language",
+  // Technical Skills
+  PROGRAMMING = "PROGRAMMING",
+  BACKEND = "BACKEND",
+  DATABASE = "DATABASE",
+  API = "API",
+  AUTHENTICATION = "AUTHENTICATION",
+  VERSION_CONTROL = "VERSION_CONTROL",
+  CACHING = "CACHING",
+  CONTAINERIZATION = "CONTAINERIZATION",
+  TESTING = "TESTING",
+  DEPLOYMENT = "DEPLOYMENT",
+  SECURITY = "SECURITY",
 
-  RUNTIME = "runtime",
+  // Computer Science Fundamentals
+  DATA_STRUCTURES = "DATA_STRUCTURES",
+  ALGORITHMS = "ALGORITHMS",
+  OBJECT_ORIENTED_PROGRAMMING = "OBJECT_ORIENTED_PROGRAMMING",
+  DBMS = "DBMS",
+  OPERATING_SYSTEM = "OPERATING_SYSTEM",
+  COMPUTER_NETWORKS = "COMPUTER_NETWORKS",
 
-  FRAMEWORK = "framework",
+  // Placement Preparation
+  APTITUDE = "APTITUDE",
+  LOGICAL_REASONING = "LOGICAL_REASONING",
+  VERBAL_ABILITY = "VERBAL_ABILITY",
 
-  DATABASE = "database",
+  // Communication
+  ENGLISH_COMMUNICATION = "ENGLISH_COMMUNICATION",
+  HR_INTERVIEW = "HR_INTERVIEW",
 
-  ODM = "odm",
-
-  API = "api",
-
-  AUTHENTICATION = "authentication",
-
-  VERSION_CONTROL = "version-control",
-
-  CONTAINERIZATION = "containerization",
-
-  CACHING = "caching",
-
-  SECURITY = "security",
-
-  DEPLOYMENT = "deployment",
-
-  TESTING = "testing",
-
-  CONCEPT = "concept",
-
-  TOOL = "tool",
+  // Professional Skills
+  PROFESSIONAL = "PROFESSIONAL",
 }
 
 export enum SkillDifficulty {

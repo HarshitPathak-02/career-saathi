@@ -5,20 +5,20 @@ import {
     registerSchema, loginSchema
 } from './auth.validation.js';
 
-import { validate } from '../../core/middleware/validate.middleware.js';
+import { validateRequest } from '../../core/middleware/validate.middleware.js';
 import { authenticate } from '../../core/middleware/authenticate.middleware.js';
 
 const router = Router();
 
 router.post(
     '/register',
-    validate(registerSchema),
+    validateRequest({body:registerSchema}),
     authController.register
 );
 
 router.post(
     '/login',
-    validate(loginSchema),
+    validateRequest({body:loginSchema}),
     authController.login
 );
 
