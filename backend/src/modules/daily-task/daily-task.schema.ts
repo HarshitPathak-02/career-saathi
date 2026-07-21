@@ -13,6 +13,7 @@ import {
 
 import {
     DailyTaskStatus,
+    DailyTaskType,
 } from "./daily-task.enums.js";
 
 const DailyTaskSchema = new Schema(
@@ -28,7 +29,7 @@ const DailyTaskSchema = new Schema(
             type: Number,
             required: true,
             min: 1,
-            max: 6,
+            max: 7,
         },
 
         title: {
@@ -61,6 +62,12 @@ const DailyTaskSchema = new Schema(
             type: String,
             enum: Object.values(DailyTaskStatus),
             default: DailyTaskStatus.PENDING,
+        },
+
+        type: {
+            type: String,
+            enum: Object.values(DailyTaskType),
+            default: DailyTaskType.STUDY,
         },
 
         completedAt: {

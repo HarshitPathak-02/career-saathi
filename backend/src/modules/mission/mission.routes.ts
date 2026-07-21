@@ -5,12 +5,14 @@ import {
 import {
     missionController,
 } from "./mission.controller.js";
+import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 
 const missionRouter =
     Router();
 
 missionRouter.post(
-    "/",
+    "/:careerJourneyId",
+    authenticate,
     missionController.createInitialMission
 );
 

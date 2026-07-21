@@ -9,6 +9,7 @@ import {
 
 import {
     DailyTaskStatus,
+    DailyTaskType,
 } from "./daily-task.enums.js";
 
 import {
@@ -28,17 +29,17 @@ class DailyTaskService {
 
                 missionId,
 
-                dayNumber:
-                    task.dayNumber,
+                dayNumber: task.dayNumber,
 
-                title:
-                    task.title,
+                type:
+                    task.type ??
+                    DailyTaskType.STUDY,
 
-                description:
-                    task.description,
+                title: task.title,
 
-                topics:
-                    task.topics,
+                description: task.description,
+
+                topics: task.topics,
 
                 estimatedMinutes:
                     task.estimatedMinutes,
@@ -77,12 +78,9 @@ class DailyTaskService {
         session?: ClientSession
     ) {
 
-        return dailyTaskRepository.updateById(
+        return this.updateTaskStatus(
             taskId,
-            {
-                status: DailyTaskStatus.PENDING,
-                completedAt: null,
-            },
+            DailyTaskStatus.PENDING,
             session
         );
 
@@ -93,15 +91,9 @@ class DailyTaskService {
         session?: ClientSession
     ) {
 
-        return dailyTaskRepository.updateById(
+        return this.updateTaskStatus(
             taskId,
-            {
-                status:
-                    DailyTaskStatus.COMPLETED,
-
-                completedAt:
-                    new Date(),
-            },
+            DailyTaskStatus.COMPLETED,
             session
         );
 
@@ -112,11 +104,29 @@ class DailyTaskService {
         session?: ClientSession
     ) {
 
+        return this.updateTaskStatus(
+            taskId,
+            DailyTaskStatus.SKIPPED,
+            session
+        );
+
+    }
+
+    private async updateTaskStatus(
+        taskId: Types.ObjectId,
+        status: DailyTaskStatus,
+        session?: ClientSession
+    ) {
+
         return dailyTaskRepository.updateById(
             taskId,
             {
-                status: DailyTaskStatus.SKIPPED,
-                completedAt: null,
+                status,
+
+                completedAt:
+                    status === DailyTaskStatus.COMPLETED
+                        ? new Date()
+                        : null,
             },
             session
         );

@@ -6,6 +6,7 @@ import { resumeRoutes } from '../modules/resume/index.js';
 import { userSkillsRoutes } from '../modules/user-skill/index.js';
 import assessmentRoutes from '../modules/assessment/assessment.routes.js'
 import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
+import missionsRoutes from '../modules/mission/mission.routes.js';
 
 const router = Router();
 
@@ -41,6 +42,11 @@ router.use(
 router.use(
     "/roadmaps",
     roadmapRoutes
+);
+
+router.use(
+    "/missions",
+    missionsRoutes
 );
 
 

@@ -22,12 +22,11 @@ class MissionController {
     ) {
 
         const user = getAuthUser(req)
+        console.log(req.params.careerJourneyId);
 
         const mission =
             await missionWorkflowService.createInitialMission(
-
                 user.userId,
-
                 new Types.ObjectId(
                     req.params.careerJourneyId as string
                 )

@@ -6,19 +6,20 @@ import {
 
 import {
     DailyTaskStatus,
+    DailyTaskType,
 } from "./daily-task.enums.js";
 
 export interface CreateDailyTaskDTO {
 
     missionId: Types.ObjectId;
 
-    roadmapItemId: Types.ObjectId;
-
     dayNumber: number;
 
     title: string;
 
     description?: string;
+
+    topics: string[];
 
     estimatedMinutes: number;
 
@@ -56,13 +57,13 @@ export interface GeneratedDailyTask {
 
     missionId: Types.ObjectId;
 
-    roadmapItemId: Types.ObjectId;
-
     dayNumber: number;
 
     title: string;
 
     description?: string;
+
+    topics: string[];
 
     estimatedMinutes: number;
 
@@ -76,6 +77,7 @@ export interface DailyTaskGenerationResult {
 
 export interface DailyTaskOutput {
     dayNumber: number;
+    type?: DailyTaskType;
     title: string;
     description: string;
     topics: string[];

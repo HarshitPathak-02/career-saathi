@@ -3,3 +3,8 @@ export enum DailyTaskStatus {
     COMPLETED = "COMPLETED",
     SKIPPED = "SKIPPED",
 }
+
+export enum DailyTaskType {
+    STUDY = "STUDY",
+    REVIEW = "REVIEW",
+}

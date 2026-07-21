@@ -9,6 +9,7 @@ import { aiValidator } from "../../shared/ai/ai.validator.js";
 
 import { buildDailyTaskPrompt } from "./daily-task.prompt.js";
 import { careerJourneyService } from "../career-journey/career-journey.service.js";
+import { createReviewDay } from "./daily-task-review.factory.js";
 
 class DailyTaskWorkflow {
 
@@ -106,6 +107,10 @@ Do not use markdown.
             aiValidator.validateDailyTasks(
                 parsed
             );
+
+        tasks.push(
+            createReviewDay()
+        );
 
         /*
          * Step 7
