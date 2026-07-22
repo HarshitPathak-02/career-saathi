@@ -5,99 +5,111 @@ import { useAppDispatch } from "../../../app/hooks";
 import { setCredentials } from "../slice/authSlice";
 
 import {
-    useLoginMutation,
-    useRegisterMutation,
+  useLoginMutation,
+  useRegisterMutation,
 } from "../api/authApi";
-import { showError, showSuccess } from "../../../shared/lib/toast";
+
+import { baseApi } from "../../../shared/api/baseApi";
+
+import {
+  showError,
+  showSuccess,
+} from "../../../shared/lib/toast";
+
 import { getApiErrorMessage } from "../../../shared/lib/getApiErrorMessage";
 
 export const useAuth = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const [login, loginState] = useLoginMutation();
+  const [login, loginState] =
+    useLoginMutation();
 
-    const [register, registerState] =
-        useRegisterMutation();
+  const [register, registerState] =
+    useRegisterMutation();
 
-    const loginUser = async (
-        email: string,
-        password: string
-    ) => {
+  const loginUser = async (
+    email: string,
+    password: string
+  ) => {
+    try {
+      const response = await login({
+        email,
+        password,
+      }).unwrap();
 
-        try {
+      dispatch(
+        setCredentials({
+          accessToken:
+            response.data.accessToken,
 
-            const response =
-                await login({
-                    email,
-                    password,
-                }).unwrap();
+          user: response.data.user,
+        })
+      );
 
-            dispatch(
-                setCredentials({
-                    accessToken:
-                        response.data.accessToken,
+      dispatch(
+        baseApi.util.resetApiState()
+      );
 
-                    user:
-                        response.data.user,
-                })
-            );
+      showSuccess(response.message);
 
-            showSuccess(
-                response.message
-            );
+      navigate("/", {
+        replace: true,
+      });
+    } catch (error) {
+      showError(
+        getApiErrorMessage(error)
+      );
 
-            navigate("/dashboard");
+      throw error;
+    }
+  };
 
-        } catch (error) {
+  const registerUser = async (
+    fullName: string,
+    email: string,
+    password: string
+  ) => {
+    try {
+      const response = await register({
+        fullName,
+        email,
+        password,
+      }).unwrap();
 
-            showError(
-                getApiErrorMessage(error)
-            );
+      dispatch(
+        setCredentials({
+          accessToken:
+            response.data.accessToken,
 
-            throw error;
-        }
-    };
+          user: response.data.user,
+        })
+      );
 
-    const registerUser = async (
-        fullName: string,
-        email: string,
-        password: string
-    ) => {
-        try {
-            const response = await register({
-                fullName,
-                email,
-                password,
-            }).unwrap();
+      dispatch(
+        baseApi.util.resetApiState()
+      );
 
-            dispatch(
-                setCredentials({
-                    accessToken:
-                        response.data.accessToken,
-                    user: response.data.user,
-                })
-            );
+      showSuccess(response.message);
 
-            showSuccess(
-                response.message
-            );
+      navigate("/", {
+        replace: true,
+      });
+    } catch (error) {
+      showError(
+        getApiErrorMessage(error)
+      );
 
-            navigate("/dashboard");
-        } catch (error) {
-            showError(
-                getApiErrorMessage(error)
-            );
+      throw error;
+    }
+  };
 
-            throw error;
-        }
-    };
+  return {
+    loginUser,
+    registerUser,
 
-    return {
-        loginUser,
-        registerUser,
-        loginState,
-        registerState,
-    };
+    loginState,
+    registerState,
+  };
 };

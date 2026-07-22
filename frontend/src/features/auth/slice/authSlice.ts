@@ -6,12 +6,14 @@ interface AuthState {
   accessToken: string | null;
 
   user: User | null;
+  isInitialized: boolean;
 }
 
 const initialState: AuthState = {
   accessToken: null,
 
   user: null,
+  isInitialized: false
 };
 
 const authSlice = createSlice({
@@ -24,13 +26,27 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{
         accessToken: string;
-        user: User;
+        user?: User | null;
       }>
     ) => {
       state.accessToken = action.payload.accessToken;
 
-      state.user = action.payload.user;
+      if (action.payload.user !== undefined) {
+        state.user = action.payload.user;
+      }
+    },
 
+    clearCredentials: (state) => {
+      state.accessToken = null;
+
+      state.user = null;
+    },
+
+    setInitialized: (
+      state,
+      action: PayloadAction<boolean>
+    ) => {
+      state.isInitialized = action.payload;
     },
 
     updateAccessToken(
@@ -47,6 +63,9 @@ const authSlice = createSlice({
 export const {
   setCredentials,
   logout,
+  clearCredentials,
+  setInitialized,
+  updateAccessToken
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,20 +1,20 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import Card from "../../components/ui/Card/Card";
-import CardHeader from "../../components/ui/Card/CardHeader";
-import CardBody from "../../components/ui/Card/CardBody";
-import CardFooter from "../../components/ui/Card/CardFooter";
+import Card from "../../../components/ui/Card/Card";
+import CardHeader from "../../../components/ui/Card/CardHeader";
+import CardBody from "../../../components/ui/Card/CardBody";
+import CardFooter from "../../../components/ui/Card/CardFooter";
 
-import FormField from "../../components/ui/Form/FormField";
-import Button from "../../components/ui/Button/Button";
+import FormField from "../../../components/ui/Form/FormField";
+import Button from "../../../components/ui/Button/Button";
 
 import {
   registerSchema,
   type RegisterFormValues,
-} from "../auth/validation/auth.validation";
+} from "../validation/auth.validation";
 
-import { useAuth } from "../auth/hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 const RegisterForm = () => {
   const {

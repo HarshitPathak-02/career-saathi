@@ -5,6 +5,7 @@ import {
     type LoginRequest,
     type RegisterRequest,
     type AuthResponse,
+    type User,
 } from "../types/auth.types";
 
 export const authApi = baseApi.injectEndpoints({
@@ -40,6 +41,13 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
+        me: builder.query<ApiResponse<User>, void>({
+            query: () => ({
+                url: "/auth/me",
+                method: "GET",
+            }),
+        }),
+
     }),
 });
 
@@ -48,4 +56,5 @@ export const {
     useRegisterMutation,
     useRefreshMutation,
     useLogoutMutation,
+    useLazyMeQuery
 } = authApi;
