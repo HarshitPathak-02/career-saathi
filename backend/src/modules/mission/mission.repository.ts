@@ -83,7 +83,7 @@ class MissionRepository {
 
     async findLatestMission(
         careerJourneyId: Types.ObjectId
-    ) {
+    ):Promise<MissionDocument | null> {
         return MissionModel
             .findOne({
                 careerJourneyId,

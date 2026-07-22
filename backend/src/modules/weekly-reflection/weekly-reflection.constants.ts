@@ -8,4 +8,6 @@ export const WeeklyReflectionConstants = {
 
     },
 
+    WEEKLY_REFLECTION_MODEL: "WeeklyReflection"
+
 } as const;

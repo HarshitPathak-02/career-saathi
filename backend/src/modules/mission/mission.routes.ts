@@ -5,6 +5,9 @@ import {
 import {
     missionController,
 } from "./mission.controller.js";
+import {
+    nextMissionController,
+} from "./next-mission.controller.js";
 import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 
 const missionRouter =
@@ -35,6 +38,13 @@ missionRouter.get(
     "/career-journey/:careerJourneyId/history",
     missionController.getMissionHistory
 );
+
+missionRouter.post(
+    "/:careerJourneyId/next",
+    authenticate,
+    nextMissionController.generateNextMission,
+);
+
 
 // missionRouter.patch(
 //     "/:missionId/start",

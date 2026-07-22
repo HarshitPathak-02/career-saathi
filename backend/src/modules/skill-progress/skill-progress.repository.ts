@@ -8,6 +8,9 @@ import {
     SkillProgressDocument,
     SkillProgressModel,
 } from "./skill-progress.schema.js";
+import { PopulatedSkillProgressDocument } from "../weekly-report/weekly-report.types.js";
+import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
 
 class SkillProgressRepository {
 
@@ -147,7 +150,17 @@ class SkillProgressRepository {
 
         return SkillProgressModel.find({
             assessmentId,
-        }).session(session ?? null);
+        }).populate<{
+            userSkillId: UserSkillDocument & {
+                skillCatalogId: SkillCatalogDocument;
+            };
+        }>({
+            path: "userSkillId",
+            populate: {
+                path: "skillCatalogId",
+                select: "name",
+            },
+        });
 
     }
 

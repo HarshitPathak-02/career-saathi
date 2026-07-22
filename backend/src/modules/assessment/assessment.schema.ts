@@ -1,4 +1,4 @@
-import mongoose, { InferSchemaType } from "mongoose";
+import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
 
 import {
     AssessmentStatus,
@@ -41,7 +41,7 @@ const AssessmentSchema = new mongoose.Schema(
             enum: Object.values(AssessmentStatus),
             default: AssessmentStatus.PENDING,
         },
-        
+
         completedAt: {
             type: Date,
             default: null,
@@ -85,8 +85,11 @@ AssessmentSchema.index(
     }
 );
 
-export type AssessmentDocument =
+export type Assessment =
     InferSchemaType<typeof AssessmentSchema>;
+
+export type AssessmentDocument =
+    HydratedDocument<Assessment>;
 
 export const AssessmentModel = mongoose.model(
     "Assessment",

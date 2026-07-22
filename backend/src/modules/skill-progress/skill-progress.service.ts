@@ -12,6 +12,7 @@ import {
 
 import {
     CreateSkillProgressDTO,
+    SkillProgressPlanningData,
 } from "./skill-progress.types.js";
 
 class SkillProgressService {
@@ -154,9 +155,45 @@ class SkillProgressService {
                 previousPercentage
             ).toFixed(2)
         );
+    }
+
+    async getSkillProgressByAssessment(
+        assessmentId: string
+    ) {
+
+        return this.getAssessmentProgress(
+            new Types.ObjectId(
+                assessmentId
+            )
+        );
 
     }
 
+    async getSkillPlanningData(
+        assessmentId: string,
+    ): Promise<SkillProgressPlanningData[]> {
+
+        const progress =
+            await this.getAssessmentProgress(
+                new Types.ObjectId(assessmentId),
+            );
+
+        return progress.map(item => ({
+
+            userSkillId: item.userSkillId._id,
+
+            skillCatalogId:
+                item.userSkillId.skillCatalogId._id,
+
+            skillName:
+                item.userSkillId.skillCatalogId.name,
+
+            percentage:
+                item.percentage,
+
+        }));
+
+    }
 }
 
 export const skillProgressService =

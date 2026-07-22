@@ -13,8 +13,6 @@ export interface LearningReflection {
 
     reason?: ReflectionReason;
 
-    difficultTopicId?: Types.ObjectId;
-
     difficultyType?: DifficultyType;
 
     confidenceRating: number;
@@ -54,10 +52,6 @@ export interface CreateWeeklyReflectionDTO {
 }
 
 export interface SubmitWeeklyReflectionDTO {
-
-    careerJourneyId: string;
-
-    missionId: string;
 
     assessmentId: string;
 

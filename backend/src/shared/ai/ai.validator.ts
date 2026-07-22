@@ -6,6 +6,8 @@ import {
     RoadmapItemOutput,
 } from "../../modules/roadmap/roadmap.types.js";
 import { DailyTaskGenerationOutput, DailyTaskOutput } from "../../modules/daily-task/daily-task.types.js";
+import { MentorFeedbackOutput, MissionRecommendationOutput, WeeklyReportGenerationOutput, WeeklySummaryOutput } from "../../modules/weekly-report/weekly-report.types.js";
+import { MissionDifficulty } from "../../modules/mission/mission.enums.js";
 
 class AIValidator {
 
@@ -325,6 +327,249 @@ class AIValidator {
         ) {
             throw new Error(
                 `Daily task ${index} has invalid estimated minutes.`
+            );
+        }
+
+    }
+
+    validateWeeklyReport(
+        response: unknown
+    ): WeeklyReportGenerationOutput {
+
+        if (
+            !response ||
+            typeof response !== "object"
+        ) {
+            throw new Error(
+                "AI response must be an object."
+            );
+        }
+
+        const report =
+            response as WeeklyReportGenerationOutput;
+
+        this.validateWeeklySummary(
+            report.summary
+        );
+
+        this.validateMentorFeedback(
+            report.mentorFeedback
+        );
+
+        this.validateMissionRecommendation(
+            report.recommendation
+        );
+
+        return report;
+
+    }
+
+    private validateWeeklySummary(
+        summary: WeeklySummaryOutput
+    ): void {
+
+        if (
+            !summary ||
+            typeof summary !== "object"
+        ) {
+            throw new Error(
+                "Weekly summary is required."
+            );
+        }
+
+        if (
+            typeof summary.summary !== "string" ||
+            summary.summary.trim().length === 0
+        ) {
+            throw new Error(
+                "Weekly summary is required."
+            );
+        }
+
+        if (
+            !Array.isArray(
+                summary.achievements
+            )
+        ) {
+            throw new Error(
+                "Achievements must be an array."
+            );
+        }
+
+        summary.achievements.forEach(
+            (achievement, index) => {
+
+                if (
+                    typeof achievement !== "string" ||
+                    achievement.trim().length === 0
+                ) {
+                    throw new Error(
+                        `Achievement ${index} is invalid.`
+                    );
+                }
+
+            }
+        );
+
+        if (
+            !Array.isArray(
+                summary.improvements
+            )
+        ) {
+            throw new Error(
+                "Improvements must be an array."
+            );
+        }
+
+        summary.improvements.forEach(
+            (improvement, index) => {
+
+                if (
+                    typeof improvement !== "string" ||
+                    improvement.trim().length === 0
+                ) {
+                    throw new Error(
+                        `Improvement ${index} is invalid.`
+                    );
+                }
+
+            }
+        );
+
+    }
+
+    private validateMentorFeedback(
+        mentorFeedback: MentorFeedbackOutput
+    ): void {
+
+        if (
+            !mentorFeedback ||
+            typeof mentorFeedback !== "object"
+        ) {
+            throw new Error(
+                "Mentor feedback is required."
+            );
+        }
+
+        if (
+            typeof mentorFeedback.advice !== "string" ||
+            mentorFeedback.advice.trim().length === 0
+        ) {
+            throw new Error(
+                "Mentor advice is required."
+            );
+        }
+
+        if (
+            typeof mentorFeedback.motivationMessage !== "string" ||
+            mentorFeedback.motivationMessage.trim().length === 0
+        ) {
+            throw new Error(
+                "Motivation message is required."
+            );
+        }
+
+    }
+
+    private validateMissionRecommendation(
+        recommendation: MissionRecommendationOutput
+    ): void {
+
+        if (
+            !recommendation ||
+            typeof recommendation !== "object"
+        ) {
+            throw new Error(
+                "Mission recommendation is required."
+            );
+        }
+
+        if (
+            !Array.isArray(
+                recommendation.weakSkills
+            )
+        ) {
+            throw new Error(
+                "Weak skills must be an array."
+            );
+        }
+
+        recommendation.weakSkills.forEach(
+            (skill, index) => {
+
+                if (
+                    typeof skill !== "string" ||
+                    skill.trim().length === 0
+                ) {
+                    throw new Error(
+                        `Weak skill ${index} is invalid.`
+                    );
+                }
+
+            }
+        );
+
+        if (
+            !Array.isArray(
+                recommendation.revisionTopics
+            )
+        ) {
+            throw new Error(
+                "Revision topics must be an array."
+            );
+        }
+
+        recommendation.revisionTopics.forEach(
+            (topic, index) => {
+
+                if (
+                    typeof topic !== "string" ||
+                    topic.trim().length === 0
+                ) {
+                    throw new Error(
+                        `Revision topic ${index} is invalid.`
+                    );
+                }
+
+            }
+        );
+
+        if (
+            !Object.values(
+                MissionDifficulty
+            ).includes(
+                recommendation.recommendedDifficulty
+            )
+        ) {
+            throw new Error(
+                "Invalid recommended difficulty."
+            );
+        }
+
+        if (
+            !Number.isInteger(
+                recommendation.recommendedStudyHours
+            ) ||
+            recommendation.recommendedStudyHours <= 0
+        ) {
+            throw new Error(
+                "Recommended study hours must be a positive integer."
+            );
+        }
+
+        if (
+            typeof recommendation.prioritizeRevision !== "boolean"
+        ) {
+            throw new Error(
+                "prioritizeRevision must be a boolean."
+            );
+        }
+
+        if (
+            typeof recommendation.skipCompletedTopics !== "boolean"
+        ) {
+            throw new Error(
+                "skipCompletedTopics must be a boolean."
             );
         }
 

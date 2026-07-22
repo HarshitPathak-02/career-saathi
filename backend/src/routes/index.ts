@@ -7,6 +7,8 @@ import { userSkillsRoutes } from '../modules/user-skill/index.js';
 import assessmentRoutes from '../modules/assessment/assessment.routes.js'
 import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
 import missionsRoutes from '../modules/mission/mission.routes.js';
+import weeklyReportRoutes from '../modules/weekly-report/weekly-report.routes.js';
+import weeklyReflectionRoutes from '../modules/weekly-reflection/weekly-reflection.routes.js';
 
 const router = Router();
 
@@ -49,6 +51,14 @@ router.use(
     missionsRoutes
 );
 
+router.use(
+    "/weekly-reflections",
+    weeklyReflectionRoutes
+);
+router.use(
+    "/weekly-reports",
+    weeklyReportRoutes
+);
 
 
 

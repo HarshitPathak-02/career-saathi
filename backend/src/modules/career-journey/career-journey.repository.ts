@@ -34,7 +34,7 @@ export class CareerJourneyRepository {
         id: Types.ObjectId,
         userId: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourney | null> {
+    ): Promise<CareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOne({
             _id: id,
@@ -71,7 +71,7 @@ export class CareerJourneyRepository {
     async findActiveByUserId(
         userId: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourney | null> {
+    ): Promise<CareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOne({
             userId,

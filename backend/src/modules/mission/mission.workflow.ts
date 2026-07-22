@@ -138,10 +138,11 @@ export class MissionWorkflow {
 
             missionNumber: 1,
 
-            roadmapItems:
+            newRoadmapItems:
                 context.roadmapItems,
 
             carryForwardRoadmapItemIds: [],
+            revisionRoadmapItemIds: [],
 
             workloadMultiplier:
                 DEFAULT_WORKLOAD_MULTIPLIER,

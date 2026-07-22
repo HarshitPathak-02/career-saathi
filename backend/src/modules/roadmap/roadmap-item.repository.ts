@@ -140,6 +140,33 @@ class RoadmapItemRepository {
             }
         );
     }
+
+    async findByIds(
+        ids: Types.ObjectId[]
+    ) {
+
+        return RoadmapItemModel.find({
+            _id: {
+                $in: ids,
+            },
+        });
+
+    }
+
+    async findPendingItems(
+        roadmapId: Types.ObjectId,
+    ): Promise<RoadmapItemDocument[]> {
+
+        return RoadmapItemModel
+            .find({
+                roadmapId,
+                status: RoadmapItemStatus.PENDING,
+            })
+            .sort({
+                order: 1,
+            });
+
+    }
 }
 
 export const roadmapItemRepository =

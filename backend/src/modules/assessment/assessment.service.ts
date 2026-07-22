@@ -4,6 +4,7 @@ import { AppError } from "../../core/errors/app-error.js";
 
 import {
     AssessmentStatus,
+    AssessmentType,
 } from "./assessment.enums.js";
 
 import {
@@ -17,6 +18,7 @@ import {
 import {
     assessmentRepository,
 } from "./assessment.repository.js";
+import { AssessmentDocument } from "./assessment.schema.js";
 
 class AssessmentService {
 
@@ -111,6 +113,35 @@ class AssessmentService {
         return assessmentRepository.softDelete(
             assessmentId
         );
+    }
+
+    async getWeeklyAssessment(
+        careerJourneyId: Types.ObjectId,
+        weekNumber: number,
+    ): Promise<AssessmentDocument> {
+
+        const assessment =
+            await assessmentRepository.findOne({
+
+                careerJourneyId,
+
+                weekNumber,
+
+                type: AssessmentType.WEEKLY,
+
+            });
+
+        if (!assessment) {
+
+            throw new AppError(
+                404,
+                AssessmentMessages.NOT_FOUND,
+            );
+
+        }
+
+        return assessment;
+
     }
 
 }

@@ -21,18 +21,38 @@ class MissionPlanningEngine {
             ...input.carryForwardRoadmapItemIds,
         ];
 
-        const remainingCapacity = Math.max(
-            capacity - plannedRoadmapItemIds.length,
-            0
-        );
+        for (const id of input.revisionRoadmapItemIds) {
 
-        const newRoadmapItemIds =
-            input.roadmapItems
+            if (
+                plannedRoadmapItemIds.length >= capacity
+            ) break;
+
+            if (
+                !plannedRoadmapItemIds.some(
+                    item => item.equals(id)
+                )
+            ) {
+                plannedRoadmapItemIds.push(id);
+            }
+
+        }
+
+        const remainingCapacity =
+            capacity -
+            plannedRoadmapItemIds.length;
+
+        const newItems =
+            input.newRoadmapItems
+                .filter(item =>
+                    !plannedRoadmapItemIds.some(
+                        id => id.equals(item._id)
+                    )
+                )
                 .slice(0, remainingCapacity)
                 .map(item => item._id);
 
         plannedRoadmapItemIds.push(
-            ...newRoadmapItemIds
+            ...newItems
         );
 
         return {

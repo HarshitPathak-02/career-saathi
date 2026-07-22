@@ -22,7 +22,7 @@ class RoadmapService {
         return roadmapRepository.findByCareerJourneyId(
             careerJourneyObjectId
         );
-        
+
     }
 
     async getRoadmapItems(
@@ -41,6 +41,14 @@ class RoadmapService {
         return roadmapItemRepository.findNextPendingItems(
             roadmapId,
             limit
+        );
+    }
+    
+    async getRoadmapItemsByIds(
+        roadmapItemIds: Types.ObjectId[]
+    ) {
+        return roadmapItemRepository.findByIds(
+            roadmapItemIds
         );
     }
 }

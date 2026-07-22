@@ -11,6 +11,7 @@ import {
 import {
     CreateMissionDTO,
 } from "./mission.types.js";
+import { MissionDocument } from "./mission.schema.js";
 
 class MissionService {
 
@@ -46,7 +47,7 @@ class MissionService {
 
     async getLatestMission(
         careerJourneyId: string
-    ) {
+    ):Promise<MissionDocument | null> {
         const careerJourneyObjectId =
             new Types.ObjectId(careerJourneyId);
 

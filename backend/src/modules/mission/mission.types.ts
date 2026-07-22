@@ -52,11 +52,14 @@ export interface MissionPlanningResult {
 }
 
 export interface MissionPlanningInput {
+
     missionNumber: number;
 
-    roadmapItems: RoadmapItemDocument[];
+    newRoadmapItems: RoadmapItemDocument[];
 
     carryForwardRoadmapItemIds: Types.ObjectId[];
+
+    revisionRoadmapItemIds: Types.ObjectId[];
 
     workloadMultiplier: number;
 
@@ -65,8 +68,8 @@ export interface MissionPlanningInput {
     endDate: Date;
 
     targetRoadmapItemsPerMission: number;
-}
 
+}
 
 export interface MissionWorkflowContext {
 
