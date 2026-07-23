@@ -9,21 +9,22 @@ import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
 import missionsRoutes from '../modules/mission/mission.routes.js';
 import weeklyReportRoutes from '../modules/weekly-report/weekly-report.routes.js';
 import weeklyReflectionRoutes from '../modules/weekly-reflection/weekly-reflection.routes.js';
+import { lookupRoutes } from '../modules/lookup/index.js';
 
 const router = Router();
 
 router.get('/health', (_req, res) => {
-  res.status(HTTP_STATUS.CREATED).json({
-    success: true,
-    message: 'CareerSaathi Backend is running successfully.',
-  });
+    res.status(HTTP_STATUS.CREATED).json({
+        success: true,
+        message: 'CareerSaathi Backend is running successfully.',
+    });
 });
 
 router.use('/auth', authRoutes)
 
 router.use(
-  '/career-journeys',
-  careerJourneyRoutes
+    '/career-journeys',
+    careerJourneyRoutes
 );
 
 router.use(
@@ -55,9 +56,15 @@ router.use(
     "/weekly-reflections",
     weeklyReflectionRoutes
 );
+
 router.use(
     "/weekly-reports",
     weeklyReportRoutes
+);
+
+router.use(
+    "/lookup",
+    lookupRoutes
 );
 
 

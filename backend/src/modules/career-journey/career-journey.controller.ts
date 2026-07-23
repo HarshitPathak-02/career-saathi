@@ -22,6 +22,8 @@ export class CareerJourneyController {
             const body =
                 req.body as CreateCareerJourneyDto;
 
+            console.log("create journey hit with body:", body)
+
             const careerJourney =
                 await careerJourneyService.createCareerJourney(
                     user.userId,
@@ -43,7 +45,7 @@ export class CareerJourneyController {
 
             const { careerJourneyId } =
                 req.params as {
-                    careerJourneyId:string
+                    careerJourneyId: string
                 };
 
             const careerJourney =
@@ -83,7 +85,7 @@ export class CareerJourneyController {
 
             const { careerJourneyId } =
                 req.params as {
-                    careerJourneyId:string
+                    careerJourneyId: string
                 };;
 
             const body =
@@ -111,7 +113,7 @@ export class CareerJourneyController {
 
             const { careerJourneyId } =
                 req.params as {
-                    careerJourneyId:string
+                    careerJourneyId: string
                 };;
 
             const body =
@@ -139,7 +141,7 @@ export class CareerJourneyController {
 
             const { careerJourneyId } =
                 req.params as {
-                    careerJourneyId:string
+                    careerJourneyId: string
                 };;
 
             await careerJourneyService.deleteCareerJourney(
