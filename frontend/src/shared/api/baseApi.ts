@@ -9,15 +9,8 @@ export const baseApi = createApi({
 
   tagTypes: [
     "Auth",
-    "Dashboard",
-    "Roadmap",
-    "Mission",
-    "Task",
-    "Assessment",
-    "WeeklyProgress",
-    "CareerJourney",
-    "CareerRole",
-    "UserSkill"
+    "CareerSetup",
+    "CareerJourney"
   ],
 
   endpoints: () => ({}),

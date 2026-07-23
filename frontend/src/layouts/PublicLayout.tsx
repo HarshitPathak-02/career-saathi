@@ -17,7 +17,7 @@ const PublicLayout = () => {
     !!accessToken && !!user;
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   return <Outlet />;

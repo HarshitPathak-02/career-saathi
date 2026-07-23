@@ -2,7 +2,7 @@ import { type SelectHTMLAttributes } from "react";
 
 export interface SelectOption {
   label: string;
-  value: string;
+  value: string | number;
 }
 
 export interface SelectProps

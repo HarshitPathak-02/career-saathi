@@ -2,10 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "../shared/api/baseApi";
 import authReducer from "../features/auth/slice/authSlice";
+import careerSetupReducer from "../features/career-setup/slice/careerSetupSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    careerSetup: careerSetupReducer,
 
     [baseApi.reducerPath]: baseApi.reducer,
   },

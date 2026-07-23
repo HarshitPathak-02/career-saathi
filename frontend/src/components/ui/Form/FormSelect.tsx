@@ -5,6 +5,7 @@ import Select from "../Select/Select";
 import type {
   SelectProps,
 } from "../Select/Select.types";
+import FormLabel from "./FormLabel";
 
 interface FormSelectProps
   extends SelectProps {
@@ -28,12 +29,9 @@ const FormSelect = forwardRef<
   ) => {
     return (
       <div className="space-y-1">
-        <label
-          htmlFor={id}
-          className="block text-sm font-medium"
-        >
+        <FormLabel htmlFor={id}>
           {label}
-        </label>
+        </FormLabel>
 
         <Select
           id={id}
