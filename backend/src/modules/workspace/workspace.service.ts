@@ -1,60 +1,59 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
 
-import { careerJourneyRepository } from "../career-journey/career-journey.repository.js";
-import { assessmentRepository } from "../assessment/assessment.repository.js";
-import { roadmapRepository } from "../roadmap/roadmap.repository.js";
-import { missionRepository } from "../mission/mission.repository.js";
+import {
+    userRepository,
+} from "../../modules/users/user.repository.js";
 
-import { WorkspaceState } from "./workspace.enums.js";
-import { AssessmentType } from "../assessment/assessment.enums.js";
-import { WorkspaceMapper } from "./workspace.mapper.js";
-import { userRepository } from "../users/index.js";
+import {
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
+
+import {
+    assessmentRepository,
+} from "../assessment/assessment.repository.js";
+
+import {
+    roadmapRepository,
+} from "../roadmap/roadmap.repository.js";
+
+import {
+    missionRepository,
+} from "../mission/mission.repository.js";
+
+import {
+    dailyTaskRepository,
+} from "../daily-task/daily-task.repository.js";
+
+import {
+    AssessmentType,
+} from "../assessment/assessment.enums.js";
+
+import {
+    WorkspaceMapper,
+} from "./workspace.mapper.js";
 
 export class WorkspaceService {
 
-    async getWorkspace(userId: string) {
+    async getWorkspace(
+        userId: string
+    ) {
 
-        const userObjectId = new Types.ObjectId(userId);
+        const userObjectId =
+            new Types.ObjectId(userId);
 
-        const careerJourney =
-            await careerJourneyRepository.findActiveByUserId(
-                userObjectId
-            );
-
-        if (!careerJourney) {
-            throw new AppError(
-                404,
-                "Active career journey not found."
-            );
-        }
-
-        const assessment =
-            await assessmentRepository.findOne({
-                careerJourneyId: careerJourney._id,
-                type: AssessmentType.INITIAL,
-            });
-
-        const roadmap =
-            await roadmapRepository.findByCareerJourneyId(
-                careerJourney._id
-            );
-
-        const activeMission =
-            await missionRepository.findActiveMission(
-                careerJourney._id
-            );
-
-        const workspaceState =
-            this.getWorkspaceState(
-                !!assessment,
-                !!roadmap,
-                !!activeMission
-            );
-
+        /*
+         * 1. User
+         */
         const user =
-            await userRepository.findById(userId);
+            await userRepository.findById(
+                userId
+            );
 
         if (!user) {
             throw new AppError(
@@ -63,44 +62,97 @@ export class WorkspaceService {
             );
         }
 
+        /*
+         * 2. Active Career Journey
+         */
+        const careerJourney =
+            await careerJourneyRepository
+                .findActiveByUserId(
+                    userObjectId
+                );
+
+        if (!careerJourney) {
+            throw new AppError(
+                404,
+                "Active career journey not found."
+            );
+        }
+
+        /*
+         * 3. Assessment + Roadmap + Mission
+         *
+         * These queries are independent,
+         * so run them concurrently.
+         */
+        const [
+            assessment,
+            roadmap,
+            activeMission,
+        ] = await Promise.all([
+            assessmentRepository.findOne({
+                careerJourneyId:
+                    careerJourney._id,
+
+                type:
+                    AssessmentType.INITIAL,
+            }),
+
+            roadmapRepository
+                .findByCareerJourneyId(
+                    careerJourney._id
+                ),
+
+            missionRepository
+                .findActiveMission(
+                    careerJourney._id
+                ),
+        ]);
+
+        /*
+         * 4. Fetch tasks only when an
+         * active mission exists.
+         */
+        const tasks =
+            activeMission
+                ? await dailyTaskRepository
+                    .findByMissionId(
+                        activeMission._id
+                    )
+                : [];
+
+        /*
+         * TODO:
+         *
+         * Resolve actual CareerRole and
+         * CareerDomain names.
+         *
+         * For now these placeholders should
+         * be replaced using your master-data
+         * repositories.
+         */
+        const targetRole =
+            careerJourney.roleId.toString();
+
+        const targetDomain =
+            careerJourney.domainId.toString();
+
         return WorkspaceMapper.toResponse({
-
-            workspaceState,
-
             user,
 
             careerJourney,
 
-            hasInitialAssessment: !!assessment,
+            assessment,
 
-            hasRoadmap: !!roadmap,
-
-            hasActiveMission: !!activeMission,
+            roadmap,
 
             activeMission,
 
+            tasks,
+
+            targetRole,
+
+            targetDomain,
         });
-    }
-
-    private getWorkspaceState(
-        hasAssessment: boolean,
-        hasRoadmap: boolean,
-        hasMission: boolean
-    ): WorkspaceState {
-
-        if (!hasAssessment) {
-            return WorkspaceState.INITIAL_ASSESSMENT;
-        }
-
-        if (!hasRoadmap) {
-            return WorkspaceState.ROADMAP_PENDING;
-        }
-
-        if (!hasMission) {
-            return WorkspaceState.MISSION_PENDING;
-        }
-
-        return WorkspaceState.ACTIVE;
     }
 }
 

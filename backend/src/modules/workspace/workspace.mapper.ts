@@ -1,93 +1,230 @@
-import { UserDocument } from "../users/user.model.js";
-import { CareerJourneyDocument } from "../career-journey/career-journey.model.js";
-import { MissionDocument } from "../mission/mission.schema.js";
+import {
+    AssessmentDocument,
+} from "../assessment/assessment.schema.js";
 
-import { WorkspaceState } from "./workspace.enums.js";
-import { WorkspaceResponseDto } from "./workspace-response.dto.js";
+import {
+    CareerJourneyDocument,
+} from "../career-journey/career-journey.model.js";
+
+import {
+    DailyTaskDocument,
+} from "../daily-task/daily-task.schema.js";
+
+import {
+    MissionDocument,
+} from "../mission/mission.schema.js";
+
+import {
+    RoadmapDocument,
+} from "../roadmap/roadmap.schema.js";
+
+import {
+    UserDocument,
+} from "../../modules/users/user.model.js";
+
+import {
+    WorkspaceState,
+} from "./workspace.enums.js";
+
+import {
+    WorkspaceResponseDto,
+} from "./workspace-response.dto.js";
 
 interface WorkspaceMapperInput {
-    workspaceState: WorkspaceState;
-
     user: UserDocument;
 
     careerJourney: CareerJourneyDocument;
 
-    hasInitialAssessment: boolean;
+    assessment: AssessmentDocument | null;
 
-    hasRoadmap: boolean;
-
-    hasActiveMission: boolean;
+    roadmap: RoadmapDocument | null;
 
     activeMission: MissionDocument | null;
+
+    tasks: DailyTaskDocument[];
+
+    targetRole: string;
+
+    targetDomain: string;
 }
 
 export class WorkspaceMapper {
 
     static toResponse(
-        data: WorkspaceMapperInput
+        input: WorkspaceMapperInput
     ): WorkspaceResponseDto {
 
-        return {
+        const {
+            user,
+            careerJourney,
+            assessment,
+            roadmap,
+            activeMission,
+            tasks,
+            targetRole,
+            targetDomain,
+        } = input;
 
-            workspaceState: data.workspaceState,
+        const hasInitialAssessment =
+            !!assessment;
+
+        const hasRoadmap =
+            !!roadmap;
+
+        const hasActiveMission =
+            !!activeMission;
+
+        const workspaceState =
+            this.getWorkspaceState(
+                hasInitialAssessment,
+                hasRoadmap,
+                hasActiveMission
+            );
+
+        const completedTasks =
+            tasks.filter(
+                task =>
+                    task.status === "COMPLETED"
+            ).length;
+
+        const totalTasks =
+            tasks.length;
+
+        const progressPercentage =
+            totalTasks > 0
+                ? Math.round(
+                    (completedTasks / totalTasks) *
+                    100
+                )
+                : 0;
+
+        return {
+            workspaceState,
 
             user: {
-                id: data.user._id.toString(),
-                firstName: data.user.fullName,
+                id: user._id.toString(),
+
+                firstName: user.fullName,
             },
 
             careerJourney: {
+                id:
+                    careerJourney._id.toString(),
 
-                id: data.careerJourney._id.toString(),
+                targetRole,
 
-                targetRole:
-                    (data.careerJourney as any).roleId?.name ??
-                    "",
-
-                targetDomain:
-                    (data.careerJourney as any).domainId?.name ??
-                    "",
+                targetDomain,
 
                 targetCompany:
-                    data.careerJourney.targetCompany,
+                    careerJourney.targetCompany ?? "",
 
                 targetDurationMonths:
-                    data.careerJourney.targetDurationMonths,
+                    careerJourney.targetDurationMonths,
 
                 dailyStudyHours:
-                    data.careerJourney.dailyStudyHours,
+                    careerJourney.dailyStudyHours,
             },
 
             overview: {
-
                 currentMission:
-                    data.activeMission?.missionNumber ?? 0,
+                    activeMission?.missionNumber ?? 0,
 
-                currentWeek: 0,
+                currentWeek:
+                    activeMission?.missionNumber ?? 0,
 
-                completedTasks: 0,
+                completedTasks,
 
-                totalTasks: 0,
+                totalTasks,
 
-                progressPercentage: 0,
+                progressPercentage,
 
+                // We don't have streak calculation yet.
                 streak: 0,
             },
 
             actions: {
-
                 canStartAssessment:
-                    !data.hasInitialAssessment,
+                    !hasInitialAssessment,
 
                 canGenerateRoadmap:
-                    data.hasInitialAssessment &&
-                    !data.hasRoadmap,
+                    hasInitialAssessment &&
+                    !hasRoadmap,
 
                 canStartJourney:
-                    data.hasRoadmap &&
-                    !data.hasActiveMission,
+                    hasInitialAssessment &&
+                    hasRoadmap &&
+                    !hasActiveMission,
             },
+
+            activeMission:
+                activeMission
+                    ? {
+                        id:
+                            activeMission._id.toString(),
+
+                        missionNumber:
+                            activeMission.missionNumber,
+
+                        startDate:
+                            activeMission.startDate,
+
+                        endDate:
+                            activeMission.endDate,
+
+                        status:
+                            activeMission.status,
+                    }
+                    : null,
+
+            tasks: tasks.map(task => ({
+                id:
+                    task._id.toString(),
+
+                dayNumber:
+                    task.dayNumber,
+
+                title:
+                    task.title,
+
+                description:
+                    task.description,
+
+                topics:
+                    task.topics,
+
+                estimatedMinutes:
+                    task.estimatedMinutes,
+
+                status:
+                    task.status,
+
+                type:
+                    task.type,
+
+                completedAt:
+                    task.completedAt ?? null,
+            })),
         };
     }
 
+    private static getWorkspaceState(
+        hasAssessment: boolean,
+        hasRoadmap: boolean,
+        hasMission: boolean
+    ): WorkspaceState {
+
+        if (!hasAssessment) {
+            return WorkspaceState.INITIAL_ASSESSMENT;
+        }
+
+        if (!hasRoadmap) {
+            return WorkspaceState.ROADMAP_PENDING;
+        }
+
+        if (!hasMission) {
+            return WorkspaceState.MISSION_PENDING;
+        }
+
+        return WorkspaceState.ACTIVE;
+    }
 }

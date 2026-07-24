@@ -1,4 +1,11 @@
-import { WorkspaceState } from "./workspace.enums.js";
+import {
+    DailyTaskStatus,
+    DailyTaskType,
+} from "../daily-task/daily-task.enums.js";
+
+import {
+    WorkspaceState,
+} from "./workspace.enums.js";
 
 export interface WorkspaceUserDto {
     id: string;
@@ -19,8 +26,39 @@ export interface WorkspaceCareerJourneyDto {
     dailyStudyHours: number;
 }
 
-export interface WorkspaceOverviewDto {
+export interface WorkspaceMissionDto {
+    id: string;
 
+    missionNumber: number;
+
+    startDate: Date;
+
+    endDate: Date;
+
+    status: string;
+}
+
+export interface WorkspaceDailyTaskDto {
+    id: string;
+
+    dayNumber: number;
+
+    title: string;
+
+    description: string;
+
+    topics: string[];
+
+    estimatedMinutes: number;
+
+    status: DailyTaskStatus;
+
+    type: DailyTaskType;
+
+    completedAt: Date | null;
+}
+
+export interface WorkspaceOverviewDto {
     currentMission: number;
 
     currentWeek: number;
@@ -35,7 +73,6 @@ export interface WorkspaceOverviewDto {
 }
 
 export interface WorkspaceActionsDto {
-
     canStartAssessment: boolean;
 
     canGenerateRoadmap: boolean;
@@ -44,7 +81,6 @@ export interface WorkspaceActionsDto {
 }
 
 export interface WorkspaceResponseDto {
-
     workspaceState: WorkspaceState;
 
     user: WorkspaceUserDto;
@@ -54,4 +90,8 @@ export interface WorkspaceResponseDto {
     overview: WorkspaceOverviewDto;
 
     actions: WorkspaceActionsDto;
+
+    activeMission: WorkspaceMissionDto | null;
+
+    tasks: WorkspaceDailyTaskDto[];
 }

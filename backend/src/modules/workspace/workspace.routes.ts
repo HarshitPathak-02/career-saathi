@@ -1,15 +1,21 @@
-import { Router } from "express";
+import {
+    Router,
+} from "express";
 
-import { authenticate } from "../../core/middleware/authenticate.middleware.js";
+import {
+    authenticate,
+} from "../../core/middleware/authenticate.middleware.js";
 
-import { workspaceController } from "./wworkspace.controller.js";
-
+import {
+    workspaceController,
+} from "./workspace.controller.js";
 
 const router = Router();
 
+router.use(authenticate);
+
 router.get(
     "/",
-    authenticate,
     workspaceController.getWorkspace
 );
 
