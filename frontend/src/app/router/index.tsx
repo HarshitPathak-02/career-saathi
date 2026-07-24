@@ -16,7 +16,8 @@ import CareerDomainPage from "../../features/career-setup/pages/CareerDomainPage
 import CareerRolePage from "../../features/career-setup/pages/CareerRolePage";
 import CareerJourneyPage from "../../features/career-setup/pages/CareerJourneyPage";
 
-import WorkspacePage from "../../features/workspace/WorkspacePage";
+import WorkspacePage from "../../features/workspace/pages/WorkspacePage";
+import InitialAssessmentPage from "../../features/initial-assessment/pages/InitialAssessmentPage";
 
 export const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
           {
             path: "/workspace",
             element: <WorkspacePage />,
+          },
+          {
+            path: "/initial-assessment",
+            element: <InitialAssessmentPage />,
           },
         ],
       },

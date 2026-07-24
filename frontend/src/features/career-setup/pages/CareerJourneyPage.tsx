@@ -13,7 +13,6 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
 import {
     updateCareerJourneyForm,
-    resetCareerSetup,
 } from "../slice/careerSetupSlice";
 
 import { useCreateCareerJourneyMutation } from "../api/careerSetupApi";
