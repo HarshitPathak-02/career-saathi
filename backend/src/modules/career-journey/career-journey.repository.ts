@@ -9,7 +9,7 @@ import {
     CareerJourneyModel,
 } from "./career-journey.model.js";
 
-import { CreateCareerJourneyInput, UpdateCareerJourneyInput } from "./career-journey.types.js";
+import { CreateCareerJourneyInput, PopulatedCareerJourneyDocument, UpdateCareerJourneyInput } from "./career-journey.types.js";
 import { CareerJourneyStatus } from "./career-journey.enums.js";
 
 export class CareerJourneyRepository {
@@ -71,19 +71,25 @@ export class CareerJourneyRepository {
     async findActiveByUserId(
         userId: Types.ObjectId,
         session?: ClientSession
-    ): Promise<CareerJourneyDocument | null> {
+    ): Promise<PopulatedCareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOne({
             userId,
+
             status: {
                 $in: [
                     CareerJourneyStatus.DRAFT,
                     CareerJourneyStatus.ACTIVE,
                 ],
             },
+
             isDeleted: false,
-        }).populate("roleId")
-            .populate("domainId").session(session ?? null);
+        })
+            .populate("roleId")
+            .populate("domainId")
+            .session(session ?? null) as unknown as Promise<
+                PopulatedCareerJourneyDocument | null
+            >;
     }
 
     async updateById(

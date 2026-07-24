@@ -84,9 +84,6 @@ UserSkillSchema.index({
   selectedByUser: 1,
 });
 
-UserSkillSchema.index({
-  category: 1,
-});
 
 export type UserSkill = InferSchemaType<
   typeof UserSkillSchema

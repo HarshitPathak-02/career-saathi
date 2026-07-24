@@ -29,11 +29,12 @@ import {
 import {
     WorkspaceResponseDto,
 } from "./workspace-response.dto.js";
+import { PopulatedCareerJourneyDocument } from "../career-journey/career-journey.types.js";
 
 interface WorkspaceMapperInput {
     user: UserDocument;
 
-    careerJourney: CareerJourneyDocument;
+    careerJourney: PopulatedCareerJourneyDocument;
 
     assessment: AssessmentDocument | null;
 
@@ -110,6 +111,9 @@ export class WorkspaceMapper {
             careerJourney: {
                 id:
                     careerJourney._id.toString(),
+
+                roleId: careerJourney.roleId._id.toString(),
+                domainId: careerJourney.domainId._id.toString(),
 
                 targetRole,
 

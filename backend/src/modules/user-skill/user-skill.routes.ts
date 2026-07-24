@@ -21,7 +21,7 @@ router.get(
 );
 
 router.post(
-    "/career-journeys/:careerJourneyId/user-skills",
+    "/career-journeys/:careerJourneyId",
     validateRequest({
         params: careerJourneyIdParamsValidator,
         body: initializeUserSkillsBodyValidator,
@@ -30,7 +30,7 @@ router.post(
 );
 
 router.get(
-    "/career-journeys/:careerJourneyId/user-skills",
+    "/career-journeys/:careerJourneyId",
     validateRequest({
         params: careerJourneyIdParamsValidator,
     }),
@@ -38,7 +38,7 @@ router.get(
 );
 
 router.patch(
-    "/career-journeys/:careerJourneyId/user-skills",
+    "/career-journeys/:careerJourneyId",
     validateRequest({
         params: careerJourneyIdParamsValidator,
         body: updateSelectedSkillsBodyValidator,

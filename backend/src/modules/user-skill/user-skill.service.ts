@@ -55,12 +55,6 @@ class UserSkillService {
             throw new AppError(404, "Career Journey not found.");
         }
 
-        if (journey.status !== CareerJourneyStatus.DRAFT) {
-            throw new AppError(
-                409,
-                "User skills have already been initialized."
-            );
-        }
 
         const alreadyInitialized =
             await userSkillRepository.exists({
@@ -113,10 +107,6 @@ class UserSkillService {
 
         await userSkillRepository.createMany(documents);
 
-        await careerJourneyRepository.updateStatus(
-            careerJourneyObjectId,
-            CareerJourneyStatus.ACTIVE
-        );
     }
 
     async getUserSkills(

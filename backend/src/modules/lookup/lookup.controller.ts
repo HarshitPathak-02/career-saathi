@@ -30,7 +30,9 @@ export class LookupController {
         async (req: Request, res: Response) => {
 
             const { domainId } =
-                req.params as DomainIdParamDto;
+                req.params as {
+                    domainId: string
+                };
 
             const roles =
                 await lookupService.getCareerRolesByDomain(
@@ -49,7 +51,9 @@ export class LookupController {
         async (req: Request, res: Response) => {
 
             const { roleId } =
-                req.params as RoleIdParamDto;
+                req.params as {
+                    roleId: string
+                };
 
             const skills =
                 await lookupService.getCareerRoleSkills(

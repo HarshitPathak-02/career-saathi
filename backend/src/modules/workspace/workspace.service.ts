@@ -64,6 +64,9 @@ export class WorkspaceService {
 
         /*
          * 2. Active Career Journey
+         *
+         * roleId and domainId are populated
+         * by the repository.
          */
         const careerJourney =
             await careerJourneyRepository
@@ -80,9 +83,6 @@ export class WorkspaceService {
 
         /*
          * 3. Assessment + Roadmap + Mission
-         *
-         * These queries are independent,
-         * so run them concurrently.
          */
         const [
             assessment,
@@ -109,8 +109,7 @@ export class WorkspaceService {
         ]);
 
         /*
-         * 4. Fetch tasks only when an
-         * active mission exists.
+         * 4. Active mission tasks
          */
         const tasks =
             activeMission
@@ -121,20 +120,13 @@ export class WorkspaceService {
                 : [];
 
         /*
-         * TODO:
-         *
-         * Resolve actual CareerRole and
-         * CareerDomain names.
-         *
-         * For now these placeholders should
-         * be replaced using your master-data
-         * repositories.
+         * 5. Names from populated master data
          */
         const targetRole =
-            careerJourney.roleId.toString();
+            careerJourney.roleId.name;
 
         const targetDomain =
-            careerJourney.domainId.toString();
+            careerJourney.domainId.name;
 
         return WorkspaceMapper.toResponse({
             user,

@@ -5,6 +5,7 @@ import {
     PreferredLanguage,
     SkillSource,
 } from "./career-journey.enums.js";
+import { CareerJourneyDocument } from "./career-journey.model.js";
 
 export interface SkillInput {
     skillId: Types.ObjectId;
@@ -72,3 +73,39 @@ export interface UpdateCareerJourneyStatusDto {
 export interface CareerJourneyIdParamDto {
     careerJourneyId: string;
 }
+
+export interface PopulatedCareerRole {
+    _id: Types.ObjectId;
+
+    name: string;
+
+    slug: string;
+
+    description?: string;
+
+    domainId: Types.ObjectId;
+
+    isActive: boolean;
+}
+
+export interface PopulatedCareerDomain {
+    _id: Types.ObjectId;
+
+    name: string;
+
+    slug: string;
+
+    description?: string;
+
+    isActive: boolean;
+}
+
+export type PopulatedCareerJourneyDocument =
+    Omit<
+        CareerJourneyDocument,
+        "roleId" | "domainId"
+    > & {
+        roleId: PopulatedCareerRole;
+
+        domainId: PopulatedCareerDomain;
+    };

@@ -15,6 +15,9 @@ export interface WorkspaceUserDto {
 export interface WorkspaceCareerJourneyDto {
     id: string;
 
+    roleId: string;
+    domainId: string;
+
     targetRole: string;
 
     targetDomain: string;
