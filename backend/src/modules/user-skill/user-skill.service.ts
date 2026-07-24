@@ -115,7 +115,7 @@ class UserSkillService {
 
         await careerJourneyRepository.updateStatus(
             careerJourneyObjectId,
-            CareerJourneyStatus.READY
+            CareerJourneyStatus.ACTIVE
         );
     }
 

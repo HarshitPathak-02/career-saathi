@@ -101,7 +101,6 @@ CareerJourneySchema.index(
       status: {
         $in: [
           CareerJourneyStatus.DRAFT,
-          CareerJourneyStatus.READY,
           CareerJourneyStatus.ACTIVE,
         ],
       },

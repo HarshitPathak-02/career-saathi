@@ -10,6 +10,7 @@ import missionsRoutes from '../modules/mission/mission.routes.js';
 import weeklyReportRoutes from '../modules/weekly-report/weekly-report.routes.js';
 import weeklyReflectionRoutes from '../modules/weekly-reflection/weekly-reflection.routes.js';
 import { lookupRoutes } from '../modules/lookup/index.js';
+import workspaceRoutes from '../modules/workspace/workspace.routes.js';
 
 const router = Router();
 
@@ -65,6 +66,11 @@ router.use(
 router.use(
     "/lookup",
     lookupRoutes
+);
+
+router.use(
+    "/workspace",
+    workspaceRoutes
 );
 
 

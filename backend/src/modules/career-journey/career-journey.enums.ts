@@ -9,8 +9,6 @@ export enum PreferredLanguage {
 export enum CareerJourneyStatus {
   DRAFT = "draft",
 
-  READY = "ready",
-
   ACTIVE = "active",
 
   COMPLETED = "completed",

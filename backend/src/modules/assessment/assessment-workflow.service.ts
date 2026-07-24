@@ -62,7 +62,7 @@ class AssessmentWorkflowService {
 
         if (
             careerJourney.status !==
-            CareerJourneyStatus.READY
+            CareerJourneyStatus.ACTIVE
         ) {
             throw new AppError(
                 409,

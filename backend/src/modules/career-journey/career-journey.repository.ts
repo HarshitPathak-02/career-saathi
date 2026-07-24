@@ -78,12 +78,12 @@ export class CareerJourneyRepository {
             status: {
                 $in: [
                     CareerJourneyStatus.DRAFT,
-                    CareerJourneyStatus.READY,
                     CareerJourneyStatus.ACTIVE,
                 ],
             },
             isDeleted: false,
-        }).session(session ?? null);
+        }).populate("roleId")
+            .populate("domainId").session(session ?? null);
     }
 
     async updateById(
