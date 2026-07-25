@@ -13,6 +13,8 @@ import {
     missionWorkflowService,
 } from "./mission.workflow.js";
 import { getAuthUser } from "../../shared/utils/get-auth-user.js";
+import { missionMapper } from "./mission.mapper.js";
+import { dailyTaskService } from "../daily-task/daily-task.service.js";
 
 class MissionController {
 
@@ -30,10 +32,19 @@ class MissionController {
                 new Types.ObjectId(
                     req.params.careerJourneyId as string
                 )
-
             );
 
-        res.status(201).json(mission);
+        const progress =
+            await dailyTaskService.getMissionProgress(
+                mission._id
+            );
+
+        res.status(201).json(
+            missionMapper.toMissionSummaryDto(
+                mission,
+                progress
+            )
+        );
 
     }
 
@@ -47,7 +58,29 @@ class MissionController {
                 req.params.missionId as string
             );
 
-        res.status(200).json(mission);
+        if (!mission) {
+            return res.status(404).json({
+                message: "Mission not found",
+            });
+        }
+
+        const progress =
+            await dailyTaskService.getMissionProgress(
+                mission._id
+            );
+
+        const currentMissionDay =
+            await missionService.getCurrentMissionDay(
+                mission._id
+            );
+
+        res.status(200).json(
+            missionMapper.toMissionDetailsDto(
+                mission,
+                progress,
+                currentMissionDay
+            )
+        );
 
     }
 
@@ -61,7 +94,21 @@ class MissionController {
                 req.params.careerJourneyId as string
             );
 
-        res.status(200).json(mission);
+        if (!mission) {
+            return res.status(404).json(null);
+        }
+
+        const progress =
+            await dailyTaskService.getMissionProgress(
+                mission._id
+            );
+
+        res.status(200).json(
+            missionMapper.toMissionSummaryDto(
+                mission,
+                progress
+            )
+        );
 
     }
 
@@ -75,7 +122,21 @@ class MissionController {
                 req.params.careerJourneyId as string
             );
 
-        res.status(200).json(mission);
+        if (!mission) {
+            return res.status(404).json(null);
+        }
+
+        const progress =
+            await dailyTaskService.getMissionProgress(
+                mission._id
+            );
+
+        res.status(200).json(
+            missionMapper.toMissionSummaryDto(
+                mission,
+                progress
+            )
+        );
 
     }
 
@@ -89,7 +150,24 @@ class MissionController {
                 req.params.careerJourneyId as string
             );
 
-        res.status(200).json(missions);
+        const response =
+            await Promise.all(
+                missions.map(async mission => {
+
+                    const progress =
+                        await dailyTaskService.getMissionProgress(
+                            mission._id
+                        );
+
+                    return missionMapper.toMissionSummaryDto(
+                        mission,
+                        progress
+                    );
+
+                })
+            );
+
+        res.status(200).json(response);
 
     }
 

@@ -231,11 +231,6 @@ class AssessmentWorkflowService {
             assessment._id.toString()
         );
 
-        /**
-         * TODO
-         * roadmapService.generate()
-         */
-
         await careerJourneyRepository.updateStatus(
             assessment.careerJourneyId,
             CareerJourneyStatus.ACTIVE
@@ -314,15 +309,45 @@ class AssessmentWorkflowService {
             assessment._id.toString()
         );
 
-        /**
-         * TODO
-         * weeklyReviewService.generate()
-         * missionService.generate()
-         */
 
         return assessmentService.getAssessmentById(
             assessment._id.toString()
         );
+
+    }
+
+    async getOrCreateWeeklyAssessment(
+        careerJourneyId: Types.ObjectId,
+        weekNumber: number
+    ) {
+
+        const existingAssessment =
+            await assessmentRepository
+                .findWeeklyAssessment(
+                    careerJourneyId,
+                    weekNumber
+                );
+
+        if (existingAssessment) {
+            return existingAssessment;
+        }
+
+        return assessmentService.createAssessment({
+
+            careerJourneyId,
+
+            type:
+                AssessmentType.WEEKLY,
+
+            weekNumber,
+
+            title:
+                `Week ${weekNumber} Assessment`,
+
+            description:
+                `Weekly assessment for week ${weekNumber}.`,
+
+        });
 
     }
 

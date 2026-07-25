@@ -1,19 +1,46 @@
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
 
-import { aiService } from "../../shared/ai/ai.service.js";
-import { aiValidator } from "../../shared/ai/ai.validator.js";
+import {
+    aiService,
+} from "../../shared/ai/ai.service.js";
 
-import { careerJourneyService } from "../career-journey/career-journey.service.js";
-import { missionService } from "../mission/mission.service.js";
-import { assessmentService } from "../assessment/assessment.service.js";
-import { weeklyReflectionService } from "../weekly-reflection/weekly-reflection.service.js";
-import { skillProgressService } from "../skill-progress/skill-progress.service.js";
-import { roadmapService } from "../roadmap/roadmap.service.js";
-import { weeklyReportService } from "./weekly-report.service.js";
+import {
+    aiValidator,
+} from "../../shared/ai/ai.validator.js";
 
-import { WeeklyReportMapper } from "./weekly-report.mapper.js";
+import {
+    MissionDocument,
+} from "../mission/mission.schema.js";
 
-import { buildWeeklyReportPrompt } from "./weekly-report.prompt.js";
+import {
+    AssessmentDocument,
+} from "../assessment/assessment.schema.js";
+
+import {
+    WeeklyReflectionDocument,
+} from "../weekly-reflection/weekly-reflection.schema.js";
+
+import {
+    skillProgressService,
+} from "../skill-progress/skill-progress.service.js";
+
+import {
+    roadmapService,
+} from "../roadmap/roadmap.service.js";
+
+import {
+    weeklyReportService,
+} from "./weekly-report.service.js";
+
+import {
+    WeeklyReportMapper,
+} from "./weekly-report.mapper.js";
+
+import {
+    buildWeeklyReportPrompt,
+} from "./weekly-report.prompt.js";
 
 import {
     WeeklyReportGenerationOutput,
@@ -30,43 +57,46 @@ import {
 class WeeklyReportWorkflow {
 
     async generateWeeklyReport(
-        userId: string,
+        mission: MissionDocument,
+        assessment: AssessmentDocument,
+        reflection: WeeklyReflectionDocument,
     ) {
 
-        const careerJourney =
-            await careerJourneyService.getActiveCareerJourney(
-                userId,
+        if (
+            assessment.careerJourneyId.toString() !==
+            mission.careerJourneyId.toString()
+        ) {
+
+            throw new AppError(
+                409,
+                "Assessment does not belong to this mission."
             );
 
-        if (!careerJourney) {
-            throw new AppError(
-                404,
-                "Active career journey not found.",
-            );
         }
 
-        const mission =
-            await missionService.getLatestMission(
-                careerJourney.id,
+        if (
+            reflection.missionId.toString() !==
+            mission._id.toString()
+        ) {
+
+            throw new AppError(
+                409,
+                "Reflection does not belong to this mission."
             );
 
-        if (!mission) {
-            throw new AppError(
-                404,
-                "Mission not found.",
-            );
         }
 
-        const assessment =
-            await assessmentService.getWeeklyAssessment(
-                mission.careerJourneyId,
-                mission.missionNumber,
+        if (
+            reflection.assessmentId.toString() !==
+            assessment._id.toString()
+        ) {
+
+            throw new AppError(
+                409,
+                "Reflection does not belong to this assessment."
             );
 
-        const reflection =
-            await weeklyReflectionService.getReflectionByMissionId(
-                mission.id,
-            );
+        }
 
         const alreadyGenerated =
             await weeklyReportService.existsByReflectionId(
@@ -74,10 +104,12 @@ class WeeklyReportWorkflow {
             );
 
         if (alreadyGenerated) {
+
             throw new AppError(
                 409,
                 WEEKLY_REPORT_MESSAGES.ALREADY_GENERATED,
             );
+
         }
 
         const skillProgress =
@@ -97,7 +129,7 @@ class WeeklyReportWorkflow {
                 reflection,
                 skillProgress,
                 roadmapItems.map(
-                    (item) => item.title,
+                    item => item.title,
                 ),
             );
 
@@ -125,7 +157,7 @@ class WeeklyReportWorkflow {
         return weeklyReportService.createWeeklyReport({
 
             careerJourneyId:
-                careerJourney._id,
+                mission.careerJourneyId,
 
             missionId:
                 mission._id,

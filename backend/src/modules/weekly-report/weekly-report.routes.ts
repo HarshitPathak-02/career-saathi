@@ -10,11 +10,6 @@ import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 const router =
     Router();
 
-router.post(
-    "/generate",
-    authenticate,
-    weeklyReportController.generateWeeklyReport
-);
 
 router.get(
     "/:careerJourneyId/latest",

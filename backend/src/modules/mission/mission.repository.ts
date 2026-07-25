@@ -22,18 +22,24 @@ class MissionRepository {
         const [mission] =
             await MissionModel.create(
                 [data],
-                { session }
+                {
+                    session,
+                }
             );
 
         return mission;
     }
 
     async findById(
-        id: Types.ObjectId
+        id: Types.ObjectId,
+        session?: ClientSession
     ) {
-        return this.findOne({
-            _id: id,
-        });
+        return this.findOne(
+            {
+                _id: id,
+            },
+            session
+        );
     }
 
     async findOne(
@@ -42,7 +48,9 @@ class MissionRepository {
     ) {
         return MissionModel
             .findOne(filter)
-            .session(session ?? null);
+            .session(
+                session ?? null
+            );
     }
 
     async findMany(
@@ -51,7 +59,9 @@ class MissionRepository {
     ) {
         return MissionModel
             .find(filter)
-            .session(session ?? null);
+            .session(
+                session ?? null
+            );
     }
 
     async exists(
@@ -61,7 +71,9 @@ class MissionRepository {
         const exists =
             await MissionModel
                 .exists(filter)
-                .session(session ?? null);
+                .session(
+                    session ?? null
+                );
 
         return Boolean(exists);
     }
@@ -71,58 +83,66 @@ class MissionRepository {
         update: UpdateQuery<MissionDocument>,
         session?: ClientSession
     ) {
-        return MissionModel.findByIdAndUpdate(
-            id,
-            update,
-            {
-                new: true,
-                session,
-            }
-        );
+        return MissionModel
+            .findByIdAndUpdate(
+                id,
+                update,
+                {
+                    new: true,
+
+                    runValidators: true,
+
+                    session,
+                }
+            );
     }
 
     async findLatestMission(
-        careerJourneyId: Types.ObjectId
-    ):Promise<MissionDocument | null> {
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findOne({
                 careerJourneyId,
             })
             .sort({
                 missionNumber: -1,
-            });
+            })
+            .session(
+                session ?? null
+            );
     }
 
     async findActiveMission(
-        careerJourneyId: Types.ObjectId
-    ) {
-        return MissionModel.findOne({
-            careerJourneyId,
-            status: MissionStatus.ACTIVE,
-        });
-    }
-
-    async findUpcomingMission(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ) {
         return MissionModel
             .findOne({
                 careerJourneyId,
-                status: MissionStatus.UPCOMING,
+
+                status:
+                    MissionStatus.ACTIVE,
             })
-            .sort({
-                missionNumber: 1,
-            });
+            .session(
+                session ?? null
+            );
     }
 
     async findByMissionNumber(
         careerJourneyId: Types.ObjectId,
-        missionNumber: number
+        missionNumber: number,
+        session?: ClientSession
     ) {
-        return MissionModel.findOne({
-            careerJourneyId,
-            missionNumber,
-        });
+        return MissionModel
+            .findOne({
+                careerJourneyId,
+                missionNumber,
+            })
+            .session(
+                session ?? null
+            );
     }
 
     async updateStatus(
@@ -130,35 +150,37 @@ class MissionRepository {
         status: MissionStatus,
         session?: ClientSession
     ) {
-        const update: UpdateQuery<MissionDocument> = {
-            status,
-        };
+        return MissionModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    status,
+                },
+                {
+                    new: true,
 
-        if (status === MissionStatus.ACTIVE) {
-            update.activatedAt = new Date();
-        }
+                    runValidators: true,
 
-        return MissionModel.findByIdAndUpdate(
-            id,
-            update,
-            {
-                new: true,
-                session,
-            }
-        );
+                    session,
+                }
+            );
     }
+
     async findAllByCareerJourney(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ) {
         return MissionModel
             .find({
                 careerJourneyId,
             })
             .sort({
-                missionNumber: 1,
-            });
+                missionNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
     }
-
 }
 
 export const missionRepository =

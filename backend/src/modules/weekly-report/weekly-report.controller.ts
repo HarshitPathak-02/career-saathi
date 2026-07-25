@@ -10,46 +10,13 @@ import {
     weeklyReportService,
 } from "./weekly-report.service.js";
 
-import {
-    weeklyReportWorkflow,
-} from "./weekly-report.workflow.js";
 
 import {
     weeklyReportResponseMapper,
 } from "./weekly-report-response.mapper.js";
-import { userInfo } from "node:os";
-import { getAuthUser } from "../../shared/utils/get-auth-user.js";
 
 class WeeklyReportController {
 
-    async generateWeeklyReport(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-
-        try {
-
-            const user = getAuthUser(req);
-
-            const weeklyReport =
-                await weeklyReportWorkflow.generateWeeklyReport(
-                  user.userId
-                );
-
-            res.status(201).json(
-                weeklyReportResponseMapper.toGenerateWeeklyReportResponse(
-                    weeklyReport
-                )
-            );
-
-        } catch (error) {
-
-            next(error);
-
-        }
-
-    }
 
     async getLatestWeeklyReport(
         req: Request,

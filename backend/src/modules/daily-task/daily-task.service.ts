@@ -14,7 +14,16 @@ import {
 
 import {
     DailyTaskGenerationOutput,
+    MissionProgress,
 } from "./daily-task.types.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
+
+import {
+    missionService,
+} from "../mission/mission.service.js";
 
 class DailyTaskService {
 
@@ -73,23 +82,78 @@ class DailyTaskService {
 
     }
 
-    async markPending(
-        taskId: Types.ObjectId,
-        session?: ClientSession
+    async getTaskByMissionAndDay(
+        missionId: Types.ObjectId,
+        dayNumber: number
     ) {
 
-        return this.updateTaskStatus(
-            taskId,
-            DailyTaskStatus.PENDING,
-            session
+        return dailyTaskRepository.findByMissionAndDay(
+            missionId,
+            dayNumber
         );
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Normal Daily Task Completion
+    |--------------------------------------------------------------------------
+    |
+    | Used by the public daily-task endpoint.
+    |
+    | Rules:
+    | - Previous/current days can be completed.
+    | - Future days cannot be completed.
+    | - Day 7 cannot be completed directly.
+    |
+    */
 
     async markCompleted(
         taskId: Types.ObjectId,
         session?: ClientSession
     ) {
+
+        const task =
+            await dailyTaskRepository.findById(
+                taskId,
+                session
+            );
+
+        if (!task) {
+
+            throw new AppError(
+                404,
+                "Daily task not found."
+            );
+
+        }
+
+        if (task.dayNumber === 7) {
+
+            throw new AppError(
+                409,
+                "Day 7 can only be completed through the weekly review."
+            );
+
+        }
+
+        const currentMissionDay =
+            await missionService.getCurrentMissionDay(
+                task.missionId,
+                session
+            );
+
+        if (
+            task.dayNumber >
+            currentMissionDay
+        ) {
+
+            throw new AppError(
+                409,
+                "Future daily tasks cannot be completed."
+            );
+
+        }
 
         return this.updateTaskStatus(
             taskId,
@@ -99,16 +163,141 @@ class DailyTaskService {
 
     }
 
-    async markSkipped(
-        taskId: Types.ObjectId,
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Review Task Completion
+    |--------------------------------------------------------------------------
+    |
+    | Internal workflow operation.
+    | This should NOT get its own public route.
+    |
+    */
+
+    async completeWeeklyReviewTask(
+        missionId: Types.ObjectId,
         session?: ClientSession
     ) {
+
+        const task =
+            await dailyTaskRepository.findByMissionAndDay(
+                missionId,
+                7,
+                session
+            );
+
+        if (!task) {
+
+            throw new AppError(
+                404,
+                "Weekly review task not found."
+            );
+
+        }
+
+        const currentMissionDay =
+            await missionService.getCurrentMissionDay(
+                missionId,
+                session
+            );
+
+        if (currentMissionDay < 7) {
+
+            throw new AppError(
+                409,
+                "Weekly review is not available yet."
+            );
+
+        }
+
+        if (
+            task.status ===
+            DailyTaskStatus.COMPLETED
+        ) {
+
+            return task;
+
+        }
+
+        return this.updateTaskStatus(
+            task._id,
+            DailyTaskStatus.COMPLETED,
+            session
+        );
+
+    }
+
+    async markPending(
+        taskId: Types.ObjectId,
+        session?: ClientSession,
+    ) {
+
+        await this.ensureNormalDailyTask(
+            taskId,
+            session,
+        );
+
+        return this.updateTaskStatus(
+            taskId,
+            DailyTaskStatus.PENDING,
+            session,
+        );
+
+    }
+
+    async markSkipped(
+        taskId: Types.ObjectId,
+        session?: ClientSession,
+    ) {
+
+        await this.ensureNormalDailyTask(
+            taskId,
+            session,
+        );
 
         return this.updateTaskStatus(
             taskId,
             DailyTaskStatus.SKIPPED,
-            session
+            session,
         );
+
+    }
+
+    async getMissionProgress(
+        missionId: Types.ObjectId
+    ): Promise<MissionProgress> {
+
+        const tasks =
+            await dailyTaskRepository.findByMissionId(
+                missionId
+            );
+
+        const totalDays =
+            tasks.length;
+
+        const completedDays =
+            tasks.filter(
+                task =>
+                    task.status ===
+                    DailyTaskStatus.COMPLETED
+            ).length;
+
+        const progressPercentage =
+            totalDays === 0
+                ? 0
+                : Math.round(
+                    (completedDays / totalDays) *
+                    100
+                );
+
+        return {
+
+            totalDays,
+
+            completedDays,
+
+            progressPercentage,
+
+        };
 
     }
 
@@ -124,7 +313,8 @@ class DailyTaskService {
                 status,
 
                 completedAt:
-                    status === DailyTaskStatus.COMPLETED
+                    status ===
+                        DailyTaskStatus.COMPLETED
                         ? new Date()
                         : null,
             },
@@ -133,6 +323,37 @@ class DailyTaskService {
 
     }
 
+    private async ensureNormalDailyTask(
+        taskId: Types.ObjectId,
+        session?: ClientSession,
+    ) {
+
+        const task =
+            await dailyTaskRepository.findById(
+                taskId,
+                session,
+            );
+
+        if (!task) {
+
+            throw new AppError(
+                404,
+                "Daily task not found.",
+            );
+
+        }
+
+        if (task.dayNumber === 7) {
+
+            throw new AppError(
+                409,
+                "Weekly review task cannot be modified directly.",
+            );
+
+        }
+
+        return task;
+    }
 }
 
 export const dailyTaskService =

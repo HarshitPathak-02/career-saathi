@@ -37,8 +37,39 @@ import {
 import {
     WorkspaceMapper,
 } from "./workspace.mapper.js";
+import { dailyTaskService } from "../daily-task/daily-task.service.js";
 
 export class WorkspaceService {
+
+    private calculateMissionDay(
+        startDate: Date,
+        totalDays: number
+    ) {
+
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+
+        const missionStart = new Date(startDate);
+
+        missionStart.setHours(0, 0, 0, 0);
+
+        const differenceInDays = Math.floor(
+            (today.getTime() - missionStart.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        const dayNumber = Math.min(
+            Math.max(differenceInDays + 1, 1),
+            totalDays
+        );
+
+        return {
+            dayNumber,
+            remainingDays: totalDays - dayNumber,
+        };
+
+    }
 
     async getWorkspace(
         userId: string
@@ -109,15 +140,43 @@ export class WorkspaceService {
         ]);
 
         /*
-         * 4. Active mission tasks
-         */
+ * 4. Today's mission task
+ */
+
         const tasks =
             activeMission
-                ? await dailyTaskRepository
-                    .findByMissionId(
-                        activeMission._id
-                    )
+                ? await dailyTaskRepository.findByMissionId(
+                    activeMission._id
+                )
                 : [];
+
+        let today = null;
+
+        let todayTask = null;
+
+        if (activeMission) {
+
+            const missionDuration =
+                Math.floor(
+                    (
+                        activeMission.endDate.getTime() -
+                        activeMission.startDate.getTime()
+                    ) /
+                    (1000 * 60 * 60 * 24)
+                ) + 1;
+
+            today = this.calculateMissionDay(
+                activeMission.startDate,
+                missionDuration
+            );
+
+            todayTask =
+                await dailyTaskService.getTaskByMissionAndDay(
+                    activeMission._id,
+                    today.dayNumber
+                );
+
+        }
 
         /*
          * 5. Names from populated master data
@@ -140,6 +199,10 @@ export class WorkspaceService {
             activeMission,
 
             tasks,
+
+            today,
+
+            todayTask,
 
             targetRole,
 

@@ -86,3 +86,13 @@ export interface DailyTaskOutput {
 
 export type DailyTaskGenerationOutput =
     DailyTaskOutput[];
+
+export interface MissionProgress {
+
+    totalDays: number;
+
+    completedDays: number;
+
+    progressPercentage: number;
+
+}

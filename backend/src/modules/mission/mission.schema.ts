@@ -20,6 +20,7 @@ import {
 
 
 import {
+    MISSION_MODEL,
     MissionStatus,
 } from "./mission.enums.js";
 
@@ -65,7 +66,7 @@ const MissionSchema = new Schema(
         status: {
             type: String,
             enum: Object.values(MissionStatus),
-            default: MissionStatus.UPCOMING,
+            default: MissionStatus.ACTIVE,
         },
 
     },
@@ -88,13 +89,23 @@ MissionSchema.index(
 );
 
 MissionSchema.index({
-    careerJourneyId: 1,
-    status: 1,
-});
-
-MissionSchema.index({
     roadmapId: 1,
 });
+
+MissionSchema.index(
+    {
+        careerJourneyId: 1,
+        status: 1,
+    },
+    {
+        unique: true,
+
+        partialFilterExpression: {
+            status:
+                MissionStatus.ACTIVE,
+        },
+    }
+);
 
 export type Mission =
     InferSchemaType<typeof MissionSchema>;
@@ -104,6 +115,6 @@ export type MissionDocument =
 
 export const MissionModel =
     model<Mission>(
-        "MissionModel",
+        MISSION_MODEL,
         MissionSchema
     );

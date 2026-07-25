@@ -117,11 +117,19 @@ class SkillProgressService {
         totalMarks: number
     ) {
 
-        if (obtainedMarks > totalMarks) {
+        if (
+            !Number.isFinite(obtainedMarks) ||
+            !Number.isFinite(totalMarks) ||
+            obtainedMarks < 0 ||
+            totalMarks <= 0 ||
+            obtainedMarks > totalMarks
+        ) {
+
             throw new AppError(
                 400,
                 SkillProgressMessages.INVALID_MARKS
             );
+
         }
 
     }

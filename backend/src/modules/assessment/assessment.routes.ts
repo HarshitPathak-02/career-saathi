@@ -1,65 +1,135 @@
 import { Router } from "express";
 
-import { assessmentController } from "./assessment.controller.js";
+import {
+    assessmentController,
+} from "./assessment.controller.js";
 
-import { validateRequest } from "../../core/middleware/validate.middleware.js";
+import {
+    validateRequest,
+} from "../../core/middleware/validate.middleware.js";
 
 import {
     startInitialAssessmentSchema,
     startWeeklyAssessmentSchema,
     submitAssessmentSchema,
     assessmentIdParamSchema,
+    careerJourneyIdParamSchema,
 } from "./assessment.validator.js";
 
 const assessmentRouter = Router();
 
-/**
- * Initial Assessment
- */
+/*
+|--------------------------------------------------------------------------
+| Initial Assessment
+|--------------------------------------------------------------------------
+*/
+
 assessmentRouter.post(
     "/initial/start",
+
     validateRequest({
-        body: startInitialAssessmentSchema,
+        body:
+            startInitialAssessmentSchema,
     }),
-    assessmentController.startInitialAssessment
+
+    assessmentController
+        .startInitialAssessment
 );
 
 assessmentRouter.post(
     "/initial/submit",
+
     validateRequest({
-        body: submitAssessmentSchema,
+        body:
+            submitAssessmentSchema,
     }),
-    assessmentController.submitInitialAssessment
+
+    assessmentController
+        .submitInitialAssessment
 );
 
-/**
- * Weekly Assessment
- */
+/*
+|--------------------------------------------------------------------------
+| Weekly Assessment
+|--------------------------------------------------------------------------
+*/
+
 assessmentRouter.post(
     "/weekly/start",
+
     validateRequest({
-        body: startWeeklyAssessmentSchema,
+        body:
+            startWeeklyAssessmentSchema,
     }),
-    assessmentController.startWeeklyAssessment
+
+    assessmentController
+        .startWeeklyAssessment
 );
 
 assessmentRouter.post(
     "/weekly/submit",
+
     validateRequest({
-        body: submitAssessmentSchema,
+        body:
+            submitAssessmentSchema,
     }),
-    assessmentController.submitWeeklyAssessment
+
+    assessmentController
+        .submitWeeklyAssessment
 );
 
-/**
- * Assessment
- */
+/*
+|--------------------------------------------------------------------------
+| Assessment History
+|--------------------------------------------------------------------------
+*/
+
+assessmentRouter.get(
+    "/career-journey/:careerJourneyId",
+
+    validateRequest({
+        params:
+            careerJourneyIdParamSchema,
+    }),
+
+    assessmentController
+        .getAssessmentHistory
+);
+
+/*
+|--------------------------------------------------------------------------
+| Assessment Details
+|--------------------------------------------------------------------------
+*/
+
+assessmentRouter.get(
+    "/:assessmentId/details",
+
+    validateRequest({
+        params:
+            assessmentIdParamSchema,
+    }),
+
+    assessmentController
+        .getAssessmentDetails
+);
+
+/*
+|--------------------------------------------------------------------------
+| Assessment
+|--------------------------------------------------------------------------
+*/
+
 assessmentRouter.get(
     "/:assessmentId",
+
     validateRequest({
-        params: assessmentIdParamSchema,
+        params:
+            assessmentIdParamSchema,
     }),
-    assessmentController.getAssessmentById
+
+    assessmentController
+        .getAssessmentById
 );
 
 export default assessmentRouter;

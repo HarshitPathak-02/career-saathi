@@ -44,6 +44,13 @@ interface WorkspaceMapperInput {
 
     tasks: DailyTaskDocument[];
 
+    today: {
+        dayNumber: number;
+        remainingDays: number;
+    } | null;
+
+    todayTask: DailyTaskDocument | null;
+
     targetRole: string;
 
     targetDomain: string;
@@ -62,6 +69,8 @@ export class WorkspaceMapper {
             roadmap,
             activeMission,
             tasks,
+            today,
+            todayTask,
             targetRole,
             targetDomain,
         } = input;
@@ -112,8 +121,11 @@ export class WorkspaceMapper {
                 id:
                     careerJourney._id.toString(),
 
-                roleId: careerJourney.roleId._id.toString(),
-                domainId: careerJourney.domainId._id.toString(),
+                roleId:
+                    careerJourney.roleId._id.toString(),
+
+                domainId:
+                    careerJourney.domainId._id.toString(),
 
                 targetRole,
 
@@ -142,7 +154,7 @@ export class WorkspaceMapper {
 
                 progressPercentage,
 
-                // We don't have streak calculation yet.
+                // TODO: Implement streak calculation
                 streak: 0,
             },
 
@@ -180,34 +192,39 @@ export class WorkspaceMapper {
                     }
                     : null,
 
-            tasks: tasks.map(task => ({
-                id:
-                    task._id.toString(),
+            today,
 
-                dayNumber:
-                    task.dayNumber,
+            todayTask:
+                todayTask
+                    ? {
+                        id:
+                            todayTask._id.toString(),
 
-                title:
-                    task.title,
+                        dayNumber:
+                            todayTask.dayNumber,
 
-                description:
-                    task.description,
+                        title:
+                            todayTask.title,
 
-                topics:
-                    task.topics,
+                        description:
+                            todayTask.description,
 
-                estimatedMinutes:
-                    task.estimatedMinutes,
+                        topics:
+                            todayTask.topics,
 
-                status:
-                    task.status,
+                        estimatedMinutes:
+                            todayTask.estimatedMinutes,
 
-                type:
-                    task.type,
+                        status:
+                            todayTask.status,
 
-                completedAt:
-                    task.completedAt ?? null,
-            })),
+                        type:
+                            todayTask.type,
+
+                        completedAt:
+                            todayTask.completedAt ?? null,
+                    }
+                    : null,
         };
     }
 

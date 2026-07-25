@@ -53,8 +53,6 @@ export interface CreateWeeklyReflectionDTO {
 
 export interface SubmitWeeklyReflectionDTO {
 
-    assessmentId: string;
-
     learningReflection: LearningReflection;
 
     mentorCheckIn: MentorCheckIn;

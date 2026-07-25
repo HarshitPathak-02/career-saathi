@@ -41,6 +41,14 @@ export interface WorkspaceMissionDto {
     status: string;
 }
 
+export interface WorkspaceTodayDto {
+
+    dayNumber: number;
+
+    remainingDays: number;
+
+}
+
 export interface WorkspaceDailyTaskDto {
     id: string;
 
@@ -96,5 +104,7 @@ export interface WorkspaceResponseDto {
 
     activeMission: WorkspaceMissionDto | null;
 
-    tasks: WorkspaceDailyTaskDto[];
+    today: WorkspaceTodayDto | null;
+
+    todayTask: WorkspaceDailyTaskDto | null;
 }

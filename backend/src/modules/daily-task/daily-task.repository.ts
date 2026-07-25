@@ -28,28 +28,40 @@ class DailyTaskRepository {
     }
 
     async findById(
-        id: Types.ObjectId
+        id: Types.ObjectId,
+        session?: ClientSession
     ) {
-        return this.findOne({
-            _id: id,
-        });
+        return this.findOne(
+            {
+                _id: id,
+            },
+            session
+        );
     }
 
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return DailyTaskModel.findOne(filter);
+        return DailyTaskModel
+            .findOne(filter)
+            .session(
+                session ?? null
+            );
     }
 
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return DailyTaskModel.find(filter)
+        return DailyTaskModel
+            .find(filter)
             .sort({
                 dayNumber: 1,
-            });
+            })
+            .session(
+                session ?? null
+            );
     }
 
     async findByMissionId(
@@ -64,12 +76,30 @@ class DailyTaskRepository {
         );
     }
 
+    async findByMissionAndDay(
+        missionId: Types.ObjectId,
+        dayNumber: number,
+        session?: ClientSession
+    ) {
+        return this.findOne(
+            {
+                missionId,
+                dayNumber,
+            },
+            session
+        );
+    }
+
     async exists(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
         const exists =
-            await DailyTaskModel.exists(filter);
+            await DailyTaskModel
+                .exists(filter)
+                .session(
+                    session ?? null
+                );
 
         return Boolean(exists);
     }
@@ -79,14 +109,18 @@ class DailyTaskRepository {
         update: UpdateQuery<DailyTaskDocument>,
         session?: ClientSession
     ) {
-        return DailyTaskModel.findByIdAndUpdate(
-            id,
-            update,
-            {
-                new: true,
-                session,
-            }
-        );
+        return DailyTaskModel
+            .findByIdAndUpdate(
+                id,
+                update,
+                {
+                    new: true,
+
+                    runValidators: true,
+
+                    session,
+                }
+            );
     }
 
     async updateStatus(
@@ -94,15 +128,12 @@ class DailyTaskRepository {
         status: DailyTaskStatus,
         session?: ClientSession
     ) {
-        return DailyTaskModel.findByIdAndUpdate(
+        return this.updateById(
             id,
             {
                 status,
             },
-            {
-                new: true,
-                session,
-            }
+            session
         );
     }
 
@@ -110,16 +141,16 @@ class DailyTaskRepository {
         missionId: Types.ObjectId,
         session?: ClientSession
     ) {
-        return DailyTaskModel.deleteMany(
-            {
-                missionId,
-            },
-            {
-                session,
-            }
-        );
+        return DailyTaskModel
+            .deleteMany(
+                {
+                    missionId,
+                },
+                {
+                    session,
+                }
+            );
     }
-
 }
 
 export const dailyTaskRepository =

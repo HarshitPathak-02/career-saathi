@@ -141,6 +141,26 @@ class AssessmentRepository {
             weekNumber: -1,
         });
     }
+
+    async findWeeklyAssessment(
+        careerJourneyId: Types.ObjectId,
+        weekNumber: number
+    ) {
+
+        return AssessmentModel.findOne({
+
+            careerJourneyId,
+
+            type:
+                AssessmentType.WEEKLY,
+
+            weekNumber,
+
+            isDeleted: false,
+
+        });
+
+    }
 }
 
 export const assessmentRepository =

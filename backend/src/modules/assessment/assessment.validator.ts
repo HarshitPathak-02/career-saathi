@@ -69,3 +69,9 @@ export const submitAssessmentSchema = Joi.object({
 export const assessmentIdParamSchema = Joi.object({
     assessmentId: objectIdSchema.required(),
 });
+
+export const careerJourneyIdParamSchema =
+    Joi.object({
+        careerJourneyId:
+            objectIdSchema.required(),
+    });

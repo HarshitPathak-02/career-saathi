@@ -6,32 +6,108 @@ import {
     dailyTaskController,
 } from "./daily-task.controller.js";
 
+import {
+    authenticate,
+} from "../../core/middleware/authenticate.middleware.js";
+
+import {
+    validateRequest,
+} from "../../core/middleware/validate.middleware.js";
+
+import {
+    taskIdParamSchema,
+    taskMissionIdParamSchema,
+} from "./daily-task.validator.js";
+
 const dailyTaskRouter =
     Router();
 
-dailyTaskRouter.get(
-    "/mission/:missionId",
-    dailyTaskController.getTasksByMission
-);
+/*
+|--------------------------------------------------------------------------
+| Mission Tasks
+|--------------------------------------------------------------------------
+*/
 
 dailyTaskRouter.get(
-    "/:taskId",
-    dailyTaskController.getTask
+    "/mission/:missionId",
+
+    authenticate,
+
+    validateRequest({
+        params:
+            taskMissionIdParamSchema,
+    }),
+
+    dailyTaskController
+        .getTasksByMission
 );
+
+/*
+|--------------------------------------------------------------------------
+| Task Status
+|--------------------------------------------------------------------------
+*/
 
 dailyTaskRouter.patch(
     "/:taskId/complete",
-    dailyTaskController.markCompleted
+
+    authenticate,
+
+    validateRequest({
+        params:
+            taskIdParamSchema,
+    }),
+
+    dailyTaskController
+        .markCompleted
 );
 
 dailyTaskRouter.patch(
     "/:taskId/pending",
-    dailyTaskController.markPending
+
+    authenticate,
+
+    validateRequest({
+        params:
+            taskIdParamSchema,
+    }),
+
+    dailyTaskController
+        .markPending
 );
 
 dailyTaskRouter.patch(
     "/:taskId/skip",
-    dailyTaskController.markSkipped
+
+    authenticate,
+
+    validateRequest({
+        params:
+            taskIdParamSchema,
+    }),
+
+    dailyTaskController
+        .markSkipped
+);
+
+/*
+|--------------------------------------------------------------------------
+| Task By Id
+|--------------------------------------------------------------------------
+*/
+
+dailyTaskRouter.get(
+    "/:taskId",
+
+    authenticate,
+
+    validateRequest({
+        params:
+            taskIdParamSchema,
+    }),
+
+    dailyTaskController
+        .getTask
 );
 
 export default dailyTaskRouter;

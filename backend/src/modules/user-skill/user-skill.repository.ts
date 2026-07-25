@@ -148,6 +148,31 @@ class UserSkillRepository {
     );
 
   }
+
+  async findByCareerJourneyAndSkillCatalogIds(
+    careerJourneyId: Types.ObjectId,
+    skillCatalogIds: Types.ObjectId[],
+    session?: ClientSession
+  ) {
+
+    return UserSkillModel
+      .find({
+        careerJourneyId,
+
+        skillCatalogId: {
+          $in: skillCatalogIds,
+        },
+
+        isActive: true,
+      })
+      .populate(
+        "skillCatalogId"
+      )
+      .session(
+        session ?? null
+      );
+
+  }
 }
 
 export const userSkillRepository =

@@ -90,6 +90,20 @@ class WeeklyReportRepository {
 
     }
 
+    async getByReflectionId(
+        reflectionId: Types.ObjectId,
+        session?: ClientSession,
+    ) {
+
+        return WeeklyReportModel
+            .findOne({
+                reflectionId,
+            })
+            .session(
+                session ?? null,
+            );
+
+    }
 }
 
 export const weeklyReportRepository =

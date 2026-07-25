@@ -8,9 +8,10 @@ import assessmentRoutes from '../modules/assessment/assessment.routes.js'
 import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
 import missionsRoutes from '../modules/mission/mission.routes.js';
 import weeklyReportRoutes from '../modules/weekly-report/weekly-report.routes.js';
-import weeklyReflectionRoutes from '../modules/weekly-reflection/weekly-reflection.routes.js';
 import { lookupRoutes } from '../modules/lookup/index.js';
 import workspaceRoutes from '../modules/workspace/workspace.routes.js';
+import dailyTasksRoutes from '../modules/daily-task/daily-task.routes.js';
+import weeklyReviewsRoutes from '../modules/weekly-review/weekly-review.routes.js'
 
 const router = Router();
 
@@ -54,13 +55,18 @@ router.use(
 );
 
 router.use(
-    "/weekly-reflections",
-    weeklyReflectionRoutes
+    "/daily-tasks",
+    dailyTasksRoutes
 );
 
 router.use(
     "/weekly-reports",
     weeklyReportRoutes
+);
+
+router.use(
+    "/weekly-reviews",
+    weeklyReviewsRoutes
 );
 
 router.use(

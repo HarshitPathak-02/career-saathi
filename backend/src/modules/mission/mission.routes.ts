@@ -5,60 +5,145 @@ import {
 import {
     missionController,
 } from "./mission.controller.js";
+
 import {
     nextMissionController,
 } from "./next-mission.controller.js";
-import { authenticate } from "../../core/middleware/authenticate.middleware.js";
+
+import {
+    authenticate,
+} from "../../core/middleware/authenticate.middleware.js";
+
+import {
+    validateRequest,
+} from "../../core/middleware/validate.middleware.js";
+
+import {
+    missionCareerJourneyIdParamSchema,
+    missionIdParamSchema,
+} from "./mission.validator.js";
 
 const missionRouter =
     Router();
 
+/*
+|--------------------------------------------------------------------------
+| Create Initial Mission
+|--------------------------------------------------------------------------
+*/
+
 missionRouter.post(
     "/:careerJourneyId",
+
     authenticate,
-    missionController.createInitialMission
+
+    validateRequest({
+        params:
+            missionCareerJourneyIdParamSchema,
+    }),
+
+    missionController
+        .createInitialMission
 );
 
-missionRouter.get(
-    "/:missionId",
-    missionController.getMission
-);
-
-missionRouter.get(
-    "/career-journey/:careerJourneyId/current",
-    missionController.getCurrentMission
-);
-
-missionRouter.get(
-    "/career-journey/:careerJourneyId/latest",
-    missionController.getLatestMission
-);
-
-missionRouter.get(
-    "/career-journey/:careerJourneyId/history",
-    missionController.getMissionHistory
-);
+/*
+|--------------------------------------------------------------------------
+| Next Mission
+|--------------------------------------------------------------------------
+*/
 
 missionRouter.post(
     "/:careerJourneyId/next",
+
     authenticate,
-    nextMissionController.generateNextMission,
+
+    validateRequest({
+        params:
+            missionCareerJourneyIdParamSchema,
+    }),
+
+    nextMissionController
+        .generateNextMission
 );
 
+/*
+|--------------------------------------------------------------------------
+| Current Mission
+|--------------------------------------------------------------------------
+*/
 
-// missionRouter.patch(
-//     "/:missionId/start",
-//     missionController.startMission
-// );
+missionRouter.get(
+    "/career-journey/:careerJourneyId/current",
 
-// missionRouter.patch(
-//     "/:missionId/complete",
-//     missionController.completeMission
-// );
+    authenticate,
 
-// missionRouter.patch(
-//     "/:missionId/skip",
-//     missionController.skipMission
-// );
+    validateRequest({
+        params:
+            missionCareerJourneyIdParamSchema,
+    }),
+
+    missionController
+        .getCurrentMission
+);
+
+/*
+|--------------------------------------------------------------------------
+| Latest Mission
+|--------------------------------------------------------------------------
+*/
+
+missionRouter.get(
+    "/career-journey/:careerJourneyId/latest",
+
+    authenticate,
+
+    validateRequest({
+        params:
+            missionCareerJourneyIdParamSchema,
+    }),
+
+    missionController
+        .getLatestMission
+);
+
+/*
+|--------------------------------------------------------------------------
+| Mission History
+|--------------------------------------------------------------------------
+*/
+
+missionRouter.get(
+    "/career-journey/:careerJourneyId/history",
+
+    authenticate,
+
+    validateRequest({
+        params:
+            missionCareerJourneyIdParamSchema,
+    }),
+
+    missionController
+        .getMissionHistory
+);
+
+/*
+|--------------------------------------------------------------------------
+| Mission By Id
+|--------------------------------------------------------------------------
+*/
+
+missionRouter.get(
+    "/:missionId",
+
+    authenticate,
+
+    validateRequest({
+        params:
+            missionIdParamSchema,
+    }),
+
+    missionController
+        .getMission
+);
 
 export default missionRouter;

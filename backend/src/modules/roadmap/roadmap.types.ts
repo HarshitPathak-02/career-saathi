@@ -1,10 +1,7 @@
-import { Types } from "mongoose";
 import { CareerDomainDocument } from "../../master-data/career-domain/career-domain.schema.js";
 import { CareerRoleDocument } from "../../master-data/career-role/career-role.schema.js";
 import { SkillCatalogDocument, SkillDifficulty } from "../../master-data/skill-catalog/index.js";
-import { AssessmentDocument } from "../assessment/assessment.schema.js";
 import { CareerJourneyDocument } from "../career-journey/career-journey.model.js";
-import { SkillProgressDocument } from "../skill-progress/skill-progress.schema.js";
 import { SkillLevel } from "../user-skill/user-skill.enums.js";
 import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
 import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus } from "./roadmap.enums.js";
@@ -16,6 +13,11 @@ import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus } from "./roadmap.enu
 export interface AvailableSkill {
     skillId: string;
     title: string;
+    description: string;
+
+    category: string;
+
+    difficulty: SkillDifficulty;
 }
 
 export interface RoadmapGenerationInput {

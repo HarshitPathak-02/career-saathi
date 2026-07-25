@@ -202,6 +202,23 @@ class UserSkillService {
         return SkillLevel.NOT_STARTED;
 
     }
+
+    async getUserSkillsByCatalogIds(
+        careerJourneyId: Types.ObjectId,
+        skillCatalogIds: Types.ObjectId[]
+    ) {
+
+        if (skillCatalogIds.length === 0) {
+            return [];
+        }
+
+        return userSkillRepository
+            .findByCareerJourneyAndSkillCatalogIds(
+                careerJourneyId,
+                skillCatalogIds
+            );
+
+    }
 }
 
 export const userSkillService =

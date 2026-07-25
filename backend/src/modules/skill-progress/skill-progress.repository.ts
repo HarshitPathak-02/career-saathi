@@ -147,21 +147,25 @@ class SkillProgressRepository {
         assessmentId: Types.ObjectId,
         session?: ClientSession
     ) {
-
         return SkillProgressModel.find({
             assessmentId,
-        }).populate<{
-            userSkillId: UserSkillDocument & {
-                skillCatalogId: SkillCatalogDocument;
-            };
-        }>({
-            path: "userSkillId",
-            populate: {
-                path: "skillCatalogId",
-                select: "name",
-            },
-        });
+        })
+            .populate<{
+                userSkillId: UserSkillDocument & {
+                    skillCatalogId: SkillCatalogDocument;
+                };
+            }>({
+                path: "userSkillId",
 
+                populate: {
+                    path: "skillCatalogId",
+                    select: "name",
+                },
+            })
+            .sort({
+                createdAt: 1,
+            })
+            .session(session ?? null);
     }
 
     async findLatestByAssessmentAndUserSkill(
