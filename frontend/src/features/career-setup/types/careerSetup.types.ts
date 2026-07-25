@@ -38,7 +38,7 @@ export interface CreateCareerJourneyRequest {
 }
 
 export interface CareerJourney {
-  id: string;
+  _id: string;
   userId: string;
   domainId: string;
   roleId: string;

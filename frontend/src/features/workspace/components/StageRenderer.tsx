@@ -1,7 +1,15 @@
 import {
+    useNavigate,
+} from "react-router-dom";
+
+import {
     WorkspaceState,
     type Workspace,
 } from "../types/workspace.types";
+
+import {
+    useGenerateRoadmapMutation,
+} from "../../roadmap/api/roadmapApi";
 
 import InitialAssessmentCard from "./InitialAssessmentCard";
 import GenerateRoadmapCard from "./GenerateRoadmapCard";
@@ -15,9 +23,32 @@ interface StageRendererProps {
 const StageRenderer = ({
     workspace,
 }: StageRendererProps) => {
+    const navigate = useNavigate();
+
+    const [
+        generateRoadmap,
+        {
+            isLoading: isGenerating,
+            error: generationError,
+        },
+    ] = useGenerateRoadmapMutation();
+
+    const handleGenerateRoadmap =
+        async () => {
+            try {
+                await generateRoadmap({
+                    careerJourneyId:
+                        workspace.careerJourney.id,
+                }).unwrap();
+
+                navigate("/roadmap");
+            } catch {
+                // RTK Query exposes the error
+                // through generationError.
+            }
+        };
 
     switch (workspace.workspaceState) {
-
         case WorkspaceState.INITIAL_ASSESSMENT:
             return (
                 <InitialAssessmentCard />
@@ -25,22 +56,58 @@ const StageRenderer = ({
 
         case WorkspaceState.ROADMAP_PENDING:
             return (
-                <GenerateRoadmapCard />
+                <div>
+                    <GenerateRoadmapCard
+                        onGenerate={
+                            handleGenerateRoadmap
+                        }
+                        isGenerating={
+                            isGenerating
+                        }
+                    />
+
+                    {generationError && (
+                        <p className="mt-4 text-sm text-red-500">
+                            We couldn't generate your
+                            roadmap. Please try again.
+                        </p>
+                    )}
+                </div>
             );
 
         case WorkspaceState.MISSION_PENDING:
             return (
-                <StartJourneyCard />
+                <StartJourneyCard
+                    careerJourneyId={
+                        workspace
+                            .careerJourney
+                            .id
+                    }
+                />
             );
 
         case WorkspaceState.ACTIVE:
+            /*
+             * ACTIVE workspace should always
+             * contain an active mission.
+             *
+             * Still guard against null because
+             * Workspace.activeMission is nullable.
+             */
+            if (!workspace.activeMission) {
+                return null;
+            }
+
             return (
                 <ActiveMissionCard
                     activeMission={
                         workspace.activeMission
                     }
-                    tasks={
-                        workspace.tasks
+                    today={
+                        workspace.today
+                    }
+                    todayTask={
+                        workspace.todayTask
                     }
                     overview={
                         workspace.overview

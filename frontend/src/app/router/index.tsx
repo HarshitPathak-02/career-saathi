@@ -18,6 +18,12 @@ import CareerJourneyPage from "../../features/career-setup/pages/CareerJourneyPa
 
 import WorkspacePage from "../../features/workspace/pages/WorkspacePage";
 import InitialAssessmentPage from "../../features/initial-assessment/pages/InitialAssessmentPage";
+import RoadmapPage from "../../features/roadmap/pages/RoadmapPage";
+import AssessmentsPage from "../../features/assessment/pages/AssessmentsPage";
+import AssessmentDetailPage from "../../features/assessment/pages/AssessmentDetailPage";
+import MissionsPage from "../../features/mission/pages/MissionsPage";
+import MissionDetailsPage from "../../features/mission/pages/MissionDetailsPage";
+import WeeklyReviewPage from "../../features/weekly-review/pages/WeeklyReviewPage";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +85,31 @@ export const router = createBrowserRouter([
             path: "/initial-assessment",
             element: <InitialAssessmentPage />,
           },
+          {
+            path: "/roadmap",
+            element: <RoadmapPage />
+          },
+          {
+            path: "/assessments",
+            element: <AssessmentsPage />,
+          },
+
+          {
+            path: "/assessments/:assessmentId",
+            element: <AssessmentDetailPage />,
+          },
+          {
+            path: "/missions",
+            element: <MissionsPage />,
+          },
+          {
+            path: "/missions/:missionId",
+            element: <MissionDetailsPage />,
+          },
+          {
+            path: "/weekly-review",
+            element: < WeeklyReviewPage />
+          }
         ],
       },
     ],

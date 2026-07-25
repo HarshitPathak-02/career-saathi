@@ -18,7 +18,7 @@ export const workspaceApi =
                     method: "GET",
                 }),
 
-                providesTags: ["CareerJourney"],
+                providesTags: ["Workspace"],
             }),
         }),
     });

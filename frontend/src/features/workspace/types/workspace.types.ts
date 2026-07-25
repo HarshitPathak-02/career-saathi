@@ -95,6 +95,12 @@ export interface WorkspaceActiveMission {
     status: string;
 }
 
+export interface WorkspaceToday {
+    dayNumber: number;
+
+    remainingDays: number;
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -179,4 +185,8 @@ export interface Workspace {
     activeMission: WorkspaceActiveMission | null;
 
     tasks: WorkspaceDailyTask[];
+
+    today: WorkspaceToday | null;
+
+    todayTask: WorkspaceDailyTask | null;
 }

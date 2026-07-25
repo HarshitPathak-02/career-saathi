@@ -1,109 +1,192 @@
 import {
+    BookOpen,
     CheckCircle2,
-    Circle,
     Clock3,
-    ListChecks,
+    Target,
+    Trophy,
 } from "lucide-react";
 
 import type {
     WorkspaceActiveMission,
     WorkspaceDailyTask,
     WorkspaceOverview,
+    WorkspaceToday,
 } from "../types/workspace.types";
 
 import {
     DailyTaskStatus,
 } from "../types/workspace.types";
+import { useCompleteDailyTaskMutation } from "../../mission/api/dailyTaskApi";
 
 interface ActiveMissionCardProps {
     overview: WorkspaceOverview;
 
     activeMission: WorkspaceActiveMission | null;
 
-    tasks: WorkspaceDailyTask[];
+    today: WorkspaceToday | null;
+
+    todayTask: WorkspaceDailyTask | null;
 }
+
+const formatDuration = (
+    minutes: number
+) => {
+
+    const hours = Math.floor(
+        minutes / 60
+    );
+
+    const remainingMinutes =
+        minutes % 60;
+
+    if (hours === 0) {
+        return `${remainingMinutes} min`;
+    }
+
+    if (remainingMinutes === 0) {
+        return `${hours} hr${hours > 1 ? "s" : ""}`;
+    }
+
+    return `${hours} hr ${remainingMinutes} min`;
+
+};
 
 const ActiveMissionCard = ({
     overview,
     activeMission,
-    tasks,
+    today,
+    todayTask,
 }: ActiveMissionCardProps) => {
 
-    if (!activeMission) {
+    if (!activeMission || !today) {
         return null;
     }
 
-    const sortedTasks = [...tasks].sort(
-        (a, b) => a.dayNumber - b.dayNumber
-    );
+    const isCompleted =
+        todayTask?.status ===
+        DailyTaskStatus.COMPLETED;
+
+    const [
+        completeDailyTask,
+        {
+            isLoading: isCompleting,
+        },
+    ] = useCompleteDailyTaskMutation();
+
+    const handleCompleteMission = async () => {
+
+        if (!todayTask || isCompleted) {
+            return;
+        }
+
+        try {
+
+            await completeDailyTask(
+                todayTask.id
+            ).unwrap();
+
+        } catch (error) {
+
+            console.error(
+                "Failed to complete daily task",
+                error
+            );
+
+        }
+
+    };
 
     return (
-        <section className="rounded-xl border border-slate-200 bg-white p-8">
 
-            {/* Mission Header */}
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            {/* Header */}
 
-                <div>
-                    <div className="flex items-center gap-3">
+            <div className="border-b border-slate-200 p-8">
 
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                            <ListChecks size={24} />
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+
+                    <div>
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+
+                                <Target size={28} />
+
+                            </div>
+
+                            <div>
+
+                                <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
+                                    Current Mission
+                                </p>
+
+                                <h2 className="mt-1 text-3xl font-bold text-slate-900">
+                                    Mission {activeMission.missionNumber}
+                                </h2>
+
+                            </div>
+
                         </div>
 
-                        <div>
-                            <p className="text-sm font-medium text-indigo-600">
-                                Current Mission
-                            </p>
-
-                            <h2 className="text-xl font-semibold text-slate-900">
-                                Mission {activeMission.missionNumber}
-                            </h2>
-                        </div>
+                        <p className="mt-5 text-slate-600">
+                            Stay consistent. Complete today's learning goal
+                            and move one step closer to your target career.
+                        </p>
 
                     </div>
 
-                    <p className="mt-4 text-sm text-slate-600">
-                        Complete your daily targets and keep moving
-                        through your career journey.
-                    </p>
-                </div>
+                    <div className="rounded-xl bg-indigo-50 px-5 py-4">
 
-                <div className="rounded-lg bg-slate-50 px-4 py-3">
-                    <p className="text-xs text-slate-500">
-                        Tasks Completed
-                    </p>
+                        <p className="text-xs uppercase tracking-wide text-indigo-600">
+                            Today
+                        </p>
 
-                    <p className="mt-1 text-lg font-semibold text-slate-900">
-                        {overview.completedTasks}
-                        {" / "}
-                        {overview.totalTasks}
-                    </p>
+                        <h3 className="mt-1 text-xl font-bold text-slate-900">
+                            Day {today.dayNumber}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-600">
+                            {today.remainingDays} day
+                            {today.remainingDays !== 1 && "s"} remaining
+                        </p>
+
+                    </div>
+
                 </div>
 
             </div>
 
-
             {/* Progress */}
 
-            <div className="mt-7">
+            <div className="border-b border-slate-200 p-8">
 
-                <div className="mb-2 flex items-center justify-between text-sm">
+                <div className="mb-3 flex items-center justify-between">
 
-                    <span className="text-slate-600">
-                        Mission Progress
-                    </span>
+                    <div className="flex items-center gap-2">
 
-                    <span className="font-medium text-slate-900">
+                        <Trophy
+                            size={18}
+                            className="text-amber-500"
+                        />
+
+                        <span className="font-semibold text-slate-900">
+                            Mission Progress
+                        </span>
+
+                    </div>
+
+                    <span className="font-semibold text-indigo-600">
                         {overview.progressPercentage}%
                     </span>
 
                 </div>
 
-                <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+                <div className="h-3 overflow-hidden rounded-full bg-slate-200">
 
                     <div
-                        className="h-full rounded-full bg-indigo-600 transition-all"
+                        className="h-full rounded-full bg-indigo-600 transition-all duration-500"
                         style={{
                             width: `${Math.min(
                                 overview.progressPercentage,
@@ -114,224 +197,187 @@ const ActiveMissionCard = ({
 
                 </div>
 
+                <p className="mt-3 text-sm text-slate-500">
+
+                    {overview.completedTasks}
+                    {" / "}
+                    {overview.totalTasks}
+                    {" days completed"}
+
+                </p>
+
             </div>
 
+            {/* Today's Mission */}
 
-            {/* Daily Tasks */}
+            <div className="p-8">
 
-            <div className="mt-8">
+                {!todayTask ? (
 
-                <div className="mb-4 flex items-center justify-between">
+                    <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center">
 
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-900">
-                            Your Mission Plan
-                        </h3>
-
-                        <p className="mt-1 text-sm text-slate-500">
-                            Follow your daily learning targets for this mission.
-                        </p>
-                    </div>
-
-                </div>
-
-
-                {/* Empty state */}
-
-                {sortedTasks.length === 0 && (
-
-                    <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
-
-                        <ListChecks
-                            size={30}
+                        <BookOpen
+                            size={48}
                             className="mx-auto text-slate-400"
                         />
 
-                        <p className="mt-3 font-medium text-slate-700">
-                            No tasks found for this mission.
-                        </p>
+                        <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                            No task scheduled for today
+                        </h3>
 
-                        <p className="mt-1 text-sm text-slate-500">
-                            Your mission is active, but no daily tasks
-                            have been generated.
+                        <p className="mt-2 text-slate-500">
+                            Enjoy your day. Your next mission will
+                            appear automatically.
                         </p>
 
                     </div>
 
-                )}
+                ) : (
 
+                    <>
 
-                {/* Task List */}
+                        <div className="flex flex-wrap items-center justify-between gap-4">
 
-                {sortedTasks.length > 0 && (
+                            <div>
 
-                    <div className="space-y-4">
+                                <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
+                                    Today's Mission
+                                </p>
 
-                        {sortedTasks.map((task) => {
+                                <h3 className="mt-2 text-2xl font-bold text-slate-900">
+                                    {todayTask.title}
+                                </h3>
 
-                            const isCompleted =
-                                task.status ===
-                                DailyTaskStatus.COMPLETED;
+                            </div>
 
-                            const isSkipped =
-                                task.status ===
-                                DailyTaskStatus.SKIPPED;
+                            <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2">
 
-                            return (
-                                <article
-                                    key={task.id}
-                                    className={`
-                                        rounded-xl
-                                        border
-                                        p-5
-                                        transition
+                                <Clock3 size={18} />
 
-                                        ${isCompleted
-                                            ? "border-green-200 bg-green-50/40"
-                                            : isSkipped
-                                                ? "border-slate-200 bg-slate-50"
-                                                : "border-slate-200 bg-white hover:border-indigo-200"
-                                        }
-                                    `}
+                                <span className="text-sm font-medium">
+                                    {formatDuration(
+                                        todayTask.estimatedMinutes
+                                    )}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        {todayTask.description && (
+
+                            <p className="mt-5 leading-7 text-slate-600">
+
+                                {todayTask.description}
+
+                            </p>
+
+                        )}
+
+                        <div className="mt-8">
+
+                            <h4 className="mb-4 text-lg font-semibold text-slate-900">
+                                Today's Learning Checklist
+                            </h4>
+
+                            <div className="space-y-3">
+
+                                {todayTask.topics.map(
+                                    (
+                                        topic,
+                                        index
+                                    ) => (
+
+                                        <div
+                                            key={index}
+                                            className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                                        >
+
+                                            <BookOpen
+                                                size={18}
+                                                className="mt-1 text-indigo-600"
+                                            />
+
+                                            <span className="leading-6 text-slate-700">
+                                                {topic}
+                                            </span>
+
+                                        </div>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        </div>
+
+                        <div className="mt-10 flex flex-col gap-5 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
+
+                            <div>
+
+                                <p className="text-sm text-slate-500">
+                                    Status
+                                </p>
+
+                                <p
+                                    className={`mt-1 font-semibold ${isCompleted
+                                        ? "text-green-600"
+                                        : "text-amber-600"
+                                        }`}
                                 >
+                                    {isCompleted
+                                        ? "Completed"
+                                        : "Pending"}
+                                </p>
 
-                                    <div className="flex items-start gap-4">
+                            </div>
 
-                                        {/* Status Icon */}
+                            <button
+                                onClick={handleCompleteMission}
+                                disabled={
+                                    isCompleted ||
+                                    isCompleting
+                                }
+                                className={`
+                                    inline-flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    px-6
+                                    py-3
+                                    font-semibold
+                                    transition-all
 
-                                        <div className="mt-1 shrink-0">
+                                    ${isCompleted || isCompleting
+                                        ? "cursor-not-allowed bg-green-100 text-green-700"
+                                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                                    }
+                                `}
+                            >
 
-                                            {isCompleted ? (
-                                                <CheckCircle2
-                                                    size={22}
-                                                    className="text-green-600"
-                                                />
-                                            ) : (
-                                                <Circle
-                                                    size={22}
-                                                    className={
-                                                        isSkipped
-                                                            ? "text-slate-400"
-                                                            : "text-indigo-500"
-                                                    }
-                                                />
-                                            )}
+                                <CheckCircle2 size={20} />
 
-                                        </div>
+                                {isCompleting
+                                    ? "Completing..."
+                                    : isCompleted
+                                        ? "Today's Mission Completed"
+                                        : "Complete Today's Mission"}
 
+                            </button>
 
-                                        <div className="min-w-0 flex-1">
+                        </div>
 
-                                            {/* Day + Duration */}
-
-                                            <div className="flex flex-wrap items-center gap-3">
-
-                                                <span className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                                                    Day {task.dayNumber}
-                                                </span>
-
-                                                <span className="flex items-center gap-1 text-xs text-slate-500">
-                                                    <Clock3 size={14} />
-
-                                                    {task.estimatedMinutes} min
-                                                </span>
-
-                                                <span className="text-xs font-medium text-slate-500">
-                                                    {task.type}
-                                                </span>
-
-                                            </div>
-
-
-                                            {/* Title */}
-
-                                            <h4
-                                                className={`
-                                                    mt-3
-                                                    font-semibold
-
-                                                    ${isCompleted
-                                                        ? "text-slate-600"
-                                                        : "text-slate-900"
-                                                    }
-                                                `}
-                                            >
-                                                {task.title}
-                                            </h4>
-
-
-                                            {/* Description */}
-
-                                            {task.description && (
-                                                <p className="mt-1 text-sm leading-6 text-slate-600">
-                                                    {task.description}
-                                                </p>
-                                            )}
-
-
-                                            {/* Topics */}
-
-                                            {task.topics.length > 0 && (
-
-                                                <div className="mt-4 flex flex-wrap gap-2">
-
-                                                    {task.topics.map(
-                                                        (topic) => (
-                                                            <span
-                                                                key={topic}
-                                                                className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600"
-                                                            >
-                                                                {topic}
-                                                            </span>
-                                                        )
-                                                    )}
-
-                                                </div>
-
-                                            )}
-
-
-                                            {/* Status */}
-
-                                            <div className="mt-4">
-
-                                                {isCompleted && (
-                                                    <span className="text-xs font-medium text-green-700">
-                                                        Completed
-                                                    </span>
-                                                )}
-
-                                                {isSkipped && (
-                                                    <span className="text-xs font-medium text-slate-500">
-                                                        Skipped
-                                                    </span>
-                                                )}
-
-                                                {!isCompleted &&
-                                                    !isSkipped && (
-                                                        <span className="text-xs font-medium text-indigo-600">
-                                                            Pending
-                                                        </span>
-                                                    )}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </article>
-                            );
-                        })}
-
-                    </div>
+                    </>
 
                 )}
 
             </div>
 
         </section>
+
     );
+
 };
 
 export default ActiveMissionCard;
