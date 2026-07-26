@@ -90,6 +90,24 @@ class DailyTaskRepository {
         );
     }
 
+    async findByMissionAndRoadmapItem(
+        missionId: Types.ObjectId,
+        roadmapItemId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        return this.findMany(
+            {
+                missionId,
+
+                roadmapItemIds:
+                    roadmapItemId,
+            },
+            session
+        );
+
+    }
+
     async exists(
         filter: Record<string, unknown>,
         session?: ClientSession

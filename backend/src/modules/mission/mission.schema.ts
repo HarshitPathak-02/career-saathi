@@ -23,6 +23,7 @@ import {
     MISSION_MODEL,
     MissionStatus,
 } from "./mission.enums.js";
+import { SKILL_CATALOG_MODEL } from "../../master-data/skill-catalog/skill-catalog.constants.js";
 
 const MissionSchema = new Schema(
     {
@@ -50,6 +51,37 @@ const MissionSchema = new Schema(
                 type: Schema.Types.ObjectId,
                 ref: ROADMAP_ITEM_MODEL,
                 required: true,
+            },
+        ],
+
+        revisionPlans: [
+            {
+                skillCatalogId: {
+                    type: Schema.Types.ObjectId,
+                    ref: SKILL_CATALOG_MODEL,
+                    required: true,
+                },
+
+                skillName: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                },
+
+                percentage: {
+                    type: Number,
+                    required: true,
+                    min: 0,
+                    max: 100,
+                },
+
+                revisionTopics: [
+                    {
+                        type: String,
+                        required: true,
+                        trim: true,
+                    },
+                ],
             },
         ],
 

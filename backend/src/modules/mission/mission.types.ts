@@ -14,6 +14,8 @@ export interface CreateMissionDTO {
 
     plannedRoadmapItemIds: Types.ObjectId[];
 
+    revisionPlans: MissionRevisionPlan[];
+
     startDate: Date;
 
     endDate: Date;
@@ -46,6 +48,8 @@ export interface MissionPlanningResult {
 
     plannedRoadmapItemIds: Types.ObjectId[];
 
+    revisionPlans: MissionRevisionPlan[];
+
     startDate: Date;
 
     endDate: Date;
@@ -59,7 +63,7 @@ export interface MissionPlanningInput {
 
     carryForwardRoadmapItemIds: Types.ObjectId[];
 
-    revisionRoadmapItemIds: Types.ObjectId[];
+    revisionPlans: MissionRevisionPlan[];
 
     workloadMultiplier: number;
 
@@ -78,5 +82,17 @@ export interface MissionWorkflowContext {
     roadmap: RoadmapDocument;
 
     roadmapItems: RoadmapItemDocument[];
+
+}
+
+export interface MissionRevisionPlan {
+
+    skillCatalogId: Types.ObjectId;
+
+    skillName: string;
+
+    percentage: number;
+
+    revisionTopics: string[];
 
 }

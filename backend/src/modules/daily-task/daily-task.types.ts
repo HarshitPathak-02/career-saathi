@@ -13,6 +13,10 @@ export interface CreateDailyTaskDTO {
 
     missionId: Types.ObjectId;
 
+    roadmapItemIds: Types.ObjectId[];
+
+    revisionSkillIds?: Types.ObjectId[];
+
     dayNumber: number;
 
     title: string;
@@ -39,6 +43,8 @@ export interface DailyTaskFilter {
 
     roadmapItemId?: Types.ObjectId;
 
+    revisionSkillIds?: Types.ObjectId[];
+
     dayNumber?: number;
 
     status?: DailyTaskStatus;
@@ -56,6 +62,10 @@ export interface DailyTaskGenerationInput {
 export interface GeneratedDailyTask {
 
     missionId: Types.ObjectId;
+
+    roadmapItemIds: Types.ObjectId[];
+
+    revisionSkillIds: Types.ObjectId[];
 
     dayNumber: number;
 
@@ -77,6 +87,8 @@ export interface DailyTaskGenerationResult {
 
 export interface DailyTaskOutput {
     dayNumber: number;
+    roadmapItemIds?: string[];
+    revisionSkillIds?: string[];
     type?: DailyTaskType;
     title: string;
     description: string;

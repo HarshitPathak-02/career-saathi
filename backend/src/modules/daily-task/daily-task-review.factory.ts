@@ -7,6 +7,8 @@ export function createReviewDay(): DailyTaskOutput {
 
         dayNumber: 7,
 
+        roadmapItemIds: [],
+
         type: DailyTaskType.REVIEW,
 
         title: "Weekly Review Day",

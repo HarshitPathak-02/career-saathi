@@ -25,6 +25,10 @@ import {
     missionService,
 } from "../mission/mission.service.js";
 
+import {
+    roadmapItemProgressService,
+} from "../roadmap/roadmap-item-progress.service.js";
+
 class DailyTaskService {
 
     async createMany(
@@ -38,17 +42,35 @@ class DailyTaskService {
 
                 missionId,
 
-                dayNumber: task.dayNumber,
+                roadmapItemIds:
+                    (task.roadmapItemIds ?? [])
+                        .map(
+                            id =>
+                                new Types.ObjectId(id)
+                        ),
+
+                revisionSkillIds:
+                    (task.revisionSkillIds ?? [])
+                        .map(
+                            id =>
+                                new Types.ObjectId(id)
+                        ),
+
+                dayNumber:
+                    task.dayNumber,
 
                 type:
                     task.type ??
                     DailyTaskType.STUDY,
 
-                title: task.title,
+                title:
+                    task.title,
 
-                description: task.description,
+                description:
+                    task.description,
 
-                topics: task.topics,
+                topics:
+                    task.topics,
 
                 estimatedMinutes:
                     task.estimatedMinutes,
@@ -87,10 +109,11 @@ class DailyTaskService {
         dayNumber: number
     ) {
 
-        return dailyTaskRepository.findByMissionAndDay(
-            missionId,
-            dayNumber
-        );
+        return dailyTaskRepository
+            .findByMissionAndDay(
+                missionId,
+                dayNumber
+            );
 
     }
 
@@ -98,25 +121,12 @@ class DailyTaskService {
     |--------------------------------------------------------------------------
     | Normal Daily Task Completion
     |--------------------------------------------------------------------------
-    |
-    | Used by the public daily-task endpoint.
-    |
-    | Rules:
-    | - Previous/current days can be completed.
-    | - Future days cannot be completed.
-    | - Day 7 cannot be completed directly.
-    |
     */
 
     async markCompleted(
         taskId: Types.ObjectId,
         session?: ClientSession
     ) {
-
-        console.trace(
-            "NORMAL DAILY TASK markCompleted CALLED:",
-            taskId.toString()
-        );
 
         const task =
             await dailyTaskRepository.findById(
@@ -143,10 +153,11 @@ class DailyTaskService {
         }
 
         const currentMissionDay =
-            await missionService.getCurrentMissionDay(
-                task.missionId,
-                session
-            );
+            await missionService
+                .getCurrentMissionDay(
+                    task.missionId,
+                    session
+                );
 
         if (
             task.dayNumber >
@@ -160,22 +171,31 @@ class DailyTaskService {
 
         }
 
-        return this.updateTaskStatus(
-            taskId,
-            DailyTaskStatus.COMPLETED,
-            session
-        );
+        const updatedTask =
+            await this.updateTaskStatus(
+                taskId,
+                DailyTaskStatus.COMPLETED,
+                session
+            );
 
+        if (task.roadmapItemIds.length > 0) {
+
+            await roadmapItemProgressService
+                .syncRoadmapItemsForTask(
+                    task.missionId,
+                    task.roadmapItemIds,
+                    session
+                );
+
+        }
+
+        return updatedTask;
     }
 
     /*
     |--------------------------------------------------------------------------
     | Weekly Review Task Completion
     |--------------------------------------------------------------------------
-    |
-    | Internal workflow operation.
-    | This should NOT get its own public route.
-    |
     */
 
     async completeWeeklyReviewTask(
@@ -184,11 +204,12 @@ class DailyTaskService {
     ) {
 
         const task =
-            await dailyTaskRepository.findByMissionAndDay(
-                missionId,
-                7,
-                session
-            );
+            await dailyTaskRepository
+                .findByMissionAndDay(
+                    missionId,
+                    7,
+                    session
+                );
 
         if (!task) {
 
@@ -200,10 +221,11 @@ class DailyTaskService {
         }
 
         const currentMissionDay =
-            await missionService.getCurrentMissionDay(
-                missionId,
-                session
-            );
+            await missionService
+                .getCurrentMissionDay(
+                    missionId,
+                    session
+                );
 
         if (currentMissionDay < 7) {
 
@@ -233,37 +255,59 @@ class DailyTaskService {
 
     async markPending(
         taskId: Types.ObjectId,
-        session?: ClientSession,
+        session?: ClientSession
     ) {
 
-        await this.ensureNormalDailyTask(
-            taskId,
-            session,
-        );
+        const task =
+            await this.ensureNormalDailyTask(
+                taskId,
+                session
+            );
 
-        return this.updateTaskStatus(
-            taskId,
-            DailyTaskStatus.PENDING,
-            session,
-        );
+        const updatedTask =
+            await this.updateTaskStatus(
+                taskId,
+                DailyTaskStatus.PENDING,
+                session
+            );
+
+        await roadmapItemProgressService
+            .syncRoadmapItemsForTask(
+                task.missionId,
+                task.roadmapItemIds,
+                session
+            );
+
+        return updatedTask;
 
     }
 
     async markSkipped(
         taskId: Types.ObjectId,
-        session?: ClientSession,
+        session?: ClientSession
     ) {
 
-        await this.ensureNormalDailyTask(
-            taskId,
-            session,
-        );
+        const task =
+            await this.ensureNormalDailyTask(
+                taskId,
+                session
+            );
 
-        return this.updateTaskStatus(
-            taskId,
-            DailyTaskStatus.SKIPPED,
-            session,
-        );
+        const updatedTask =
+            await this.updateTaskStatus(
+                taskId,
+                DailyTaskStatus.SKIPPED,
+                session
+            );
+
+        await roadmapItemProgressService
+            .syncRoadmapItemsForTask(
+                task.missionId,
+                task.roadmapItemIds,
+                session
+            );
+
+        return updatedTask;
 
     }
 
@@ -272,9 +316,10 @@ class DailyTaskService {
     ): Promise<MissionProgress> {
 
         const tasks =
-            await dailyTaskRepository.findByMissionId(
-                missionId
-            );
+            await dailyTaskRepository
+                .findByMissionId(
+                    missionId
+                );
 
         const totalDays =
             tasks.length;
@@ -290,8 +335,10 @@ class DailyTaskService {
             totalDays === 0
                 ? 0
                 : Math.round(
-                    (completedDays / totalDays) *
-                    100
+                    (
+                        completedDays /
+                        totalDays
+                    ) * 100
                 );
 
         return {
@@ -330,20 +377,20 @@ class DailyTaskService {
 
     private async ensureNormalDailyTask(
         taskId: Types.ObjectId,
-        session?: ClientSession,
+        session?: ClientSession
     ) {
 
         const task =
             await dailyTaskRepository.findById(
                 taskId,
-                session,
+                session
             );
 
         if (!task) {
 
             throw new AppError(
                 404,
-                "Daily task not found.",
+                "Daily task not found."
             );
 
         }
@@ -352,12 +399,13 @@ class DailyTaskService {
 
             throw new AppError(
                 409,
-                "Weekly review task cannot be modified directly.",
+                "Weekly review task cannot be modified directly."
             );
 
         }
 
         return task;
+
     }
 }
 

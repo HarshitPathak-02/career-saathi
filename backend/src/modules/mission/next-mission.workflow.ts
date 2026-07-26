@@ -16,6 +16,7 @@ import { dailyTaskWorkflow } from "../daily-task/daily-task.workflow.js";
 import {
     MissionPlanningInput,
     MissionPlanningResult,
+    MissionRevisionPlan,
 } from "./mission.types.js";
 
 import {
@@ -166,8 +167,8 @@ export class NextMissionWorkflow {
                     context,
                 ),
 
-            revisionRoadmapItemIds:
-                this.getRevisionRoadmapItemIds(
+            revisionPlans:
+                this.getRevisionPlans(
                     context,
                 ),
 
@@ -208,22 +209,65 @@ export class NextMissionWorkflow {
 
     }
 
-    private getRevisionRoadmapItemIds(
+    private getRevisionPlans(
         context: NextMissionWorkflowContext,
-    ): Types.ObjectId[] {
+    ): MissionRevisionPlan[] {
 
-        /*
-         * TODO
-         * SkillProgress
-         * ->
-         * UserSkill
-         * ->
-         * Skill
-         * ->
-         * RoadmapItem
-         */
+        const recommendation =
+            context.weeklyReport.recommendation;
 
-        return [];
+        if (
+            !recommendation ||
+            !recommendation.prioritizeRevision
+        ) {
+            return [];
+        }
+
+        const weakSkillNames =
+            new Set(
+                recommendation.weakSkills.map(
+                    skill =>
+                        skill
+                            .trim()
+                            .toLowerCase()
+                )
+            );
+
+        const weakSkillProgress =
+            context.skillProgress
+                .filter(skill =>
+                    weakSkillNames.has(
+                        skill.skillName
+                            .trim()
+                            .toLowerCase()
+                    )
+                )
+                .sort(
+                    (a, b) =>
+                        a.percentage -
+                        b.percentage
+                );
+
+        return weakSkillProgress.map(
+            skill => ({
+
+                skillCatalogId:
+                    skill.skillCatalogId,
+
+                skillName:
+                    skill.skillName,
+
+                percentage:
+                    skill.percentage,
+
+                revisionTopics:
+                    this.getRevisionTopicsForSkill(
+                        skill.skillName,
+                        recommendation.revisionTopics,
+                    ),
+
+            })
+        );
 
     }
 
@@ -260,6 +304,32 @@ export class NextMissionWorkflow {
 
     }
 
+    private getRevisionTopicsForSkill(
+        skillName: string,
+        revisionTopics: string[],
+    ): string[] {
+
+        const normalizedSkillName =
+            skillName
+                .trim()
+                .toLowerCase();
+
+        const matchedTopics =
+            revisionTopics.filter(
+                topic =>
+                    topic
+                        .toLowerCase()
+                        .includes(
+                            normalizedSkillName
+                        )
+            );
+
+        return matchedTopics.length > 0
+            ? matchedTopics
+            : revisionTopics;
+
+    }
+
     private async saveMission(
         userId: string,
         context: NextMissionWorkflowContext,
@@ -283,6 +353,10 @@ export class NextMissionWorkflow {
                 plannedRoadmapItemIds:
                     planningResult
                         .plannedRoadmapItemIds,
+
+                revisionPlans:
+                    planningResult
+                        .revisionPlans,
 
                 startDate:
                     planningResult

@@ -1,4 +1,6 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
 import {
     MissionPlanningInput,
@@ -17,63 +19,115 @@ class MissionPlanningEngine {
                 input.workloadMultiplier
             );
 
-        const plannedRoadmapItemIds: Types.ObjectId[] = [
-            ...input.carryForwardRoadmapItemIds,
-        ];
+        /*
+         * Carry-forward items always get priority.
+         */
+        const plannedRoadmapItemIds: Types.ObjectId[] =
+            [
+                ...input.carryForwardRoadmapItemIds,
+            ];
 
-        for (const id of input.revisionRoadmapItemIds) {
-
-            if (
-                plannedRoadmapItemIds.length >= capacity
-            ) break;
-
-            if (
-                !plannedRoadmapItemIds.some(
-                    item => item.equals(id)
-                )
-            ) {
-                plannedRoadmapItemIds.push(id);
-            }
-
-        }
+        /*
+         * Revision consumes part of the weekly capacity.
+         *
+         * We treat the existence of revision work as
+         * one roadmap-sized workload unit for V1.
+         */
+        const revisionCapacityCost =
+            input.revisionPlans.length > 0
+                ? 1
+                : 0;
 
         const remainingCapacity =
-            capacity -
-            plannedRoadmapItemIds.length;
+            Math.max(
+                capacity -
+                plannedRoadmapItemIds.length -
+                revisionCapacityCost,
+                0
+            );
 
         const newItems =
             input.newRoadmapItems
                 .filter(item =>
                     !plannedRoadmapItemIds.some(
-                        id => id.equals(item._id)
+                        id =>
+                            id.equals(item._id)
                     )
                 )
-                .slice(0, remainingCapacity)
-                .map(item => item._id);
+                .slice(
+                    0,
+                    remainingCapacity
+                )
+                .map(
+                    item =>
+                        item._id
+                );
 
         plannedRoadmapItemIds.push(
             ...newItems
         );
 
         return {
-            missionNumber: input.missionNumber,
+
+            missionNumber:
+                input.missionNumber,
+
             plannedRoadmapItemIds,
-            startDate: input.startDate,
-            endDate: input.endDate,
+
+            revisionPlans:
+                input.revisionPlans,
+
+            startDate:
+                input.startDate,
+
+            endDate:
+                input.endDate,
+
         };
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Capacity
+    |--------------------------------------------------------------------------
+    */
 
     private calculateCapacity(
         targetRoadmapItemsPerMission: number,
         workloadMultiplier: number
     ): number {
 
-        const capacity = Math.floor(
-            targetRoadmapItemsPerMission *
-            workloadMultiplier
+        const capacity =
+            Math.floor(
+                targetRoadmapItemsPerMission *
+                workloadMultiplier
+            );
+
+        return Math.max(
+            capacity,
+            1
         );
 
-        return Math.max(capacity, 1);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ObjectId Helper
+    |--------------------------------------------------------------------------
+    */
+
+    private containsId(
+        ids: Types.ObjectId[],
+        targetId: Types.ObjectId
+    ): boolean {
+
+        return ids.some(
+            id =>
+                id.equals(
+                    targetId
+                )
+        );
+
     }
 
 }

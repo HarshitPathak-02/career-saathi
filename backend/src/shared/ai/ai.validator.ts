@@ -203,48 +203,85 @@ class AIValidator {
     }
 
     validateDailyTasks(
-        response: unknown
+        response: unknown,
+        allowedRoadmapItemIds: string[],
+        allowedRevisionSkillIds: string[]
     ): DailyTaskGenerationOutput {
 
         if (!Array.isArray(response)) {
+
             throw new Error(
                 "AI response must be an array."
             );
+
         }
 
         if (response.length !== 6) {
+
             throw new Error(
                 "AI must generate exactly 6 daily tasks."
             );
+
         }
 
         const tasks =
             response as DailyTaskGenerationOutput;
 
-        tasks.forEach((task, index) =>
-            this.validateDailyTask(
-                task,
-                index
-            )
+        /*
+         * Allowed IDs
+         */
+
+        const allowedRoadmapIds =
+            new Set<string>(
+                allowedRoadmapItemIds
+            );
+
+        const allowedRevisionIds =
+            new Set<string>(
+                allowedRevisionSkillIds
+            );
+
+        /*
+         * Validate each daily task
+         */
+
+        tasks.forEach(
+            (task, index) =>
+                this.validateDailyTask(
+                    task,
+                    index,
+                    allowedRoadmapIds,
+                    allowedRevisionIds
+                )
         );
 
+        /*
+         * Validate days 1-6
+         */
+
         const dayNumbers =
-            tasks.map(task => task.dayNumber);
+            tasks.map(
+                task =>
+                    task.dayNumber
+            );
 
         const uniqueDays =
-            new Set(dayNumbers);
+            new Set(
+                dayNumbers
+            );
 
-        if (
-            uniqueDays.size !== 6
-        ) {
+        if (uniqueDays.size !== 6) {
+
             throw new Error(
                 "Duplicate day numbers found."
             );
+
         }
 
         const sortedDays =
             [...dayNumbers].sort(
-                (a, b) => a - b
+                (a, b) =>
+                    a - b
             );
 
         sortedDays.forEach(
@@ -253,55 +290,317 @@ class AIValidator {
                 if (
                     day !== index + 1
                 ) {
+
                     throw new Error(
                         "Day numbers must be sequential from 1 to 6."
                     );
+
                 }
 
             }
         );
+
+        /*
+         * Every NEW roadmap item must
+         * appear somewhere in the plan.
+         */
+
+        const assignedRoadmapItemIds =
+            new Set<string>(
+                tasks.flatMap(
+                    task =>
+                        task.roadmapItemIds ?? []
+                )
+            );
+
+        for (
+            const allowedId
+            of allowedRoadmapIds
+        ) {
+
+            if (
+                !assignedRoadmapItemIds.has(
+                    allowedId
+                )
+            ) {
+
+                throw new Error(
+                    `Roadmap item ${allowedId} was not assigned to any daily task.`
+                );
+
+            }
+
+        }
+
+        /*
+         * Every required revision skill must
+         * appear somewhere in the plan.
+         */
+
+        const assignedRevisionSkillIds =
+            new Set<string>(
+                tasks.flatMap(
+                    task =>
+                        task.revisionSkillIds ?? []
+                )
+            );
+
+        for (
+            const allowedRevisionId
+            of allowedRevisionIds
+        ) {
+
+            if (
+                !assignedRevisionSkillIds.has(
+                    allowedRevisionId
+                )
+            ) {
+
+                throw new Error(
+                    `Revision skill ${allowedRevisionId} was not assigned to any daily task.`
+                );
+
+            }
+
+        }
 
         return tasks;
     }
 
     private validateDailyTask(
         task: DailyTaskOutput,
-        index: number
+        index: number,
+        allowedRoadmapItemIds: Set<string>,
+        allowedRevisionSkillIds: Set<string>
     ): void {
 
+        /*
+         * Day number
+         */
+
         if (
-            !Number.isInteger(task.dayNumber)
+            !Number.isInteger(
+                task.dayNumber
+            )
         ) {
+
             throw new Error(
                 `Daily task ${index} has an invalid day number.`
             );
+
         }
+
+        /*
+         * Roadmap item IDs
+         */
+
+        if (
+            !Array.isArray(
+                task.roadmapItemIds
+            )
+        ) {
+
+            throw new Error(
+                `Daily task ${index} must contain roadmapItemIds as an array.`
+            );
+
+        }
+
+        const uniqueTaskRoadmapIds =
+            new Set(
+                task.roadmapItemIds
+            );
+
+        if (
+            uniqueTaskRoadmapIds.size !==
+            task.roadmapItemIds.length
+        ) {
+
+            throw new Error(
+                `Daily task ${index} contains duplicate roadmapItemIds.`
+            );
+
+        }
+
+        task.roadmapItemIds.forEach(
+            roadmapItemId => {
+
+                if (
+                    typeof roadmapItemId !==
+                    "string"
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} contains an invalid roadmapItemId.`
+                    );
+
+                }
+
+                if (
+                    !Types.ObjectId.isValid(
+                        roadmapItemId
+                    )
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} contains an invalid roadmapItemId.`
+                    );
+
+                }
+
+                if (
+                    !allowedRoadmapItemIds.has(
+                        roadmapItemId
+                    )
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} references roadmap item ${roadmapItemId}, which does not belong to this mission.`
+                    );
+
+                }
+
+            }
+        );
+
+        /*
+         * Revision skill IDs
+         */
+
+        if (
+            !Array.isArray(
+                task.revisionSkillIds
+            )
+        ) {
+
+            throw new Error(
+                `Daily task ${index} must contain revisionSkillIds as an array.`
+            );
+
+        }
+
+        const uniqueRevisionSkillIds =
+            new Set(
+                task.revisionSkillIds
+            );
+
+        if (
+            uniqueRevisionSkillIds.size !==
+            task.revisionSkillIds.length
+        ) {
+
+            throw new Error(
+                `Daily task ${index} contains duplicate revisionSkillIds.`
+            );
+
+        }
+
+        task.revisionSkillIds.forEach(
+            revisionSkillId => {
+
+                if (
+                    typeof revisionSkillId !==
+                    "string"
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} contains an invalid revisionSkillId.`
+                    );
+
+                }
+
+                if (
+                    !Types.ObjectId.isValid(
+                        revisionSkillId
+                    )
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} contains an invalid revisionSkillId.`
+                    );
+
+                }
+
+                if (
+                    !allowedRevisionSkillIds.has(
+                        revisionSkillId
+                    )
+                ) {
+
+                    throw new Error(
+                        `Daily task ${index} references revision skill ${revisionSkillId}, which is not allowed for this mission.`
+                    );
+
+                }
+
+            }
+        );
+
+        /*
+         * A day cannot contain no work.
+         *
+         * Valid:
+         * roadmap only
+         * revision only
+         * roadmap + revision
+         */
+
+        if (
+            task.roadmapItemIds.length === 0 &&
+            task.revisionSkillIds.length === 0
+        ) {
+
+            throw new Error(
+                `Daily task ${index} must contain at least one roadmap item or revision skill.`
+            );
+
+        }
+
+        /*
+         * Title
+         */
 
         if (
             typeof task.title !== "string" ||
             task.title.trim().length === 0
         ) {
+
             throw new Error(
                 `Daily task ${index} must contain a title.`
             );
+
         }
+
+        /*
+         * Description
+         */
 
         if (
             typeof task.description !== "string" ||
             task.description.trim().length === 0
         ) {
+
             throw new Error(
                 `Daily task ${index} must contain a description.`
             );
+
         }
 
+        /*
+         * Topics
+         */
+
         if (
-            !Array.isArray(task.topics) ||
+            !Array.isArray(
+                task.topics
+            ) ||
             task.topics.length === 0
         ) {
+
             throw new Error(
                 `Daily task ${index} must contain topics.`
             );
+
         }
 
         task.topics.forEach(
@@ -311,13 +610,19 @@ class AIValidator {
                     typeof topic !== "string" ||
                     topic.trim().length === 0
                 ) {
+
                     throw new Error(
                         `Daily task ${index} has an invalid topic at index ${topicIndex}.`
                     );
+
                 }
 
             }
         );
+
+        /*
+         * Estimated minutes
+         */
 
         if (
             !Number.isInteger(
@@ -325,9 +630,11 @@ class AIValidator {
             ) ||
             task.estimatedMinutes <= 0
         ) {
+
             throw new Error(
                 `Daily task ${index} has invalid estimated minutes.`
             );
+
         }
 
     }

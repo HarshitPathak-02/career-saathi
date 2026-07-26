@@ -15,6 +15,7 @@ import {
     DailyTaskStatus,
     DailyTaskType,
 } from "./daily-task.enums.js";
+import { ROADMAP_ITEM_MODEL } from "../roadmap/roadmap-item.constants.js";
 
 const DailyTaskSchema = new Schema(
     {
@@ -24,6 +25,20 @@ const DailyTaskSchema = new Schema(
             ref: "MissionModel",
             required: true,
         },
+
+        roadmapItemIds: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: ROADMAP_ITEM_MODEL,
+            },
+        ],
+
+        revisionSkillIds: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "SkillCatalog",
+            },
+        ],
 
         dayNumber: {
             type: Number,
@@ -97,6 +112,14 @@ DailyTaskSchema.index({
 
 DailyTaskSchema.index({
     status: 1,
+});
+
+DailyTaskSchema.index({
+    roadmapItemIds: 1,
+});
+
+DailyTaskSchema.index({
+    revisionSkillIds: 1,
 });
 
 export type DailyTask =
