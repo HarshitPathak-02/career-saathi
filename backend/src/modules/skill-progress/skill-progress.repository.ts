@@ -19,6 +19,12 @@ class SkillProgressRepository {
         session?: ClientSession
     ) {
 
+        console.log(
+            "SKILL PROGRESS REPOSITORY CREATE:",
+            data
+        );
+
+
         const [skillProgress] =
             await SkillProgressModel.create(
                 [data],
@@ -26,6 +32,12 @@ class SkillProgressRepository {
                     session,
                 }
             );
+
+
+        console.log(
+            "MONGODB CREATED SKILL PROGRESS:",
+            skillProgress.toObject()
+        );
 
         return skillProgress;
     }

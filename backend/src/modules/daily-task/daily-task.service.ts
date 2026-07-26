@@ -113,6 +113,11 @@ class DailyTaskService {
         session?: ClientSession
     ) {
 
+        console.trace(
+            "NORMAL DAILY TASK markCompleted CALLED:",
+            taskId.toString()
+        );
+
         const task =
             await dailyTaskRepository.findById(
                 taskId,

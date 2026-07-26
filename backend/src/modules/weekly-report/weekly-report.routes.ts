@@ -13,16 +13,19 @@ const router =
 
 router.get(
     "/:careerJourneyId/latest",
+    authenticate,
     weeklyReportController.getLatestWeeklyReport
 );
 
 router.get(
     "/:careerJourneyId",
+    authenticate,
     weeklyReportController.getWeeklyReports
 );
 
 router.get(
     "/report/:reportId",
+    authenticate,
     weeklyReportController.getWeeklyReport
 );
 

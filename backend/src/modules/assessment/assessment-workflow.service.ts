@@ -38,6 +38,7 @@ import {
 import {
     userSkillService,
 } from "../user-skill/user-skill.service.js";
+import { AssessmentMethod } from "../skill-progress/skill-progress.enums.js";
 
 class AssessmentWorkflowService {
 
@@ -206,6 +207,8 @@ class AssessmentWorkflowService {
                     careerJourneyId:
                         assessment.careerJourneyId,
 
+                    assessmentMethod: AssessmentMethod.PLATFORM
+
                 }))
 
             );
@@ -271,6 +274,25 @@ class AssessmentWorkflowService {
             );
         }
 
+        console.log(
+            "ASSESSMENT BEFORE SKILL PROGRESS:",
+            {
+                id: assessment._id.toString(),
+                type: assessment.type,
+                weekNumber: assessment.weekNumber,
+                status: assessment.status,
+            }
+        );
+
+        console.log(
+            "SKILLS RECEIVED:",
+            JSON.stringify(
+                data.skills,
+                null,
+                2
+            )
+        );
+
         const skillProgress =
             await skillProgressService.createManySkillProgress(
 
@@ -284,9 +306,30 @@ class AssessmentWorkflowService {
                     careerJourneyId:
                         assessment.careerJourneyId,
 
+                    assessmentMethod: AssessmentMethod.PLATFORM
+
                 }))
 
             );
+
+        console.log(
+            "SKILL PROGRESS CREATED:",
+            skillProgress.map(progress => ({
+                id: progress._id.toString(),
+                assessmentId:
+                    progress.assessmentId.toString(),
+                userSkillId:
+                    progress.userSkillId.toString(),
+                obtainedMarks:
+                    progress.obtainedMarks,
+                totalMarks:
+                    progress.totalMarks,
+                percentage:
+                    progress.percentage,
+                assessmentMethod:
+                    progress.assessmentMethod,
+            }))
+        );
 
         await userSkillService.updateManySkills(
 

@@ -71,11 +71,15 @@ class WeeklyReviewController {
 
         try {
 
+            console.log("Submit weekly review hit");
+
             const user =
                 getAuthUser(req);
 
             const dto =
                 req.body as SubmitWeeklyReviewDTO;
+
+            console.log("The submit weekly review hit with dto", dto);
 
             const result =
                 await weeklyReviewWorkflow

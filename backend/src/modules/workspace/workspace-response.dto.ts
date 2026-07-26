@@ -107,4 +107,7 @@ export interface WorkspaceResponseDto {
     today: WorkspaceTodayDto | null;
 
     todayTask: WorkspaceDailyTaskDto | null;
+
+    nextMissionAvailableAt:
+    Date | null;
 }

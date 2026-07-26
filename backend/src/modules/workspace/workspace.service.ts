@@ -23,82 +23,137 @@ import {
 } from "../roadmap/roadmap.repository.js";
 
 import {
-    missionRepository,
-} from "../mission/mission.repository.js";
-
-import {
     dailyTaskRepository,
 } from "../daily-task/daily-task.repository.js";
+
+import {
+    dailyTaskService,
+} from "../daily-task/daily-task.service.js";
 
 import {
     AssessmentType,
 } from "../assessment/assessment.enums.js";
 
 import {
+    missionLifecycleService,
+} from "../mission/mission-lifecycle.service.js";
+
+import {
+    MissionLifecycleState,
+} from "../mission/mission-lifecycle.types.js";
+
+import {
     WorkspaceMapper,
 } from "./workspace.mapper.js";
-import { dailyTaskService } from "../daily-task/daily-task.service.js";
 
 export class WorkspaceService {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate Mission Day
+    |--------------------------------------------------------------------------
+    */
 
     private calculateMissionDay(
         startDate: Date,
         totalDays: number
     ) {
 
-        const today = new Date();
+        const today =
+            new Date();
 
-        today.setHours(0, 0, 0, 0);
-
-        const missionStart = new Date(startDate);
-
-        missionStart.setHours(0, 0, 0, 0);
-
-        const differenceInDays = Math.floor(
-            (today.getTime() - missionStart.getTime()) /
-            (1000 * 60 * 60 * 24)
+        today.setHours(
+            0,
+            0,
+            0,
+            0
         );
 
-        const dayNumber = Math.min(
-            Math.max(differenceInDays + 1, 1),
-            totalDays
+        const missionStart =
+            new Date(startDate);
+
+        missionStart.setHours(
+            0,
+            0,
+            0,
+            0
         );
+
+        const differenceInDays =
+            Math.floor(
+                (
+                    today.getTime() -
+                    missionStart.getTime()
+                ) /
+                (
+                    1000 *
+                    60 *
+                    60 *
+                    24
+                )
+            );
+
+        const dayNumber =
+            Math.min(
+                Math.max(
+                    differenceInDays + 1,
+                    1
+                ),
+                totalDays
+            );
 
         return {
+
             dayNumber,
-            remainingDays: totalDays - dayNumber,
+
+            remainingDays:
+                totalDays - dayNumber,
+
         };
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Workspace
+    |--------------------------------------------------------------------------
+    */
 
     async getWorkspace(
         userId: string
     ) {
 
         const userObjectId =
-            new Types.ObjectId(userId);
+            new Types.ObjectId(
+                userId
+            );
 
         /*
-         * 1. User
-         */
+        |--------------------------------------------------------------------------
+        | 1. User
+        |--------------------------------------------------------------------------
+        */
+
         const user =
             await userRepository.findById(
                 userId
             );
 
         if (!user) {
+
             throw new AppError(
                 404,
                 "User not found."
             );
+
         }
 
         /*
-         * 2. Active Career Journey
-         *
-         * roleId and domainId are populated
-         * by the repository.
-         */
+        |--------------------------------------------------------------------------
+        | 2. Active Career Journey
+        |--------------------------------------------------------------------------
+        */
+
         const careerJourney =
             await careerJourneyRepository
                 .findActiveByUserId(
@@ -106,26 +161,33 @@ export class WorkspaceService {
                 );
 
         if (!careerJourney) {
+
             throw new AppError(
                 404,
                 "Active career journey not found."
             );
+
         }
 
         /*
-         * 3. Assessment + Roadmap + Mission
-         */
+        |--------------------------------------------------------------------------
+        | 3. Initial Assessment + Roadmap
+        |--------------------------------------------------------------------------
+        */
+
         const [
             assessment,
             roadmap,
-            activeMission,
         ] = await Promise.all([
+
             assessmentRepository.findOne({
+
                 careerJourneyId:
                     careerJourney._id,
 
                 type:
                     AssessmentType.INITIAL,
+
             }),
 
             roadmapRepository
@@ -133,28 +195,92 @@ export class WorkspaceService {
                     careerJourney._id
                 ),
 
-            missionRepository
-                .findActiveMission(
-                    careerJourney._id
-                ),
         ]);
 
         /*
- * 4. Today's mission task
- */
+        |--------------------------------------------------------------------------
+        | 4. Resolve Mission Lifecycle
+        |--------------------------------------------------------------------------
+        |
+        | We only resolve the mission lifecycle once a roadmap exists.
+        |
+        | Possible states:
+        |
+        | INITIAL_MISSION_REQUIRED
+        | ACTIVE
+        | WAITING_FOR_NEXT_MISSION
+        | ROADMAP_COMPLETED
+        |
+        */
+
+        let lifecycleState:
+            MissionLifecycleState | null =
+            null;
+
+        let activeMission =
+            null;
+
+        let nextMissionAvailableAt:
+            Date | null =
+            null;
+
+        if (roadmap) {
+
+            const lifecycle =
+                await missionLifecycleService
+                    .resolveMission(
+                        userId,
+                        careerJourney._id
+                    );
+
+            lifecycleState =
+                lifecycle.state;
+
+            activeMission =
+                lifecycle.mission;
+
+            nextMissionAvailableAt =
+                lifecycle.nextMissionAvailableAt;
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Mission Tasks
+        |--------------------------------------------------------------------------
+        */
 
         const tasks =
             activeMission
-                ? await dailyTaskRepository.findByMissionId(
-                    activeMission._id
-                )
+                ? await dailyTaskRepository
+                    .findByMissionId(
+                        activeMission._id
+                    )
                 : [];
 
-        let today = null;
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Today's Task
+        |--------------------------------------------------------------------------
+        */
 
-        let todayTask = null;
+        let today:
+            {
+                dayNumber: number;
+                remainingDays: number;
+            } | null =
+            null;
+
+        let todayTask =
+            null;
 
         if (activeMission) {
+
+            const millisecondsPerDay =
+                1000 *
+                60 *
+                60 *
+                24;
 
             const missionDuration =
                 Math.floor(
@@ -162,32 +288,44 @@ export class WorkspaceService {
                         activeMission.endDate.getTime() -
                         activeMission.startDate.getTime()
                     ) /
-                    (1000 * 60 * 60 * 24)
+                    millisecondsPerDay
                 ) + 1;
 
-            today = this.calculateMissionDay(
-                activeMission.startDate,
-                missionDuration
-            );
+            today =
+                this.calculateMissionDay(
+                    activeMission.startDate,
+                    missionDuration
+                );
 
             todayTask =
-                await dailyTaskService.getTaskByMissionAndDay(
-                    activeMission._id,
-                    today.dayNumber
-                );
+                await dailyTaskService
+                    .getTaskByMissionAndDay(
+                        activeMission._id,
+                        today.dayNumber
+                    );
 
         }
 
         /*
-         * 5. Names from populated master data
-         */
+        |--------------------------------------------------------------------------
+        | 7. Career Target Names
+        |--------------------------------------------------------------------------
+        */
+
         const targetRole =
             careerJourney.roleId.name;
 
         const targetDomain =
             careerJourney.domainId.name;
 
+        /*
+        |--------------------------------------------------------------------------
+        | 8. Workspace Response
+        |--------------------------------------------------------------------------
+        */
+
         return WorkspaceMapper.toResponse({
+
             user,
 
             careerJourney,
@@ -207,8 +345,15 @@ export class WorkspaceService {
             targetRole,
 
             targetDomain,
+
+            lifecycleState,
+
+            nextMissionAvailableAt,
+
         });
+
     }
+
 }
 
 export const workspaceService =

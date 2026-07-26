@@ -311,6 +311,9 @@ class WeeklyReviewWorkflow {
         |--------------------------------------------------------------------------
         */
 
+        console.log("Submit weekly review workflow:", userId);
+        console.log("Submit weekly review workflow:", dto);
+
         const careerJourney =
             await careerJourneyService
                 .getActiveCareerJourney(
@@ -371,6 +374,8 @@ class WeeklyReviewWorkflow {
         | Weekly Assessment
         |--------------------------------------------------------------------------
         */
+
+        console.log("STEP 1: completing assessment");
 
         let assessment =
             await assessmentWorkflowService
@@ -478,6 +483,12 @@ class WeeklyReviewWorkflow {
         |--------------------------------------------------------------------------
         */
 
+        console.log("STEP 1 DONE");
+
+
+        console.log("STEP 2: creating reflection");
+
+
         let reflection =
             await weeklyReflectionService
                 .getReflection({
@@ -527,6 +538,11 @@ class WeeklyReviewWorkflow {
         |--------------------------------------------------------------------------
         */
 
+        console.log("STEP 2 DONE");
+
+
+        console.log("STEP 3: generating weekly report");
+
         let weeklyReport =
             await weeklyReportService
                 .getByReflectionId(
@@ -551,8 +567,20 @@ class WeeklyReviewWorkflow {
         |--------------------------------------------------------------------------
         */
 
-        await dailyTaskService.markCompleted(
-            daySevenTask._id
+
+        console.log("STEP 3 DONE");
+
+
+        console.log(
+            "STEP 4: completing weekly review task",
+            {
+                missionId: mission._id.toString(),
+                daySevenTaskId: daySevenTask._id.toString(),
+            }
+        );
+
+        await dailyTaskService.completeWeeklyReviewTask(
+            mission._id
         );
 
         /*
@@ -560,6 +588,11 @@ class WeeklyReviewWorkflow {
         | Complete Mission
         |--------------------------------------------------------------------------
         */
+
+        console.log("STEP 4 DONE");
+
+
+        console.log("STEP 5: completinsg mission");
 
         await missionService.markAsCompleted(
             mission._id.toString()

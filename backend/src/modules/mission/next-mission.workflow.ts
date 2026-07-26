@@ -134,13 +134,23 @@ export class NextMissionWorkflow {
         context: NextMissionWorkflowContext,
     ): MissionPlanningInput {
 
-        const startDate = new Date();
+        const startDate =
+            new Date();
 
-        const endDate = new Date(startDate);
+        startDate.setHours(
+            0,
+            0,
+            0,
+            0,
+        );
+
+        const endDate =
+            new Date(startDate);
 
         endDate.setDate(
             endDate.getDate() +
-            DEFAULT_DURATION_DAYS,
+            DEFAULT_DURATION_DAYS -
+            1,
         );
 
         return {

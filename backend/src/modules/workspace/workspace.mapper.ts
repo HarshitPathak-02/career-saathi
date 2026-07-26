@@ -3,16 +3,16 @@ import {
 } from "../assessment/assessment.schema.js";
 
 import {
-    CareerJourneyDocument,
-} from "../career-journey/career-journey.model.js";
-
-import {
     DailyTaskDocument,
 } from "../daily-task/daily-task.schema.js";
 
 import {
     MissionDocument,
 } from "../mission/mission.schema.js";
+
+import {
+    MissionLifecycleState,
+} from "../mission/mission-lifecycle.types.js";
 
 import {
     RoadmapDocument,
@@ -29,51 +29,98 @@ import {
 import {
     WorkspaceResponseDto,
 } from "./workspace-response.dto.js";
-import { PopulatedCareerJourneyDocument } from "../career-journey/career-journey.types.js";
+
+import {
+    PopulatedCareerJourneyDocument,
+} from "../career-journey/career-journey.types.js";
 
 interface WorkspaceMapperInput {
-    user: UserDocument;
 
-    careerJourney: PopulatedCareerJourneyDocument;
+    user:
+    UserDocument;
 
-    assessment: AssessmentDocument | null;
+    careerJourney:
+    PopulatedCareerJourneyDocument;
 
-    roadmap: RoadmapDocument | null;
+    assessment:
+    AssessmentDocument | null;
 
-    activeMission: MissionDocument | null;
+    roadmap:
+    RoadmapDocument | null;
 
-    tasks: DailyTaskDocument[];
+    activeMission:
+    MissionDocument | null;
+
+    tasks:
+    DailyTaskDocument[];
 
     today: {
         dayNumber: number;
         remainingDays: number;
     } | null;
 
-    todayTask: DailyTaskDocument | null;
+    todayTask:
+    DailyTaskDocument | null;
 
-    targetRole: string;
+    targetRole:
+    string;
 
-    targetDomain: string;
+    targetDomain:
+    string;
+
+    lifecycleState:
+    MissionLifecycleState | null;
+
+    nextMissionAvailableAt:
+    Date | null;
+
 }
 
 export class WorkspaceMapper {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Workspace Response
+    |--------------------------------------------------------------------------
+    */
 
     static toResponse(
         input: WorkspaceMapperInput
     ): WorkspaceResponseDto {
 
         const {
+
             user,
+
             careerJourney,
+
             assessment,
+
             roadmap,
+
             activeMission,
+
             tasks,
+
             today,
+
             todayTask,
+
             targetRole,
+
             targetDomain,
+
+            lifecycleState,
+
+            nextMissionAvailableAt,
+
         } = input;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Availability Flags
+        |--------------------------------------------------------------------------
+        */
 
         const hasInitialAssessment =
             !!assessment;
@@ -81,20 +128,34 @@ export class WorkspaceMapper {
         const hasRoadmap =
             !!roadmap;
 
-        const hasActiveMission =
-            !!activeMission;
+        /*
+        |--------------------------------------------------------------------------
+        | Workspace State
+        |--------------------------------------------------------------------------
+        */
 
         const workspaceState =
             this.getWorkspaceState(
+
                 hasInitialAssessment,
+
                 hasRoadmap,
-                hasActiveMission
+
+                lifecycleState
+
             );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mission Progress
+        |--------------------------------------------------------------------------
+        */
 
         const completedTasks =
             tasks.filter(
                 task =>
-                    task.status === "COMPLETED"
+                    task.status ===
+                    "COMPLETED"
             ).length;
 
         const totalTasks =
@@ -103,50 +164,111 @@ export class WorkspaceMapper {
         const progressPercentage =
             totalTasks > 0
                 ? Math.round(
-                    (completedTasks / totalTasks) *
+                    (
+                        completedTasks /
+                        totalTasks
+                    ) *
                     100
                 )
                 : 0;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Actions
+        |--------------------------------------------------------------------------
+        */
+
+        const canStartAssessment =
+            !hasInitialAssessment;
+
+        const canGenerateRoadmap =
+            hasInitialAssessment &&
+            !hasRoadmap;
+
+        /*
+         * This is ONLY true when the journey
+         * has never had its first mission.
+         *
+         * It must NOT become true between
+         * completed weekly missions.
+         */
+
+        const canStartJourney =
+            hasInitialAssessment &&
+            hasRoadmap &&
+            lifecycleState ===
+            MissionLifecycleState
+                .INITIAL_MISSION_REQUIRED;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
+
         return {
+
             workspaceState,
 
             user: {
-                id: user._id.toString(),
 
-                firstName: user.fullName,
+                id:
+                    user._id.toString(),
+
+                firstName:
+                    user.fullName,
+
             },
 
             careerJourney: {
+
                 id:
-                    careerJourney._id.toString(),
+                    careerJourney
+                        ._id
+                        .toString(),
 
                 roleId:
-                    careerJourney.roleId._id.toString(),
+                    careerJourney
+                        .roleId
+                        ._id
+                        .toString(),
 
                 domainId:
-                    careerJourney.domainId._id.toString(),
+                    careerJourney
+                        .domainId
+                        ._id
+                        .toString(),
 
                 targetRole,
 
                 targetDomain,
 
                 targetCompany:
-                    careerJourney.targetCompany ?? "",
+                    careerJourney
+                        .targetCompany ??
+                    "",
 
                 targetDurationMonths:
-                    careerJourney.targetDurationMonths,
+                    careerJourney
+                        .targetDurationMonths,
 
                 dailyStudyHours:
-                    careerJourney.dailyStudyHours,
+                    careerJourney
+                        .dailyStudyHours,
+
             },
 
             overview: {
+
                 currentMission:
-                    activeMission?.missionNumber ?? 0,
+                    activeMission
+                        ?.missionNumber ??
+                    0,
 
                 currentWeek:
-                    activeMission?.missionNumber ?? 0,
+                    activeMission
+                        ?.missionNumber ??
+                    0,
 
                 completedTasks,
 
@@ -154,41 +276,48 @@ export class WorkspaceMapper {
 
                 progressPercentage,
 
-                // TODO: Implement streak calculation
-                streak: 0,
+                // TODO:
+                // Implement streak calculation.
+                streak:
+                    0,
+
             },
 
             actions: {
-                canStartAssessment:
-                    !hasInitialAssessment,
 
-                canGenerateRoadmap:
-                    hasInitialAssessment &&
-                    !hasRoadmap,
+                canStartAssessment,
 
-                canStartJourney:
-                    hasInitialAssessment &&
-                    hasRoadmap &&
-                    !hasActiveMission,
+                canGenerateRoadmap,
+
+                canStartJourney,
+
             },
 
             activeMission:
                 activeMission
                     ? {
+
                         id:
-                            activeMission._id.toString(),
+                            activeMission
+                                ._id
+                                .toString(),
 
                         missionNumber:
-                            activeMission.missionNumber,
+                            activeMission
+                                .missionNumber,
 
                         startDate:
-                            activeMission.startDate,
+                            activeMission
+                                .startDate,
 
                         endDate:
-                            activeMission.endDate,
+                            activeMission
+                                .endDate,
 
                         status:
-                            activeMission.status,
+                            activeMission
+                                .status,
+
                     }
                     : null,
 
@@ -197,55 +326,170 @@ export class WorkspaceMapper {
             todayTask:
                 todayTask
                     ? {
+
                         id:
-                            todayTask._id.toString(),
+                            todayTask
+                                ._id
+                                .toString(),
 
                         dayNumber:
-                            todayTask.dayNumber,
+                            todayTask
+                                .dayNumber,
 
                         title:
-                            todayTask.title,
+                            todayTask
+                                .title,
 
                         description:
-                            todayTask.description,
+                            todayTask
+                                .description,
 
                         topics:
-                            todayTask.topics,
+                            todayTask
+                                .topics,
 
                         estimatedMinutes:
-                            todayTask.estimatedMinutes,
+                            todayTask
+                                .estimatedMinutes,
 
                         status:
-                            todayTask.status,
+                            todayTask
+                                .status,
 
                         type:
-                            todayTask.type,
+                            todayTask
+                                .type,
 
                         completedAt:
-                            todayTask.completedAt ?? null,
+                            todayTask
+                                .completedAt ??
+                            null,
+
                     }
                     : null,
+
+            nextMissionAvailableAt,
+
         };
+
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resolve Workspace State
+    |--------------------------------------------------------------------------
+    */
 
     private static getWorkspaceState(
         hasAssessment: boolean,
         hasRoadmap: boolean,
-        hasMission: boolean
+        lifecycleState:
+            MissionLifecycleState | null
     ): WorkspaceState {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Assessment
+        |--------------------------------------------------------------------------
+        */
+
         if (!hasAssessment) {
-            return WorkspaceState.INITIAL_ASSESSMENT;
+
+            return WorkspaceState
+                .INITIAL_ASSESSMENT;
+
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap
+        |--------------------------------------------------------------------------
+        */
 
         if (!hasRoadmap) {
-            return WorkspaceState.ROADMAP_PENDING;
+
+            return WorkspaceState
+                .ROADMAP_PENDING;
+
         }
 
-        if (!hasMission) {
-            return WorkspaceState.MISSION_PENDING;
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Mission
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            lifecycleState ===
+            MissionLifecycleState
+                .INITIAL_MISSION_REQUIRED
+        ) {
+
+            return WorkspaceState
+                .MISSION_PENDING;
+
         }
 
-        return WorkspaceState.ACTIVE;
+        /*
+        |--------------------------------------------------------------------------
+        | Waiting For Next Weekly Mission
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            lifecycleState ===
+            MissionLifecycleState
+                .WAITING_FOR_NEXT_MISSION
+        ) {
+
+            return WorkspaceState
+                .NEXT_MISSION_PENDING;
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap Completed
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            lifecycleState ===
+            MissionLifecycleState
+                .ROADMAP_COMPLETED
+        ) {
+
+            return WorkspaceState
+                .ROADMAP_COMPLETED;
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Mission
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            lifecycleState ===
+            MissionLifecycleState.ACTIVE
+        ) {
+
+            return WorkspaceState
+                .ACTIVE;
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Invalid Lifecycle State
+        |--------------------------------------------------------------------------
+        */
+
+        throw new Error(
+            "Unable to determine workspace state."
+        );
+
     }
+
 }
