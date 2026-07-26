@@ -7,6 +7,7 @@ import {
 } from "./weekly-reflection.types.js";
 import { WeeklyReflectionMessages } from "./weekly-reflection.messages.js";
 import { AppError } from "../../core/errors/app-error.js";
+import { WeeklyReflectionDocument } from "./weekly-reflection.schema.js";
 
 class WeeklyReflectionService {
 
@@ -23,12 +24,29 @@ class WeeklyReflectionService {
     }
 
     async getReflectionById(
-        id: string | Types.ObjectId,
-    ) {
+        reflectionId: Types.ObjectId,
+    ): Promise<WeeklyReflectionDocument> {
 
-        return weeklyReflectionRepository.findById(id);
+        const reflection =
+            await weeklyReflectionRepository
+                .findById(
+                    reflectionId,
+                );
+
+        if (!reflection) {
+
+            throw new AppError(
+                404,
+                "Weekly reflection not found.",
+            );
+
+        }
+
+        return reflection;
 
     }
+
+
 
     async getReflection(
         query: WeeklyReflectionQuery,

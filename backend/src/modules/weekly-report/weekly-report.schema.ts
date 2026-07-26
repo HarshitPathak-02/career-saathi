@@ -55,6 +55,73 @@ const WeeklySummarySchema = new Schema(
     }
 );
 
+const MentorFeedbackSchema = new Schema(
+    {
+
+        advice: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+
+        motivationMessage: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+
+    },
+    {
+        _id: false,
+        strict: "throw",
+    }
+);
+
+const MissionRecommendationSchema = new Schema(
+    {
+
+        weakSkills: [
+            {
+                type: String,
+                trim: true,
+            },
+        ],
+
+        revisionTopics: [
+            {
+                type: String,
+                trim: true,
+            },
+        ],
+
+        recommendedDifficulty: {
+            type: String,
+            required: true,
+        },
+
+        recommendedStudyHours: {
+            type: Number,
+            required: true,
+            min: 1,
+        },
+
+        prioritizeRevision: {
+            type: Boolean,
+            required: true,
+        },
+
+        skipCompletedTopics: {
+            type: Boolean,
+            required: true,
+        },
+
+    },
+    {
+        _id: false,
+        strict: "throw",
+    }
+);
+
 const WeeklyReportSchema = new Schema(
     {
         careerJourneyId: {
@@ -103,52 +170,13 @@ const WeeklyReportSchema = new Schema(
         },
 
         mentorFeedback: {
-            advice: {
-                type: String,
-                required: true,
-                trim: true,
-            },
-
-            motivationMessage: {
-                type: String,
-                required: true,
-                trim: true,
-            },
+            type: MentorFeedbackSchema,
+            required: true,
         },
 
         recommendation: {
-
-            weakSkills: [{
-                type: String,
-                trim: true,
-            }],
-
-            revisionTopics: [{
-                type: String,
-                trim: true,
-            }],
-
-            recommendedDifficulty: {
-                type: String,
-                required: true,
-            },
-
-            recommendedStudyHours: {
-                type: Number,
-                required: true,
-                min: 1,
-            },
-
-            prioritizeRevision: {
-                type: Boolean,
-                required: true,
-            },
-
-            skipCompletedTopics: {
-                type: Boolean,
-                required: true,
-            },
-
+            type: MissionRecommendationSchema,
+            required: true,
         },
 
         generatedAt: {
