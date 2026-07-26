@@ -5,7 +5,13 @@ export const WorkspaceState = {
 
     MISSION_PENDING: "mission_pending",
 
+    NEXT_MISSION_PENDING:
+        "next_mission_pending",
+
     ACTIVE: "active",
+
+    ROADMAP_COMPLETED:
+        "roadmap_completed",
 } as const;
 
 export type WorkspaceState =
@@ -189,4 +195,6 @@ export interface Workspace {
     today: WorkspaceToday | null;
 
     todayTask: WorkspaceDailyTask | null;
+
+    nextMissionAvailableAt: string | null;
 }

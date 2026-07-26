@@ -104,7 +104,7 @@ export default function WeeklyReviewStepper({
                                     <div
                                         className={`
                                         mx-3
-                                        h-[2px]
+                                        h-0.5
                                         flex-1
                                         ${currentStep >
                                                 step.number
@@ -127,4 +127,4 @@ export default function WeeklyReviewStepper({
 
     );
 
-}
+} 

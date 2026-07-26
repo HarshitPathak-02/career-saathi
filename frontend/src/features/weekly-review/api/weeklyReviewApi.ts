@@ -52,7 +52,7 @@ export const weeklyReviewApi =
                     SubmitWeeklyReviewRequest
                 >({
 
-                    query: (body) => ({
+                    query: (data) => ({
 
                         url:
                             "/weekly-reviews/submit",
@@ -60,7 +60,7 @@ export const weeklyReviewApi =
                         method:
                             "POST",
 
-                        body,
+                        data,
 
                     }),
 

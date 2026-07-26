@@ -44,7 +44,7 @@ const sidebarItems: SidebarItem[] = [
     {
         label: "Weekly Reports",
         icon: <FileBarChart size={20} />,
-        disabled: true,
+        path: '/weekly-reports'
     },
 
     {

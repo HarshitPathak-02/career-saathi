@@ -4,7 +4,12 @@ import {
     Clock3,
     Target,
     Trophy,
+    ClipboardCheck,
 } from "lucide-react";
+
+import {
+    useNavigate,
+} from "react-router-dom";
 
 import type {
     WorkspaceActiveMission,
@@ -16,9 +21,13 @@ import type {
 import {
     DailyTaskStatus,
 } from "../types/workspace.types";
-import { useCompleteDailyTaskMutation } from "../../mission/api/dailyTaskApi";
+
+import {
+    useCompleteDailyTaskMutation,
+} from "../../mission/api/dailyTaskApi";
 
 interface ActiveMissionCardProps {
+
     overview: WorkspaceOverview;
 
     activeMission: WorkspaceActiveMission | null;
@@ -26,25 +35,31 @@ interface ActiveMissionCardProps {
     today: WorkspaceToday | null;
 
     todayTask: WorkspaceDailyTask | null;
+
 }
 
 const formatDuration = (
     minutes: number
 ) => {
 
-    const hours = Math.floor(
-        minutes / 60
-    );
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
 
     const remainingMinutes =
         minutes % 60;
 
     if (hours === 0) {
+
         return `${remainingMinutes} min`;
+
     }
 
     if (remainingMinutes === 0) {
+
         return `${hours} hr${hours > 1 ? "s" : ""}`;
+
     }
 
     return `${hours} hr ${remainingMinutes} min`;
@@ -52,49 +67,118 @@ const formatDuration = (
 };
 
 const ActiveMissionCard = ({
+
     overview,
+
     activeMission,
+
     today,
+
     todayTask,
+
 }: ActiveMissionCardProps) => {
 
-    if (!activeMission || !today) {
-        return null;
-    }
+    const navigate =
+        useNavigate();
 
-    const isCompleted =
-        todayTask?.status ===
-        DailyTaskStatus.COMPLETED;
+    /*
+    |--------------------------------------------------------------------------
+    | Mutation
+    |--------------------------------------------------------------------------
+    */
 
     const [
         completeDailyTask,
         {
             isLoading: isCompleting,
         },
-    ] = useCompleteDailyTaskMutation();
+    ] =
+        useCompleteDailyTaskMutation();
 
-    const handleCompleteMission = async () => {
+    /*
+    |--------------------------------------------------------------------------
+    | Empty Mission
+    |--------------------------------------------------------------------------
+    */
 
-        if (!todayTask || isCompleted) {
-            return;
-        }
+    if (
+        !activeMission ||
+        !today
+    ) {
 
-        try {
+        return null;
 
-            await completeDailyTask(
-                todayTask.id
-            ).unwrap();
+    }
 
-        } catch (error) {
+    /*
+    |--------------------------------------------------------------------------
+    | Task State
+    |--------------------------------------------------------------------------
+    */
 
-            console.error(
-                "Failed to complete daily task",
-                error
+    const isCompleted =
+        todayTask?.status ===
+        DailyTaskStatus.COMPLETED;
+
+    const isWeeklyReviewDay =
+        today.dayNumber === 7;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complete Regular Daily Task
+    |--------------------------------------------------------------------------
+    */
+
+    const handleCompleteTask =
+        async () => {
+
+            if (
+                !todayTask ||
+                isCompleted ||
+                isWeeklyReviewDay
+            ) {
+
+                return;
+
+            }
+
+            try {
+
+                await completeDailyTask(
+                    todayTask.id
+                ).unwrap();
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to complete daily task",
+                    error
+                );
+
+            }
+
+        };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Start Weekly Review
+    |--------------------------------------------------------------------------
+    */
+
+    const handleStartWeeklyReview =
+        () => {
+
+            navigate(
+                "/weekly-review"
             );
 
-        }
+        };
 
-    };
+    /*
+    |--------------------------------------------------------------------------
+    | UI
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -112,18 +196,24 @@ const ActiveMissionCard = ({
 
                             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
 
-                                <Target size={28} />
+                                <Target
+                                    size={28}
+                                />
 
                             </div>
 
                             <div>
 
                                 <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
+
                                     Current Mission
+
                                 </p>
 
                                 <h2 className="mt-1 text-3xl font-bold text-slate-900">
+
                                     Mission {activeMission.missionNumber}
+
                                 </h2>
 
                             </div>
@@ -131,8 +221,12 @@ const ActiveMissionCard = ({
                         </div>
 
                         <p className="mt-5 text-slate-600">
-                            Stay consistent. Complete today's learning goal
-                            and move one step closer to your target career.
+
+                            {isWeeklyReviewDay
+                                ? "Review your week, complete your assessment, and reflect on your progress."
+                                : "Stay consistent. Complete today's learning goal and move one step closer to your target career."
+                            }
+
                         </p>
 
                     </div>
@@ -140,16 +234,22 @@ const ActiveMissionCard = ({
                     <div className="rounded-xl bg-indigo-50 px-5 py-4">
 
                         <p className="text-xs uppercase tracking-wide text-indigo-600">
+
                             Today
+
                         </p>
 
                         <h3 className="mt-1 text-xl font-bold text-slate-900">
+
                             Day {today.dayNumber}
+
                         </h3>
 
                         <p className="mt-1 text-sm text-slate-600">
+
                             {today.remainingDays} day
                             {today.remainingDays !== 1 && "s"} remaining
+
                         </p>
 
                     </div>
@@ -172,13 +272,17 @@ const ActiveMissionCard = ({
                         />
 
                         <span className="font-semibold text-slate-900">
+
                             Mission Progress
+
                         </span>
 
                     </div>
 
                     <span className="font-semibold text-indigo-600">
+
                         {overview.progressPercentage}%
+
                     </span>
 
                 </div>
@@ -222,12 +326,16 @@ const ActiveMissionCard = ({
                         />
 
                         <h3 className="mt-4 text-lg font-semibold text-slate-900">
+
                             No task scheduled for today
+
                         </h3>
 
                         <p className="mt-2 text-slate-500">
+
                             Enjoy your day. Your next mission will
                             appear automatically.
+
                         </p>
 
                     </div>
@@ -241,28 +349,41 @@ const ActiveMissionCard = ({
                             <div>
 
                                 <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
-                                    Today's Mission
+
+                                    {isWeeklyReviewDay
+                                        ? "Weekly Review"
+                                        : "Today's Mission"
+                                    }
+
                                 </p>
 
                                 <h3 className="mt-2 text-2xl font-bold text-slate-900">
+
                                     {todayTask.title}
+
                                 </h3>
 
                             </div>
 
                             <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2">
 
-                                <Clock3 size={18} />
+                                <Clock3
+                                    size={18}
+                                />
 
                                 <span className="text-sm font-medium">
+
                                     {formatDuration(
                                         todayTask.estimatedMinutes
                                     )}
+
                                 </span>
 
                             </div>
 
                         </div>
+
+                        {/* Description */}
 
                         {todayTask.description && (
 
@@ -274,10 +395,17 @@ const ActiveMissionCard = ({
 
                         )}
 
+                        {/* Topics */}
+
                         <div className="mt-8">
 
                             <h4 className="mb-4 text-lg font-semibold text-slate-900">
-                                Today's Learning Checklist
+
+                                {isWeeklyReviewDay
+                                    ? "Weekly Review Checklist"
+                                    : "Today's Learning Checklist"
+                                }
+
                             </h4>
 
                             <div className="space-y-3">
@@ -299,7 +427,9 @@ const ActiveMissionCard = ({
                                             />
 
                                             <span className="leading-6 text-slate-700">
+
                                                 {topic}
+
                                             </span>
 
                                         </div>
@@ -311,60 +441,118 @@ const ActiveMissionCard = ({
 
                         </div>
 
+                        {/* Footer */}
+
                         <div className="mt-10 flex flex-col gap-5 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
 
                             <div>
 
                                 <p className="text-sm text-slate-500">
+
                                     Status
+
                                 </p>
 
                                 <p
-                                    className={`mt-1 font-semibold ${isCompleted
-                                        ? "text-green-600"
-                                        : "text-amber-600"
-                                        }`}
+                                    className={`
+                                        mt-1
+                                        font-semibold
+                                        ${isCompleted
+                                            ? "text-green-600"
+                                            : "text-amber-600"
+                                        }
+                                    `}
                                 >
+
                                     {isCompleted
                                         ? "Completed"
-                                        : "Pending"}
+                                        : "Pending"
+                                    }
+
                                 </p>
 
                             </div>
 
-                            <button
-                                onClick={handleCompleteMission}
-                                disabled={
-                                    isCompleted ||
-                                    isCompleting
-                                }
-                                className={`
-                                    inline-flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    rounded-xl
-                                    px-6
-                                    py-3
-                                    font-semibold
-                                    transition-all
+                            {/* Day 7 */}
 
-                                    ${isCompleted || isCompleting
-                                        ? "cursor-not-allowed bg-green-100 text-green-700"
-                                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                            {isWeeklyReviewDay &&
+                                !isCompleted ? (
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        handleStartWeeklyReview
                                     }
-                                `}
-                            >
+                                    className="
+                                        inline-flex
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        rounded-xl
+                                        bg-indigo-600
+                                        px-6
+                                        py-3
+                                        font-semibold
+                                        text-white
+                                        transition-all
+                                        hover:bg-indigo-700
+                                    "
+                                >
 
-                                <CheckCircle2 size={20} />
+                                    <ClipboardCheck
+                                        size={20}
+                                    />
 
-                                {isCompleting
-                                    ? "Completing..."
-                                    : isCompleted
-                                        ? "Today's Mission Completed"
-                                        : "Complete Today's Mission"}
+                                    Start Weekly Review
 
-                            </button>
+                                </button>
+
+                            ) : (
+
+                                /* Regular Day */
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        handleCompleteTask
+                                    }
+                                    disabled={
+                                        isCompleted ||
+                                        isCompleting
+                                    }
+                                    className={`
+                                        inline-flex
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        rounded-xl
+                                        px-6
+                                        py-3
+                                        font-semibold
+                                        transition-all
+
+                                        ${isCompleted ||
+                                            isCompleting
+                                            ? "cursor-not-allowed bg-green-100 text-green-700"
+                                            : "bg-indigo-600 text-white hover:bg-indigo-700"
+                                        }
+                                    `}
+                                >
+
+                                    <CheckCircle2
+                                        size={20}
+                                    />
+
+                                    {isCompleting
+                                        ? "Completing..."
+                                        : isCompleted
+                                            ? "Today's Mission Completed"
+                                            : "Complete Today's Mission"
+                                    }
+
+                                </button>
+
+                            )}
 
                         </div>
 

@@ -7,8 +7,13 @@ import {
     useParams,
 } from "react-router-dom";
 
+import {
+    useState,
+} from "react";
+
 import MissionHeader from "../components/MissionHeader";
 import DailyTaskCard from "../components/DailyTaskCard";
+import DailyTaskDrawer from "../components/DailyTaskDrawer";
 
 import {
     useGetMissionQuery,
@@ -18,9 +23,10 @@ import {
     useCompleteDailyTaskMutation,
     useGetMissionDailyTasksQuery,
 } from "../api/dailyTaskApi";
-import type { DailyTask } from "../types/daily-task.types";
-import { useState } from "react";
-import DailyTaskDrawer from "../components/DailyTaskDrawer";
+
+import type {
+    DailyTask,
+} from "../types/daily-task.types";
 
 export default function MissionDetailsPage() {
 
@@ -30,6 +36,37 @@ export default function MissionDetailsPage() {
     const {
         missionId,
     } = useParams();
+
+    /*
+    |--------------------------------------------------------------------------
+    | State
+    |--------------------------------------------------------------------------
+    */
+
+    const [
+        selectedTask,
+        setSelectedTask,
+    ] =
+        useState<DailyTask | null>(
+            null
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mutations
+    |--------------------------------------------------------------------------
+    */
+
+    const [
+        completeTask,
+    ] =
+        useCompleteDailyTaskMutation();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Invalid Mission
+    |--------------------------------------------------------------------------
+    */
 
     if (!missionId) {
 
@@ -45,12 +82,6 @@ export default function MissionDetailsPage() {
 
     }
 
-    const [selectedTask, setSelectedTask] =
-        useState<DailyTask | null>(null);
-
-    const [completeTask] =
-        useCompleteDailyTaskMutation();
-
     /*
     |--------------------------------------------------------------------------
     | Queries
@@ -65,9 +96,10 @@ export default function MissionDetailsPage() {
 
         isError: missionError,
 
-    } = useGetMissionQuery(
-        missionId
-    );
+    } =
+        useGetMissionQuery(
+            missionId
+        );
 
     const {
 
@@ -77,9 +109,16 @@ export default function MissionDetailsPage() {
 
         isError: taskError,
 
-    } = useGetMissionDailyTasksQuery(
-        missionId
-    );
+    } =
+        useGetMissionDailyTasksQuery(
+            missionId
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sorted Tasks
+    |--------------------------------------------------------------------------
+    */
 
     const sortedDailyTasks =
         dailyTasks
@@ -87,8 +126,59 @@ export default function MissionDetailsPage() {
             .sort(
                 (a, b) =>
                     a.dayNumber -
-                    b.dayNumber,
+                    b.dayNumber
             ) ?? [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Complete Regular Daily Task
+    |--------------------------------------------------------------------------
+    */
+
+    const handleCompleteTask =
+        async (
+            taskId: string
+        ) => {
+
+            try {
+
+                await completeTask(
+                    taskId
+                ).unwrap();
+
+                setSelectedTask(
+                    null
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to complete daily task:",
+                    error
+                );
+
+            }
+
+        };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Start Weekly Review
+    |--------------------------------------------------------------------------
+    */
+
+    const handleStartWeeklyReview =
+        () => {
+
+            setSelectedTask(
+                null
+            );
+
+            navigate(
+                "/weekly-review"
+            );
+
+        };
 
     /*
     |--------------------------------------------------------------------------
@@ -147,8 +237,13 @@ export default function MissionDetailsPage() {
 
         <div className="space-y-6 p-6">
 
+            {/* Back */}
+
             <button
-                onClick={() => navigate(-1)}
+                type="button"
+                onClick={() =>
+                    navigate(-1)
+                }
                 className="
                     flex
                     items-center
@@ -160,15 +255,21 @@ export default function MissionDetailsPage() {
                 "
             >
 
-                <ArrowLeft size={18} />
+                <ArrowLeft
+                    size={18}
+                />
 
                 Back
 
             </button>
 
+            {/* Mission Header */}
+
             <MissionHeader
                 mission={mission}
             />
+
+            {/* Daily Tasks */}
 
             <div>
 
@@ -180,40 +281,60 @@ export default function MissionDetailsPage() {
 
                 <div className="space-y-4">
 
-                    {sortedDailyTasks.map((task) => (
+                    {sortedDailyTasks.map(
+                        (task) => (
 
-                        <DailyTaskCard
-                            key={task.taskId}
-                            task={task}
-                            onClick={() => setSelectedTask(task)}
-                        />
+                            <DailyTaskCard
+                                key={
+                                    task.taskId
+                                }
+                                task={
+                                    task
+                                }
+                                onClick={() =>
+                                    setSelectedTask(
+                                        task
+                                    )
+                                }
+                            />
 
-                    ))}
+                        )
+                    )}
 
                 </div>
 
             </div>
 
+            {/* Daily Task Drawer */}
+
             <DailyTaskDrawer
-                task={selectedTask}
-                currentMissionDay={mission.currentMissionDay}
-                open={selectedTask !== null}
-                onClose={() => setSelectedTask(null)}
-                onComplete={async (taskId) => {
 
-                    try {
+                task={
+                    selectedTask
+                }
 
-                        await completeTask(taskId).unwrap();
+                currentMissionDay={
+                    mission.currentMissionDay
+                }
 
-                        setSelectedTask(null);
+                open={
+                    selectedTask !== null
+                }
 
-                    } catch (error) {
+                onClose={() =>
+                    setSelectedTask(
+                        null
+                    )
+                }
 
-                        console.error(error);
+                onComplete={
+                    handleCompleteTask
+                }
 
-                    }
+                onStartWeeklyReview={
+                    handleStartWeeklyReview
+                }
 
-                }}
             />
 
         </div>

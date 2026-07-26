@@ -24,6 +24,8 @@ import AssessmentDetailPage from "../../features/assessment/pages/AssessmentDeta
 import MissionsPage from "../../features/mission/pages/MissionsPage";
 import MissionDetailsPage from "../../features/mission/pages/MissionDetailsPage";
 import WeeklyReviewPage from "../../features/weekly-review/pages/WeeklyReviewPage";
+import WeeklyReportsPage from "../../features/weekly-report/pages/WeeklyReportsPage";
+import WeeklyReportDetailsPage from "../../features/weekly-report/pages/WeeklyReportDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -109,7 +111,16 @@ export const router = createBrowserRouter([
           {
             path: "/weekly-review",
             element: < WeeklyReviewPage />
-          }
+          },
+          {
+            path: "/weekly-reports",
+            element:
+              <WeeklyReportsPage />
+          },
+          {
+            path: "/weekly-reports/:reportId",
+            element: <WeeklyReportDetailsPage />,
+          },
         ],
       },
     ],

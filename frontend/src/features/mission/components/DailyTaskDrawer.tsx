@@ -26,6 +26,8 @@ interface DailyTaskDrawerProps {
 
     onComplete?: (taskId: string) => void;
 
+    onStartWeeklyReview?: () => void;
+
 }
 
 export default function DailyTaskDrawer({
@@ -40,6 +42,8 @@ export default function DailyTaskDrawer({
 
     onComplete,
 
+    onStartWeeklyReview,
+
 }: DailyTaskDrawerProps) {
 
     if (!open || !task) {
@@ -48,9 +52,38 @@ export default function DailyTaskDrawer({
 
     }
 
-    const canComplete =
-        task.status === DailyTaskStatus.PENDING &&
-        task.dayNumber <= currentMissionDay;
+    /*
+    |--------------------------------------------------------------------------
+    | Task State
+    |--------------------------------------------------------------------------
+    */
+
+    const isPending =
+        task.status ===
+        DailyTaskStatus.PENDING;
+
+    const isAvailable =
+        task.dayNumber <=
+        currentMissionDay;
+
+    const isWeeklyReview =
+        task.dayNumber === 7;
+
+    const canCompleteRegularTask =
+        isPending &&
+        isAvailable &&
+        !isWeeklyReview;
+
+    const canStartWeeklyReview =
+        isPending &&
+        isAvailable &&
+        isWeeklyReview;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
 
     const renderStatus = () => {
 
@@ -59,50 +92,78 @@ export default function DailyTaskDrawer({
             case DailyTaskStatus.COMPLETED:
 
                 return (
+
                     <span className="flex items-center gap-2 text-green-600">
 
-                        <CheckCircle2 size={18} />
+                        <CheckCircle2
+                            size={18}
+                        />
 
                         Completed
 
                     </span>
+
                 );
 
             case DailyTaskStatus.SKIPPED:
 
                 return (
+
                     <span className="flex items-center gap-2 text-gray-600">
 
-                        <XCircle size={18} />
+                        <XCircle
+                            size={18}
+                        />
 
                         Skipped
 
                     </span>
+
                 );
 
             default:
 
                 return (
+
                     <span className="flex items-center gap-2 text-blue-600">
 
-                        <Circle size={18} />
+                        <Circle
+                            size={18}
+                        />
 
                         Pending
 
                     </span>
+
                 );
 
         }
 
     };
 
+    /*
+    |--------------------------------------------------------------------------
+    | UI
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <>
+
+            {/* Overlay */}
+
             <div
                 onClick={onClose}
-                className="fixed inset-0 z-40 bg-black/40"
+                className="
+                    fixed
+                    inset-0
+                    z-40
+                    bg-black/40
+                "
             />
+
+            {/* Drawer */}
 
             <div
                 className="
@@ -119,6 +180,8 @@ export default function DailyTaskDrawer({
                     shadow-xl
                 "
             >
+
+                {/* Header */}
 
                 <div className="flex items-center justify-between border-b p-6">
 
@@ -138,7 +201,10 @@ export default function DailyTaskDrawer({
 
                     </div>
 
-                    <button onClick={onClose}>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                    >
 
                         <X size={24} />
 
@@ -146,13 +212,19 @@ export default function DailyTaskDrawer({
 
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Content */}
+
+                <div className="flex-1 space-y-6 overflow-y-auto p-6">
+
+                    {/* Status */}
 
                     <div>
 
                         {renderStatus()}
 
                     </div>
+
+                    {/* Description */}
 
                     <div>
 
@@ -170,6 +242,8 @@ export default function DailyTaskDrawer({
 
                     </div>
 
+                    {/* Topics */}
+
                     <div>
 
                         <h3 className="font-semibold">
@@ -180,24 +254,38 @@ export default function DailyTaskDrawer({
 
                         <ul className="mt-3 space-y-2">
 
-                            {task.topics.map((topic) => (
+                            {task.topics.map(
+                                (topic) => (
 
-                                <li
-                                    key={topic}
-                                    className="rounded-lg bg-slate-100 px-3 py-2 text-sm"
-                                >
-                                    {topic}
-                                </li>
+                                    <li
+                                        key={topic}
+                                        className="
+                                            rounded-lg
+                                            bg-slate-100
+                                            px-3
+                                            py-2
+                                            text-sm
+                                        "
+                                    >
 
-                            ))}
+                                        {topic}
+
+                                    </li>
+
+                                )
+                            )}
 
                         </ul>
 
                     </div>
 
+                    {/* Estimated Time */}
+
                     <div className="flex items-center gap-2 text-slate-600">
 
-                        <Clock3 size={18} />
+                        <Clock3
+                            size={18}
+                        />
 
                         {task.estimatedMinutes} Minutes
 
@@ -205,47 +293,92 @@ export default function DailyTaskDrawer({
 
                 </div>
 
+                {/* Footer */}
+
                 <div className="border-t p-6">
 
-                    {canComplete ? (
+                    {/* Regular Day 1 - 6 */}
+
+                    {canCompleteRegularTask && (
 
                         <button
-                            onClick={() => onComplete?.(task.taskId)}
+                            type="button"
+                            onClick={() =>
+                                onComplete?.(
+                                    task.taskId
+                                )
+                            }
                             className="
-            w-full
-            rounded-lg
-            bg-blue-600
-            py-3
-            font-medium
-            text-white
-            transition
-            hover:bg-blue-700
-        "
+                w-full
+                rounded-lg
+                bg-blue-600
+                py-3
+                font-medium
+                text-white
+                transition
+                hover:bg-blue-700
+            "
                         >
 
                             Complete Today's Task
 
                         </button>
 
-                    ) : task.status === DailyTaskStatus.PENDING ? (
+                    )}
 
-                        <div
+                    {/* Day 7 - Weekly Review */}
+
+                    {canStartWeeklyReview && (
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                onStartWeeklyReview?.()
+                            }
                             className="
-            rounded-lg
-            bg-slate-100
-            px-4
-            py-3
-            text-center
-            text-sm
-            text-slate-600
-        "
+                w-full
+                rounded-lg
+                bg-blue-600
+                py-3
+                font-medium
+                text-white
+                transition
+                hover:bg-blue-700
+            "
                         >
 
-                            This task will unlock on Day {task.dayNumber}.
+                            Start Weekly Review
 
-                        </div>
+                        </button>
 
-                    ) : null}
+                    )}
+
+                    {/* Future Task */}
+
+                    {
+                        isPending &&
+                        !isAvailable &&
+                        (
+
+                            <div
+                                className="
+                    rounded-lg
+                    bg-slate-100
+                    px-4
+                    py-3
+                    text-center
+                    text-sm
+                    text-slate-600
+                "
+                            >
+
+                                This task will unlock on Day{" "}
+                                {task.dayNumber}.
+
+                            </div>
+
+                        )
+                    }
 
                 </div>
 

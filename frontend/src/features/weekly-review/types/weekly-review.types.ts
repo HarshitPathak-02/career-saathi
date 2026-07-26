@@ -187,9 +187,9 @@ export interface LearningReflection {
 }
 
 export interface MentorCheckIn {
-    overallWeek: OverallWeek;
+    overallWeek?: OverallWeek;
 
-    motivationLevel: MotivationLevel;
+    motivationLevel?: MotivationLevel;
 
     externalFactors?: string;
 

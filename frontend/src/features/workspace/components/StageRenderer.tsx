@@ -15,6 +15,7 @@ import InitialAssessmentCard from "./InitialAssessmentCard";
 import GenerateRoadmapCard from "./GenerateRoadmapCard";
 import StartJourneyCard from "./StartJourneyCard";
 import ActiveMissionCard from "./ActiveMissionCard";
+import NextMissionPendingCard from "./NextMissionPendingCard";
 
 interface StageRendererProps {
     workspace: Workspace;
@@ -82,6 +83,16 @@ const StageRenderer = ({
                         workspace
                             .careerJourney
                             .id
+                    }
+                />
+            );
+
+        case WorkspaceState.NEXT_MISSION_PENDING:
+
+            return (
+                <NextMissionPendingCard
+                    nextMissionAvailableAt={
+                        workspace.nextMissionAvailableAt
                     }
                 />
             );
