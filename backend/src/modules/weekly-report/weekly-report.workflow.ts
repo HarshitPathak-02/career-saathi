@@ -133,6 +133,15 @@ class WeeklyReportWorkflow {
                 ),
             );
 
+        console.log(
+            "WEEKLY REPORT PROMPT INPUT:",
+            JSON.stringify(
+                promptInput,
+                null,
+                2
+            )
+        );
+
         const prompt =
             buildWeeklyReportPrompt(
                 promptInput,

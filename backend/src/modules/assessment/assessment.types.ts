@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 
 import {
+    AssessmentSkillSource,
     AssessmentStatus,
     AssessmentType,
 } from "./assessment.enums.js";
@@ -117,4 +118,31 @@ export interface AssessmentDetailResponse {
 
         averagePercentage: number;
     };
+}
+
+
+export interface WeeklyAssessmentSkill {
+
+    userSkillId: string;
+
+    skillCatalogId: string;
+
+    skillName: string;
+
+    source: AssessmentSkillSource;
+
+    previousPercentage: number | null;
+
+    revisionTopics: string[];
+
+}
+
+export interface WeeklyAssessmentPlan {
+
+    assessmentId: string;
+
+    weekNumber: number;
+
+    skills: WeeklyAssessmentSkill[];
+
 }

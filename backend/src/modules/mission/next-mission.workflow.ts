@@ -138,7 +138,7 @@ export class NextMissionWorkflow {
         const startDate =
             new Date();
 
-        startDate.setHours(
+        startDate.setUTCHours(
             0,
             0,
             0,
@@ -148,8 +148,8 @@ export class NextMissionWorkflow {
         const endDate =
             new Date(startDate);
 
-        endDate.setDate(
-            endDate.getDate() +
+        endDate.setUTCDate(
+            endDate.getUTCDate() +
             DEFAULT_DURATION_DAYS -
             1,
         );

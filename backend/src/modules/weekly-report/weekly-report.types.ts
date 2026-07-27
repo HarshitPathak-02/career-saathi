@@ -110,6 +110,13 @@ export interface WeeklyReportSkill {
 
     improvementPercentage: number | null | undefined;
 
+    wasRevision: boolean;
+
+    previousPercentage:
+    number | null;
+
+    revisionTopics: string[];
+
 }
 
 export interface BuildWeeklyReportPromptInput {

@@ -1,4 +1,6 @@
 import { Types } from "mongoose";
+import { UserSkillDocument } from "./user-skill.schema.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
 
 export interface InitializeUserSkillsDto {
     careerJourneyId: Types.ObjectId;
@@ -15,3 +17,12 @@ export interface UpdateUserSkillProgressDTO {
     lastAssessmentAt: Date;
 
 }
+
+export type PopulatedUserSkill =
+    Omit<
+        UserSkillDocument,
+        "skillCatalogId"
+    > & {
+        skillCatalogId:
+        SkillCatalogDocument;
+    };

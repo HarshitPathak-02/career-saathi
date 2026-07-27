@@ -51,10 +51,12 @@ import {
 } from "../daily-task/daily-task.enums.js";
 
 import type {
+    MissionAssessmentContext,
     SubmitWeeklyReviewDTO,
     WeeklyReviewPreparationDTO,
     WeeklyReviewSkillDTO,
 } from "./weekly-review.types.js";
+import { MissionDocument } from "../mission/mission.schema.js";
 
 class WeeklyReviewWorkflow {
 
@@ -147,23 +149,9 @@ class WeeklyReviewWorkflow {
         */
 
         const skillCatalogIds =
-            [
-                ...new Map(
-                    roadmapItems
-                        .filter(
-                            item =>
-                                item.skillId
-                        )
-                        .map(
-                            item => [
-                                item.skillId!
-                                    .toString(),
-
-                                item.skillId!,
-                            ]
-                        )
-                ).values(),
-            ];
+            await this.resolveMissionAssessmentSkillIds(
+                mission
+            );
 
         if (skillCatalogIds.length === 0) {
 
@@ -215,6 +203,15 @@ class WeeklyReviewWorkflow {
         |--------------------------------------------------------------------------
         */
 
+        const revisionSkillIds =
+            new Set(
+                (mission.revisionPlans ?? [])
+                    .map(
+                        revision =>
+                            revision.skillCatalogId.toString()
+                    )
+            );
+
         const skills: WeeklyReviewSkillDTO[] =
             userSkills.map(
                 userSkill => {
@@ -233,6 +230,19 @@ class WeeklyReviewWorkflow {
                                 populatedSkill._id.toString()
                         );
 
+                    const revisionPlan =
+                        (mission.revisionPlans ?? [])
+                            .find(
+                                revision =>
+                                    revision.skillCatalogId.toString() ===
+                                    populatedSkill._id.toString()
+                            );
+
+                    const isRevision =
+                        revisionSkillIds.has(
+                            populatedSkill._id.toString()
+                        );
+
                     return {
 
                         userSkillId:
@@ -246,6 +256,21 @@ class WeeklyReviewWorkflow {
 
                         currentScore:
                             userSkill.currentScore,
+
+                        source:
+                            isRevision
+                                ? "REVISION"
+                                : "NEW",
+
+                        previousPercentage:
+                            revisionPlan
+                                ? revisionPlan.percentage
+                                : null,
+
+                        revisionTopics:
+                            revisionPlan
+                                ? revisionPlan.revisionTopics
+                                : [],
 
                         roadmapItems:
                             matchingRoadmapItems.map(
@@ -401,6 +426,7 @@ class WeeklyReviewWorkflow {
             );
 
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -622,11 +648,81 @@ class WeeklyReviewWorkflow {
 
     }
 
+    private async resolveMissionAssessmentSkillIds(
+        mission: MissionAssessmentContext
+    ): Promise<Types.ObjectId[]> {
+
+        /*
+        |----------------------------------------------------------------------
+        | New Skills From Planned Roadmap Items
+        |----------------------------------------------------------------------
+        */
+
+        const roadmapItems =
+            await roadmapService.getRoadmapItemsByIds(
+                mission.plannedRoadmapItemIds
+            );
+
+        const newSkillIds =
+            roadmapItems
+                .filter(
+                    item =>
+                        item.skillId
+                )
+                .map(
+                    item =>
+                        new Types.ObjectId(
+                            item.skillId!.toString()
+                        )
+                );
+
+        /*
+        |----------------------------------------------------------------------
+        | Revision Skills
+        |----------------------------------------------------------------------
+        */
+
+        const revisionSkillIds =
+            (mission.revisionPlans ?? [])
+                .map(
+                    revision =>
+                        new Types.ObjectId(
+                            revision.skillCatalogId.toString()
+                        )
+                );
+
+        /*
+        |----------------------------------------------------------------------
+        | Merge + Deduplicate
+        |----------------------------------------------------------------------
+        */
+
+        const uniqueSkillIds =
+            new Map<string, Types.ObjectId>();
+
+        [
+            ...newSkillIds,
+            ...revisionSkillIds,
+        ].forEach(
+            skillId => {
+
+                uniqueSkillIds.set(
+                    skillId.toString(),
+                    skillId
+                );
+
+            }
+        );
+
+        return [
+            ...uniqueSkillIds.values(),
+        ];
+
+    }
+
     private async validateSubmittedSkills(
         careerJourneyId: Types.ObjectId,
-        mission: {
-            plannedRoadmapItemIds: Types.ObjectId[];
-        },
+        mission: MissionAssessmentContext,
         submittedSkills: {
             userSkillId: Types.ObjectId;
             obtainedMarks: number;
@@ -652,23 +748,9 @@ class WeeklyReviewWorkflow {
         */
 
         const skillCatalogIds =
-            [
-                ...new Map(
-                    roadmapItems
-                        .filter(
-                            item =>
-                                item.skillId
-                        )
-                        .map(
-                            item => [
-                                item.skillId!
-                                    .toString(),
-
-                                item.skillId!,
-                            ]
-                        )
-                ).values(),
-            ];
+            await this.resolveMissionAssessmentSkillIds(
+                mission
+            );
 
         if (skillCatalogIds.length === 0) {
 

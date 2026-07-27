@@ -12,6 +12,8 @@ import {
   UserSkillModel,
 } from "./user-skill.schema.js";
 import { SkillLevel } from "./user-skill.enums.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
+import { PopulatedUserSkill } from "./user-skill.types.js";
 
 class UserSkillRepository {
   async create(
@@ -165,7 +167,10 @@ class UserSkillRepository {
 
         isActive: true,
       })
-      .populate(
+      .populate<{
+        skillCatalogId:
+        SkillCatalogDocument;
+      }>(
         "skillCatalogId"
       )
       .session(

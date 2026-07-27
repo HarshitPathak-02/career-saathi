@@ -1,12 +1,12 @@
 import {
-    BuildWeeklyReportPromptInput,
+  BuildWeeklyReportPromptInput,
 } from "./weekly-report.types.js";
 
 export function buildWeeklyReportPrompt(
-    input: BuildWeeklyReportPromptInput
+  input: BuildWeeklyReportPromptInput
 ): string {
 
-    return `
+  return `
 You are an experienced software engineering mentor and career coach.
 
 Your job is to analyze a student's weekly learning performance and generate a personalized weekly report.
@@ -18,30 +18,30 @@ MISSION
 ==================================================
 
 ${JSON.stringify(
-        input.mission,
-        null,
-        2
-    )}
+    input.mission,
+    null,
+    2
+  )}
 
 ==================================================
 ASSESSMENT
 ==================================================
 
 ${JSON.stringify(
-        input.assessment,
-        null,
-        2
-    )}
+    input.assessment,
+    null,
+    2
+  )}
 
 ==================================================
 WEEKLY REFLECTION
 ==================================================
 
 ${JSON.stringify(
-        input.reflection,
-        null,
-        2
-    )}
+    input.reflection,
+    null,
+    2
+  )}
 
 Interpret the reflection carefully.
 
@@ -74,10 +74,10 @@ SKILL PERFORMANCE
 ==================================================
 
 ${JSON.stringify(
-        input.skills,
-        null,
-        2
-    )}
+    input.skills,
+    null,
+    2
+  )}
 
 Each skill contains:
 
@@ -90,6 +90,12 @@ Each skill contains:
 • Percentage
 
 • Improvement Percentage compared to the previous assessment
+
+• wasRevision indicates whether this skill was intentionally revised during the current mission because it was previously identified as weak.
+
+• previousPercentage contains the score before the revision intervention when wasRevision is true.
+
+• revisionTopics contains the specific weak topics that were revised during the mission.
 
 ==================================================
 YOUR TASK
@@ -120,6 +126,22 @@ While generating the report:
 • Recommend an appropriate mission difficulty.
 
 • Suggest revision topics based on weak skills.
+
+• For skills where wasRevision is true, evaluate whether the revision intervention was effective by comparing previousPercentage with the current percentage.
+
+• A positive improvementPercentage indicates improvement, zero indicates no measurable change, and a negative value indicates regression.
+
+• Do not assume that a skill with improvementPercentage is a revision skill. Use wasRevision to determine whether the skill was intentionally revised.
+
+• If a revised skill remains weak despite improvement, it may still require revision in the next mission.
+
+• If a revised skill shows strong improvement and reaches a satisfactory level, do not recommend unnecessary repeated revision.
+
+• If a revised skill shows little improvement, no improvement, or regression, prioritize its weak revision topics again.
+
+• For newly assessed skills where wasRevision is false, evaluate weakness primarily from the current percentage.
+
+• Recommendations for the next mission must consider both current skill level and the effectiveness of previous revision.
 
 ==================================================
 IMPORTANT RULES

@@ -5,6 +5,7 @@ import {
 } from "mongoose";
 
 import {
+    Mission,
     MissionDocument,
     MissionModel,
 } from "./mission.schema.js";
@@ -12,11 +13,12 @@ import {
 import {
     MissionStatus,
 } from "./mission.enums.js";
+import { CreateMissionDTO } from "./mission.types.js";
 
 class MissionRepository {
 
     async create(
-        data: Partial<MissionDocument>,
+        data: CreateMissionDTO,
         session?: ClientSession
     ) {
         const [mission] =

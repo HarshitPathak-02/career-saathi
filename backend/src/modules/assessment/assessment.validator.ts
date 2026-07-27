@@ -26,23 +26,18 @@ export const startWeeklyAssessmentSchema = Joi.object({
 export const submittedSkillSchema = Joi.object({
     userSkillId: objectIdSchema.required(),
 
-    obtainedMarks: Joi.number()
-        .min(0)
-        .required(),
+    obtainedMarks:
+        Joi.number()
+            .min(0)
+            .max(
+                Joi.ref("totalMarks")
+            )
+            .required(),
 
-    totalMarks: Joi.number()
-        .greater(0)
-        .required(),
-
-    assessmentMethod: Joi.string()
-        .valid(...Object.values(AssessmentMethod))
-        .required(),
-
-    assessmentPlatform: Joi.string().optional(),
-
-    assessmentName: Joi.string()
-        .trim()
-        .max(150).optional(),
+    totalMarks:
+        Joi.number()
+            .greater(0)
+            .required(),
 
     remarks: Joi.string()
         .trim()

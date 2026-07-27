@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import {
     SubmitAssessmentDTO,
 } from "../assessment/assessment.types.js";
@@ -35,6 +36,16 @@ export interface WeeklyReviewSkillDTO {
 
     currentScore: number;
 
+    source:
+    | "NEW"
+    | "REVISION";
+
+    previousPercentage:
+    number | null;
+
+    revisionTopics:
+    string[];
+
     roadmapItems: WeeklyReviewRoadmapItemDTO[];
 
 }
@@ -51,4 +62,16 @@ export interface WeeklyReviewPreparationDTO {
 
     skills: WeeklyReviewSkillDTO[];
 
+}
+
+
+export interface MissionAssessmentContext {
+    plannedRoadmapItemIds: Types.ObjectId[];
+
+    revisionPlans: {
+        skillCatalogId: Types.ObjectId;
+        skillName: string;
+        percentage: number;
+        revisionTopics: string[];
+    }[];
 }

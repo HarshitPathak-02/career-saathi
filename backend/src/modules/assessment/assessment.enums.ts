@@ -8,3 +8,9 @@ export enum AssessmentStatus {
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",
 }
+
+export enum AssessmentSkillSource {
+    NEW = "NEW",
+    REVISION = "REVISION",
+    NEW_AND_REVISION = "NEW_AND_REVISION",
+}

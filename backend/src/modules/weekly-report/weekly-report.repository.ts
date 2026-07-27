@@ -61,7 +61,21 @@ class WeeklyReportRepository {
                 careerJourneyId,
             })
             .sort({
-                missionNumber: -1,
+                createdAt: -1,
+            });
+
+    }
+
+    async getByCareerJourney(
+        careerJourneyId: Types.ObjectId
+    ): Promise<WeeklyReportDocument[]> {
+
+        return WeeklyReportModel
+            .find({
+                careerJourneyId,
+            })
+            .sort({
+                createdAt: -1,
             });
 
     }
@@ -74,18 +88,6 @@ class WeeklyReportRepository {
         return WeeklyReportModel.findOne({
             careerJourneyId,
             missionNumber,
-        });
-
-    }
-
-    async getByCareerJourney(
-        careerJourneyId: Types.ObjectId
-    ): Promise<WeeklyReportDocument[]> {
-
-        return WeeklyReportModel.find({
-            careerJourneyId,
-        }).sort({
-            missionNumber: -1,
         });
 
     }

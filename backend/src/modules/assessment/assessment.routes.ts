@@ -132,4 +132,10 @@ assessmentRouter.get(
         .getAssessmentById
 );
 
+assessmentRouter.get(
+    "/:assessmentId/weekly-plan",
+    assessmentController
+        .getWeeklyAssessmentPlan
+);
+
 export default assessmentRouter;

@@ -11,10 +11,6 @@ import {
 } from "../weekly-reflection/weekly-reflection.schema.js";
 
 import {
-    SkillProgressDocument,
-} from "../skill-progress/skill-progress.schema.js";
-
-import {
     BuildWeeklyReportPromptInput,
     PopulatedSkillProgressDocument,
 } from "./weekly-report.types.js";
@@ -97,24 +93,57 @@ export class WeeklyReportMapper {
 
             skills:
                 skillProgress.map(
-                    (progress) => ({
+                    (progress) => {
 
-                        skillName:
-                            progress.userSkillId.skillCatalogId.name,
+                        const skillCatalogId =
+                            progress.userSkillId
+                                .skillCatalogId
+                                ._id
+                                .toString();
 
-                        obtainedMarks:
-                            progress.obtainedMarks,
+                        const revisionPlan =
+                            mission.revisionPlans.find(
+                                revision =>
+                                    revision.skillCatalogId
+                                        .toString() ===
+                                    skillCatalogId
+                            );
 
-                        totalMarks:
-                            progress.totalMarks,
+                        return {
 
-                        percentage:
-                            progress.percentage,
+                            skillName:
+                                progress.userSkillId
+                                    .skillCatalogId
+                                    .name,
 
-                        improvementPercentage:
-                            progress.improvementPercentage,
+                            obtainedMarks:
+                                progress.obtainedMarks,
 
-                    })
+                            totalMarks:
+                                progress.totalMarks,
+
+                            percentage:
+                                progress.percentage,
+
+                            improvementPercentage:
+                                progress.improvementPercentage,
+
+                            wasRevision:
+                                Boolean(revisionPlan),
+
+                            previousPercentage:
+                                revisionPlan
+                                    ?.percentage ??
+                                null,
+
+                            revisionTopics:
+                                revisionPlan
+                                    ?.revisionTopics ??
+                                [],
+
+                        };
+
+                    }
                 ),
 
         };

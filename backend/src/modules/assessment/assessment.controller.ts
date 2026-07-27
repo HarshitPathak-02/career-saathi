@@ -240,6 +240,28 @@ class AssessmentController {
             });
         }
     );
+
+    async getWeeklyAssessmentPlan(
+        req: Request,
+        res: Response
+    ) {
+
+        const {
+            assessmentId,
+        } = req.params;
+
+        const plan =
+            await assessmentWorkflowService
+                .getWeeklyAssessmentPlan(
+                    assessmentId as string
+                );
+
+        res.status(200).json({
+            success: true,
+            data: plan,
+        });
+
+    }
 }
 
 export const assessmentController =

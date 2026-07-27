@@ -88,7 +88,8 @@ class MissionLifecycleService {
             return {
 
                 state:
-                    MissionLifecycleState.INITIAL_MISSION_REQUIRED,
+                    MissionLifecycleState
+                        .INITIAL_MISSION_REQUIRED,
 
                 mission:
                     null,
@@ -152,7 +153,8 @@ class MissionLifecycleService {
             return {
 
                 state:
-                    MissionLifecycleState.ROADMAP_COMPLETED,
+                    MissionLifecycleState
+                        .ROADMAP_COMPLETED,
 
                 mission:
                     null,
@@ -168,6 +170,13 @@ class MissionLifecycleService {
         |--------------------------------------------------------------------------
         | Next Mission Availability
         |--------------------------------------------------------------------------
+        |
+        | Mission dates are stored as calendar dates represented by timestamps.
+        |
+        | We compare the UTC calendar portion so that a date stored as
+        | 2026-07-26T18:30:00.000Z does not accidentally become July 27
+        | before calculating the next mission date.
+        |--------------------------------------------------------------------------
         */
 
         const nextMissionAvailableAt =
@@ -176,12 +185,12 @@ class MissionLifecycleService {
             );
 
         const today =
-            this.startOfDay(
+            this.startOfUtcDay(
                 new Date(),
             );
 
         const availableAt =
-            this.startOfDay(
+            this.startOfUtcDay(
                 nextMissionAvailableAt,
             );
 
@@ -199,7 +208,8 @@ class MissionLifecycleService {
             return {
 
                 state:
-                    MissionLifecycleState.WAITING_FOR_NEXT_MISSION,
+                    MissionLifecycleState
+                        .WAITING_FOR_NEXT_MISSION,
 
                 mission:
                     null,
@@ -248,12 +258,12 @@ class MissionLifecycleService {
     ): Date {
 
         const date =
-            this.startOfDay(
+            this.startOfUtcDay(
                 previousMissionEndDate,
             );
 
-        date.setDate(
-            date.getDate() + 1,
+        date.setUTCDate(
+            date.getUTCDate() + 1,
         );
 
         return date;
@@ -262,18 +272,18 @@ class MissionLifecycleService {
 
     /*
     |--------------------------------------------------------------------------
-    | Start Of Day
+    | Start Of UTC Day
     |--------------------------------------------------------------------------
     */
 
-    private startOfDay(
+    private startOfUtcDay(
         date: Date,
     ): Date {
 
         const normalized =
             new Date(date);
 
-        normalized.setHours(
+        normalized.setUTCHours(
             0,
             0,
             0,
