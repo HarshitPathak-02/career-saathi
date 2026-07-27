@@ -4,6 +4,10 @@
 |--------------------------------------------------------------------------
 */
 
+export type WeeklyReviewSkillSource =
+    | "NEW"
+    | "REVISION";
+
 export interface WeeklyReviewRoadmapItem {
     id: string;
 
@@ -20,6 +24,12 @@ export interface WeeklyReviewSkill {
     skillName: string;
 
     currentScore: number;
+
+    source: WeeklyReviewSkillSource;
+
+    previousPercentage: number | null;
+
+    revisionTopics: string[];
 
     roadmapItems: WeeklyReviewRoadmapItem[];
 }
@@ -48,18 +58,26 @@ export interface WeeklyReviewPreparationResponse {
 |--------------------------------------------------------------------------
 */
 
-export interface WeeklyAssessmentSkillInput {
+export interface WeeklyReviewAssessmentSkillInput {
     userSkillId: string;
 
     obtainedMarks: number;
 
     totalMarks: number;
+
+    assessmentMethod: "PLATFORM";
+
+    assessmentPlatform?: string;
+
+    assessmentName?: string;
+
+    remarks?: string;
 }
 
 export interface WeeklyAssessmentSubmission {
     assessmentId: string;
 
-    skills: WeeklyAssessmentSkillInput[];
+    skills: WeeklyReviewAssessmentSkillInput[];
 }
 
 /*
@@ -213,7 +231,19 @@ export interface WeeklyReflectionSubmission {
 */
 
 export interface SubmitWeeklyReviewRequest {
-    assessment: WeeklyAssessmentSubmission;
+    assessment: {
+        assessmentId: string;
 
-    reflection: WeeklyReflectionSubmission;
+        skills: WeeklyReviewAssessmentSkillInput[];
+    };
+
+    reflection: {
+        learningReflection:
+        LearningReflection;
+
+        mentorCheckIn:
+        MentorCheckIn;
+
+        additionalComments?: string;
+    };
 }

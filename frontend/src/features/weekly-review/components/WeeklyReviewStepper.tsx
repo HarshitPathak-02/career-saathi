@@ -3,26 +3,34 @@ import {
 } from "lucide-react";
 
 interface WeeklyReviewStepperProps {
+
     currentStep: number;
+
 }
 
 const steps = [
+
     {
         number: 1,
         label: "Review",
     },
+
     {
         number: 2,
         label: "Assessment",
     },
+
     {
         number: 3,
         label: "Reflection",
     },
+
 ];
 
 export default function WeeklyReviewStepper({
+
     currentStep,
+
 }: WeeklyReviewStepperProps) {
 
     return (
@@ -30,7 +38,10 @@ export default function WeeklyReviewStepper({
         <div className="flex items-center">
 
             {steps.map(
-                (step, index) => {
+                (
+                    step,
+                    index
+                ) => {
 
                     const completed =
                         currentStep >
@@ -43,7 +54,9 @@ export default function WeeklyReviewStepper({
                     return (
 
                         <div
-                            key={step.number}
+                            key={
+                                step.number
+                            }
                             className="flex flex-1 items-center"
                         >
 
@@ -60,8 +73,8 @@ export default function WeeklyReviewStepper({
                                         text-sm
                                         font-semibold
                                         transition
-                                        ${completed ||
-                                            active
+
+                                        ${completed || active
                                             ? "bg-slate-900 text-white"
                                             : "bg-slate-100 text-slate-500"
                                         }
@@ -70,7 +83,9 @@ export default function WeeklyReviewStepper({
 
                                     {completed ? (
 
-                                        <Check size={18} />
+                                        <Check
+                                            size={18}
+                                        />
 
                                     ) : (
 
@@ -85,9 +100,12 @@ export default function WeeklyReviewStepper({
                                         mt-2
                                         text-xs
                                         font-medium
+
                                         ${active
                                             ? "text-slate-900"
-                                            : "text-slate-500"
+                                            : completed
+                                                ? "text-slate-700"
+                                                : "text-slate-500"
                                         }
                                     `}
                                 >
@@ -106,6 +124,7 @@ export default function WeeklyReviewStepper({
                                         mx-3
                                         h-0.5
                                         flex-1
+
                                         ${currentStep >
                                                 step.number
                                                 ? "bg-slate-900"
@@ -120,11 +139,11 @@ export default function WeeklyReviewStepper({
 
                     );
 
-                },
+                }
             )}
 
         </div>
 
     );
 
-} 
+}

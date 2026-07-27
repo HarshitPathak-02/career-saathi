@@ -7,15 +7,22 @@ import {
     MotivationLevel,
     OverallWeek,
     ReflectionReason,
-    type WeeklyReflectionSubmission,
+} from "../types/weekly-review.types";
+
+import type {
+    LearningReflection,
+    MentorCheckIn,
+    WeeklyReflectionSubmission,
 } from "../types/weekly-review.types";
 
 interface Props {
 
-    value: WeeklyReflectionSubmission;
+    value:
+    WeeklyReflectionSubmission;
 
     onChange: (
-        value: WeeklyReflectionSubmission
+        value:
+            WeeklyReflectionSubmission
     ) => void;
 
     onBack: () => void;
@@ -40,9 +47,17 @@ export default function StudentReflectionStep({
 
 }: Props) {
 
-    function updateLearning(
-        key: string,
-        val: any,
+    /*
+    |--------------------------------------------------------------------------
+    | Update Learning Reflection
+    |--------------------------------------------------------------------------
+    */
+
+    function updateLearning<
+        K extends keyof LearningReflection
+    >(
+        key: K,
+        val: LearningReflection[K]
     ) {
 
         onChange({
@@ -53,7 +68,8 @@ export default function StudentReflectionStep({
 
                 ...value.learningReflection,
 
-                [key]: val,
+                [key]:
+                    val,
 
             },
 
@@ -61,9 +77,61 @@ export default function StudentReflectionStep({
 
     }
 
-    function updateMentor(
-        key: string,
-        val: any,
+    /*
+    |--------------------------------------------------------------------------
+    | Completed Tasks
+    |--------------------------------------------------------------------------
+    */
+
+    function updateCompletedTasks(
+        completed: boolean
+    ) {
+
+        if (completed) {
+
+            const {
+                reason: _reason,
+                ...learningReflection
+            } =
+                value.learningReflection;
+
+            onChange({
+
+                ...value,
+
+                learningReflection: {
+
+                    ...learningReflection,
+
+                    completedAllTasks:
+                        true,
+
+                },
+
+            });
+
+            return;
+
+        }
+
+        updateLearning(
+            "completedAllTasks",
+            false
+        );
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Mentor
+    |--------------------------------------------------------------------------
+    */
+
+    function updateMentor<
+        K extends keyof MentorCheckIn
+    >(
+        key: K,
+        val: MentorCheckIn[K]
     ) {
 
         onChange({
@@ -74,7 +142,8 @@ export default function StudentReflectionStep({
 
                 ...value.mentorCheckIn,
 
-                [key]: val,
+                [key]:
+                    val,
 
             },
 
@@ -82,41 +151,66 @@ export default function StudentReflectionStep({
 
     }
 
-    const canSubmit = useMemo(() => {
+    /*
+    |--------------------------------------------------------------------------
+    | Validation
+    |--------------------------------------------------------------------------
+    */
 
-        const learning =
-            value.learningReflection;
+    const canSubmit =
+        useMemo(() => {
 
-        const mentor =
-            value.mentorCheckIn;
+            const learning =
+                value.learningReflection;
 
-        if (
-            learning.completedAllTasks === false &&
-            !learning.reason
-        ) {
-            return false;
-        }
+            const mentor =
+                value.mentorCheckIn;
 
-        if (!learning.difficultyType)
-            return false;
+            if (
+                !learning.completedAllTasks &&
+                !learning.reason
+            ) {
 
-        if (
-            learning.confidenceRating <
-            1 ||
-            learning.confidenceRating >
-            5
-        )
-            return false;
+                return false;
 
-        if (!mentor.overallWeek)
-            return false;
+            }
 
-        if (!mentor.motivationLevel)
-            return false;
+            if (
+                learning.confidenceRating < 1 ||
+                learning.confidenceRating > 5
+            ) {
 
-        return true;
+                return false;
 
-    }, [value]);
+            }
+
+            if (
+                !mentor.overallWeek
+            ) {
+
+                return false;
+
+            }
+
+            if (
+                !mentor.motivationLevel
+            ) {
+
+                return false;
+
+            }
+
+            return true;
+
+        }, [
+            value,
+        ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | UI
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -124,7 +218,7 @@ export default function StudentReflectionStep({
 
             <div>
 
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-2xl font-semibold text-slate-900">
 
                     Weekly Reflection
 
@@ -132,7 +226,8 @@ export default function StudentReflectionStep({
 
                 <p className="mt-2 text-sm text-slate-500">
 
-                    Help your Career Companion understand how your week went.
+                    Help your Career Companion understand how your
+                    week went so the next mission can adapt to you.
 
                 </p>
 
@@ -140,51 +235,69 @@ export default function StudentReflectionStep({
 
             {/* Completed Tasks */}
 
-            <div className="space-y-3">
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
 
-                <label className="font-medium">
+                <label className="font-medium text-slate-900">
 
                     Did you complete all your planned tasks?
 
                 </label>
 
-                <div className="flex gap-6">
+                <div className="mt-4 flex gap-6">
 
-                    <label>
+                    <label className="flex cursor-pointer items-center">
 
                         <input
+
                             type="radio"
+
                             checked={
-                                value.learningReflection.completedAllTasks === true
+                                value.learningReflection
+                                    .completedAllTasks ===
+                                true
                             }
+
                             onChange={() =>
-                                updateLearning(
-                                    "completedAllTasks",
+                                updateCompletedTasks(
                                     true
                                 )
                             }
+
                         />
 
-                        <span className="ml-2">Yes</span>
+                        <span className="ml-2 text-sm text-slate-700">
+
+                            Yes
+
+                        </span>
 
                     </label>
 
-                    <label>
+                    <label className="flex cursor-pointer items-center">
 
                         <input
+
                             type="radio"
+
                             checked={
-                                value.learningReflection.completedAllTasks === false
+                                value.learningReflection
+                                    .completedAllTasks ===
+                                false
                             }
+
                             onChange={() =>
-                                updateLearning(
-                                    "completedAllTasks",
+                                updateCompletedTasks(
                                     false
                                 )
                             }
+
                         />
 
-                        <span className="ml-2">No</span>
+                        <span className="ml-2 text-sm text-slate-700">
+
+                            No
+
+                        </span>
 
                     </label>
 
@@ -192,97 +305,168 @@ export default function StudentReflectionStep({
 
             </div>
 
-            {value.learningReflection.completedAllTasks === false && (
+            {/* Reason */}
 
-                <div>
+            {!value.learningReflection
+                .completedAllTasks && (
 
-                    <label className="font-medium">
+                    <div>
 
-                        Biggest reason?
+                        <label className="font-medium text-slate-900">
 
-                    </label>
+                            What was the biggest reason?
 
-                    <select
-                        className="mt-2 w-full rounded-lg border p-2"
-                        value={
-                            value.learningReflection.reason ?? ""
-                        }
-                        onChange={(e) =>
-                            updateLearning(
-                                "reason",
-                                e.target.value
-                            )
-                        }
-                    >
-                        <option value="">
-                            Select
-                        </option>
+                        </label>
 
-                        {Object.values(
-                            ReflectionReason
-                        ).map(reason => (
+                        <select
+
+                            className="
+                            mt-2
+                            w-full
+                            rounded-lg
+                            border
+                            border-slate-300
+                            p-2.5
+                            outline-none
+                            focus:border-indigo-500
+                        "
+
+                            value={
+                                value.learningReflection
+                                    .reason ??
+                                ""
+                            }
+
+                            onChange={e =>
+                                updateLearning(
+
+                                    "reason",
+
+                                    e.target.value as
+                                    ReflectionReason
+
+                                )
+                            }
+
+                        >
+
+                            <option value="">
+
+                                Select a reason
+
+                            </option>
+
+                            {Object.values(
+                                ReflectionReason
+                            ).map(
+                                reason => (
+
+                                    <option
+                                        key={
+                                            reason
+                                        }
+                                        value={
+                                            reason
+                                        }
+                                    >
+
+                                        {reason.replaceAll(
+                                            "_",
+                                            " "
+                                        )}
+
+                                    </option>
+
+                                )
+                            )}
+
+                        </select>
+
+                    </div>
+
+                )}
+
+            {/* Difficulty */}
+
+            <div>
+
+                <label className="font-medium text-slate-900">
+
+                    Which area was most difficult?
+
+                </label>
+
+                <p className="mt-1 text-sm text-slate-500">
+
+                    Optional — select one if you faced a major difficulty.
+
+                </p>
+
+                <select
+
+                    className="
+                        mt-2
+                        w-full
+                        rounded-lg
+                        border
+                        border-slate-300
+                        p-2.5
+                        outline-none
+                        focus:border-indigo-500
+                    "
+
+                    value={
+                        value.learningReflection
+                            .difficultyType ??
+                        ""
+                    }
+
+                    onChange={e =>
+
+                        updateLearning(
+
+                            "difficultyType",
+
+                            e.target.value
+                                ? e.target.value as
+                                DifficultyType
+                                : undefined
+
+                        )
+
+                    }
+
+                >
+
+                    <option value="">
+
+                        No major difficulty
+
+                    </option>
+
+                    {Object.values(
+                        DifficultyType
+                    ).map(
+                        type => (
 
                             <option
-                                key={reason}
-                                value={reason}
+                                key={
+                                    type
+                                }
+                                value={
+                                    type
+                                }
                             >
-                                {reason.replaceAll(
+
+                                {type.replaceAll(
                                     "_",
                                     " "
                                 )}
 
                             </option>
 
-                        ))}
-
-                    </select>
-
-                </div>
-
-            )}
-
-            {/* Difficulty */}
-
-            <div>
-
-                <label className="font-medium">
-
-                    Which area was most difficult?
-
-                </label>
-
-                <select
-                    className="mt-2 w-full rounded-lg border p-2"
-                    value={
-                        value.learningReflection
-                            .difficultyType ?? ""
-                    }
-                    onChange={(e) =>
-                        updateLearning(
-                            "difficultyType",
-                            e.target.value
                         )
-                    }
-                >
-                    <option value="">
-                        Select
-                    </option>
-
-                    {Object.values(
-                        DifficultyType
-                    ).map(type => (
-
-                        <option
-                            key={type}
-                            value={type}
-                        >
-                            {type.replaceAll(
-                                "_",
-                                " "
-                            )}
-                        </option>
-
-                    ))}
+                    )}
 
                 </select>
 
@@ -292,11 +476,24 @@ export default function StudentReflectionStep({
 
             <div>
 
-                <label className="font-medium">
+                <div className="flex items-center justify-between">
 
-                    Confidence (1-5)
+                    <label className="font-medium text-slate-900">
 
-                </label>
+                        Confidence
+
+                    </label>
+
+                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+
+                        {
+                            value.learningReflection
+                                .confidenceRating
+                        } / 5
+
+                    </span>
+
+                </div>
 
                 <input
 
@@ -306,247 +503,357 @@ export default function StudentReflectionStep({
 
                     max={5}
 
+                    step={1}
+
                     value={
                         value.learningReflection
                             .confidenceRating
                     }
 
-                    onChange={(e) =>
+                    onChange={e =>
                         updateLearning(
+
                             "confidenceRating",
+
                             Number(
                                 e.target.value
                             )
+
                         )
                     }
 
-                    className="w-full"
+                    className="mt-4 w-full"
 
                 />
 
-                <p className="text-sm text-slate-500">
+                <div className="mt-1 flex justify-between text-xs text-slate-400">
 
-                    {
-                        value.learningReflection
-                            .confidenceRating
-                    } / 5
+                    <span>Low</span>
 
-                </p>
+                    <span>High</span>
+
+                </div>
 
             </div>
 
             {/* Mentor */}
 
-            <div className="border-t pt-6">
+            <div className="border-t border-slate-200 pt-6">
 
-                <h3 className="text-lg font-semibold">
+                <h3 className="text-lg font-semibold text-slate-900">
 
                     Mentor Check-in
 
                 </h3>
 
+                <p className="mt-1 text-sm text-slate-500">
+
+                    This helps personalize your next mission and mentor feedback.
+
+                </p>
+
             </div>
+
+            {/* Overall Week */}
 
             <div>
 
-                <label className="font-medium">
+                <label className="font-medium text-slate-900">
 
-                    Overall Week
+                    How was your overall week?
 
                 </label>
 
                 <select
 
-                    className="mt-2 w-full rounded-lg border p-2"
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-2.5"
 
                     value={
                         value.mentorCheckIn
-                            .overallWeek ?? ""
+                            .overallWeek ??
+                        ""
                     }
 
-                    onChange={(e) =>
+                    onChange={e =>
                         updateMentor(
+
                             "overallWeek",
-                            e.target.value
+
+                            e.target.value as
+                            OverallWeek
+
                         )
                     }
 
                 >
 
                     <option value="">
+
                         Select
+
                     </option>
 
                     {Object.values(
                         OverallWeek
-                    ).map(item => (
+                    ).map(
+                        item => (
 
-                        <option
-                            key={item}
-                            value={item}
-                        >
-                            {item.replaceAll(
-                                "_",
-                                " "
-                            )}
-                        </option>
+                            <option
+                                key={
+                                    item
+                                }
+                                value={
+                                    item
+                                }
+                            >
 
-                    ))}
+                                {item.replaceAll(
+                                    "_",
+                                    " "
+                                )}
+
+                            </option>
+
+                        )
+                    )}
 
                 </select>
 
             </div>
 
+            {/* Motivation */}
+
             <div>
 
-                <label className="font-medium">
+                <label className="font-medium text-slate-900">
 
-                    Motivation
+                    What was your motivation level?
 
                 </label>
 
                 <select
 
-                    className="mt-2 w-full rounded-lg border p-2"
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-2.5"
 
                     value={
                         value.mentorCheckIn
-                            .motivationLevel ?? ""
+                            .motivationLevel ??
+                        ""
                     }
 
-                    onChange={(e) =>
+                    onChange={e =>
                         updateMentor(
+
                             "motivationLevel",
-                            e.target.value
+
+                            e.target.value as
+                            MotivationLevel
+
                         )
                     }
 
                 >
 
                     <option value="">
+
                         Select
+
                     </option>
 
                     {Object.values(
                         MotivationLevel
-                    ).map(item => (
+                    ).map(
+                        item => (
 
-                        <option
-                            key={item}
-                            value={item}
-                        >
-                            {item.replaceAll(
-                                "_",
-                                " "
-                            )}
-                        </option>
+                            <option
+                                key={
+                                    item
+                                }
+                                value={
+                                    item
+                                }
+                            >
 
-                    ))}
+                                {item.replaceAll(
+                                    "_",
+                                    " "
+                                )}
+
+                            </option>
+
+                        )
+                    )}
 
                 </select>
 
             </div>
 
-            <textarea
+            {/* External Factors */}
 
-                rows={3}
+            <div>
 
-                placeholder="External factors"
+                <label className="font-medium text-slate-900">
 
-                value={
-                    value.mentorCheckIn
-                        .externalFactors ?? ""
-                }
+                    External factors
 
-                onChange={(e) =>
-                    updateMentor(
-                        "externalFactors",
-                        e.target.value
-                    )
-                }
+                </label>
 
-                className="w-full rounded-lg border p-3"
+                <textarea
 
-            />
+                    rows={3}
 
-            <textarea
+                    placeholder="Did college, work, health, travel, or anything else affect your study time?"
 
-                rows={3}
+                    value={
+                        value.mentorCheckIn
+                            .externalFactors ??
+                        ""
+                    }
 
-                placeholder="Career concerns"
+                    onChange={e =>
+                        updateMentor(
+                            "externalFactors",
+                            e.target.value
+                        )
+                    }
 
-                value={
-                    value.mentorCheckIn
-                        .careerConcern ?? ""
-                }
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-3"
 
-                onChange={(e) =>
-                    updateMentor(
-                        "careerConcern",
-                        e.target.value
-                    )
-                }
+                />
 
-                className="w-full rounded-lg border p-3"
+            </div>
 
-            />
+            {/* Career Concern */}
 
-            <textarea
+            <div>
 
-                rows={3}
+                <label className="font-medium text-slate-900">
 
-                placeholder="Need help with"
+                    Career concerns
 
-                value={
-                    value.mentorCheckIn
-                        .helpNeeded ?? ""
-                }
+                </label>
 
-                onChange={(e) =>
-                    updateMentor(
-                        "helpNeeded",
-                        e.target.value
-                    )
-                }
+                <textarea
 
-                className="w-full rounded-lg border p-3"
+                    rows={3}
 
-            />
+                    placeholder="Is anything about your career preparation worrying you?"
 
-            <textarea
+                    value={
+                        value.mentorCheckIn
+                            .careerConcern ??
+                        ""
+                    }
 
-                rows={4}
+                    onChange={e =>
+                        updateMentor(
+                            "careerConcern",
+                            e.target.value
+                        )
+                    }
 
-                placeholder="Anything else?"
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-3"
 
-                value={
-                    value.additionalComments ??
-                    ""
-                }
+                />
 
-                onChange={(e) =>
-                    onChange({
+            </div>
 
-                        ...value,
+            {/* Help Needed */}
 
-                        additionalComments:
-                            e.target.value,
+            <div>
 
-                    })
-                }
+                <label className="font-medium text-slate-900">
 
-                className="w-full rounded-lg border p-3"
+                    Where do you need help?
 
-            />
+                </label>
 
-            <div className="flex justify-between">
+                <textarea
+
+                    rows={3}
+
+                    placeholder="Tell your mentor what you need help with."
+
+                    value={
+                        value.mentorCheckIn
+                            .helpNeeded ??
+                        ""
+                    }
+
+                    onChange={e =>
+                        updateMentor(
+                            "helpNeeded",
+                            e.target.value
+                        )
+                    }
+
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-3"
+
+                />
+
+            </div>
+
+            {/* Additional */}
+
+            <div>
+
+                <label className="font-medium text-slate-900">
+
+                    Anything else?
+
+                </label>
+
+                <textarea
+
+                    rows={4}
+
+                    placeholder="Add anything else you'd like your Career Companion to know."
+
+                    value={
+                        value.additionalComments ??
+                        ""
+                    }
+
+                    onChange={e =>
+                        onChange({
+
+                            ...value,
+
+                            additionalComments:
+                                e.target.value,
+
+                        })
+                    }
+
+                    className="mt-2 w-full rounded-lg border border-slate-300 p-3"
+
+                />
+
+            </div>
+
+            {/* Navigation */}
+
+            <div className="flex justify-between border-t border-slate-200 pt-6">
 
                 <button
-
-                    onClick={onBack}
-
-                    className="rounded-lg border px-5 py-2"
-
+                    type="button"
+                    onClick={
+                        onBack
+                    }
+                    disabled={
+                        isSubmitting
+                    }
+                    className="
+                        rounded-lg
+                        border
+                        border-slate-300
+                        px-5
+                        py-2.5
+                        font-medium
+                        text-slate-700
+                        hover:bg-slate-50
+                        disabled:opacity-50
+                    "
                 >
 
                     Back
@@ -554,28 +861,31 @@ export default function StudentReflectionStep({
                 </button>
 
                 <button
-
+                    type="button"
                     disabled={
                         !canSubmit ||
                         isSubmitting
                     }
-
-                    onClick={onSubmit}
-
+                    onClick={
+                        onSubmit
+                    }
                     className="
                         rounded-lg
                         bg-slate-900
                         px-6
-                        py-2
+                        py-2.5
+                        font-medium
                         text-white
+                        hover:bg-slate-800
+                        disabled:cursor-not-allowed
                         disabled:opacity-50
                     "
-
                 >
 
                     {isSubmitting
-                        ? "Submitting..."
-                        : "Generate Weekly Report"}
+                        ? "Generating Report..."
+                        : "Complete Weekly Review"
+                    }
 
                 </button>
 

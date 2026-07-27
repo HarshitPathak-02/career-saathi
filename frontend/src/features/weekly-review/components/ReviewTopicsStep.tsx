@@ -1,6 +1,8 @@
 import {
     ArrowRight,
     BookOpen,
+    RotateCcw,
+    Sparkles,
     Target,
 } from "lucide-react";
 
@@ -48,9 +50,9 @@ export default function ReviewTopicsStep({
 
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
 
-                    Review the skills and topics you studied this
-                    week. Take an assessment for these areas on
-                    your preferred learning or coding platform.
+                    Review the new skills you studied and the
+                    skills selected for revision. Complete an
+                    assessment covering all the areas below.
 
                 </p>
 
@@ -62,128 +64,390 @@ export default function ReviewTopicsStep({
             <div className="space-y-4">
 
                 {review.skills.map(
-                    (skill) => (
+                    (skill) => {
 
-                        <div
-                            key={skill.userSkillId}
-                            className="
-                                rounded-xl
-                                border
-                                border-slate-200
-                                bg-white
-                                p-5
-                            "
-                        >
+                        const isRevision =
+                            skill.source ===
+                            "REVISION";
 
-                            {/* Skill Header */}
+                        return (
 
-                            <div className="flex items-start justify-between gap-4">
+                            <div
+                                key={
+                                    skill.userSkillId
+                                }
+                                className="
+                                    rounded-xl
+                                    border
+                                    border-slate-200
+                                    bg-white
+                                    p-5
+                                "
+                            >
 
-                                <div>
+                                {/* Skill Header */}
 
-                                    <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-start justify-between gap-4">
 
-                                        <BookOpen
-                                            size={18}
-                                            className="text-slate-500"
-                                        />
+                                    <div>
 
-                                        <h3 className="font-semibold text-slate-900">
+                                        <div className="flex flex-wrap items-center gap-2">
 
-                                            {skill.skillName}
+                                            <BookOpen
+                                                size={18}
+                                                className="text-slate-500"
+                                            />
 
-                                        </h3>
+                                            <h3 className="font-semibold text-slate-900">
+
+                                                {skill.skillName}
+
+                                            </h3>
+
+                                            {/* Source */}
+
+                                            <span
+                                                className={`
+                                                    inline-flex
+                                                    items-center
+                                                    gap-1
+                                                    rounded-full
+                                                    px-2.5
+                                                    py-1
+                                                    text-xs
+                                                    font-semibold
+
+                                                    ${isRevision
+                                                        ? "bg-amber-100 text-amber-700"
+                                                        : "bg-indigo-100 text-indigo-700"
+                                                    }
+                                                `}
+                                            >
+
+                                                {isRevision ? (
+
+                                                    <RotateCcw
+                                                        size={12}
+                                                    />
+
+                                                ) : (
+
+                                                    <Sparkles
+                                                        size={12}
+                                                    />
+
+                                                )}
+
+                                                {isRevision
+                                                    ? "Revision"
+                                                    : "New Skill"
+                                                }
+
+                                            </span>
+
+                                        </div>
+
+                                        <p className="mt-2 text-sm text-slate-500">
+
+                                            Current score:{" "}
+
+                                            <span className="font-semibold text-slate-700">
+
+                                                {skill.currentScore}%
+
+                                            </span>
+
+                                        </p>
 
                                     </div>
 
-                                    <p className="mt-1 text-sm text-slate-500">
 
-                                        Current score:{" "}
-                                        {skill.currentScore}%
+                                    {/* Previous Assessment */}
 
-                                    </p>
+                                    {isRevision &&
+                                        skill.previousPercentage !==
+                                        null && (
+
+                                            <div
+                                                className="
+                                                rounded-lg
+                                                bg-amber-50
+                                                px-3
+                                                py-2
+                                                text-sm
+                                            "
+                                            >
+
+                                                <span className="text-slate-500">
+
+                                                    Previous assessment
+
+                                                </span>
+
+                                                <span className="ml-2 font-semibold text-amber-700">
+
+                                                    {
+                                                        skill.previousPercentage
+                                                    }%
+
+                                                </span>
+
+                                            </div>
+
+                                        )}
 
                                 </div>
 
-                            </div>
+
+                                {/* NEW SKILL */}
+
+                                {!isRevision && (
+
+                                    <div className="mt-5">
+
+                                        <p
+                                            className="
+                                                mb-3
+                                                text-xs
+                                                font-semibold
+                                                uppercase
+                                                tracking-wide
+                                                text-slate-500
+                                            "
+                                        >
+
+                                            Topics covered this week
+
+                                        </p>
 
 
-                            {/* Roadmap Items */}
+                                        {skill.roadmapItems.length >
+                                            0 ? (
 
-                            <div className="mt-5 space-y-3">
+                                            <div className="space-y-3">
 
-                                {skill.roadmapItems.map(
-                                    (
-                                        item,
-                                        index,
-                                    ) => (
+                                                {skill.roadmapItems.map(
+                                                    (
+                                                        item,
+                                                        index
+                                                    ) => (
+
+                                                        <div
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            className="
+                                                                rounded-lg
+                                                                bg-slate-50
+                                                                p-4
+                                                            "
+                                                        >
+
+                                                            <div className="flex gap-3">
+
+                                                                <div
+                                                                    className="
+                                                                        flex
+                                                                        h-7
+                                                                        w-7
+                                                                        shrink-0
+                                                                        items-center
+                                                                        justify-center
+                                                                        rounded-full
+                                                                        bg-white
+                                                                        text-xs
+                                                                        font-semibold
+                                                                        text-slate-600
+                                                                        shadow-sm
+                                                                    "
+                                                                >
+
+                                                                    {
+                                                                        index +
+                                                                        1
+                                                                    }
+
+                                                                </div>
+
+                                                                <div>
+
+                                                                    <p className="text-sm font-medium text-slate-900">
+
+                                                                        {
+                                                                            item.title
+                                                                        }
+
+                                                                    </p>
+
+                                                                    {item.description && (
+
+                                                                        <p className="mt-1 text-sm leading-5 text-slate-500">
+
+                                                                            {
+                                                                                item.description
+                                                                            }
+
+                                                                        </p>
+
+                                                                    )}
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        ) : (
+
+                                            <p className="text-sm text-slate-500">
+
+                                                No roadmap topics available.
+
+                                            </p>
+
+                                        )}
+
+                                    </div>
+
+                                )}
+
+
+                                {/* REVISION SKILL */}
+
+                                {isRevision && (
+
+                                    <div className="mt-5">
 
                                         <div
-                                            key={item.id}
                                             className="
                                                 rounded-lg
-                                                bg-slate-50
+                                                border
+                                                border-amber-100
+                                                bg-amber-50/50
                                                 p-4
                                             "
                                         >
 
-                                            <div className="flex gap-3">
+                                            <div className="flex items-center gap-2">
 
-                                                <div
+                                                <RotateCcw
+                                                    size={16}
+                                                    className="text-amber-600"
+                                                />
+
+                                                <p
                                                     className="
-                                                        flex
-                                                        h-7
-                                                        w-7
-                                                        shrink-0
-                                                        items-center
-                                                        justify-center
-                                                        rounded-full
-                                                        bg-white
                                                         text-xs
                                                         font-semibold
-                                                        text-slate-600
-                                                        shadow-sm
+                                                        uppercase
+                                                        tracking-wide
+                                                        text-amber-700
                                                     "
                                                 >
 
-                                                    {index + 1}
+                                                    Revision Focus
 
-                                                </div>
-
-                                                <div>
-
-                                                    <p className="text-sm font-medium text-slate-900">
-
-                                                        {item.title}
-
-                                                    </p>
-
-                                                    <p className="mt-1 text-sm leading-5 text-slate-500">
-
-                                                        {item.description}
-
-                                                    </p>
-
-                                                </div>
+                                                </p>
 
                                             </div>
 
+
+                                            {skill.revisionTopics.length >
+                                                0 ? (
+
+                                                <div className="mt-3 space-y-2">
+
+                                                    {skill.revisionTopics.map(
+                                                        (
+                                                            topic,
+                                                            index
+                                                        ) => (
+
+                                                            <div
+                                                                key={
+                                                                    `${skill.userSkillId}-${topic}`
+                                                                }
+                                                                className="
+                                                                    flex
+                                                                    items-start
+                                                                    gap-3
+                                                                    rounded-lg
+                                                                    bg-white
+                                                                    px-3
+                                                                    py-2.5
+                                                                "
+                                                            >
+
+                                                                <div
+                                                                    className="
+                                                                        flex
+                                                                        h-6
+                                                                        w-6
+                                                                        shrink-0
+                                                                        items-center
+                                                                        justify-center
+                                                                        rounded-full
+                                                                        bg-amber-100
+                                                                        text-xs
+                                                                        font-semibold
+                                                                        text-amber-700
+                                                                    "
+                                                                >
+
+                                                                    {
+                                                                        index +
+                                                                        1
+                                                                    }
+
+                                                                </div>
+
+                                                                <span className="text-sm text-slate-700">
+
+                                                                    {
+                                                                        topic
+                                                                    }
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        )
+                                                    )}
+
+                                                </div>
+
+                                            ) : (
+
+                                                <p className="mt-3 text-sm text-slate-500">
+
+                                                    Review the core concepts of this skill.
+
+                                                </p>
+
+                                            )}
+
                                         </div>
 
-                                    ),
+                                    </div>
+
                                 )}
 
                             </div>
 
-                        </div>
+                        );
 
-                    ),
+                    }
                 )}
 
             </div>
 
 
-            {/* Temporary Platform Notice */}
+            {/* Platform Notice */}
 
             <div
                 className="
@@ -204,10 +468,10 @@ export default function ReviewTopicsStep({
 
                 <p className="mt-1 text-sm leading-6 text-slate-500">
 
-                    Use a suitable assessment or coding platform
-                    to test yourself on the topics above.
-                    Platform recommendations will be added here
-                    later.
+                    Take an assessment covering all the skills
+                    listed above. For revision skills, focus
+                    specifically on the recommended revision
+                    topics. Enter your scores in the next step.
 
                 </p>
 
@@ -220,7 +484,9 @@ export default function ReviewTopicsStep({
 
                 <button
                     type="button"
-                    onClick={onContinue}
+                    onClick={
+                        onContinue
+                    }
                     className="
                         flex
                         items-center
@@ -239,7 +505,9 @@ export default function ReviewTopicsStep({
 
                     I've Completed My Assessment
 
-                    <ArrowRight size={17} />
+                    <ArrowRight
+                        size={17}
+                    />
 
                 </button>
 

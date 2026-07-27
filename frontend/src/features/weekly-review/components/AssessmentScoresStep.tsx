@@ -1,20 +1,28 @@
 import {
+    RotateCcw,
+    Sparkles,
+} from "lucide-react";
+
+import {
     useEffect,
 } from "react";
 
 import type {
-    WeeklyAssessmentSkillInput,
+    WeeklyReviewAssessmentSkillInput,
     WeeklyReviewPreparation,
 } from "../types/weekly-review.types";
 
 interface Props {
 
-    review: WeeklyReviewPreparation;
+    review:
+    WeeklyReviewPreparation;
 
-    values: WeeklyAssessmentSkillInput[];
+    values:
+    WeeklyReviewAssessmentSkillInput[];
 
     onChange: (
-        values: WeeklyAssessmentSkillInput[]
+        values:
+            WeeklyReviewAssessmentSkillInput[]
     ) => void;
 
     onBack: () => void;
@@ -45,26 +53,39 @@ export default function AssessmentScoresStep({
 
     useEffect(() => {
 
-        if (values.length > 0) {
+        if (
+            values.length > 0
+        ) {
+
             return;
+
         }
 
         onChange(
 
-            review.skills.map(skill => ({
+            review.skills.map(
+                skill => ({
 
-                userSkillId:
-                    skill.userSkillId,
+                    userSkillId:
+                        skill.userSkillId,
 
-                obtainedMarks: 0,
+                    obtainedMarks: 0,
 
-                totalMarks: 100,
+                    totalMarks: 100,
 
-            }))
+                    assessmentMethod:
+                        "PLATFORM",
+
+                })
+            )
 
         );
 
-    }, []);
+    }, [
+        review.skills,
+        values.length,
+        onChange,
+    ]);
 
     /*
     |--------------------------------------------------------------------------
@@ -77,8 +98,8 @@ export default function AssessmentScoresStep({
         index: number,
 
         key:
-            "obtainedMarks" |
-            "totalMarks",
+            | "obtainedMarks"
+            | "totalMarks",
 
         value: number
 
@@ -87,15 +108,25 @@ export default function AssessmentScoresStep({
         const updated =
             [...values];
 
+        const current =
+            updated[index];
+
+        if (!current) {
+            return;
+        }
+
         updated[index] = {
 
-            ...updated[index],
+            ...current,
 
-            [key]: value,
+            [key]:
+                value,
 
         };
 
-        onChange(updated);
+        onChange(
+            updated
+        );
 
     }
 
@@ -123,13 +154,19 @@ export default function AssessmentScoresStep({
 
         );
 
+    /*
+    |--------------------------------------------------------------------------
+    | UI
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="space-y-6">
 
             <div>
 
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-2xl font-semibold text-slate-900">
 
                     Enter Assessment Scores
 
@@ -137,8 +174,8 @@ export default function AssessmentScoresStep({
 
                 <p className="mt-2 text-sm text-slate-500">
 
-                    Enter the score you obtained for
-                    each skill.
+                    Enter your assessment result for every skill covered
+                    or revised during this mission.
 
                 </p>
 
@@ -146,17 +183,21 @@ export default function AssessmentScoresStep({
 
             <div className="space-y-5">
 
-                {
+                {review.skills.map(
 
-                    review.skills.map(
+                    (
+                        skill,
+                        index
+                    ) => {
 
-                        (
+                        const score =
+                            values[index];
 
-                            skill,
+                        const isRevision =
+                            skill.source ===
+                            "REVISION";
 
-                            index
-
-                        ) => (
+                        return (
 
                             <div
                                 key={
@@ -165,38 +206,207 @@ export default function AssessmentScoresStep({
                                 className="
                                     rounded-xl
                                     border
+                                    border-slate-200
                                     bg-white
                                     p-5
+                                    shadow-sm
                                 "
                             >
 
-                                <h3 className="font-semibold">
+                                {/* Header */}
 
-                                    {
-                                        skill.skillName
-                                    }
-
-                                </h3>
-
-                                <p className="mt-1 text-sm text-slate-500">
-
-                                    Current Score :
-
-                                    {" "}
-
-                                    {
-                                        skill.currentScore
-                                    }%
-
-                                </p>
-
-                                <div className="mt-5 grid grid-cols-2 gap-4">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
 
                                     <div>
 
-                                        <label
-                                            className="text-sm font-medium"
-                                        >
+                                        <div className="flex items-center gap-2">
+
+                                            <h3 className="text-lg font-semibold text-slate-900">
+
+                                                {skill.skillName}
+
+                                            </h3>
+
+                                            <span
+                                                className={`
+                                                    inline-flex
+                                                    items-center
+                                                    gap-1
+                                                    rounded-full
+                                                    px-2.5
+                                                    py-1
+                                                    text-xs
+                                                    font-semibold
+                                                    ${isRevision
+                                                        ? "bg-amber-100 text-amber-700"
+                                                        : "bg-indigo-100 text-indigo-700"
+                                                    }
+                                                `}
+                                            >
+
+                                                {isRevision ? (
+
+                                                    <RotateCcw
+                                                        size={12}
+                                                    />
+
+                                                ) : (
+
+                                                    <Sparkles
+                                                        size={12}
+                                                    />
+
+                                                )}
+
+                                                {isRevision
+                                                    ? "Revision"
+                                                    : "New Skill"
+                                                }
+
+                                            </span>
+
+                                        </div>
+
+                                        <p className="mt-2 text-sm text-slate-500">
+
+                                            Current skill score:
+
+                                            {" "}
+
+                                            <span className="font-semibold text-slate-700">
+
+                                                {skill.currentScore}%
+
+                                            </span>
+
+                                        </p>
+
+                                    </div>
+
+                                    {isRevision &&
+                                        skill.previousPercentage !== null && (
+
+                                            <div className="rounded-lg bg-amber-50 px-3 py-2 text-sm">
+
+                                                <span className="text-slate-500">
+
+                                                    Before revision
+
+                                                </span>
+
+                                                <span className="ml-2 font-semibold text-amber-700">
+
+                                                    {skill.previousPercentage}%
+
+                                                </span>
+
+                                            </div>
+
+                                        )}
+
+                                </div>
+
+                                {/* New Skill Context */}
+
+                                {!isRevision &&
+                                    skill.roadmapItems.length > 0 && (
+
+                                        <div className="mt-4 rounded-lg bg-slate-50 p-4">
+
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+
+                                                Covered this week
+
+                                            </p>
+
+                                            <div className="mt-2 space-y-2">
+
+                                                {skill.roadmapItems.map(
+                                                    item => (
+
+                                                        <div
+                                                            key={
+                                                                item.id
+                                                            }
+                                                        >
+
+                                                            <p className="text-sm font-medium text-slate-800">
+
+                                                                {item.title}
+
+                                                            </p>
+
+                                                            <p className="text-xs text-slate-500">
+
+                                                                {item.description}
+
+                                                            </p>
+
+                                                        </div>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                {/* Revision Topics */}
+
+                                {isRevision &&
+                                    skill.revisionTopics.length > 0 && (
+
+                                        <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50/50 p-4">
+
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+
+                                                Revision Focus
+
+                                            </p>
+
+                                            <div className="mt-2 flex flex-wrap gap-2">
+
+                                                {skill.revisionTopics.map(
+                                                    topic => (
+
+                                                        <span
+                                                            key={
+                                                                topic
+                                                            }
+                                                            className="
+                                                            rounded-md
+                                                            border
+                                                            border-amber-200
+                                                            bg-white
+                                                            px-2.5
+                                                            py-1
+                                                            text-xs
+                                                            text-slate-700
+                                                        "
+                                                        >
+
+                                                            {topic}
+
+                                                        </span>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                {/* Marks */}
+
+                                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
+                                    <div>
+
+                                        <label className="text-sm font-medium text-slate-700">
 
                                             Obtained Marks
 
@@ -208,9 +418,13 @@ export default function AssessmentScoresStep({
 
                                             min={0}
 
+                                            max={
+                                                score?.totalMarks ??
+                                                undefined
+                                            }
+
                                             value={
-                                                values[index]
-                                                    ?.obtainedMarks ??
+                                                score?.obtainedMarks ??
                                                 0
                                             }
 
@@ -235,8 +449,14 @@ export default function AssessmentScoresStep({
                                                 w-full
                                                 rounded-lg
                                                 border
+                                                border-slate-300
                                                 px-3
-                                                py-2
+                                                py-2.5
+                                                outline-none
+                                                transition
+                                                focus:border-indigo-500
+                                                focus:ring-2
+                                                focus:ring-indigo-100
                                             "
 
                                         />
@@ -245,9 +465,7 @@ export default function AssessmentScoresStep({
 
                                     <div>
 
-                                        <label
-                                            className="text-sm font-medium"
-                                        >
+                                        <label className="text-sm font-medium text-slate-700">
 
                                             Total Marks
 
@@ -260,8 +478,7 @@ export default function AssessmentScoresStep({
                                             min={1}
 
                                             value={
-                                                values[index]
-                                                    ?.totalMarks ??
+                                                score?.totalMarks ??
                                                 100
                                             }
 
@@ -286,8 +503,14 @@ export default function AssessmentScoresStep({
                                                 w-full
                                                 rounded-lg
                                                 border
+                                                border-slate-300
                                                 px-3
-                                                py-2
+                                                py-2.5
+                                                outline-none
+                                                transition
+                                                focus:border-indigo-500
+                                                focus:ring-2
+                                                focus:ring-indigo-100
                                             "
 
                                         />
@@ -296,29 +519,53 @@ export default function AssessmentScoresStep({
 
                                 </div>
 
+                                {/* Invalid Score */}
+
+                                {score &&
+                                    (
+                                        score.totalMarks <= 0 ||
+                                        score.obtainedMarks < 0 ||
+                                        score.obtainedMarks >
+                                        score.totalMarks
+                                    ) && (
+
+                                        <p className="mt-3 text-sm text-red-600">
+
+                                            Obtained marks must be between 0 and total marks.
+
+                                        </p>
+
+                                    )}
+
                             </div>
 
-                        )
+                        );
 
-                    )
+                    }
 
-                }
+                )}
 
             </div>
 
-            <div className="flex justify-between">
+            {/* Navigation */}
+
+            <div className="flex justify-between border-t border-slate-200 pt-6">
 
                 <button
-
-                    onClick={onBack}
-
+                    type="button"
+                    onClick={
+                        onBack
+                    }
                     className="
                         rounded-lg
                         border
+                        border-slate-300
                         px-5
-                        py-2
+                        py-2.5
+                        font-medium
+                        text-slate-700
+                        hover:bg-slate-50
                     "
-
                 >
 
                     Back
@@ -326,20 +573,24 @@ export default function AssessmentScoresStep({
                 </button>
 
                 <button
-
-                    disabled={!canContinue}
-
-                    onClick={onContinue}
-
+                    type="button"
+                    disabled={
+                        !canContinue
+                    }
+                    onClick={
+                        onContinue
+                    }
                     className="
                         rounded-lg
                         bg-slate-900
                         px-5
-                        py-2
+                        py-2.5
+                        font-medium
                         text-white
+                        hover:bg-slate-800
+                        disabled:cursor-not-allowed
                         disabled:opacity-50
                     "
-
                 >
 
                     Continue

@@ -174,8 +174,7 @@ export default function MissionDetailsPage() {
                 null
             );
 
-            navigate(
-                "/weekly-review"
+            navigate("/weekly-review"
             );
 
         };
