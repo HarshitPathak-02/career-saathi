@@ -9,7 +9,10 @@ import type {
 } from "../types/assessment.types";
 
 interface AssessmentSkillResultCardProps {
-    skill: AssessmentSkillDetail;
+
+    skill:
+    AssessmentSkillDetail;
+
 }
 
 const AssessmentSkillResultCard = ({
@@ -30,38 +33,101 @@ const AssessmentSkillResultCard = ({
         hasImprovement &&
         improvement < 0;
 
+    const progress =
+        Math.min(
+            Math.max(
+                skill.percentage,
+                0
+            ),
+            100
+        );
+
     return (
-        <div
+
+        <article
             className="
-                rounded-xl
+                rounded-2xl
                 border
                 border-slate-200
                 bg-white
                 p-5
+                shadow-sm
+                sm:p-6
             "
         >
-            <div className="flex items-start justify-between gap-5">
 
-                <div>
-                    <h3 className="font-semibold text-slate-900">
+            {/* Skill + Score */}
+
+            <div
+                className="
+                    flex
+                    items-start
+                    justify-between
+                    gap-4
+                "
+            >
+
+                <div className="min-w-0">
+
+                    <p
+                        className="
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-[0.1em]
+                            text-slate-400
+                        "
+                    >
+                        Skill
+                    </p>
+
+                    <h3
+                        className="
+                            mt-1
+                            text-lg
+                            font-bold
+                            text-slate-900
+                        "
+                    >
                         {skill.skillName}
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p
+                        className="
+                            mt-1
+                            text-sm
+                            text-slate-500
+                        "
+                    >
                         {skill.obtainedMarks}
                         {" / "}
                         {skill.totalMarks}
                         {" marks"}
                     </p>
+
                 </div>
 
-                <div className="text-right">
+                <div
+                    className="
+                        shrink-0
+                        text-right
+                    "
+                >
 
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p
+                        className="
+                            text-2xl
+                            font-bold
+                            tracking-tight
+                            text-slate-900
+                            sm:text-3xl
+                        "
+                    >
                         {skill.percentage}%
                     </p>
 
                     {hasImprovement && (
+
                         <div
                             className={`
                                 mt-1
@@ -70,7 +136,7 @@ const AssessmentSkillResultCard = ({
                                 justify-end
                                 gap-1
                                 text-xs
-                                font-medium
+                                font-semibold
 
                                 ${isPositive
                                     ? "text-emerald-600"
@@ -80,54 +146,109 @@ const AssessmentSkillResultCard = ({
                                 }
                             `}
                         >
+
                             {isPositive && (
                                 <ArrowUp
-                                    size={13}
+                                    size={14}
                                 />
                             )}
 
                             {isNegative && (
                                 <ArrowDown
-                                    size={13}
+                                    size={14}
                                 />
                             )}
 
                             {!isPositive &&
                                 !isNegative && (
+
                                     <Minus
-                                        size={13}
+                                        size={14}
                                     />
+
                                 )}
 
-                            {improvement > 0
-                                ? "+"
-                                : ""}
+                            <span>
 
-                            {improvement}%
+                                {improvement > 0
+                                    ? "+"
+                                    : ""
+                                }
+
+                                {improvement}%
+
+                            </span>
+
                         </div>
+
                     )}
 
                 </div>
+
             </div>
+
+            {/* Progress */}
 
             <div className="mt-5">
 
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                    className="
+                        flex
+                        items-center
+                        justify-between
+                        text-xs
+                        text-slate-400
+                    "
+                >
+
+                    <span>
+                        Performance
+                    </span>
+
+                    <span>
+                        {progress}%
+                    </span>
+
+                </div>
+
+                <div
+                    className="
+                        mt-2
+                        h-2
+                        overflow-hidden
+                        rounded-full
+                        bg-slate-100
+                    "
+                >
+
                     <div
-                        className="h-full rounded-full bg-indigo-600"
+                        className="
+                            h-full
+                            rounded-full
+                            bg-blue-600
+                            transition-all
+                            duration-500
+                        "
                         style={{
                             width:
-                                `${Math.min(
-                                    skill.percentage,
-                                    100
-                                )}%`,
+                                `${progress}%`,
                         }}
                     />
+
                 </div>
 
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            {/* Metadata */}
+
+            <div
+                className="
+                    mt-5
+                    flex
+                    flex-wrap
+                    gap-2
+                "
+            >
 
                 <span
                     className="
@@ -144,39 +265,110 @@ const AssessmentSkillResultCard = ({
                 </span>
 
                 {skill.assessmentPlatform && (
+
                     <span
                         className="
                             rounded-full
-                            bg-indigo-50
+                            bg-blue-50
                             px-3
                             py-1
                             text-xs
                             font-medium
-                            text-indigo-700
+                            text-blue-700
                         "
                     >
                         {skill.assessmentPlatform}
                     </span>
+
                 )}
 
             </div>
 
+            {/* Assessment Name */}
+
             {skill.assessmentName && (
-                <p className="mt-4 text-sm text-slate-600">
-                    <span className="font-medium text-slate-700">
-                        Assessment:
-                    </span>{" "}
-                    {skill.assessmentName}
-                </p>
+
+                <div
+                    className="
+                        mt-5
+                        border-t
+                        border-slate-100
+                        pt-4
+                    "
+                >
+
+                    <p
+                        className="
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wide
+                            text-slate-400
+                        "
+                    >
+                        Assessment
+                    </p>
+
+                    <p
+                        className="
+                            mt-1
+                            text-sm
+                            font-medium
+                            leading-6
+                            text-slate-700
+                        "
+                    >
+                        {skill.assessmentName}
+                    </p>
+
+                </div>
+
             )}
 
+            {/* Remarks */}
+
             {skill.remarks && (
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {skill.remarks}
-                </p>
+
+                <div
+                    className="
+                        mt-4
+                        rounded-xl
+                        bg-slate-50
+                        p-4
+                    "
+                >
+
+                    <p
+                        className="
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wide
+                            text-slate-400
+                        "
+                    >
+                        Remarks
+                    </p>
+
+                    <p
+                        className="
+                            mt-1.5
+                            text-sm
+                            leading-6
+                            text-slate-600
+                        "
+                    >
+                        {skill.remarks}
+                    </p>
+
+                </div>
+
             )}
-        </div>
+
+        </article>
+
     );
+
 };
 
 export default AssessmentSkillResultCard;

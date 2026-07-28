@@ -1,55 +1,107 @@
-import { forwardRef } from "react";
+import {
+  forwardRef,
+} from "react";
 
-import Select from "../Select/Select";
+import Select
+  from "../Select/Select";
+
+import FormLabel
+  from "./FormLabel";
+
+import FormError
+  from "./FormError";
 
 import type {
   SelectProps,
 } from "../Select/Select.types";
-import FormLabel from "./FormLabel";
 
 interface FormSelectProps
   extends SelectProps {
+
   id: string;
+
   label: string;
+
   errorMessage?: string;
+
 }
 
-const FormSelect = forwardRef<
-  HTMLSelectElement,
-  FormSelectProps
->(
-  (
-    {
-      id,
-      label,
-      errorMessage,
-      ...props
-    },
-    ref
-  ) => {
-    return (
-      <div className="space-y-1">
-        <FormLabel htmlFor={id}>
-          {label}
-        </FormLabel>
+const FormSelect =
+  forwardRef<
+    HTMLSelectElement,
+    FormSelectProps
+  >(
+    (
+      {
 
-        <Select
-          id={id}
-          ref={ref}
-          error={!!errorMessage}
-          {...props}
-        />
+        id,
 
-        {errorMessage && (
-          <p className="text-sm text-red-500">
-            {errorMessage}
-          </p>
-        )}
-      </div>
-    );
-  }
-);
+        label,
 
-FormSelect.displayName = "FormSelect";
+        errorMessage,
+
+        ...props
+
+      },
+
+      ref
+
+    ) => {
+
+      return (
+
+        <div>
+
+          <FormLabel
+            htmlFor={id}
+          >
+
+            {label}
+
+          </FormLabel>
+
+          <Select
+
+            id={id}
+
+            ref={ref}
+
+            error={
+              !!errorMessage
+            }
+
+            aria-invalid={
+              !!errorMessage
+            }
+
+            aria-describedby={
+              errorMessage
+                ? `${id}-error`
+                : undefined
+            }
+
+            {...props}
+
+          />
+
+          <FormError
+
+            id={`${id}-error`}
+
+            message={
+              errorMessage
+            }
+
+          />
+
+        </div>
+
+      );
+
+    }
+  );
+
+FormSelect.displayName =
+  "FormSelect";
 
 export default FormSelect;

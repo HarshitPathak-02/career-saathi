@@ -8,6 +8,8 @@ import {
     useCreateInitialMissionMutation,
 } from "../../mission/api/missionApi";
 
+import MissionGeneratingState from "./MissionGeneratingState";
+
 interface StartJourneyCardProps {
     careerJourneyId: string;
 }
@@ -34,26 +36,25 @@ const StartJourneyCard = ({
                     careerJourneyId
                 ).unwrap();
 
-                /*
-                 * No manual navigation required.
-                 *
-                 * createInitialMission invalidates
-                 * CareerJourney.
-                 *
-                 * Workspace query provides
-                 * CareerJourney.
-                 *
-                 * Therefore workspace will refetch.
-                 *
-                 * Backend will now return:
-                 *
-                 * workspaceState = ACTIVE
-                 */
-
             } catch {
                 // Error displayed below.
             }
+
         };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mission Generation State
+    |--------------------------------------------------------------------------
+    */
+
+    if (isLoading) {
+
+        return (
+            <MissionGeneratingState />
+        );
+
+    }
 
     return (
         <section
@@ -73,8 +74,8 @@ const StartJourneyCard = ({
                     items-center
                     justify-center
                     rounded-xl
-                    bg-indigo-50
-                    text-indigo-600
+                    bg-blue-50
+                    text-blue-600
                 "
             >
                 <Rocket size={24} />
@@ -95,6 +96,7 @@ const StartJourneyCard = ({
                 className="
                     mt-2
                     max-w-2xl
+                    leading-7
                     text-slate-600
                 "
             >
@@ -106,8 +108,6 @@ const StartJourneyCard = ({
 
             <div className="mt-6">
                 <Button
-                    loading={isLoading}
-                    disabled={isLoading}
                     onClick={
                         handleStartJourney
                     }

@@ -5,6 +5,9 @@ import {
     Target,
     Trophy,
     ClipboardCheck,
+    CalendarDays,
+    CircleCheckBig,
+    ListChecks,
 } from "lucide-react";
 
 import {
@@ -182,35 +185,109 @@ const ActiveMissionCard = ({
 
     return (
 
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section
+            className="
+                overflow-hidden
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                shadow-sm
+            "
+        >
 
-            {/* Header */}
+            {/* Mission Header */}
 
-            <div className="border-b border-slate-200 p-8">
+            <div
+                className="
+                    relative
+                    overflow-hidden
+                    border-b
+                    border-slate-200
+                    px-5
+                    py-6
+                    sm:px-7
+                    sm:py-7
+                    lg:px-8
+                "
+            >
 
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div
+                    className="
+                        pointer-events-none
+                        absolute
+                        -right-16
+                        -top-20
+                        h-52
+                        w-52
+                        rounded-full
+                        bg-blue-50
+                        blur-3xl
+                    "
+                />
 
-                    <div>
+                <div
+                    className="
+                        relative
+                        flex
+                        flex-col
+                        gap-6
+                        lg:flex-row
+                        lg:items-center
+                        lg:justify-between
+                    "
+                >
 
-                        <div className="flex items-center gap-3">
+                    <div className="min-w-0">
 
-                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                        <div className="flex items-center gap-4">
 
-                                <Target
-                                    size={28}
-                                />
+                            <div
+                                className="
+                                    flex
+                                    h-12
+                                    w-12
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-blue-50
+                                    text-blue-600
+                                    sm:h-14
+                                    sm:w-14
+                                "
+                            >
+
+                                <Target size={26} />
 
                             </div>
 
-                            <div>
+                            <div className="min-w-0">
 
-                                <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
+                                <p
+                                    className="
+                                        text-xs
+                                        font-semibold
+                                        uppercase
+                                        tracking-[0.12em]
+                                        text-blue-600
+                                    "
+                                >
 
                                     Current Mission
 
                                 </p>
 
-                                <h2 className="mt-1 text-3xl font-bold text-slate-900">
+                                <h2
+                                    className="
+                                        mt-1
+                                        text-2xl
+                                        font-bold
+                                        tracking-tight
+                                        text-slate-900
+                                        sm:text-3xl
+                                    "
+                                >
 
                                     Mission {activeMission.missionNumber}
 
@@ -220,37 +297,106 @@ const ActiveMissionCard = ({
 
                         </div>
 
-                        <p className="mt-5 text-slate-600">
+                        <p
+                            className="
+                                mt-4
+                                max-w-2xl
+                                text-sm
+                                leading-6
+                                text-slate-600
+                                sm:text-base
+                                sm:leading-7
+                            "
+                        >
 
                             {isWeeklyReviewDay
-                                ? "Review your week, complete your assessment, and reflect on your progress."
-                                : "Stay consistent. Complete today's learning goal and move one step closer to your target career."
+                                ? "You've reached the final day of this mission. Review your week, complete your assessment, and reflect on your progress."
+                                : "Stay focused on today's objective. Every completed day moves you one step closer to your target career."
                             }
 
                         </p>
 
                     </div>
 
-                    <div className="rounded-xl bg-indigo-50 px-5 py-4">
+                    {/* Day Information */}
 
-                        <p className="text-xs uppercase tracking-wide text-indigo-600">
+                    <div
+                        className="
+                            flex
+                            shrink-0
+                            items-center
+                            gap-4
+                            rounded-xl
+                            border
+                            border-blue-100
+                            bg-blue-50/70
+                            px-4
+                            py-3.5
+                            sm:px-5
+                        "
+                    >
 
-                            Today
+                        <div
+                            className="
+                                flex
+                                h-10
+                                w-10
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-lg
+                                bg-white
+                                text-blue-600
+                                shadow-sm
+                            "
+                        >
 
-                        </p>
+                            <CalendarDays size={20} />
 
-                        <h3 className="mt-1 text-xl font-bold text-slate-900">
+                        </div>
 
-                            Day {today.dayNumber}
+                        <div>
 
-                        </h3>
+                            <p
+                                className="
+                                    text-[11px]
+                                    font-semibold
+                                    uppercase
+                                    tracking-wide
+                                    text-blue-600
+                                "
+                            >
 
-                        <p className="mt-1 text-sm text-slate-600">
+                                Today
 
-                            {today.remainingDays} day
-                            {today.remainingDays !== 1 && "s"} remaining
+                            </p>
 
-                        </p>
+                            <p
+                                className="
+                                    mt-0.5
+                                    font-bold
+                                    text-slate-900
+                                "
+                            >
+
+                                Day {today.dayNumber}
+
+                            </p>
+
+                            <p
+                                className="
+                                    mt-0.5
+                                    text-xs
+                                    text-slate-500
+                                "
+                            >
+
+                                {today.remainingDays} day
+                                {today.remainingDays !== 1 && "s"} remaining
+
+                            </p>
+
+                        </div>
 
                     </div>
 
@@ -258,20 +404,43 @@ const ActiveMissionCard = ({
 
             </div>
 
-            {/* Progress */}
+            {/* Mission Progress */}
 
-            <div className="border-b border-slate-200 p-8">
+            <div
+                className="
+                    border-b
+                    border-slate-200
+                    bg-slate-50/60
+                    px-5
+                    py-5
+                    sm:px-7
+                    lg:px-8
+                "
+            >
 
-                <div className="mb-3 flex items-center justify-between">
+                <div
+                    className="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                    "
+                >
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
 
                         <Trophy
                             size={18}
                             className="text-amber-500"
                         />
 
-                        <span className="font-semibold text-slate-900">
+                        <span
+                            className="
+                                text-sm
+                                font-semibold
+                                text-slate-800
+                            "
+                        >
 
                             Mission Progress
 
@@ -279,7 +448,13 @@ const ActiveMissionCard = ({
 
                     </div>
 
-                    <span className="font-semibold text-indigo-600">
+                    <span
+                        className="
+                            text-sm
+                            font-bold
+                            text-blue-600
+                        "
+                    >
 
                         {overview.progressPercentage}%
 
@@ -287,10 +462,24 @@ const ActiveMissionCard = ({
 
                 </div>
 
-                <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+                <div
+                    className="
+                        mt-3
+                        h-2.5
+                        overflow-hidden
+                        rounded-full
+                        bg-slate-200
+                    "
+                >
 
                     <div
-                        className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                        className="
+                            h-full
+                            rounded-full
+                            bg-blue-600
+                            transition-all
+                            duration-500
+                        "
                         style={{
                             width: `${Math.min(
                                 overview.progressPercentage,
@@ -301,40 +490,114 @@ const ActiveMissionCard = ({
 
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">
+                <div
+                    className="
+                        mt-3
+                        flex
+                        flex-wrap
+                        items-center
+                        justify-between
+                        gap-2
+                        text-xs
+                        text-slate-500
+                        sm:text-sm
+                    "
+                >
 
-                    {overview.completedTasks}
-                    {" / "}
-                    {overview.totalTasks}
-                    {" days completed"}
+                    <span>
 
-                </p>
+                        {overview.completedTasks}
+                        {" of "}
+                        {overview.totalTasks}
+                        {" days completed"}
+
+                    </span>
+
+                    <span>
+
+                        Keep building consistency
+
+                    </span>
+
+                </div>
 
             </div>
 
             {/* Today's Mission */}
 
-            <div className="p-8">
+            <div
+                className="
+                    px-5
+                    py-6
+                    sm:px-7
+                    sm:py-7
+                    lg:px-8
+                    lg:py-8
+                "
+            >
 
                 {!todayTask ? (
 
-                    <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center">
+                    <div
+                        className="
+                            rounded-2xl
+                            border
+                            border-dashed
+                            border-slate-300
+                            bg-slate-50/50
+                            px-5
+                            py-12
+                            text-center
+                        "
+                    >
 
-                        <BookOpen
-                            size={48}
-                            className="mx-auto text-slate-400"
-                        />
+                        <div
+                            className="
+                                mx-auto
+                                flex
+                                h-14
+                                w-14
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-white
+                                text-slate-400
+                                shadow-sm
+                            "
+                        >
 
-                        <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                            <BookOpen size={27} />
+
+                        </div>
+
+                        <h3
+                            className="
+                                mt-5
+                                text-lg
+                                font-semibold
+                                text-slate-900
+                            "
+                        >
 
                             No task scheduled for today
 
                         </h3>
 
-                        <p className="mt-2 text-slate-500">
+                        <p
+                            className="
+                                mx-auto
+                                mt-2
+                                max-w-md
+                                text-sm
+                                leading-6
+                                text-slate-500
+                            "
+                        >
 
-                            Enjoy your day. Your next mission will
-                            appear automatically.
+                            You're all caught up for today.
+                            Your next learning objective will
+                            appear automatically when it becomes
+                            available.
 
                         </p>
 
@@ -344,20 +607,68 @@ const ActiveMissionCard = ({
 
                     <>
 
-                        <div className="flex flex-wrap items-center justify-between gap-4">
+                        {/* Task Heading */}
 
-                            <div>
+                        <div
+                            className="
+                                flex
+                                flex-col
+                                gap-4
+                                sm:flex-row
+                                sm:items-start
+                                sm:justify-between
+                            "
+                        >
 
-                                <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
+                            <div className="min-w-0">
 
-                                    {isWeeklyReviewDay
-                                        ? "Weekly Review"
-                                        : "Today's Mission"
-                                    }
+                                <div className="flex items-center gap-2">
 
-                                </p>
+                                    {isWeeklyReviewDay ? (
 
-                                <h3 className="mt-2 text-2xl font-bold text-slate-900">
+                                        <ClipboardCheck
+                                            size={17}
+                                            className="text-blue-600"
+                                        />
+
+                                    ) : (
+
+                                        <BookOpen
+                                            size={17}
+                                            className="text-blue-600"
+                                        />
+
+                                    )}
+
+                                    <p
+                                        className="
+                                            text-xs
+                                            font-semibold
+                                            uppercase
+                                            tracking-[0.12em]
+                                            text-blue-600
+                                        "
+                                    >
+
+                                        {isWeeklyReviewDay
+                                            ? "Weekly Review"
+                                            : "Today's Mission"
+                                        }
+
+                                    </p>
+
+                                </div>
+
+                                <h3
+                                    className="
+                                        mt-2
+                                        text-xl
+                                        font-bold
+                                        leading-tight
+                                        text-slate-900
+                                        sm:text-2xl
+                                    "
+                                >
 
                                     {todayTask.title}
 
@@ -365,19 +676,30 @@ const ActiveMissionCard = ({
 
                             </div>
 
-                            <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2">
+                            <div
+                                className="
+                                    inline-flex
+                                    w-fit
+                                    shrink-0
+                                    items-center
+                                    gap-2
+                                    rounded-lg
+                                    border
+                                    border-slate-200
+                                    bg-slate-50
+                                    px-3.5
+                                    py-2
+                                    text-sm
+                                    font-medium
+                                    text-slate-600
+                                "
+                            >
 
-                                <Clock3
-                                    size={18}
-                                />
+                                <Clock3 size={17} />
 
-                                <span className="text-sm font-medium">
-
-                                    {formatDuration(
-                                        todayTask.estimatedMinutes
-                                    )}
-
-                                </span>
+                                {formatDuration(
+                                    todayTask.estimatedMinutes
+                                )}
 
                             </div>
 
@@ -387,28 +709,71 @@ const ActiveMissionCard = ({
 
                         {todayTask.description && (
 
-                            <p className="mt-5 leading-7 text-slate-600">
+                            <div
+                                className="
+                                    mt-5
+                                    rounded-xl
+                                    border
+                                    border-slate-200
+                                    bg-slate-50/70
+                                    p-4
+                                    sm:p-5
+                                "
+                            >
 
-                                {todayTask.description}
+                                <p
+                                    className="
+                                        text-sm
+                                        leading-6
+                                        text-slate-600
+                                        sm:text-base
+                                        sm:leading-7
+                                    "
+                                >
 
-                            </p>
+                                    {todayTask.description}
+
+                                </p>
+
+                            </div>
 
                         )}
 
-                        {/* Topics */}
+                        {/* Checklist */}
 
-                        <div className="mt-8">
+                        <div className="mt-7">
 
-                            <h4 className="mb-4 text-lg font-semibold text-slate-900">
+                            <div className="flex items-center gap-2.5">
 
-                                {isWeeklyReviewDay
-                                    ? "Weekly Review Checklist"
-                                    : "Today's Learning Checklist"
-                                }
+                                <ListChecks
+                                    size={19}
+                                    className="text-slate-500"
+                                />
 
-                            </h4>
+                                <h4
+                                    className="
+                                        font-semibold
+                                        text-slate-900
+                                    "
+                                >
 
-                            <div className="space-y-3">
+                                    {isWeeklyReviewDay
+                                        ? "Weekly Review Checklist"
+                                        : "Today's Learning Checklist"
+                                    }
+
+                                </h4>
+
+                            </div>
+
+                            <div
+                                className="
+                                    mt-4
+                                    grid
+                                    gap-3
+                                    lg:grid-cols-2
+                                "
+                            >
 
                                 {todayTask.topics.map(
                                     (
@@ -418,15 +783,44 @@ const ActiveMissionCard = ({
 
                                         <div
                                             key={index}
-                                            className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                                            className="
+                                                flex
+                                                items-start
+                                                gap-3
+                                                rounded-xl
+                                                border
+                                                border-slate-200
+                                                bg-white
+                                                p-4
+                                            "
                                         >
 
-                                            <BookOpen
-                                                size={18}
-                                                className="mt-1 text-indigo-600"
-                                            />
+                                            <div
+                                                className="
+                                                    mt-0.5
+                                                    flex
+                                                    h-7
+                                                    w-7
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
+                                                    rounded-lg
+                                                    bg-blue-50
+                                                    text-blue-600
+                                                "
+                                            >
 
-                                            <span className="leading-6 text-slate-700">
+                                                <BookOpen size={14} />
+
+                                            </div>
+
+                                            <span
+                                                className="
+                                                    text-sm
+                                                    leading-6
+                                                    text-slate-700
+                                                "
+                                            >
 
                                                 {topic}
 
@@ -443,33 +837,71 @@ const ActiveMissionCard = ({
 
                         {/* Footer */}
 
-                        <div className="mt-10 flex flex-col gap-5 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
+                        <div
+                            className="
+                                mt-8
+                                flex
+                                flex-col
+                                gap-5
+                                border-t
+                                border-slate-200
+                                pt-6
+                                sm:flex-row
+                                sm:items-center
+                                sm:justify-between
+                            "
+                        >
+
+                            {/* Status */}
 
                             <div>
 
-                                <p className="text-sm text-slate-500">
+                                <p
+                                    className="
+                                        text-xs
+                                        font-medium
+                                        uppercase
+                                        tracking-wide
+                                        text-slate-400
+                                    "
+                                >
 
-                                    Status
+                                    Today's Status
 
                                 </p>
 
-                                <p
+                                <div
                                     className={`
-                                        mt-1
+                                        mt-1.5
+                                        flex
+                                        items-center
+                                        gap-2
+                                        text-sm
                                         font-semibold
+
                                         ${isCompleted
-                                            ? "text-green-600"
+                                            ? "text-emerald-600"
                                             : "text-amber-600"
                                         }
                                     `}
                                 >
+
+                                    {isCompleted ? (
+
+                                        <CircleCheckBig size={17} />
+
+                                    ) : (
+
+                                        <Clock3 size={17} />
+
+                                    )}
 
                                     {isCompleted
                                         ? "Completed"
                                         : "Pending"
                                     }
 
-                                </p>
+                                </div>
 
                             </div>
 
@@ -485,23 +917,29 @@ const ActiveMissionCard = ({
                                     }
                                     className="
                                         inline-flex
+                                        w-full
                                         items-center
                                         justify-center
                                         gap-2
                                         rounded-xl
-                                        bg-indigo-600
+                                        bg-blue-600
                                         px-6
                                         py-3
+                                        text-sm
                                         font-semibold
                                         text-white
-                                        transition-all
-                                        hover:bg-indigo-700
+                                        shadow-sm
+                                        transition
+                                        hover:bg-blue-700
+                                        focus:outline-none
+                                        focus:ring-2
+                                        focus:ring-blue-500
+                                        focus:ring-offset-2
+                                        sm:w-auto
                                     "
                                 >
 
-                                    <ClipboardCheck
-                                        size={20}
-                                    />
+                                    <ClipboardCheck size={19} />
 
                                     Start Weekly Review
 
@@ -522,26 +960,32 @@ const ActiveMissionCard = ({
                                     }
                                     className={`
                                         inline-flex
+                                        w-full
                                         items-center
                                         justify-center
                                         gap-2
                                         rounded-xl
                                         px-6
                                         py-3
+                                        text-sm
                                         font-semibold
-                                        transition-all
+                                        shadow-sm
+                                        transition
+                                        focus:outline-none
+                                        focus:ring-2
+                                        focus:ring-offset-2
+                                        sm:w-auto
 
-                                        ${isCompleted ||
-                                            isCompleting
-                                            ? "cursor-not-allowed bg-green-100 text-green-700"
-                                            : "bg-indigo-600 text-white hover:bg-indigo-700"
+                                        ${isCompleted
+                                            ? "cursor-default bg-emerald-50 text-emerald-700 shadow-none"
+                                            : isCompleting
+                                                ? "cursor-not-allowed bg-blue-400 text-white"
+                                                : "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
                                         }
                                     `}
                                 >
 
-                                    <CheckCircle2
-                                        size={20}
-                                    />
+                                    <CheckCircle2 size={19} />
 
                                     {isCompleting
                                         ? "Completing..."

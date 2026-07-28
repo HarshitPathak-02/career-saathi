@@ -10,6 +10,7 @@ import {
     TrendingUp,
     Trophy,
     Zap,
+    Book
 } from "lucide-react";
 
 import {
@@ -216,41 +217,6 @@ export default function WeeklyReportDetailsPage() {
                 pb-16
             "
         >
-
-            {/* -------------------------------------------------------------- */}
-            {/* Back */}
-            {/* -------------------------------------------------------------- */}
-
-            <button
-                type="button"
-                onClick={() =>
-                    navigate(
-                        "/weekly-reports"
-                    )
-                }
-                className="
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    font-medium
-                    text-slate-500
-                    transition
-                    hover:text-slate-900
-                "
-            >
-
-                <ArrowLeft size={17} />
-
-                Weekly Reports
-
-            </button>
-
-
-            {/* -------------------------------------------------------------- */}
-            {/* Header */}
-            {/* -------------------------------------------------------------- */}
-
             <section>
 
                 <div
@@ -1383,15 +1349,13 @@ function BookOpenIcon() {
                 shrink-0
                 items-center
                 justify-center
-                rounded-md
-                bg-indigo-100
                 text-xs
                 font-bold
                 text-indigo-600
             "
         >
 
-            R
+            <Book />
 
         </div>
 

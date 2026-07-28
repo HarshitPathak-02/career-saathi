@@ -1,38 +1,89 @@
-import Textarea from "../TextArea/Textarea";
+import Textarea
+  from "../TextArea/Textarea";
 
-import FormLabel from "./FormLabel";
-import FormError from "./FormError";
+import FormLabel
+  from "./FormLabel";
 
-import { type TextareaProps } from "../TextArea/Textarea.types";
+import FormError
+  from "./FormError";
 
-interface Props extends TextareaProps {
+import {
+  type TextareaProps,
+} from "../TextArea/Textarea.types";
+
+interface FormTextareaProps
+  extends TextareaProps {
+
   label: string;
+
   errorMessage?: string;
+
 }
 
 const FormTextarea = ({
+
   label,
+
   errorMessage,
+
   id,
+
   ...props
-}: Props) => {
+
+}: FormTextareaProps) => {
+
   return (
-    <div className="mb-5">
-      <FormLabel htmlFor={id}>
+
+    <div>
+
+      <FormLabel
+        htmlFor={id}
+      >
+
         {label}
+
       </FormLabel>
 
       <Textarea
+
         id={id}
-        error={!!errorMessage}
+
+        error={
+          !!errorMessage
+        }
+
+        aria-invalid={
+          !!errorMessage
+        }
+
+        aria-describedby={
+          errorMessage && id
+            ? `${id}-error`
+            : undefined
+        }
+
         {...props}
+
       />
 
       <FormError
-        message={errorMessage}
+
+        id={
+          id
+            ? `${id}-error`
+            : undefined
+        }
+
+        message={
+          errorMessage
+        }
+
       />
+
     </div>
+
   );
+
 };
 
 export default FormTextarea;

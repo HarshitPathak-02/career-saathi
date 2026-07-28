@@ -1,81 +1,241 @@
-import { useNavigate } from "react-router-dom";
-import { Compass, Target } from "lucide-react";
+import {
+  Compass,
+  Target,
+} from "lucide-react";
 
-import CareerSetupLayout from "../../../components/layout/CareerSetupLayout";
-import NavigationButtons from "../../../components/ui/NavigationButton/NavigationButtons";
+import {
+  useNavigate,
+} from "react-router-dom";
 
-import SelectionGrid from "../components/SelectionGrid/SelectionGrid";
+import CareerSetupLayout
+  from "../../../components/layout/CareerSetupLayout";
 
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { setCareerDirection } from "../slice/careerSetupSlice";
+import NavigationButtons
+  from "../../../components/ui/NavigationButton/NavigationButtons";
+
+import SelectionGrid
+  from "../components/SelectionGrid/SelectionGrid";
+
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../../app/hooks";
+
+import {
+  setCareerDirection,
+} from "../slice/careerSetupSlice";
+
+
+/*
+|--------------------------------------------------------------------------
+| Career Direction Options
+|--------------------------------------------------------------------------
+*/
 
 const careerDirections = [
+
   {
     id: "known",
-    name: "I Know What To Do",
+
+    name:
+      "I Have a Career Goal",
+
     description:
-      "I already know the career path I want to pursue and just need a structured roadmap.",
-    icon: <Target size={40} className="text-indigo-600" />,
+      "I already know the role or career path I want to pursue and need a structured plan to reach it.",
+
+    icon: (
+      <Target
+        size={32}
+        className="text-indigo-600"
+      />
+    ),
   },
+
   {
     id: "unknown",
-    name: "I Don't Know What To Do",
+
+    name:
+      "I'm Exploring My Options",
+
     description:
-      "AI career guidance will help you discover the best career path.",
-    icon: <Compass size={40} className="text-slate-400" />,
-    badge: "Coming Soon",
-    disabled: true,
+      "I'm not sure which career path is right for me and want guidance based on my interests and strengths.",
+
+    icon: (
+      <Compass
+        size={32}
+        className="text-slate-400"
+      />
+    ),
+
+    badge:
+      "Coming Soon",
+
+    disabled:
+      true,
   },
+
 ] as const;
 
-const CareerDirectionPage = () => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
-  const selectedDirection = useAppSelector(
-    (state) => state.careerSetup.selectedDirection
-  );
+/*
+|--------------------------------------------------------------------------
+| Career Direction Page
+|--------------------------------------------------------------------------
+*/
+
+const CareerDirectionPage = () => {
+
+  const navigate =
+    useNavigate();
+
+  const dispatch =
+    useAppDispatch();
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Career Setup State
+  |--------------------------------------------------------------------------
+  */
+
+  const selectedDirection =
+    useAppSelector(
+      (state) =>
+        state
+          .careerSetup
+          .selectedDirection
+    );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Continue
+  |--------------------------------------------------------------------------
+  */
 
   const handleContinue = () => {
-    if (!selectedDirection) return;
+
+    if (!selectedDirection) {
+      return;
+    }
 
     switch (selectedDirection) {
+
       case "known":
-        navigate("/career-domain");
+
+        navigate(
+          "/career-domain"
+        );
+
         break;
 
       case "unknown":
+
+        /*
+         * Career discovery flow
+         * will be implemented later.
+         */
+
         break;
 
       default:
         break;
+
     }
+
   };
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Select Direction
+  |--------------------------------------------------------------------------
+  */
+
+  const handleSelectDirection = (
+    id: string
+  ) => {
+
+    dispatch(
+      setCareerDirection(
+        id as
+        | "known"
+        | "unknown"
+      )
+    );
+
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | UI
+  |--------------------------------------------------------------------------
+  */
+
   return (
+
     <CareerSetupLayout
+
       currentStep={1}
+
       totalSteps={4}
-      title="Let's understand your career journey"
-      subtitle="Choose the option that best describes your current situation."
+
+      title="Let's Start With Your Career Direction"
+
+      subtitle="
+                Tell us where you currently stand.
+                CareerSaathi will use this to shape
+                the right journey for you.
+            "
+
     >
+
+      {/* Direction Selection */}
+
       <SelectionGrid
-        items={[...careerDirections]}
-        selectedId={selectedDirection}
-        onSelect={(id) =>
-          dispatch(setCareerDirection(id as "known" | "unknown"))
+
+        items={[
+          ...careerDirections,
+        ]}
+
+        selectedId={
+          selectedDirection
         }
+
+        onSelect={
+          handleSelectDirection
+        }
+
       />
 
+
+      {/* Navigation */}
+
       <NavigationButtons
+
         backLabel="Back"
+
         nextLabel="Continue"
-        disableNext={!selectedDirection}
-        onBack={() => navigate("/")}
-        onNext={handleContinue}
+
+        disableNext={
+          !selectedDirection
+        }
+
+        onBack={() =>
+          navigate("/")
+        }
+
+        onNext={
+          handleContinue
+        }
+
       />
+
     </CareerSetupLayout>
+
   );
+
 };
 
 export default CareerDirectionPage;

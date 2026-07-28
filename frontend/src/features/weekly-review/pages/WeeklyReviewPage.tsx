@@ -295,32 +295,6 @@ export default function WeeklyReviewPage() {
 
         <div className="mx-auto max-w-4xl p-6">
 
-            {/* Back */}
-
-            <button
-                type="button"
-                onClick={() =>
-                    navigate(-1)
-                }
-                className="
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    font-medium
-                    text-slate-500
-                    hover:text-slate-900
-                "
-            >
-
-                <ArrowLeft
-                    size={17}
-                />
-
-                Back to Mission
-
-            </button>
-
             {/* Header */}
 
             <div className="mt-6">

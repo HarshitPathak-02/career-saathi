@@ -103,18 +103,6 @@ const InitialAssessmentPage = () => {
     return (
         <div className="min-h-screen bg-slate-50">
             <div className="mx-auto max-w-5xl px-6 py-10">
-                <button
-                    type="button"
-                    onClick={() =>
-                        navigate("/workspace")
-                    }
-                    className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
-                >
-                    <ArrowLeft size={17} />
-
-                    Back to Workspace
-                </button>
-
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                     <div className="mb-8">
                         <span className="text-sm font-semibold text-indigo-600">

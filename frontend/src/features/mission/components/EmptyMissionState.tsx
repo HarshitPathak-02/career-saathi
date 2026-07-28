@@ -1,45 +1,210 @@
-import { Target } from "lucide-react";
+import {
+    ArrowRight,
+    Target,
+} from "lucide-react";
 
-export default function EmptyMissionState() {
+import {
+    useNavigate,
+} from "react-router-dom";
+
+const EmptyMissionState = () => {
+
+    const navigate =
+        useNavigate();
 
     return (
-
-        <div
+        <section
             className="
-                flex
-                flex-col
-                items-center
-                justify-center
-                rounded-xl
+                overflow-hidden
+                rounded-2xl
                 border
-                border-dashed
+                border-slate-200
                 bg-white
-                px-6
-                py-16
-                text-center
+                shadow-sm
             "
         >
 
-            <Target
-                size={52}
-                className="text-slate-400"
-            />
+            <div
+                className="
+                    relative
+                    px-5
+                    py-14
+                    text-center
+                    sm:px-8
+                    sm:py-16
+                "
+            >
 
-            <h2 className="mt-5 text-xl font-semibold">
+                {/* Background Decoration */}
 
-                No Missions Yet
+                <div
+                    className="
+                        pointer-events-none
+                        absolute
+                        left-1/2
+                        top-0
+                        h-56
+                        w-56
+                        -translate-x-1/2
+                        rounded-full
+                        bg-blue-50
+                        blur-3xl
+                    "
+                />
 
-            </h2>
+                <div
+                    className="
+                        relative
+                        mx-auto
+                        max-w-lg
+                    "
+                >
 
-            <p className="mt-2 max-w-md text-sm text-slate-500">
+                    {/* Icon */}
 
-                Your weekly learning missions will appear here once
-                your career journey begins.
+                    <div
+                        className="
+                            mx-auto
+                            flex
+                            h-14
+                            w-14
+                            items-center
+                            justify-center
+                            rounded-2xl
+                            bg-blue-50
+                            text-blue-600
+                        "
+                    >
+                        <Target size={26} />
+                    </div>
 
-            </p>
+                    {/* Content */}
 
-        </div>
+                    <p
+                        className="
+                            mt-5
+                            text-sm
+                            font-semibold
+                            text-blue-600
+                        "
+                    >
+                        Your Mission Journey
+                    </p>
 
+                    <h2
+                        className="
+                            mt-2
+                            text-xl
+                            font-bold
+                            tracking-tight
+                            text-slate-900
+                            sm:text-2xl
+                        "
+                    >
+                        No missions yet
+                    </h2>
+
+                    <p
+                        className="
+                            mx-auto
+                            mt-3
+                            max-w-md
+                            text-sm
+                            leading-6
+                            text-slate-600
+                            sm:text-base
+                            sm:leading-7
+                        "
+                    >
+                        Your weekly learning missions will
+                        appear here once your CareerSaathi
+                        journey begins.
+                    </p>
+
+                    {/* Guidance */}
+
+                    <div
+                        className="
+                            mx-auto
+                            mt-7
+                            max-w-md
+                            rounded-xl
+                            border
+                            border-slate-200
+                            bg-slate-50/70
+                            px-4
+                            py-4
+                            text-left
+                        "
+                    >
+
+                        <p
+                            className="
+                                text-sm
+                                font-semibold
+                                text-slate-900
+                            "
+                        >
+                            What should I do next?
+                        </p>
+
+                        <p
+                            className="
+                                mt-1
+                                text-sm
+                                leading-6
+                                text-slate-600
+                            "
+                        >
+                            Return to your workspace to see
+                            the next step required to start
+                            your learning missions.
+                        </p>
+
+                    </div>
+
+                    {/* Action */}
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/workspace")
+                        }
+                        className="
+                            mt-7
+                            inline-flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-xl
+                            bg-blue-600
+                            px-5
+                            py-3
+                            text-sm
+                            font-semibold
+                            text-white
+                            transition
+                            hover:bg-blue-700
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-blue-500
+                            focus:ring-offset-2
+                        "
+                    >
+                        Go to Workspace
+
+                        <ArrowRight
+                            size={17}
+                        />
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
     );
 
-}
+};
+
+export default EmptyMissionState;

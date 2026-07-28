@@ -10,6 +10,12 @@ const ProtectedLayout = () => {
     (state) => state.auth
   );
 
+  console.log({
+    accessToken,
+    user,
+    isInitialized,
+  });
+
   if (!isInitialized) {
     return <>Loading...</>;
   }

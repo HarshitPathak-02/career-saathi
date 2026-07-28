@@ -4,6 +4,7 @@ import HowItWorksSection from "../components/how-it-works/index";
 import WhyCareerSaathiSection from "../components/why-career-saathi/index";
 import CTASection from "../components/cta/index";
 import Footer from "../components/footer/index";
+import WeeklyInsightsSection from "../components/weekly-insights/WeeklyInsightsSection";
 
 const LandingPage = () => {
   return (
@@ -14,6 +15,7 @@ const LandingPage = () => {
         <HeroSection />
         <HowItWorksSection />
         <WhyCareerSaathiSection />
+        <WeeklyInsightsSection />
         <CTASection />
       </main>
 

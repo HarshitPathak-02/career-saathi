@@ -5,6 +5,8 @@ import {
 
 import Button from "../../../components/ui/Button/Button";
 
+import RoadmapGeneratingState from "../../roadmap/components/RoadmapGeneratingState";
+
 interface RoadmapGenerationCardProps {
     onGenerate: () => void;
 
@@ -15,17 +17,55 @@ const GenerateRoadmapCard = ({
     onGenerate,
     isGenerating = false,
 }: RoadmapGenerationCardProps) => {
+
+    if (isGenerating) {
+        return <RoadmapGeneratingState />;
+    }
+
     return (
-        <section className="rounded-xl border border-indigo-100 bg-white p-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <section
+            className="
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-8
+            "
+        >
+            <div
+                className="
+                    flex
+                    h-12
+                    w-12
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-blue-50
+                    text-blue-600
+                "
+            >
                 <Map size={24} />
             </div>
 
-            <h2 className="mt-5 text-xl font-semibold text-slate-900">
+            <h2
+                className="
+                    mt-5
+                    text-xl
+                    font-semibold
+                    text-slate-900
+                "
+            >
                 Your assessment is complete
             </h2>
 
-            <p className="mt-2 max-w-2xl leading-7 text-slate-600">
+            <p
+                className="
+                    mt-2
+                    max-w-2xl
+                    leading-7
+                    text-slate-600
+                "
+            >
                 CareerSaathi now understands your
                 current skills and target role. Your
                 personalized roadmap will prioritize
@@ -33,19 +73,45 @@ const GenerateRoadmapCard = ({
                 already know.
             </p>
 
-            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div
+                className="
+                    mt-5
+                    rounded-xl
+                    border
+                    border-slate-200
+                    bg-slate-50
+                    p-4
+                "
+            >
                 <div className="flex items-start gap-3">
                     <Sparkles
                         size={19}
-                        className="mt-0.5 shrink-0 text-indigo-600"
+                        className="
+                            mt-0.5
+                            shrink-0
+                            text-blue-600
+                        "
                     />
 
                     <div>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p
+                            className="
+                                text-sm
+                                font-medium
+                                text-slate-900
+                            "
+                        >
                             Personalized for your journey
                         </p>
 
-                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                        <p
+                            className="
+                                mt-1
+                                text-sm
+                                leading-6
+                                text-slate-600
+                            "
+                        >
                             We'll use your target role,
                             available study time, required
                             skills and initial assessment
@@ -58,8 +124,6 @@ const GenerateRoadmapCard = ({
 
             <div className="mt-6">
                 <Button
-                    loading={isGenerating}
-                    disabled={isGenerating}
                     onClick={onGenerate}
                 >
                     Generate My Roadmap

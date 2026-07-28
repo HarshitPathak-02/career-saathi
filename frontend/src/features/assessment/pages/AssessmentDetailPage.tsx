@@ -40,56 +40,99 @@ const AssessmentDetailPage = () => {
     );
 
     if (isLoading) {
+
         return (
-            <div className="flex min-h-[500px] items-center justify-center">
-                <p className="text-slate-600">
-                    Loading assessment details...
-                </p>
-            </div>
+            <AssessmentDetailLoading />
         );
+
     }
 
     if (
         isError ||
         !data?.data
     ) {
+
         return (
-            <div className="flex min-h-[500px] items-center justify-center">
 
-                <div className="text-center">
+            <div className="min-h-screen bg-slate-50">
 
-                    <h2 className="text-lg font-semibold text-slate-900">
-                        Unable to load assessment
-                    </h2>
+                <div
+                    className="
+                        flex
+                        min-h-[600px]
+                        items-center
+                        justify-center
+                        px-4
+                        sm:px-6
+                    "
+                >
 
-                    <p className="mt-2 text-sm text-slate-600">
-                        Assessment details could not
-                        be loaded.
-                    </p>
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            refetch()
-                        }
+                    <div
                         className="
-                            mt-5
-                            rounded-lg
-                            bg-indigo-600
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-medium
-                            text-white
+                            w-full
+                            max-w-md
+                            rounded-2xl
+                            border
+                            border-slate-200
+                            bg-white
+                            p-6
+                            text-center
+                            shadow-sm
+                            sm:p-8
                         "
                     >
-                        Retry
-                    </button>
+
+                        <h2
+                            className="
+                                text-xl
+                                font-bold
+                                text-slate-900
+                            "
+                        >
+                            Unable to load assessment
+                        </h2>
+
+                        <p
+                            className="
+                                mt-2
+                                text-sm
+                                leading-6
+                                text-slate-600
+                            "
+                        >
+                            Assessment details could not
+                            be loaded. Please try again.
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                refetch()
+                            }
+                            className="
+                                mt-6
+                                rounded-xl
+                                bg-blue-600
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-semibold
+                                text-white
+                                transition
+                                hover:bg-blue-700
+                            "
+                        >
+                            Try Again
+                        </button>
+
+                    </div>
 
                 </div>
 
             </div>
+
         );
+
     }
 
     const {
@@ -113,219 +156,515 @@ const AssessmentDetailPage = () => {
             : null;
 
     return (
-        <div className="mx-auto max-w-5xl px-6 py-10">
 
-            <button
-                type="button"
-                onClick={() =>
-                    navigate("/assessments")
-                }
-                className="
-                    mb-6
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    font-medium
-                    text-slate-600
-                    transition
-                    hover:text-slate-900
-                "
-            >
-                <ArrowLeft
-                    size={17}
-                />
-
-                Back to Assessments
-            </button>
+        <div className="min-h-screen bg-slate-50">
 
             <div
                 className="
-                    rounded-2xl
-                    border
-                    border-slate-200
-                    bg-white
-                    p-6
-                    md:p-8
+                    mx-auto
+                    max-w-6xl
+                    px-4
+                    py-8
+                    sm:px-6
+                    sm:py-10
+                    lg:px-8
                 "
             >
 
-                <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
+                {/* Assessment Header */}
 
-                    <div className="flex items-start gap-4">
+                <section
+                    className="
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-slate-200
+                        bg-white
+                        shadow-sm
+                    "
+                >
+
+                    <div
+                        className="
+                            relative
+                            overflow-hidden
+                            p-5
+                            sm:p-7
+                            lg:p-8
+                        "
+                    >
 
                         <div
                             className="
+                                pointer-events-none
+                                absolute
+                                -right-16
+                                -top-20
+                                h-56
+                                w-56
+                                rounded-full
+                                bg-blue-50
+                                blur-3xl
+                            "
+                        />
+
+                        <div
+                            className="
+                                relative
                                 flex
-                                h-12
-                                w-12
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                bg-indigo-50
-                                text-indigo-600
+                                flex-col
+                                gap-5
+                                sm:flex-row
+                                sm:items-start
+                                sm:justify-between
                             "
                         >
-                            <ClipboardCheck
-                                size={24}
-                            />
-                        </div>
 
-                        <div>
+                            <div
+                                className="
+                                    flex
+                                    min-w-0
+                                    items-start
+                                    gap-4
+                                "
+                            >
 
-                            <span className="text-sm font-semibold text-indigo-600">
-                                {assessment.type ===
-                                    "INITIAL"
-                                    ? "Initial Assessment"
-                                    : `Week ${assessment.weekNumber} Assessment`}
+                                <div
+                                    className="
+                                        flex
+                                        h-12
+                                        w-12
+                                        shrink-0
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        bg-blue-50
+                                        text-blue-600
+                                    "
+                                >
+
+                                    <ClipboardCheck
+                                        size={23}
+                                    />
+
+                                </div>
+
+                                <div className="min-w-0">
+
+                                    <span
+                                        className="
+                                            text-xs
+                                            font-semibold
+                                            uppercase
+                                            tracking-[0.12em]
+                                            text-blue-600
+                                        "
+                                    >
+
+                                        {assessment.type ===
+                                            "INITIAL"
+                                            ? "Initial Assessment"
+                                            : `Week ${assessment.weekNumber} Assessment`
+                                        }
+
+                                    </span>
+
+                                    <h1
+                                        className="
+                                            mt-1
+                                            text-2xl
+                                            font-bold
+                                            tracking-tight
+                                            text-slate-900
+                                            sm:text-3xl
+                                        "
+                                    >
+                                        {assessment.title}
+                                    </h1>
+
+                                    {assessment.description && (
+
+                                        <p
+                                            className="
+                                                mt-3
+                                                max-w-2xl
+                                                text-sm
+                                                leading-6
+                                                text-slate-600
+                                                sm:text-base
+                                                sm:leading-7
+                                            "
+                                        >
+                                            {assessment.description}
+                                        </p>
+
+                                    )}
+
+                                    {completedDate && (
+
+                                        <p
+                                            className="
+                                                mt-4
+                                                text-xs
+                                                font-medium
+                                                text-slate-400
+                                            "
+                                        >
+                                            Completed {completedDate}
+                                        </p>
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                            <span
+                                className="
+                                    w-fit
+                                    shrink-0
+                                    rounded-full
+                                    bg-emerald-50
+                                    px-3
+                                    py-1.5
+                                    text-xs
+                                    font-semibold
+                                    uppercase
+                                    tracking-wide
+                                    text-emerald-700
+                                "
+                            >
+                                {assessment.status}
                             </span>
 
-                            <h1 className="mt-1 text-2xl font-bold text-slate-900">
-                                {assessment.title}
-                            </h1>
-
-                            {assessment.description && (
-                                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                                    {
-                                        assessment.description
-                                    }
-                                </p>
-                            )}
-
-                            {completedDate && (
-                                <p className="mt-3 text-xs text-slate-500">
-                                    Completed{" "}
-                                    {completedDate}
-                                </p>
-                            )}
-
                         </div>
 
                     </div>
 
-                    <span
-                        className="
-                            self-start
-                            rounded-full
-                            bg-emerald-50
-                            px-3
-                            py-1.5
-                            text-xs
-                            font-semibold
-                            text-emerald-700
-                        "
-                    >
-                        {assessment.status}
-                    </span>
+                </section>
 
-                </div>
-
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {/* Summary */}
 
                 <div
                     className="
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        p-5
+                        mt-5
+                        grid
+                        gap-4
+                        sm:grid-cols-2
                     "
                 >
-                    <div className="flex items-center gap-3">
 
-                        <BarChart3
-                            size={20}
-                            className="text-indigo-600"
-                        />
+                    <SummaryCard
+                        icon={BarChart3}
+                        label="Average Score"
+                        value={`${summary.averagePercentage}%`}
+                    />
 
-                        <p className="text-sm font-medium text-slate-600">
-                            Average Score
+                    <SummaryCard
+                        icon={ClipboardCheck}
+                        label="Skills Assessed"
+                        value={`${summary.totalSkills}`}
+                    />
+
+                </div>
+
+                {/* Skill Results */}
+
+                <section className="mt-8">
+
+                    <div>
+
+                        <h2
+                            className="
+                                text-xl
+                                font-bold
+                                text-slate-900
+                            "
+                        >
+                            Skill Results
+                        </h2>
+
+                        <p
+                            className="
+                                mt-1
+                                text-sm
+                                leading-6
+                                text-slate-500
+                            "
+                        >
+                            See how you performed across
+                            every skill included in this
+                            assessment.
                         </p>
 
                     </div>
 
-                    <p className="mt-3 text-3xl font-bold text-slate-900">
-                        {summary.averagePercentage}%
-                    </p>
+                    {skills.length === 0 ? (
 
-                </div>
+                        <div
+                            className="
+                                mt-5
+                                rounded-2xl
+                                border
+                                border-slate-200
+                                bg-white
+                                p-8
+                                text-center
+                                text-sm
+                                text-slate-500
+                            "
+                        >
+                            No skill results are available
+                            for this assessment.
+                        </div>
 
-                <div
-                    className="
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        p-5
-                    "
-                >
-                    <div className="flex items-center gap-3">
+                    ) : (
 
-                        <ClipboardCheck
-                            size={20}
-                            className="text-indigo-600"
-                        />
+                        <div
+                            className="
+                                mt-5
+                                grid
+                                gap-4
+                                lg:grid-cols-2
+                            "
+                        >
 
-                        <p className="text-sm font-medium text-slate-600">
-                            Skills Assessed
-                        </p>
+                            {skills.map(
+                                (skill) => (
 
-                    </div>
+                                    <AssessmentSkillResultCard
+                                        key={
+                                            skill.id
+                                        }
+                                        skill={
+                                            skill
+                                        }
+                                    />
 
-                    <p className="mt-3 text-3xl font-bold text-slate-900">
-                        {summary.totalSkills}
-                    </p>
+                                )
+                            )}
 
-                </div>
+                        </div>
 
-            </div>
+                    )}
 
-            <div className="mt-8">
-
-                <div className="mb-4">
-                    <h2 className="text-lg font-semibold text-slate-900">
-                        Skill Results
-                    </h2>
-
-                    <p className="mt-1 text-sm text-slate-600">
-                        Detailed results for every
-                        skill included in this assessment.
-                    </p>
-                </div>
-
-                {skills.length === 0 ? (
-
-                    <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-600">
-                        No skill results are available
-                        for this assessment.
-                    </div>
-
-                ) : (
-
-                    <div className="space-y-4">
-                        {skills.map(
-                            (skill) => (
-                                <AssessmentSkillResultCard
-                                    key={
-                                        skill.id
-                                    }
-                                    skill={
-                                        skill
-                                    }
-                                />
-                            )
-                        )}
-                    </div>
-
-                )}
+                </section>
 
             </div>
 
         </div>
+
     );
+
+};
+
+interface SummaryCardProps {
+
+    icon:
+    React.ComponentType<{
+        size?: number;
+        className?: string;
+    }>;
+
+    label: string;
+
+    value: string;
+
+}
+
+const SummaryCard = ({
+
+    icon: Icon,
+
+    label,
+
+    value,
+
+}: SummaryCardProps) => {
+
+    return (
+
+        <div
+            className="
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                shadow-sm
+            "
+        >
+
+            <div
+                className="
+                    flex
+                    items-center
+                    gap-3
+                "
+            >
+
+                <div
+                    className="
+                        flex
+                        h-9
+                        w-9
+                        items-center
+                        justify-center
+                        rounded-lg
+                        bg-blue-50
+                        text-blue-600
+                    "
+                >
+
+                    <Icon size={18} />
+
+                </div>
+
+                <p
+                    className="
+                        text-sm
+                        font-medium
+                        text-slate-500
+                    "
+                >
+                    {label}
+                </p>
+
+            </div>
+
+            <p
+                className="
+                    mt-4
+                    text-3xl
+                    font-bold
+                    tracking-tight
+                    text-slate-900
+                "
+            >
+                {value}
+            </p>
+
+        </div>
+
+    );
+
+};
+
+const AssessmentDetailLoading = () => {
+
+    return (
+
+        <div className="min-h-screen bg-slate-50">
+
+            <div
+                className="
+                    mx-auto
+                    max-w-6xl
+                    px-4
+                    py-8
+                    sm:px-6
+                    sm:py-10
+                    lg:px-8
+                "
+            >
+
+                <div
+                    className="
+                        h-5
+                        w-40
+                        animate-pulse
+                        rounded
+                        bg-slate-200
+                    "
+                />
+
+                <div
+                    className="
+                        mt-6
+                        h-60
+                        animate-pulse
+                        rounded-2xl
+                        border
+                        border-slate-200
+                        bg-white
+                    "
+                />
+
+                <div
+                    className="
+                        mt-5
+                        grid
+                        gap-4
+                        sm:grid-cols-2
+                    "
+                >
+
+                    {[1, 2].map(
+                        (item) => (
+
+                            <div
+                                key={item}
+                                className="
+                                    h-32
+                                    animate-pulse
+                                    rounded-2xl
+                                    border
+                                    border-slate-200
+                                    bg-white
+                                "
+                            />
+
+                        )
+                    )}
+
+                </div>
+
+                <div
+                    className="
+                        mt-8
+                        h-7
+                        w-40
+                        animate-pulse
+                        rounded
+                        bg-slate-200
+                    "
+                />
+
+                <div
+                    className="
+                        mt-5
+                        grid
+                        gap-4
+                        lg:grid-cols-2
+                    "
+                >
+
+                    {[1, 2, 3, 4].map(
+                        (item) => (
+
+                            <div
+                                key={item}
+                                className="
+                                    h-56
+                                    animate-pulse
+                                    rounded-2xl
+                                    border
+                                    border-slate-200
+                                    bg-white
+                                "
+                            />
+
+                        )
+                    )}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
 };
 
 export default AssessmentDetailPage;

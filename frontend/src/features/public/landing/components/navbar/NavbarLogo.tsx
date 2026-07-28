@@ -1,16 +1,29 @@
-import { Link } from "react-router-dom";
-import { GraduationCap } from "lucide-react";
+import {
+  Link,
+} from "react-router-dom";
+
+import logo from "../../../../../assets/logo.png"
 
 const NavbarLogo = () => {
-  return (
-    <Link to="/" className="flex items-center gap-2">
-      <GraduationCap className="h-8 w-8 text-blue-600" />
 
-      <span className="text-xl font-bold text-slate-900">
-        CareerSaathi
-      </span>
+  return (
+
+    <Link
+      to="/"
+      className="
+                group
+                flex
+                items-center
+                gap-3
+            "
+    >
+
+      <img src={logo} alt="CareerSaathi Logo" />
+
     </Link>
+
   );
+
 };
 
 export default NavbarLogo;

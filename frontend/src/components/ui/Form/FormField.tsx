@@ -1,38 +1,85 @@
 import Input from "../Input/Input";
 
 import FormLabel from "./FormLabel";
-
 import FormError from "./FormError";
 
-import { type InputProps } from "../Input/Input.types";
+import {
+  type InputProps,
+} from "../Input/Input.types";
 
-interface Props extends InputProps {
+interface FormFieldProps
+  extends InputProps {
+
   label: string;
 
   errorMessage?: string;
+
 }
 
 const FormField = ({
+
   label,
+
   errorMessage,
+
   id,
+
   ...props
-}: Props) => {
+
+}: FormFieldProps) => {
+
   return (
-    <div className="mb-5">
-      <FormLabel htmlFor={id}>
+
+    <div>
+
+      <FormLabel
+        htmlFor={id}
+      >
+
         {label}
+
       </FormLabel>
 
       <Input
+
         id={id}
-        error={!!errorMessage}
+
+        error={
+          !!errorMessage
+        }
+
+        aria-invalid={
+          !!errorMessage
+        }
+
+        aria-describedby={
+          errorMessage && id
+            ? `${id}-error`
+            : undefined
+        }
+
         {...props}
+
       />
 
-      <FormError message={errorMessage} />
+      <FormError
+
+        id={
+          id
+            ? `${id}-error`
+            : undefined
+        }
+
+        message={
+          errorMessage
+        }
+
+      />
+
     </div>
+
   );
+
 };
 
 export default FormField;

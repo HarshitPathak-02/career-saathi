@@ -1,21 +1,43 @@
-import { type LabelHTMLAttributes } from "react";
+import {
+  type LabelHTMLAttributes,
+} from "react";
 
-interface Props
-  extends LabelHTMLAttributes<HTMLLabelElement> {}
+interface FormLabelProps
+  extends LabelHTMLAttributes<HTMLLabelElement> { }
 
 const FormLabel = ({
+
   children,
+
   className = "",
+
   ...props
-}: Props) => {
+
+}: FormLabelProps) => {
+
   return (
+
     <label
-      className={`block mb-2 text-sm font-medium ${className}`}
+
+      className={`
+                mb-2
+                block
+                text-sm
+                font-medium
+                text-slate-700
+                ${className}
+            `}
+
       {...props}
+
     >
+
       {children}
+
     </label>
+
   );
+
 };
 
 export default FormLabel;

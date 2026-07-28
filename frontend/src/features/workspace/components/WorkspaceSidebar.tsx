@@ -1,60 +1,104 @@
 import {
+    BarChart3,
     ClipboardCheck,
     FileBarChart,
+    LayoutDashboard,
     Map,
     Settings,
     Target,
     User,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     useLocation,
     useNavigate,
 } from "react-router-dom";
+import SettingsPopover from "../../settings/components/SettingsPopover";
+import { useLogoutMutation } from "../../auth/api/authApi";
+import LogoutModal from "../../settings/components/LogoutConfirmationModal";
+import { logout as logoutAction } from '../../auth/slice/authSlice'
+import { useDispatch } from "react-redux";
+import logo from '../../../assets/logo.png'
+
+interface WorkspaceSidebarProps {
+
+    mobileOpen: boolean;
+
+    onMobileClose: () => void;
+
+}
 
 interface SidebarItem {
+
     label: string;
 
-    icon: React.ReactNode;
+    icon:
+    React.ComponentType<{
+        size?: number;
+        className?: string;
+    }>;
 
     path?: string;
 
     disabled?: boolean;
+
+    badge?: string;
+
 }
 
-const sidebarItems: SidebarItem[] = [
-    {
-        label: "Missions",
-        icon: <Target size={20} />,
-        path: "/missions",
-    },
+const sidebarItems:
+    SidebarItem[] = [
 
-    {
-        label: "Roadmap",
-        icon: <Map size={20} />,
-        path: "/roadmap",
-    },
+        {
+            label: "Workspace",
+            icon: LayoutDashboard,
+            path: "/workspace",
+        },
 
-    {
-        label: "Assessments",
-        icon: <ClipboardCheck size={20} />,
-        path: "/assessments",
-    },
+        {
+            label: "Missions",
+            icon: Target,
+            path: "/missions",
+        },
 
-    {
-        label: "Weekly Reports",
-        icon: <FileBarChart size={20} />,
-        path: '/weekly-reports'
-    },
+        {
+            label: "Roadmap",
+            icon: Map,
+            disabled: false,
+            path: "/roadmap",
+        },
 
-    {
-        label: "Monthly Reports",
-        icon: <FileBarChart size={20} />,
-        disabled: true,
-    },
-];
+        {
+            label: "Assessments",
+            icon: ClipboardCheck,
+            disabled: false,
+            path: "/assessments",
+        },
 
-const WorkspaceSidebar = () => {
+        {
+            label: "Weekly Reports",
+            icon: FileBarChart,
+            disabled: false,
+            path: "/weekly-reports",
+        },
+
+        {
+            label: "Monthly Reports",
+            icon: BarChart3,
+            disabled: true,
+            badge: "Soon",
+        },
+
+    ];
+
+const WorkspaceSidebar = ({
+
+    mobileOpen,
+
+    onMobileClose,
+
+}: WorkspaceSidebarProps) => {
 
     const navigate =
         useNavigate();
@@ -62,146 +106,477 @@ const WorkspaceSidebar = () => {
     const location =
         useLocation();
 
-    return (
-        <aside
+    const dispatch = useDispatch();
+
+    const [showSettings, setShowSettings] =
+        useState(false);
+
+    const [showLogoutModal, setShowLogoutModal] =
+        useState(false);
+
+    const [
+        logout,
+        {
+            isLoading: isLoggingOut,
+        },
+    ] = useLogoutMutation();
+
+
+    const settingsRef =
+        useRef<HTMLDivElement>(null);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Navigation
+    |--------------------------------------------------------------------------
+    */
+
+    const handleNavigate = (
+        path?: string
+    ) => {
+
+        if (!path) {
+            return;
+        }
+
+        navigate(path);
+
+        onMobileClose();
+
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout().unwrap();
+
+            console.log("Logout API completed");
+
+            dispatch(logoutAction());
+
+            console.log("After logout action");
+
+            navigate("/login", { replace: true });
+
+            console.log("Navigate called");
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            const target = event.target as HTMLElement;
+            if (!target.closest("[data-settings-menu]")) {
+                setShowSettings(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sidebar Content
+    |--------------------------------------------------------------------------
+    */
+
+    const sidebarContent = (
+
+        <div
+            data-settings-menu
             className="
                 flex
-                h-screen
-                w-64
+                h-full
                 flex-col
-                border-r
-                border-slate-200
                 bg-white
             "
         >
 
-            <div className="border-b px-6 py-5">
+            {/* Brand */}
+
+            <div
+                className="
+                    flex
+                    h-18
+                    shrink-0
+                    items-center
+                    justify-between
+                    border-b
+                    border-slate-200
+                    px-5
+                    mt-9
+                "
+            >
+                <img src={logo} alt="CareerSaathi LogoF" />
+
+            </div>
+
+            {/* Navigation */}
+
+            <div
+                className="
+                    flex-1
+                    overflow-y-auto
+                    px-3
+                    py-10
+                "
+            >
+
+                <p
+                    className="
+                        px-3
+                        text-xs
+                        font-semibold
+                        uppercase
+                        tracking-[0.12em]
+                        text-slate-400
+                    "
+                >
+                    Your Journey
+                </p>
+
+                <nav
+                    className="
+                        mt-3
+                        space-y-1
+                    "
+                >
+
+                    {sidebarItems.map(
+                        (item) => {
+
+                            const Icon =
+                                item.icon;
+
+                            const isActive =
+                                !!item.path &&
+                                (
+                                    location.pathname ===
+                                    item.path ||
+
+                                    (
+                                        item.path !==
+                                        "/workspace" &&
+
+                                        location.pathname
+                                            .startsWith(
+                                                `${item.path}/`
+                                            )
+                                    )
+                                );
+
+                            return (
+
+                                <button
+                                    key={
+                                        item.label
+                                    }
+                                    type="button"
+                                    disabled={
+                                        item.disabled
+                                    }
+                                    onClick={() =>
+                                        handleNavigate(
+                                            item.path
+                                        )
+                                    }
+                                    className={`
+                                        relative
+                                        group
+                                        flex
+                                        w-full
+                                        items-center
+                                        gap-3
+                                        px-3
+                                        py-2.5
+                                        text-left
+                                        text-sm
+                                        font-medium
+                                        transition-colors
+                                        duration-200
+
+                                        ${isActive
+                                            ? `
+                                                    text-blue-600
+                                                `
+                                            : `
+                                                    text-slate-600
+                                                    hover:text-slate-900
+                                                `
+                                        }
+                                    `}
+                                >
+
+                                    {isActive && (
+
+                                        <span
+                                            className="
+                                                absolute
+                                                left-0
+                                                top-1/2
+                                                h-6
+                                                w-1
+                                                -translate-y-1/2
+                                                rounded-r-full
+                                                bg-blue-600
+                                            "
+                                        />
+
+                                    )}
+
+                                    <Icon
+                                        size={19}
+                                        className={
+                                            isActive
+                                                ? "text-blue-600"
+                                                : "text-slate-400 transition group-hover:text-slate-600"
+                                        }
+                                    />
+
+                                    <span
+                                        className="
+                                            min-w-0
+                                            flex-1
+                                        "
+                                    >
+                                        {item.label}
+                                    </span>
+
+                                    {item.badge && (
+
+                                        <span
+                                            className="
+                                                rounded-full
+                                                bg-slate-100
+                                                px-2
+                                                py-0.5
+                                                text-[10px]
+                                                font-semibold
+                                                uppercase
+                                                tracking-wide
+                                                text-slate-500
+                                            "
+                                        >
+                                            {item.badge}
+                                        </span>
+
+                                    )}
+
+                                </button>
+
+                            );
+
+                        }
+                    )}
+
+                </nav>
+
+            </div>
+
+            {/* Bottom */}
+
+            <div
+                ref={settingsRef}
+                className="
+        relative
+        shrink-0
+        border-t
+        border-slate-200
+        p-3
+    "
+            >
+
+                <button
+                    type="button"
+                    className="
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        px-3
+                        py-2.5
+                        text-sm
+                        font-medium
+                        text-slate-600
+                        transition-colors
+                        duration-200
+                        hover:text-slate-900
+                    "
+                    onClick={() => navigate('/profile')}
+                >
+
+                    <User
+                        size={19}
+                        className="text-slate-400"
+                    />
+
+                    Profile
+
+                </button>
 
                 <button
                     type="button"
                     onClick={() =>
-                        navigate("/workspace")
+                        setShowSettings(
+                            previous => !previous
+                        )
                     }
-                    className="text-xl font-bold text-indigo-600"
-                >
-                    CareerSaathi
-                </button>
-
-            </div>
-
-            <nav className="flex-1 space-y-2 p-4">
-
-                {sidebarItems.map(
-                    (item) => {
-
-                        const isActive =
-                            !!item.path &&
-                            (
-                                location.pathname ===
-                                item.path ||
-                                location.pathname.startsWith(
-                                    `${item.path}/`
-                                )
-                            );
-
-                        return (
-                            <button
-                                key={
-                                    item.label
-                                }
-                                type="button"
-                                disabled={
-                                    item.disabled
-                                }
-                                onClick={() => {
-                                    if (
-                                        item.path
-                                    ) {
-                                        navigate(
-                                            item.path
-                                        );
-                                    }
-                                }}
-                                className={`
-                                    flex
-                                    w-full
-                                    items-center
-                                    gap-3
-                                    rounded-lg
-                                    px-4
-                                    py-3
-                                    text-left
-                                    text-sm
-                                    font-medium
-                                    transition
-
-                                    ${isActive
-                                        ? "bg-indigo-50 text-indigo-700"
-                                        : "text-slate-700 hover:bg-slate-100"
-                                    }
-
-                                    disabled:cursor-not-allowed
-                                    disabled:opacity-40
-                                `}
-                            >
-                                {item.icon}
-
-                                <span>
-                                    {item.label}
-                                </span>
-                            </button>
-                        );
-                    }
-                )}
-
-            </nav>
-
-            <div className="space-y-2 border-t p-4">
-
-                <button
-                    type="button"
                     className="
-                        flex
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-lg
-                        px-4
-                        py-3
-                        text-sm
-                        text-slate-700
-                        hover:bg-slate-100
-                    "
+        mt-1
+        flex
+        w-full
+        items-center
+        gap-3
+        rounded-xl
+        px-3
+        py-2.5
+        text-sm
+        font-medium
+        text-slate-600
+        transition
+        hover:bg-slate-50
+        hover:text-slate-900
+    "
                 >
-                    <User size={20} />
 
-                    Profile
-                </button>
-
-                <button
-                    type="button"
-                    className="
-                        flex
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-lg
-                        px-4
-                        py-3
-                        text-sm
-                        text-slate-700
-                        hover:bg-slate-100
-                    "
-                >
-                    <Settings size={20} />
+                    <Settings
+                        size={19}
+                        className="text-slate-400"
+                    />
 
                     Settings
+
                 </button>
+                {showSettings && (
+
+                    <SettingsPopover
+
+                        onLogout={() => {
+
+                            console.log("Logout clicked");
+
+                            setShowSettings(false);
+
+                            setShowLogoutModal(true);
+
+                        }}
+
+
+                    />
+
+                )}
+
+            </div>
+            <LogoutModal
+
+                open={showLogoutModal}
+
+                loading={isLoggingOut}
+
+                onClose={() =>
+                    setShowLogoutModal(false)
+                }
+
+                onConfirm={handleLogout}
+
+            />
+
+        </div>
+
+    );
+
+    return (
+
+        <>
+
+            {/* Desktop */}
+
+            <aside
+                className="
+                    fixed
+                    inset-y-0
+                    left-0
+                    z-40
+                    hidden
+                    w-64
+                    border-r
+                    border-slate-200
+                    lg:block
+                "
+            >
+                {sidebarContent}
+            </aside>
+
+            {/* Mobile / Tablet Overlay */}
+
+            <div
+                className={`
+                    fixed
+                    inset-0
+                    z-50
+                    lg:hidden
+
+                    ${mobileOpen
+                        ? "pointer-events-auto"
+                        : "pointer-events-none"
+                    }
+                `}
+                aria-hidden={
+                    !mobileOpen
+                }
+            >
+
+                <div
+                    onClick={
+                        onMobileClose
+                    }
+                    className={`
+                        absolute
+                        inset-0
+                        bg-slate-950/40
+                        backdrop-blur-[2px]
+                        transition-opacity
+                        duration-300
+
+                        ${mobileOpen
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }
+                    `}
+                />
+
+                <aside
+                    className={`
+                        absolute
+                        inset-y-0
+                        left-0
+                        w-[85%]
+                        max-w-72
+                        border-r
+                        border-slate-200
+                        bg-white
+                        shadow-2xl
+                        transition-transform
+                        duration-300
+                        ease-out
+
+                        ${mobileOpen
+                            ? "translate-x-0"
+                            : "-translate-x-full"
+                        }
+                    `}
+                >
+                    {sidebarContent}
+                </aside>
 
             </div>
 
-        </aside>
+        </>
+
     );
+
 };
 
 export default WorkspaceSidebar;

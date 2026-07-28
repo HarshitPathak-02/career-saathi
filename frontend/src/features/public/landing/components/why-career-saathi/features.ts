@@ -1,39 +1,78 @@
 import {
+  BarChart3,
+  ClipboardCheck,
   Map,
   Target,
-  BarChart3,
-  Briefcase,
 } from "lucide-react";
 
 export interface Feature {
+
   title: string;
+
   description: string;
+
+  highlight: string;
+
   icon: React.ElementType;
+
 }
 
 export const FEATURES: Feature[] = [
+
   {
-    title: "AI Personalized Roadmap",
+    title:
+      "A Roadmap Built Around You",
+
+    highlight:
+      "Personalized direction",
+
     description:
-      "No generic tutorials. CareerSaathi creates a roadmap based on your target role, current skills, and timeline.",
-    icon: Map,
+      "Your roadmap is shaped around your target role, current skills, available study time, and career timeline — not a generic list of technologies.",
+
+    icon:
+      Map,
   },
+
   {
-    title: "Daily Action Plan",
+    title:
+      "Focused Weekly Execution",
+
+    highlight:
+      "Know what to work on",
+
     description:
-      "Know exactly what to learn every day instead of wasting time deciding your next step.",
-    icon: Target,
+      "CareerSaathi turns your roadmap into weekly missions and structured daily tasks so you can spend less time deciding and more time making progress.",
+
+    icon:
+      Target,
   },
+
   {
-    title: "Track Your Progress",
+    title:
+      "Assessment With Reflection",
+
+    highlight:
+      "Measure more than scores",
+
     description:
-      "Weekly reports and milestones help you stay consistent and measure your improvement.",
-    icon: BarChart3,
+      "Every week combines skill assessment with your own reflection on confidence, difficulty, motivation, and challenges to understand how the week actually went.",
+
+    icon:
+      ClipboardCheck,
   },
+
   {
-    title: "Interview Ready",
+    title:
+      "Progress That Shapes What Comes Next",
+
+    highlight:
+      "Continuously adaptive",
+
     description:
-      "Prepare with company-focused questions, technical concepts, and practical coding challenges.",
-    icon: Briefcase,
+      "Your performance and weekly insights influence upcoming missions, helping CareerSaathi reinforce weaker areas while continuing your roadmap forward.",
+
+    icon:
+      BarChart3,
   },
+
 ];

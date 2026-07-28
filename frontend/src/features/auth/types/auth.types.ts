@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: "USER" | "ADMIN";
   emailVerified: boolean;
+  phoneNumber?: string
 }
 
 export interface AuthResponse {
@@ -26,4 +27,10 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface UpdateProfileDto {
+  fullName: string;
+  email: string;
+  phoneNumber?: string | null;
 }

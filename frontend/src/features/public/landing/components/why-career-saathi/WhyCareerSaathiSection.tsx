@@ -1,45 +1,225 @@
-import FeatureCard from "./FeatureCard";
-import { FEATURES } from "./features";
+import {
+  CheckCircle2,
+} from "lucide-react";
+
+import FeatureCard
+  from "./FeatureCard";
+
+import {
+  FEATURES,
+} from "./features";
 
 const WhyCareerSaathiSection = () => {
+
   return (
-    <section className="bg-white py-24">
-      <div className="mx-auto max-w-7xl px-6">
 
-        <div className="mx-auto max-w-3xl text-center">
+    <section
+      id="product"
+      className="
+                relative
+                bg-white
+                py-24
+                lg:py-32
+            "
+    >
 
-          <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
-            Why CareerSaathi?
-          </span>
+      <div
+        className="
+                    mx-auto
+                    max-w-360
+                    px-6
+                    xl:px-10
+                "
+      >
 
-          <h2 className="mt-6 text-4xl font-bold text-slate-900">
-            Everything You Need to Become
-            <br />
-            Job Ready
-          </h2>
+        {/* Header */}
 
-          <p className="mt-6 text-lg leading-8 text-slate-600">
-            Stop switching between YouTube, ChatGPT, notes and random
-            roadmaps. CareerSaathi brings everything together into one
-            personalized learning experience.
-          </p>
+        <div
+          className="
+                        grid
+                        gap-10
+                        lg:grid-cols-[1fr_0.8fr]
+                        lg:items-end
+                    "
+        >
+
+          <div>
+
+            <span
+              className="
+                                inline-flex
+                                rounded-full
+                                border
+                                border-indigo-200
+                                bg-indigo-50
+                                px-4
+                                py-2
+                                text-sm
+                                font-semibold
+                                text-indigo-700
+                            "
+            >
+
+              The CareerSaathi Experience
+
+            </span>
+
+            <h2
+              className="
+                                mt-6
+                                max-w-3xl
+                                text-4xl
+                                font-bold
+                                tracking-tight
+                                text-slate-950
+                                sm:text-5xl
+                            "
+            >
+
+              More than a roadmap.
+
+              <span className="text-indigo-600">
+                {" "}A system that moves with you.
+              </span>
+
+            </h2>
+
+          </div>
+
+          <div>
+
+            <p
+              className="
+                                text-lg
+                                leading-8
+                                text-slate-600
+                            "
+            >
+
+              Career growth rarely follows a
+              perfect plan. Your pace changes,
+              some concepts take longer, and
+              some weeks go better than others.
+              CareerSaathi is designed around
+              that reality.
+
+            </p>
+
+          </div>
 
         </div>
 
-        <div className="mt-20 grid gap-8 md:grid-cols-2">
+        {/* Product Principles */}
 
-          {FEATURES.map((feature) => (
-            <FeatureCard
-              key={feature.title}
-              feature={feature}
+        <div
+          className="
+                        mt-10
+                        flex
+                        flex-wrap
+                        gap-x-8
+                        gap-y-3
+                        border-y
+                        border-slate-200
+                        py-5
+                    "
+        >
+
+          <div
+            className="
+                            flex
+                            items-center
+                            gap-2
+                            text-sm
+                            font-medium
+                            text-slate-600
+                        "
+          >
+
+            <CheckCircle2
+              size={17}
+              className="text-indigo-600"
             />
-          ))}
+
+            Built around your career goal
+
+          </div>
+
+          <div
+            className="
+                            flex
+                            items-center
+                            gap-2
+                            text-sm
+                            font-medium
+                            text-slate-600
+                        "
+          >
+
+            <CheckCircle2
+              size={17}
+              className="text-indigo-600"
+            />
+
+            Structured around consistent action
+
+          </div>
+
+          <div
+            className="
+                            flex
+                            items-center
+                            gap-2
+                            text-sm
+                            font-medium
+                            text-slate-600
+                        "
+          >
+
+            <CheckCircle2
+              size={17}
+              className="text-indigo-600"
+            />
+
+            Adapted through real performance
+
+          </div>
+
+        </div>
+
+        {/* Features */}
+
+        <div
+          className="
+                        mt-14
+                        grid
+                        gap-6
+                        md:grid-cols-2
+                    "
+        >
+
+          {FEATURES.map(
+            feature => (
+
+              <FeatureCard
+                key={
+                  feature.title
+                }
+                feature={
+                  feature
+                }
+              />
+
+            )
+          )}
 
         </div>
 
       </div>
+
     </section>
+
   );
+
 };
 
 export default WhyCareerSaathiSection;

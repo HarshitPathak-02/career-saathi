@@ -4,7 +4,6 @@ import { type User } from "../types/auth.types";
 
 interface AuthState {
   accessToken: string | null;
-
   user: User | null;
   isInitialized: boolean;
 }
@@ -56,7 +55,11 @@ const authSlice = createSlice({
       state.accessToken = action.payload;
     },
 
-    logout: () => initialState
+    logout: (state) => {
+      state.accessToken = null;
+      state.user = null;
+      state.isInitialized = true;
+    },
   },
 });
 

@@ -1,44 +1,124 @@
-import { useEffect, useState } from "react";
-import NavbarLogo from "./NavbarLogo";
-import NavbarActions from "./NavbarActions";
-import MobileMenu from "./MobileMenu";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import NavbarLogo
+  from "./NavbarLogo";
+
+import NavbarActions
+  from "./NavbarActions";
+
+import MobileMenu
+  from "./MobileMenu";
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+
+  const [
+    isScrolled,
+    setIsScrolled,
+  ] = useState(false);
 
   useEffect(() => {
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+
+      setIsScrolled(
+        window.scrollY > 16
+      );
+
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      }
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+
+    };
+
   }, []);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
-      }`}
+
+    <header
+      className={`
+                fixed
+                left-0
+                top-0
+                z-50
+                w-full
+                transition-all
+                duration-300
+
+                ${isScrolled
+          ? `
+                        border-b
+                        border-slate-200/80
+                        bg-white/90
+                        shadow-sm
+                        backdrop-blur-xl
+                    `
+          : `
+                        border-b
+                        border-transparent
+                        bg-white/70
+                        backdrop-blur-md
+                    `
+        }
+            `}
     >
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6">
+
+      <div
+        className="
+                    mx-auto
+                    flex
+                    h-20
+                    max-w-[1440px]
+                    items-center
+                    justify-between
+                    px-6
+                    xl:px-10
+                "
+      >
+
+        {/* Brand */}
+
         <NavbarLogo />
 
         {/* Desktop */}
-        <div className="hidden md:block">
+
+        <div className="hidden lg:block">
+
           <NavbarActions />
+
         </div>
 
-        {/* Mobile */}
-        <div className="md:hidden">
+        {/* Mobile / Tablet */}
+
+        <div className="lg:hidden">
+
           <MobileMenu />
+
         </div>
+
       </div>
-    </nav>
+
+    </header>
+
   );
+
 };
 
 export default Navbar;
