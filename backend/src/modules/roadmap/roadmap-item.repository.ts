@@ -27,7 +27,8 @@ class RoadmapItemRepository {
     }
 
     async findById(
-        id: Types.ObjectId
+        id: Types.ObjectId,
+        session?: ClientSession
     ) {
         return this.findOne({
             _id: id,
@@ -118,7 +119,8 @@ class RoadmapItemRepository {
     }
 
     async countCompleted(
-        roadmapId: Types.ObjectId
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
     ) {
         return RoadmapItemModel.countDocuments({
             roadmapId,

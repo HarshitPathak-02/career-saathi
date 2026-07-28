@@ -126,12 +126,20 @@ export class MissionWorkflow {
         const startDate =
             new Date();
 
+        startDate.setHours(
+            0,
+            0,
+            0,
+            0
+        );
+
         const endDate =
             new Date(startDate);
 
         endDate.setDate(
             endDate.getDate() +
-            DEFAULT_DURATION_DAYS
+            DEFAULT_DURATION_DAYS -
+            1
         );
 
         return {
@@ -141,8 +149,18 @@ export class MissionWorkflow {
             newRoadmapItems:
                 context.roadmapItems,
 
+            /*
+             * Initial mission has no previous
+             * mission to carry forward.
+             */
             carryForwardRoadmapItemIds: [],
-            revisionRoadmapItemIds: [],
+
+            /*
+             * Initial mission has no previous
+             * weekly assessment/report from which
+             * revision work can be generated.
+             */
+            revisionPlans: [],
 
             workloadMultiplier:
                 DEFAULT_WORKLOAD_MULTIPLIER,

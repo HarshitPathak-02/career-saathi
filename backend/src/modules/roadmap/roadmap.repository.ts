@@ -37,7 +37,7 @@ class RoadmapRepository {
 
     async findByCareerJourneyId(
         careerJourneyId: Types.ObjectId
-    ){
+    ) {
         return this.findOne({
             careerJourneyId,
         });
@@ -103,23 +103,30 @@ class RoadmapRepository {
         );
     }
 
-    async incrementCompletedItems(
+    async updateCompletedItems(
         roadmapId: Types.ObjectId,
-        count = 1,
+        completedItems: number,
         session?: ClientSession
     ) {
-        return RoadmapModel.findByIdAndUpdate(
+
+        console.log("Updating roadmap:", roadmapId);
+        console.log("New completedItems:", completedItems);
+
+        const roadmap = RoadmapModel.findByIdAndUpdate(
             roadmapId,
             {
-                $inc: {
-                    completedItems: count,
-                },
+                completedItems,
             },
             {
-                new: true,
                 session,
             }
         );
+
+
+        console.log("Roadmap after update:", roadmap);
+
+        return roadmap;
+
     }
 
     async softDelete(

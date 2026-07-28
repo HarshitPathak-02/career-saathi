@@ -18,6 +18,7 @@ import {
 import {
     RoadmapItemStatus,
 } from "./roadmap.enums.js";
+import { roadmapRepository } from "./roadmap.repository.js";
 
 class RoadmapItemProgressService {
 
@@ -48,6 +49,7 @@ class RoadmapItemProgressService {
         session?: ClientSession
     ) {
 
+        console.log("syncRoadmapItem called");
         const tasks =
             await dailyTaskRepository
                 .findByMissionAndRoadmapItem(
@@ -96,6 +98,34 @@ class RoadmapItemProgressService {
             .updateStatus(
                 roadmapItemId,
                 status,
+                session
+            );
+
+        console.log("Updated roadmap item status:", status);
+
+        const roadmapItem =
+            await roadmapItemRepository.findById(
+                roadmapItemId,
+                session
+            );
+
+        if (!roadmapItem) {
+            return;
+        }
+
+        const completedItems =
+            await roadmapItemRepository
+                .countCompleted(
+                    roadmapItem.roadmapId,
+                    session
+                );
+
+        console.log("Completed items:", completedItems);
+
+        await roadmapRepository
+            .updateCompletedItems(
+                roadmapItem.roadmapId,
+                completedItems,
                 session
             );
 

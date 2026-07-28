@@ -21,12 +21,6 @@ import {
 
 class AssessmentController {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Start Initial Assessment
-    |--------------------------------------------------------------------------
-    */
-
     startInitialAssessment = asyncHandler(
         async (
             req: Request,
