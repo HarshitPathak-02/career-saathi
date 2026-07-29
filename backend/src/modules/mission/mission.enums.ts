@@ -4,8 +4,6 @@ export enum MissionStatus {
     SKIPPED = "SKIPPED",
 }
 
-export const MISSION_MODEL = "Mission"
-
 export enum MissionDifficulty {
     EASY = "EASY",
     MEDIUM = "MEDIUM",

@@ -7,12 +7,12 @@ import {
 } from "../../core/errors/app-error.js";
 
 import {
-    missionService,
-} from "./mission.service.js";
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
 
 import {
-    nextMissionWorkflow,
-} from "./next-mission.workflow.js";
+    CareerJourneyStatus,
+} from "../career-journey/career-journey.enums.js";
 
 import {
     roadmapRepository,
@@ -21,6 +21,14 @@ import {
 import {
     roadmapItemRepository,
 } from "../roadmap/roadmap-item.repository.js";
+
+import {
+    missionService,
+} from "./mission.service.js";
+
+import {
+    nextMissionWorkflow,
+} from "./next-mission.workflow.js";
 
 import {
     MissionStatus,
@@ -35,8 +43,53 @@ class MissionLifecycleService {
 
     async resolveMission(
         userId: string,
-        careerJourneyId: Types.ObjectId,
+        careerJourneyId: Types.ObjectId
     ): Promise<MissionLifecycleResult> {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Career Journey Ownership
+        |--------------------------------------------------------------------------
+        */
+
+        const userObjectId =
+            new Types.ObjectId(
+                userId
+            );
+
+        const careerJourney =
+            await careerJourneyRepository
+                .findByIdAndUserId(
+                    careerJourneyId,
+                    userObjectId
+                );
+
+        if (!careerJourney) {
+            throw new AppError(
+                404,
+                "Career journey not found."
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Career Journey State
+        |--------------------------------------------------------------------------
+        |
+        | A mission can only exist after the
+        | initial assessment has activated the journey.
+        |
+        */
+
+        if (
+            careerJourney.status !==
+            CareerJourneyStatus.ACTIVE
+        ) {
+            throw new AppError(
+                409,
+                "Career journey must be active before resolving missions."
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -45,14 +98,13 @@ class MissionLifecycleService {
         */
 
         const activeMission =
-            await missionService.getActiveMission(
-                careerJourneyId.toString(),
-            );
+            await missionService
+                .getActiveMission(
+                    careerJourneyId.toString()
+                );
 
         if (activeMission) {
-
             return {
-
                 state:
                     MissionLifecycleState.ACTIVE,
 
@@ -61,9 +113,7 @@ class MissionLifecycleService {
 
                 nextMissionAvailableAt:
                     null,
-
             };
-
         }
 
         /*
@@ -73,9 +123,10 @@ class MissionLifecycleService {
         */
 
         const latestMission =
-            await missionService.getLatestMission(
-                careerJourneyId.toString(),
-            );
+            await missionService
+                .getLatestMission(
+                    careerJourneyId.toString()
+                );
 
         /*
         |--------------------------------------------------------------------------
@@ -84,9 +135,7 @@ class MissionLifecycleService {
         */
 
         if (!latestMission) {
-
             return {
-
                 state:
                     MissionLifecycleState
                         .INITIAL_MISSION_REQUIRED,
@@ -96,9 +145,7 @@ class MissionLifecycleService {
 
                 nextMissionAvailableAt:
                     null,
-
             };
-
         }
 
         /*
@@ -111,47 +158,47 @@ class MissionLifecycleService {
             latestMission.status !==
             MissionStatus.COMPLETED
         ) {
-
             throw new AppError(
                 409,
-                "Latest mission is not in a valid state for next mission generation.",
+                "Latest mission is not in a valid state for next mission generation."
             );
-
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Check Whether Roadmap Has Remaining Work
+        | Load Roadmap
         |--------------------------------------------------------------------------
         */
 
         const roadmap =
             await roadmapRepository
                 .findByCareerJourneyId(
-                    careerJourneyId,
+                    careerJourneyId
                 );
 
         if (!roadmap) {
-
             throw new AppError(
                 404,
-                "Roadmap not found.",
+                "Roadmap not found."
             );
-
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Remaining Roadmap Work
+        |--------------------------------------------------------------------------
+        */
 
         const pendingRoadmapItems =
             await roadmapItemRepository
                 .findPendingItems(
-                    roadmap._id,
+                    roadmap._id
                 );
 
         if (
             pendingRoadmapItems.length === 0
         ) {
-
             return {
-
                 state:
                     MissionLifecycleState
                         .ROADMAP_COMPLETED,
@@ -161,37 +208,28 @@ class MissionLifecycleService {
 
                 nextMissionAvailableAt:
                     null,
-
             };
-
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Next Mission Availability
-        |--------------------------------------------------------------------------
-        |
-        | Mission dates are stored as calendar dates represented by timestamps.
-        |
-        | We compare the UTC calendar portion so that a date stored as
-        | 2026-07-26T18:30:00.000Z does not accidentally become July 27
-        | before calculating the next mission date.
+        | Calculate Next Mission Availability
         |--------------------------------------------------------------------------
         */
 
         const nextMissionAvailableAt =
             this.calculateNextMissionAvailableAt(
-                latestMission.endDate,
+                latestMission.endDate
             );
 
         const today =
             this.startOfUtcDay(
-                new Date(),
+                new Date()
             );
 
         const availableAt =
             this.startOfUtcDay(
-                nextMissionAvailableAt,
+                nextMissionAvailableAt
             );
 
         /*
@@ -204,9 +242,7 @@ class MissionLifecycleService {
             today.getTime() <
             availableAt.getTime()
         ) {
-
             return {
-
                 state:
                     MissionLifecycleState
                         .WAITING_FOR_NEXT_MISSION,
@@ -215,9 +251,7 @@ class MissionLifecycleService {
                     null,
 
                 nextMissionAvailableAt,
-
             };
-
         }
 
         /*
@@ -230,11 +264,10 @@ class MissionLifecycleService {
             await nextMissionWorkflow
                 .generateNextMission(
                     userId,
-                    careerJourneyId,
+                    careerJourneyId
                 );
 
         return {
-
             state:
                 MissionLifecycleState.ACTIVE,
 
@@ -242,9 +275,7 @@ class MissionLifecycleService {
 
             nextMissionAvailableAt:
                 null,
-
         };
-
     }
 
     /*
@@ -254,20 +285,19 @@ class MissionLifecycleService {
     */
 
     private calculateNextMissionAvailableAt(
-        previousMissionEndDate: Date,
+        previousMissionEndDate: Date
     ): Date {
 
         const date =
             this.startOfUtcDay(
-                previousMissionEndDate,
+                previousMissionEndDate
             );
 
         date.setUTCDate(
-            date.getUTCDate() + 1,
+            date.getUTCDate() + 1
         );
 
         return date;
-
     }
 
     /*
@@ -277,23 +307,23 @@ class MissionLifecycleService {
     */
 
     private startOfUtcDay(
-        date: Date,
+        date: Date
     ): Date {
 
         const normalized =
-            new Date(date);
+            new Date(
+                date
+            );
 
         normalized.setUTCHours(
             0,
             0,
             0,
-            0,
+            0
         );
 
         return normalized;
-
     }
-
 }
 
 export const missionLifecycleService =

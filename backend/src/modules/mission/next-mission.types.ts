@@ -1,21 +1,37 @@
-import { MissionDocument } from "./mission.schema.js";
-import { WeeklyReportDocument } from "../weekly-report/weekly-report.schema.js";
-import { SkillProgressDocument } from "../skill-progress/skill-progress.schema.js";
-import { RoadmapDocument } from "../roadmap/roadmap.schema.js";
-import { RoadmapItemDocument } from "../roadmap/roadmap-item.schema.js";
-import { Types } from "mongoose";
-import { PopulatedSkillProgressDocument, SkillProgressPlanningData } from "../skill-progress/skill-progress.types.js";
+import {
+    MissionDocument,
+} from "./mission.model.js";
+
+import {
+    WeeklyReportDocument,
+} from "../weekly-report/weekly-report.model.js";
+
+import {
+    RoadmapDocument,
+} from "../roadmap/roadmap.model.js";
+
+import {
+    RoadmapItemDocument,
+} from "../roadmap/roadmap-item.schema.js";
+
+import {
+    SkillProgressPlanningData,
+} from "../skill-progress/skill-progress.types.js";
 
 export interface NextMissionWorkflowContext {
 
-    previousMission: MissionDocument;
+    previousMission:
+    MissionDocument;
 
-    weeklyReport: WeeklyReportDocument;
+    weeklyReport:
+    WeeklyReportDocument;
 
-    roadmap: RoadmapDocument;
+    roadmap:
+    RoadmapDocument;
 
-    skillProgress: SkillProgressPlanningData[];
+    skillProgress:
+    SkillProgressPlanningData[];
 
-    pendingRoadmapItems: RoadmapItemDocument[];
-
+    pendingRoadmapItems:
+    RoadmapItemDocument[];
 }

@@ -1,28 +1,23 @@
 import Joi from "joi";
 
-import { objectIdSchema } from "../../shared/validators/common-validator.js";
 
-import {
-    AssessmentMethod,
-} from "../skill-progress/skill-progress.enums.js";
+const objectIdSchema = Joi.string()
+    .trim()
+    .pattern(/^[a-f\d]{24}$/i)
+    .messages({
+        "string.pattern.base":
+            "Invalid ObjectId.",
+    });
 
-/**
- * Start Initial Assessment
- */
+
 export const startInitialAssessmentSchema = Joi.object({
     careerJourneyId: objectIdSchema.required(),
 });
 
-/**
- * Start Weekly Assessment
- */
 export const startWeeklyAssessmentSchema = Joi.object({
     careerJourneyId: objectIdSchema.required(),
 });
 
-/**
- * Skill Submission
- */
 export const submittedSkillSchema = Joi.object({
     userSkillId: objectIdSchema.required(),
 
@@ -46,9 +41,6 @@ export const submittedSkillSchema = Joi.object({
         .optional(),
 });
 
-/**
- * Submit Assessment
- */
 export const submitAssessmentSchema = Joi.object({
     assessmentId: objectIdSchema.required(),
 
@@ -58,9 +50,6 @@ export const submitAssessmentSchema = Joi.object({
         .required(),
 });
 
-/**
- * Params
- */
 export const assessmentIdParamSchema = Joi.object({
     assessmentId: objectIdSchema.required(),
 });

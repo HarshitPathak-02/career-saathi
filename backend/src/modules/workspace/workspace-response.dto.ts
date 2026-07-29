@@ -4,18 +4,27 @@ import {
 } from "../daily-task/daily-task.enums.js";
 
 import {
+    MissionStatus,
+} from "../mission/mission.enums.js";
+
+import {
     WorkspaceState,
 } from "./workspace.enums.js";
 
 export interface WorkspaceUserDto {
+
     id: string;
-    firstName: string;
+
+    fullName: string;
+
 }
 
 export interface WorkspaceCareerJourneyDto {
+
     id: string;
 
     roleId: string;
+
     domainId: string;
 
     targetRole: string;
@@ -27,9 +36,11 @@ export interface WorkspaceCareerJourneyDto {
     targetDurationMonths: number;
 
     dailyStudyHours: number;
+
 }
 
 export interface WorkspaceMissionDto {
+
     id: string;
 
     missionNumber: number;
@@ -38,7 +49,8 @@ export interface WorkspaceMissionDto {
 
     endDate: Date;
 
-    status: string;
+    status: MissionStatus;
+
 }
 
 export interface WorkspaceTodayDto {
@@ -50,6 +62,7 @@ export interface WorkspaceTodayDto {
 }
 
 export interface WorkspaceDailyTaskDto {
+
     id: string;
 
     dayNumber: number;
@@ -67,9 +80,11 @@ export interface WorkspaceDailyTaskDto {
     type: DailyTaskType;
 
     completedAt: Date | null;
+
 }
 
 export interface WorkspaceOverviewDto {
+
     currentMission: number;
 
     currentWeek: number;
@@ -81,17 +96,21 @@ export interface WorkspaceOverviewDto {
     progressPercentage: number;
 
     streak: number;
+
 }
 
 export interface WorkspaceActionsDto {
+
     canStartAssessment: boolean;
 
     canGenerateRoadmap: boolean;
 
     canStartJourney: boolean;
+
 }
 
 export interface WorkspaceResponseDto {
+
     workspaceState: WorkspaceState;
 
     user: WorkspaceUserDto;
@@ -102,12 +121,16 @@ export interface WorkspaceResponseDto {
 
     actions: WorkspaceActionsDto;
 
-    activeMission: WorkspaceMissionDto | null;
+    activeMission:
+    WorkspaceMissionDto | null;
 
-    today: WorkspaceTodayDto | null;
+    today:
+    WorkspaceTodayDto | null;
 
-    todayTask: WorkspaceDailyTaskDto | null;
+    todayTask:
+    WorkspaceDailyTaskDto | null;
 
     nextMissionAvailableAt:
     Date | null;
+
 }

@@ -7,7 +7,7 @@ import {
 import {
     DailyTaskDocument,
     DailyTaskModel,
-} from "./daily-task.schema.js";
+} from "./daily-task.model.js";
 
 import {
     DailyTaskStatus,
@@ -19,41 +19,48 @@ class DailyTaskRepository {
         data: Partial<DailyTaskDocument>[],
         session?: ClientSession
     ) {
+
         return DailyTaskModel.insertMany(
             data,
             {
                 session,
             }
         );
+
     }
 
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
     ) {
+
         return this.findOne(
             {
                 _id: id,
             },
             session
         );
+
     }
 
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
+
         return DailyTaskModel
             .findOne(filter)
             .session(
                 session ?? null
             );
+
     }
 
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
+
         return DailyTaskModel
             .find(filter)
             .sort({
@@ -62,18 +69,21 @@ class DailyTaskRepository {
             .session(
                 session ?? null
             );
+
     }
 
     async findByMissionId(
         missionId: Types.ObjectId,
         session?: ClientSession
     ) {
+
         return this.findMany(
             {
                 missionId,
             },
             session
         );
+
     }
 
     async findByMissionAndDay(
@@ -81,6 +91,7 @@ class DailyTaskRepository {
         dayNumber: number,
         session?: ClientSession
     ) {
+
         return this.findOne(
             {
                 missionId,
@@ -88,6 +99,7 @@ class DailyTaskRepository {
             },
             session
         );
+
     }
 
     async findByMissionAndRoadmapItem(
@@ -111,7 +123,8 @@ class DailyTaskRepository {
     async exists(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<boolean> {
+
         const exists =
             await DailyTaskModel
                 .exists(filter)
@@ -120,6 +133,7 @@ class DailyTaskRepository {
                 );
 
         return Boolean(exists);
+
     }
 
     async updateById(
@@ -127,18 +141,18 @@ class DailyTaskRepository {
         update: UpdateQuery<DailyTaskDocument>,
         session?: ClientSession
     ) {
+
         return DailyTaskModel
             .findByIdAndUpdate(
                 id,
                 update,
                 {
                     new: true,
-
                     runValidators: true,
-
                     session,
                 }
             );
+
     }
 
     async updateStatus(
@@ -146,6 +160,7 @@ class DailyTaskRepository {
         status: DailyTaskStatus,
         session?: ClientSession
     ) {
+
         return this.updateById(
             id,
             {
@@ -153,12 +168,14 @@ class DailyTaskRepository {
             },
             session
         );
+
     }
 
     async deleteByMissionId(
         missionId: Types.ObjectId,
         session?: ClientSession
     ) {
+
         return DailyTaskModel
             .deleteMany(
                 {
@@ -168,7 +185,9 @@ class DailyTaskRepository {
                     session,
                 }
             );
+
     }
+
 }
 
 export const dailyTaskRepository =

@@ -1,8 +1,8 @@
 import {
     RoadmapDocument,
-} from "./roadmap.schema.js";
+} from "./roadmap.model.js";
 
-import {RoadmapItemDocument} from "./roadmap-item.schema.js"
+import { RoadmapItemDocument } from "./roadmap-item.schema.js"
 
 import {
     GenerateRoadmapResponse,

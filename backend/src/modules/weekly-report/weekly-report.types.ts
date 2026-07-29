@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
 import { MissionDifficulty } from "../mission/mission.enums.js";
-import { SkillProgressDocument } from "../skill-progress/skill-progress.schema.js";
-import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
+import { SkillProgressDocument } from "../skill-progress/skill-progress.model.js";
+import { UserSkillDocument } from "../user-skill/user-skill.model.js";
 
 export interface WeeklySummaryOutput {
 

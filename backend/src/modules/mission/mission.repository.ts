@@ -5,22 +5,25 @@ import {
 } from "mongoose";
 
 import {
-    Mission,
     MissionDocument,
     MissionModel,
-} from "./mission.schema.js";
+} from "./mission.model.js";
 
 import {
     MissionStatus,
 } from "./mission.enums.js";
-import { CreateMissionDTO } from "./mission.types.js";
+
+import {
+    CreateMissionDTO,
+} from "./mission.types.js";
 
 class MissionRepository {
 
     async create(
         data: CreateMissionDTO,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument> {
+
         const [mission] =
             await MissionModel.create(
                 [data],
@@ -35,7 +38,8 @@ class MissionRepository {
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return this.findOne(
             {
                 _id: id,
@@ -47,7 +51,8 @@ class MissionRepository {
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findOne(filter)
             .session(
@@ -58,7 +63,8 @@ class MissionRepository {
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument[]> {
+
         return MissionModel
             .find(filter)
             .session(
@@ -69,7 +75,8 @@ class MissionRepository {
     async exists(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<boolean> {
+
         const exists =
             await MissionModel
                 .exists(filter)
@@ -84,16 +91,15 @@ class MissionRepository {
         id: Types.ObjectId,
         update: UpdateQuery<MissionDocument>,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findByIdAndUpdate(
                 id,
                 update,
                 {
                     new: true,
-
                     runValidators: true,
-
                     session,
                 }
             );
@@ -119,7 +125,8 @@ class MissionRepository {
     async findActiveMission(
         careerJourneyId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findOne({
                 careerJourneyId,
@@ -136,7 +143,8 @@ class MissionRepository {
         careerJourneyId: Types.ObjectId,
         missionNumber: number,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findOne({
                 careerJourneyId,
@@ -151,7 +159,8 @@ class MissionRepository {
         id: Types.ObjectId,
         status: MissionStatus,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument | null> {
+
         return MissionModel
             .findByIdAndUpdate(
                 id,
@@ -160,9 +169,7 @@ class MissionRepository {
                 },
                 {
                     new: true,
-
                     runValidators: true,
-
                     session,
                 }
             );
@@ -171,7 +178,8 @@ class MissionRepository {
     async findAllByCareerJourney(
         careerJourneyId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<MissionDocument[]> {
+
         return MissionModel
             .find({
                 careerJourneyId,

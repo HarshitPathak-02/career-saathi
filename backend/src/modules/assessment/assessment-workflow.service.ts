@@ -1,32 +1,17 @@
-import { Types } from "mongoose";
-
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
 import {
-    careerJourneyRepository,
-} from "../career-journey/career-journey.repository.js";
+    AppError,
+} from "../../core/errors/app-error.js";
 
 import {
-    CareerJourneyStatus,
-} from "../career-journey/career-journey.enums.js";
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
 
-import {
-    assessmentRepository,
-} from "./assessment.repository.js";
 
-import {
-    assessmentService,
-} from "./assessment.service.js";
-
-import {
-    AssessmentSkillSource,
-    AssessmentStatus,
-    AssessmentType,
-} from "./assessment.enums.js";
-
-import {
-    AssessmentMessages,
-} from "./assessment.messages.js";
 
 import {
     SubmitAssessmentDTO,
@@ -39,233 +24,326 @@ import {
 } from "../skill-progress/skill-progress.service.js";
 
 import {
+    AssessmentMethod,
+} from "../skill-progress/skill-progress.enums.js";
+
+import {
     userSkillService,
 } from "../user-skill/user-skill.service.js";
-import { AssessmentMethod } from "../skill-progress/skill-progress.enums.js";
-import { missionService } from "../mission/mission.service.js";
-import { roadmapItemRepository } from "../roadmap/roadmap-item.repository.js";
+
+import {
+    missionService,
+} from "../mission/mission.service.js";
+
+import {
+    roadmapItemRepository,
+} from "../roadmap/roadmap-item.repository.js";
+import { careerJourneyRepository, CareerJourneyStatus } from "../career-journey/index.js";
+import { ASSESSMENT_MESSAGES, assessmentRepository, assessmentService, AssessmentSkillSource, AssessmentStatus, AssessmentType } from "./index.js";
 
 class AssessmentWorkflowService {
 
     async startInitialAssessment(
-        careerJourneyId: string
+        careerJourneyId: string,
+        session?: ClientSession
     ) {
 
         const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const careerJourney =
-            await careerJourneyRepository.findOne({
-                _id: careerJourneyObjectId,
-            });
+            await careerJourneyRepository
+                .findOne(
+                    {
+                        _id:
+                            careerJourneyObjectId,
+                    },
+                    session
+                );
 
         if (!careerJourney) {
+
             throw new AppError(
-                404,
-                "Career Journey not found."
+                HTTP_STATUS.NOT_FOUND,
+                "Career journey not found."
             );
         }
+
+        /*
+         * Initial assessment is only
+         * available while the journey
+         * is still in DRAFT state.
+         */
 
         if (
             careerJourney.status !==
             CareerJourneyStatus.DRAFT
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.INVALID_STATUS
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .INVALID_STATUS
             );
         }
+
+        /*
+         * A career journey can have
+         * only one initial assessment.
+         */
 
         const alreadyExists =
-            await assessmentRepository.exists({
-                careerJourneyId:
-                    careerJourneyObjectId,
-                type:
-                    AssessmentType.INITIAL,
-            });
+            await assessmentRepository
+                .exists(
+                    {
+                        careerJourneyId:
+                            careerJourneyObjectId,
+
+                        type:
+                            AssessmentType.INITIAL,
+                    },
+                    session
+                );
 
         if (alreadyExists) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.INITIAL_ALREADY_EXISTS
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .INITIAL_ALREADY_EXISTS
             );
         }
 
-        return assessmentService.createAssessment({
+        return assessmentService
+            .createAssessment(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
 
-            careerJourneyId:
-                careerJourneyObjectId,
+                    type:
+                        AssessmentType.INITIAL,
 
-            type:
-                AssessmentType.INITIAL,
+                    weekNumber: 0,
 
-            weekNumber: 0,
+                    title:
+                        "Initial Assessment",
 
-            title:
-                "Initial Assessment",
-
-            description:
-                "Initial assessment to evaluate current skill levels.",
-
-        });
-
+                    description:
+                        "Initial assessment to evaluate current skill levels.",
+                },
+                session
+            );
     }
 
     async startWeeklyAssessment(
-        careerJourneyId: string
+        careerJourneyId: string,
+        session?: ClientSession
     ) {
 
         const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const careerJourney =
-            await careerJourneyRepository.findOne({
-                _id: careerJourneyObjectId,
-            });
+            await careerJourneyRepository
+                .findOne(
+                    {
+                        _id:
+                            careerJourneyObjectId,
+                    },
+                    session
+                );
 
         if (!careerJourney) {
+
             throw new AppError(
-                404,
-                "Career Journey not found."
+                HTTP_STATUS.NOT_FOUND,
+                "Career journey not found."
             );
         }
 
+        /*
+         * Weekly assessments belong to
+         * an ACTIVE career journey.
+         *
+         * DRAFT:
+         * Initial assessment not completed.
+         *
+         * ACTIVE:
+         * Initial assessment completed and
+         * career journey is in progress.
+         */
+
         if (
             careerJourney.status !==
-            CareerJourneyStatus.DRAFT
+            CareerJourneyStatus.ACTIVE
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.INVALID_STATUS
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .INVALID_STATUS
             );
         }
 
         const latestAssessment =
-            await assessmentRepository.findLatestWeeklyAssessment(
-                careerJourneyObjectId
-            );
+            await assessmentRepository
+                .findLatestWeeklyAssessment(
+                    careerJourneyObjectId,
+                    session
+                );
 
         const weekNumber =
             latestAssessment
                 ? latestAssessment.weekNumber + 1
                 : 1;
 
-        return assessmentService.createAssessment({
+        return assessmentService
+            .createAssessment(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
 
-            careerJourneyId:
-                careerJourneyObjectId,
+                    type:
+                        AssessmentType.WEEKLY,
 
-            type:
-                AssessmentType.WEEKLY,
+                    weekNumber,
 
-            weekNumber,
+                    title:
+                        `Week ${weekNumber} Assessment`,
 
-            title:
-                `Week ${weekNumber} Assessment`,
-
-            description:
-                `Weekly assessment for week ${weekNumber}.`,
-
-        });
-
+                    description:
+                        `Weekly assessment for week ${weekNumber}.`,
+                },
+                session
+            );
     }
 
     async completeInitialAssessment(
-        data: SubmitAssessmentDTO
+        userId: string,
+        data: SubmitAssessmentDTO,
+        session?: ClientSession
     ) {
 
+
         const assessment =
-            await assessmentService.getAssessmentById(
-                data.assessmentId
-            );
+            await assessmentService
+                .getAssessmentById(
+                    data.assessmentId,
+                    session
+                );
 
         if (
             assessment.type !==
             AssessmentType.INITIAL
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.NOT_INITIAL_ASSESSMENT
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .NOT_INITIAL_ASSESSMENT
             );
         }
+
 
         if (
             assessment.status ===
             AssessmentStatus.COMPLETED
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.ALREADY_COMPLETED
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .ALREADY_COMPLETED
             );
         }
 
         const skillProgress =
-            await skillProgressService.createManySkillProgress(
+            await skillProgressService
+                .createManySkillProgress(
+                    data.skills.map(
+                        (skill) => ({
+                            ...skill,
 
-                data.skills.map(skill => ({
+                            assessmentId:
+                                assessment._id,
 
-                    ...skill,
+                            careerJourneyId:
+                                assessment
+                                    .careerJourneyId,
 
-                    assessmentId:
-                        assessment._id,
+                            assessmentMethod:
+                                AssessmentMethod
+                                    .PLATFORM,
+                        })
+                    ),
+                    session
+                );
 
-                    careerJourneyId:
-                        assessment.careerJourneyId,
+        await userSkillService
+            .updateManySkills(
+                skillProgress.map(
+                    (progress) => ({
+                        userSkillId:
+                            progress.userSkillId,
 
-                    assessmentMethod: AssessmentMethod.PLATFORM
+                        currentScore:
+                            progress.percentage,
 
-                }))
-
+                        lastAssessmentAt:
+                            progress.createdAt,
+                    })
+                ),
+                session
             );
 
-        await userSkillService.updateManySkills(
 
-            skillProgress.map(progress => ({
+        await assessmentService
+            .submitAssessment(
+                assessment._id.toString(),
+                session
+            );
 
-                userSkillId:
-                    progress.userSkillId,
+        await careerJourneyRepository
+            .updateStatusByIdAndUserId(
+                assessment.careerJourneyId,
+                new Types.ObjectId(userId),
+                CareerJourneyStatus.ACTIVE,
+                session
+            );
 
-                currentScore:
-                    progress.percentage,
-
-                lastAssessmentAt:
-                    progress.createdAt,
-
-            }))
-
-        );
-
-        await assessmentService.submitAssessment(
-            assessment._id.toString()
-        );
-
-        await careerJourneyRepository.updateStatus(
-            assessment.careerJourneyId,
-            CareerJourneyStatus.ACTIVE
-        );
-
-        return assessmentService.getAssessmentById(
-            assessment._id.toString()
-        );
-
+        return assessmentService
+            .getAssessmentById(
+                assessment._id.toString(),
+                session
+            );
     }
 
+
     async completeWeeklyAssessment(
-        data: SubmitAssessmentDTO
+        data: SubmitAssessmentDTO,
+        session?: ClientSession
     ) {
 
         const assessment =
-            await assessmentService.getAssessmentById(
-                data.assessmentId
-            );
+            await assessmentService
+                .getAssessmentById(
+                    data.assessmentId,
+                    session
+                );
 
         if (
             assessment.type !==
             AssessmentType.WEEKLY
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.NOT_WEEKLY_ASSESSMENT
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .NOT_WEEKLY_ASSESSMENT
             );
         }
 
@@ -273,150 +351,127 @@ class AssessmentWorkflowService {
             assessment.status ===
             AssessmentStatus.COMPLETED
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.ALREADY_COMPLETED
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .ALREADY_COMPLETED
             );
         }
 
-        console.log(
-            "ASSESSMENT BEFORE SKILL PROGRESS:",
-            {
-                id: assessment._id.toString(),
-                type: assessment.type,
-                weekNumber: assessment.weekNumber,
-                status: assessment.status,
-            }
-        );
-
-        console.log(
-            "SKILLS RECEIVED:",
-            JSON.stringify(
+        await this
+            .validateWeeklyAssessmentSubmission(
+                assessment._id.toString(),
                 data.skills,
-                null,
-                2
-            )
-        );
-
-        await this.validateWeeklyAssessmentSubmission(
-            assessment._id.toString(),
-            data.skills
-        );
-
-        const skillProgress =
-            await skillProgressService.createManySkillProgress(
-
-                data.skills.map(skill => ({
-
-                    ...skill,
-
-                    assessmentId:
-                        assessment._id,
-
-                    careerJourneyId:
-                        assessment.careerJourneyId,
-
-                    assessmentMethod: AssessmentMethod.PLATFORM
-
-                }))
-
+                session
             );
 
-        console.log(
-            "SKILL PROGRESS CREATED:",
-            skillProgress.map(progress => ({
-                id: progress._id.toString(),
-                assessmentId:
-                    progress.assessmentId.toString(),
-                userSkillId:
-                    progress.userSkillId.toString(),
-                obtainedMarks:
-                    progress.obtainedMarks,
-                totalMarks:
-                    progress.totalMarks,
-                percentage:
-                    progress.percentage,
-                assessmentMethod:
-                    progress.assessmentMethod,
-            }))
-        );
+        const skillProgress =
+            await skillProgressService
+                .createManySkillProgress(
+                    data.skills.map(
+                        (skill) => ({
+                            ...skill,
 
-        await userSkillService.updateManySkills(
+                            assessmentId:
+                                assessment._id,
 
-            skillProgress.map(progress => ({
+                            careerJourneyId:
+                                assessment
+                                    .careerJourneyId,
 
-                userSkillId:
-                    progress.userSkillId,
+                            assessmentMethod:
+                                AssessmentMethod
+                                    .PLATFORM,
+                        })
+                    ),
+                    session
+                );
 
-                currentScore:
-                    progress.percentage,
+        await userSkillService
+            .updateManySkills(
+                skillProgress.map(
+                    (progress) => ({
+                        userSkillId:
+                            progress.userSkillId,
 
-                lastAssessmentAt:
-                    progress.createdAt,
+                        currentScore:
+                            progress.percentage,
 
-            }))
+                        lastAssessmentAt:
+                            progress.createdAt,
+                    })
+                ),
+                session
+            );
 
-        );
+        await assessmentService
+            .submitAssessment(
+                assessment._id.toString(),
+                session
+            );
 
-        await assessmentService.submitAssessment(
-            assessment._id.toString()
-        );
-
-
-        return assessmentService.getAssessmentById(
-            assessment._id.toString()
-        );
-
+        return assessmentService
+            .getAssessmentById(
+                assessment._id.toString(),
+                session
+            );
     }
 
+
     async getOrCreateWeeklyAssessment(
-        careerJourneyId: Types.ObjectId,
-        weekNumber: number
+        careerJourneyId:
+            Types.ObjectId,
+
+        weekNumber:
+            number,
+
+        session?:
+            ClientSession
     ) {
 
         const existingAssessment =
             await assessmentRepository
                 .findWeeklyAssessment(
                     careerJourneyId,
-                    weekNumber
+                    weekNumber,
+                    session
                 );
 
         if (existingAssessment) {
             return existingAssessment;
         }
 
-        return assessmentService.createAssessment({
+        return assessmentService
+            .createAssessment(
+                {
+                    careerJourneyId,
 
-            careerJourneyId,
+                    type:
+                        AssessmentType.WEEKLY,
 
-            type:
-                AssessmentType.WEEKLY,
+                    weekNumber,
 
-            weekNumber,
+                    title:
+                        `Week ${weekNumber} Assessment`,
 
-            title:
-                `Week ${weekNumber} Assessment`,
-
-            description:
-                `Weekly assessment for week ${weekNumber}.`,
-
-        });
-
+                    description:
+                        `Weekly assessment for week ${weekNumber}.`,
+                },
+                session
+            );
     }
 
     async getWeeklyAssessmentPlan(
-        assessmentId: string
+        assessmentId: string,
+        session?: ClientSession
     ): Promise<WeeklyAssessmentPlan> {
-
-        /*
-         * Step 1
-         * Fetch assessment
-         */
 
         const assessment =
             await assessmentService
                 .getAssessmentById(
-                    assessmentId
+                    assessmentId,
+                    session
                 );
 
         if (
@@ -425,87 +480,64 @@ class AssessmentWorkflowService {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Assessment must be a weekly assessment."
             );
-
         }
-
-        /*
-         * Step 2
-         * Fetch corresponding mission
-         *
-         * Week 1 -> Mission 1
-         * Week 2 -> Mission 2
-         */
 
         const mission =
             await missionService
                 .getMissionByNumber(
-                    assessment.careerJourneyId
+                    assessment
+                        .careerJourneyId
                         .toString(),
 
-                    assessment.weekNumber
+                    assessment.weekNumber,
+
+                    session
                 );
 
         if (!mission) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 `Mission ${assessment.weekNumber} not found.`
             );
-
         }
-
-        /*
-         * Step 3
-         * Fetch planned roadmap items
-         */
 
         const roadmapItems =
             await roadmapItemRepository
-                .findMany({
-                    _id: {
-                        $in:
-                            mission.plannedRoadmapItemIds,
+                .findMany(
+                    {
+                        _id: {
+                            $in:
+                                mission
+                                    .plannedRoadmapItemIds,
+                        },
                     },
-                });
-
-        /*
-         * Step 4
-         * Collect NEW skill catalog IDs
-         *
-         * Only roadmap items having a skillId
-         * represent assessable skills.
-         */
+                    session
+                );
 
         const newSkillIds =
             roadmapItems
                 .filter(
-                    item =>
+                    (item) =>
                         item.skillId != null
                 )
                 .map(
-                    item =>
-                        item.skillId as Types.ObjectId
+                    (item) =>
+                        item.skillId as
+                        Types.ObjectId
                 );
-
-        /*
-         * Step 5
-         * Collect REVISION skill catalog IDs
-         */
 
         const revisionSkillIds =
-            (mission.revisionPlans ?? [])
-                .map(
-                    revision =>
-                        revision.skillCatalogId
-                );
-
-        /*
-         * Step 6
-         * Merge + deduplicate skill catalog IDs
-         */
+            (
+                mission.revisionPlans ??
+                []
+            ).map(
+                (revision) =>
+                    revision.skillCatalogId
+            );
 
         const uniqueSkillIdMap =
             new Map<
@@ -513,13 +545,15 @@ class AssessmentWorkflowService {
                 Types.ObjectId
             >();
 
-        for (const skillId of newSkillIds) {
+        for (
+            const skillId
+            of newSkillIds
+        ) {
 
             uniqueSkillIdMap.set(
                 skillId.toString(),
                 skillId
             );
-
         }
 
         for (
@@ -531,7 +565,6 @@ class AssessmentWorkflowService {
                 skillId.toString(),
                 skillId
             );
-
         }
 
         const assessmentSkillCatalogIds =
@@ -540,32 +573,26 @@ class AssessmentWorkflowService {
             );
 
         if (
-            assessmentSkillCatalogIds.length === 0
+            assessmentSkillCatalogIds
+                .length === 0
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "No skills are available for this weekly assessment."
             );
-
         }
-
-        /*
-         * Step 7
-         * Resolve SkillCatalog IDs -> UserSkills
-         */
 
         const userSkills =
             await userSkillService
                 .getUserSkillsByCatalogIds(
-                    assessment.careerJourneyId,
-                    assessmentSkillCatalogIds
-                );
+                    assessment
+                        .careerJourneyId,
 
-        /*
-         * Every assessment skill must have
-         * a corresponding UserSkill.
-         */
+                    assessmentSkillCatalogIds,
+
+                    session
+                );
 
         if (
             userSkills.length !==
@@ -573,53 +600,47 @@ class AssessmentWorkflowService {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Some assessment skills are not initialized for this career journey."
             );
-
         }
-
-        /*
-         * Step 8
-         * Create lookup sets
-         */
 
         const newSkillIdSet =
             new Set(
                 newSkillIds.map(
-                    id =>
+                    (id) =>
                         id.toString()
                 )
             );
 
         const revisionPlanMap =
             new Map(
-                (mission.revisionPlans ?? [])
-                    .map(
-                        revision => [
-                            revision.skillCatalogId
-                                .toString(),
+                (
+                    mission.revisionPlans ??
+                    []
+                ).map(
+                    (revision) => [
+                        revision
+                            .skillCatalogId
+                            .toString(),
 
-                            revision,
-                        ]
-                    )
+                        revision,
+                    ]
+                )
             );
-
-        /*
-         * Step 9
-         * Build assessment skill response
-         */
 
         const skills:
             WeeklyAssessmentSkill[] =
             userSkills.map(
-                userSkill => {
+                (userSkill) => {
 
                     const skillCatalog =
-                        userSkill.skillCatalogId;
+                        userSkill
+                            .skillCatalogId;
 
                     const skillCatalogId =
-                        skillCatalog._id
+                        skillCatalog
+                            ._id
                             .toString();
 
                     const isNew =
@@ -662,13 +683,13 @@ class AssessmentWorkflowService {
                         source =
                             AssessmentSkillSource
                                 .NEW;
-
                     }
 
                     return {
 
                         userSkillId:
-                            userSkill._id
+                            userSkill
+                                ._id
                                 .toString(),
 
                         skillCatalogId,
@@ -687,16 +708,9 @@ class AssessmentWorkflowService {
                             revisionPlan
                                 ?.revisionTopics ??
                             [],
-
                     };
-
                 }
             );
-
-        /*
-         * Step 10
-         * Return plan
-         */
 
         return {
 
@@ -708,54 +722,42 @@ class AssessmentWorkflowService {
                 assessment.weekNumber,
 
             skills,
-
         };
-
     }
 
     private async validateWeeklyAssessmentSubmission(
-        assessmentId: string,
-        submittedSkills: SubmitAssessmentDTO["skills"]
+        assessmentId:
+            string,
+
+        submittedSkills:
+            SubmitAssessmentDTO["skills"],
+
+        session?:
+            ClientSession
     ): Promise<void> {
 
-        /*
-         * Step 1
-         * Get server-generated assessment plan
-         */
 
         const plan =
-            await this.getWeeklyAssessmentPlan(
-                assessmentId
-            );
-
-        /*
-         * Step 2
-         * Expected UserSkill IDs
-         */
+            await this
+                .getWeeklyAssessmentPlan(
+                    assessmentId,
+                    session
+                );
 
         const expectedSkillIds =
             new Set(
                 plan.skills.map(
-                    skill =>
+                    (skill) =>
                         skill.userSkillId
                 )
             );
 
-        /*
-         * Step 3
-         * Extract submitted UserSkill IDs
-         */
-
         const submittedSkillIds =
             submittedSkills.map(
-                skill =>
-                    skill.userSkillId.toString()
+                (skill) =>
+                    skill.userSkillId
+                        .toString()
             );
-
-        /*
-         * Step 4
-         * Reject duplicate submissions
-         */
 
         const uniqueSubmittedSkillIds =
             new Set(
@@ -768,16 +770,10 @@ class AssessmentWorkflowService {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Duplicate skills are not allowed in the assessment submission."
             );
-
         }
-
-        /*
-         * Step 5
-         * Ensure same number of skills
-         */
 
         if (
             uniqueSubmittedSkillIds.size !==
@@ -785,16 +781,10 @@ class AssessmentWorkflowService {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Assessment submission does not contain all required skills."
             );
-
         }
-
-        /*
-         * Step 6
-         * Reject missing / unexpected skills
-         */
 
         for (
             const submittedSkillId
@@ -808,12 +798,10 @@ class AssessmentWorkflowService {
             ) {
 
                 throw new AppError(
-                    400,
+                    HTTP_STATUS.BAD_REQUEST,
                     `Skill ${submittedSkillId} does not belong to this assessment.`
                 );
-
             }
-
         }
 
         for (
@@ -828,16 +816,12 @@ class AssessmentWorkflowService {
             ) {
 
                 throw new AppError(
-                    400,
+                    HTTP_STATUS.BAD_REQUEST,
                     `Required skill ${expectedSkillId} is missing from the assessment submission.`
                 );
-
             }
-
         }
-
     }
-
 }
 
 export const assessmentWorkflowService =

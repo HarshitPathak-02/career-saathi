@@ -36,8 +36,6 @@ export const authenticate = (
   const payload =
     verifyAccessToken(token);
 
-  console.log("Payload", payload);
-
   req.user = payload;
 
   next();

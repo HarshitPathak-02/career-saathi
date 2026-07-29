@@ -1,30 +1,40 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
 import {
-    CreateCareerJourneyDto,
-    UpdateCareerJourneyDto,
-} from "./career-journey.types.js"
+    AppError,
+} from "../../core/errors/app-error.js";
 
-import { CareerJourneyStatus } from "./career-journey.enums.js";
+import {
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+import { CAREER_JOURNEY_MESSAGES, CareerJourneyMapper, careerJourneyRepository, CareerJourneyStatus, CreateCareerJourneyDto, UpdateCareerJourneyDto } from "./index.js";
 
-import { careerJourneyRepository } from "./career-journey.repository.js";
-import { CareerJourneyMapper } from "./career-journey.mapper.js";
-import { AppError } from "../../core/errors/app-error.js";
 
 export class CareerJourneyService {
+
     async createCareerJourney(
         userId: string,
         data: CreateCareerJourneyDto
     ) {
 
-        const userObjectId = new Types.ObjectId(userId);
+        const userObjectId =
+            new Types.ObjectId(userId);
+
         const existingJourney =
-            await careerJourneyRepository.findActiveByUserId(userObjectId);
+            await careerJourneyRepository
+                .findActiveByUserId(
+                    userObjectId
+                );
 
         if (existingJourney) {
+
             throw new AppError(
-                409, "An active career journey already exists."
+                HTTP_STATUS.CONFLICT,
+                CAREER_JOURNEY_MESSAGES.ACTIVE_ALREADY_EXISTS
             );
+
         }
 
         const createInput =
@@ -33,102 +43,165 @@ export class CareerJourneyService {
                 data
             );
 
-        return careerJourneyRepository.create(createInput);
+        return careerJourneyRepository
+            .create(
+                createInput
+            );
     }
+
 
     async getCareerJourneyById(
         userId: string,
         careerJourneyId: string
     ) {
-        const userObjectId = new Types.ObjectId(userId);
-        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
-        console.log("careerJourneyObjectId",careerJourneyObjectId);
-        console.log("userObjectId",userObjectId);
+        const userObjectId =
+            new Types.ObjectId(userId);
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
+            await careerJourneyRepository
+                .findByIdAndUserId(
+                    careerJourneyObjectId,
+                    userObjectId
+                );
 
         if (!careerJourney) {
-            throw new AppError(404, "Career journey not found.");
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
+            );
+
         }
 
         return careerJourney;
     }
 
+
     async getActiveCareerJourney(
         userId: string
     ) {
-        const userObjectId = new Types.ObjectId(userId);
-        return careerJourneyRepository.findActiveByUserId(
-            userObjectId
-        );
+
+        const userObjectId =
+            new Types.ObjectId(userId);
+
+        return careerJourneyRepository
+            .findActiveByUserId(
+                userObjectId
+            );
     }
+
 
     async updateCareerJourney(
         userId: string,
         careerJourneyId: string,
         data: UpdateCareerJourneyDto
     ) {
-        const userObjectId = new Types.ObjectId(userId);
-        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
 
-        const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
+        const userObjectId =
+            new Types.ObjectId(userId);
 
-        console.log("career journeysss", careerJourney)
-
-        if (!careerJourney) {
-            throw new AppError(404, "Career journey not found.");
-        }
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const updateInput =
-            CareerJourneyMapper.toUpdateInput(data);
+            CareerJourneyMapper
+                .toUpdateInput(data);
 
-        return careerJourneyRepository.updateById(
-            careerJourneyObjectId,
-            updateInput
-        );
+        const careerJourney =
+            await careerJourneyRepository
+                .updateByIdAndUserId(
+                    careerJourneyObjectId,
+                    userObjectId,
+                    updateInput
+                );
+
+        if (!careerJourney) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
+            );
+
+        }
+
+        return careerJourney;
     }
+
 
     async updateCareerJourneyStatus(
         userId: string,
         careerJourneyId: string,
         status: CareerJourneyStatus
     ) {
-        const userObjectId = new Types.ObjectId(userId);
-        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const userObjectId =
+            new Types.ObjectId(userId);
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
+            await careerJourneyRepository
+                .updateStatusByIdAndUserId(
+                    careerJourneyObjectId,
+                    userObjectId,
+                    status
+                );
 
         if (!careerJourney) {
-            throw new AppError(404, "Career journey not found.");
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
+            );
+
         }
 
-        return careerJourneyRepository.updateStatus(
-            careerJourneyObjectId,
-            status
-        );
+        return careerJourney;
     }
+
 
     async deleteCareerJourney(
         userId: string,
         careerJourneyId: string
     ) {
-        const userObjectId = new Types.ObjectId(userId);
-        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const userObjectId =
+            new Types.ObjectId(userId);
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
         const careerJourney =
-            await careerJourneyRepository.findByIdAndUserId(careerJourneyObjectId, userObjectId);
+            await careerJourneyRepository
+                .softDeleteByIdAndUserId(
+                    careerJourneyObjectId,
+                    userObjectId
+                );
 
         if (!careerJourney) {
-            throw new AppError(404, "Career journey not found.");
-        }
 
-        await careerJourneyRepository.softDelete(careerJourneyObjectId);
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
+            );
+
+        }
     }
 }
+
 
 export const careerJourneyService =
     new CareerJourneyService();

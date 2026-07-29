@@ -1,4 +1,7 @@
-import { ClientSession, Types } from "mongoose";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
 import {
     missionRepository,
@@ -11,117 +14,163 @@ import {
 import {
     CreateMissionDTO,
 } from "./mission.types.js";
-import { MissionDocument } from "./mission.schema.js";
-import { dailyTaskService } from "../daily-task/daily-task.service.js";
-import { missionMapper } from "./mission.mapper.js";
-import { AppError } from "../../core/errors/app-error.js";
+
+import {
+    MissionDocument,
+} from "./mission.model.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
+import { DEFAULT_DURATION_DAYS } from "./index.js";
 
 class MissionService {
 
     async createMission(
-        data: CreateMissionDTO
-    ) {
-        return missionRepository.create(data);
+        data: CreateMissionDTO,
+        session?: ClientSession
+    ): Promise<MissionDocument> {
+
+        return missionRepository.create(
+            data,
+            session
+        );
     }
 
     async getMission(
-        missionId: string
+        missionId: string,
+        session?: ClientSession
     ): Promise<MissionDocument | null> {
 
         const missionObjectId =
-            new Types.ObjectId(missionId);
+            new Types.ObjectId(
+                missionId
+            );
 
         return missionRepository.findById(
-            missionObjectId
+            missionObjectId,
+            session
         );
-
     }
 
     async getMissionByNumber(
         careerJourneyId: string,
-        missionNumber: number
-    ) {
-        const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+        missionNumber: number,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
 
-        return missionRepository.findByMissionNumber(
-            careerJourneyObjectId,
-            missionNumber
-        );
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
+
+        return missionRepository
+            .findByMissionNumber(
+                careerJourneyObjectId,
+                missionNumber,
+                session
+            );
     }
 
     async getLatestMission(
-        careerJourneyId: string
+        careerJourneyId: string,
+        session?: ClientSession
     ): Promise<MissionDocument | null> {
 
         const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
-        return missionRepository.findLatestMission(
-            careerJourneyObjectId
-        );
-
+        return missionRepository
+            .findLatestMission(
+                careerJourneyObjectId,
+                session
+            );
     }
 
     async getActiveMission(
-        careerJourneyId: string
+        careerJourneyId: string,
+        session?: ClientSession
     ): Promise<MissionDocument | null> {
 
         const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
-        return missionRepository.findActiveMission(
-            careerJourneyObjectId
-        );
-
+        return missionRepository
+            .findActiveMission(
+                careerJourneyObjectId,
+                session
+            );
     }
 
     async getMissionHistory(
-        careerJourneyId: string
+        careerJourneyId: string,
+        session?: ClientSession
     ): Promise<MissionDocument[]> {
 
         const careerJourneyObjectId =
-            new Types.ObjectId(careerJourneyId);
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
-        return missionRepository.findAllByCareerJourney(
-            careerJourneyObjectId
-        );
-
+        return missionRepository
+            .findAllByCareerJourney(
+                careerJourneyObjectId,
+                session
+            );
     }
 
     async markAsActive(
-        missionId: string
-    ) {
+        missionId: string,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
         const missionObjectId =
-            new Types.ObjectId(missionId);
+            new Types.ObjectId(
+                missionId
+            );
 
         return missionRepository.updateStatus(
             missionObjectId,
-            MissionStatus.ACTIVE
+            MissionStatus.ACTIVE,
+            session
         );
     }
 
     async markAsCompleted(
-        missionId: string
-    ) {
+        missionId: string,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
         const missionObjectId =
-            new Types.ObjectId(missionId);
+            new Types.ObjectId(
+                missionId
+            );
 
         return missionRepository.updateStatus(
             missionObjectId,
-            MissionStatus.COMPLETED
+            MissionStatus.COMPLETED,
+            session
         );
     }
 
     async markAsSkipped(
-        missionId: string
-    ) {
+        missionId: string,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
         const missionObjectId =
-            new Types.ObjectId(missionId);
+            new Types.ObjectId(
+                missionId
+            );
 
         return missionRepository.updateStatus(
             missionObjectId,
-            MissionStatus.SKIPPED
+            MissionStatus.SKIPPED,
+            session
         );
     }
 
@@ -137,18 +186,15 @@ class MissionService {
             );
 
         if (!mission) {
-
             throw new AppError(
                 404,
                 "Mission not found."
             );
-
         }
 
         return this.calculateCurrentMissionDay(
             mission.startDate
         );
-
     }
 
     private calculateCurrentMissionDay(
@@ -159,7 +205,9 @@ class MissionService {
             new Date();
 
         const start =
-            new Date(missionStartDate);
+            new Date(
+                missionStartDate
+            );
 
         today.setHours(
             0,
@@ -192,11 +240,9 @@ class MissionService {
                 daysPassed + 1,
                 1
             ),
-            7
+            DEFAULT_DURATION_DAYS
         );
-
     }
-
 }
 
 export const missionService =

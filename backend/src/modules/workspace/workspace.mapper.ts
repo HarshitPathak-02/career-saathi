@@ -1,14 +1,18 @@
 import {
     AssessmentDocument,
-} from "../assessment/assessment.schema.js";
+} from "../assessment/assessment.model.js";
 
 import {
     DailyTaskDocument,
-} from "../daily-task/daily-task.schema.js";
+} from "../daily-task/daily-task.model.js";
+
+import {
+    DailyTaskStatus,
+} from "../daily-task/daily-task.enums.js";
 
 import {
     MissionDocument,
-} from "../mission/mission.schema.js";
+} from "../mission/mission.model.js";
 
 import {
     MissionLifecycleState,
@@ -16,11 +20,11 @@ import {
 
 import {
     RoadmapDocument,
-} from "../roadmap/roadmap.schema.js";
+} from "../roadmap/roadmap.model.js";
 
 import {
     UserDocument,
-} from "../../modules/users/user.model.js";
+} from "../users/user.model.js";
 
 import {
     WorkspaceState,
@@ -89,31 +93,18 @@ export class WorkspaceMapper {
     ): WorkspaceResponseDto {
 
         const {
-
             user,
-
             careerJourney,
-
             assessment,
-
             roadmap,
-
             activeMission,
-
             tasks,
-
             today,
-
             todayTask,
-
             targetRole,
-
             targetDomain,
-
             lifecycleState,
-
             nextMissionAvailableAt,
-
         } = input;
 
         /*
@@ -123,10 +114,10 @@ export class WorkspaceMapper {
         */
 
         const hasInitialAssessment =
-            !!assessment;
+            Boolean(assessment);
 
         const hasRoadmap =
-            !!roadmap;
+            Boolean(roadmap);
 
         /*
         |--------------------------------------------------------------------------
@@ -136,13 +127,9 @@ export class WorkspaceMapper {
 
         const workspaceState =
             this.getWorkspaceState(
-
                 hasInitialAssessment,
-
                 hasRoadmap,
-
                 lifecycleState
-
             );
 
         /*
@@ -155,7 +142,7 @@ export class WorkspaceMapper {
             tasks.filter(
                 task =>
                     task.status ===
-                    "COMPLETED"
+                    DailyTaskStatus.COMPLETED
             ).length;
 
         const totalTasks =
@@ -167,8 +154,7 @@ export class WorkspaceMapper {
                     (
                         completedTasks /
                         totalTasks
-                    ) *
-                    100
+                    ) * 100
                 )
                 : 0;
 
@@ -184,14 +170,6 @@ export class WorkspaceMapper {
         const canGenerateRoadmap =
             hasInitialAssessment &&
             !hasRoadmap;
-
-        /*
-         * This is ONLY true when the journey
-         * has never had its first mission.
-         *
-         * It must NOT become true between
-         * completed weekly missions.
-         */
 
         const canStartJourney =
             hasInitialAssessment &&
@@ -215,7 +193,7 @@ export class WorkspaceMapper {
                 id:
                     user._id.toString(),
 
-                firstName:
+                fullName:
                     user.fullName,
 
             },
@@ -387,12 +365,6 @@ export class WorkspaceMapper {
             MissionLifecycleState | null
     ): WorkspaceState {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Initial Assessment
-        |--------------------------------------------------------------------------
-        */
-
         if (!hasAssessment) {
 
             return WorkspaceState
@@ -400,24 +372,12 @@ export class WorkspaceMapper {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Roadmap
-        |--------------------------------------------------------------------------
-        */
-
         if (!hasRoadmap) {
 
             return WorkspaceState
                 .ROADMAP_PENDING;
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Initial Mission
-        |--------------------------------------------------------------------------
-        */
 
         if (
             lifecycleState ===
@@ -430,12 +390,6 @@ export class WorkspaceMapper {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Waiting For Next Weekly Mission
-        |--------------------------------------------------------------------------
-        */
-
         if (
             lifecycleState ===
             MissionLifecycleState
@@ -446,12 +400,6 @@ export class WorkspaceMapper {
                 .NEXT_MISSION_PENDING;
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Roadmap Completed
-        |--------------------------------------------------------------------------
-        */
 
         if (
             lifecycleState ===
@@ -464,12 +412,6 @@ export class WorkspaceMapper {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Active Mission
-        |--------------------------------------------------------------------------
-        */
-
         if (
             lifecycleState ===
             MissionLifecycleState.ACTIVE
@@ -479,12 +421,6 @@ export class WorkspaceMapper {
                 .ACTIVE;
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Invalid Lifecycle State
-        |--------------------------------------------------------------------------
-        */
 
         throw new Error(
             "Unable to determine workspace state."

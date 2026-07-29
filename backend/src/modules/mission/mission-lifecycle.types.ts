@@ -1,6 +1,6 @@
 import {
     MissionDocument,
-} from "./mission.schema.js";
+} from "./mission.model.js";
 
 export enum MissionLifecycleState {
 

@@ -7,20 +7,24 @@ import {
 } from "../../shared/ai/ai.service.js";
 
 import {
+    aiParser,
+} from "../../shared/ai/ai.parser.js";
+
+import {
     aiValidator,
 } from "../../shared/ai/ai.validator.js";
 
 import {
     MissionDocument,
-} from "../mission/mission.schema.js";
+} from "../mission/mission.model.js";
 
 import {
     AssessmentDocument,
-} from "../assessment/assessment.schema.js";
+} from "../assessment/assessment.model.js";
 
 import {
     WeeklyReflectionDocument,
-} from "../weekly-reflection/weekly-reflection.schema.js";
+} from "../weekly-reflection/weekly-reflection.model.js";
 
 import {
     skillProgressService,
@@ -59,8 +63,14 @@ class WeeklyReportWorkflow {
     async generateWeeklyReport(
         mission: MissionDocument,
         assessment: AssessmentDocument,
-        reflection: WeeklyReflectionDocument,
+        reflection: WeeklyReflectionDocument
     ) {
+
+        /*
+        |----------------------------------------------------------------------
+        | Validate Relationships
+        |----------------------------------------------------------------------
+        */
 
         if (
             assessment.careerJourneyId.toString() !==
@@ -98,29 +108,51 @@ class WeeklyReportWorkflow {
 
         }
 
+        /*
+        |----------------------------------------------------------------------
+        | Prevent Duplicate Report
+        |----------------------------------------------------------------------
+        */
+
         const alreadyGenerated =
-            await weeklyReportService.existsByReflectionId(
-                reflection._id,
-            );
+            await weeklyReportService
+                .existsByReflectionId(
+                    reflection._id
+                );
 
         if (alreadyGenerated) {
 
             throw new AppError(
                 409,
-                WEEKLY_REPORT_MESSAGES.ALREADY_GENERATED,
+                WEEKLY_REPORT_MESSAGES
+                    .ALREADY_GENERATED
             );
 
         }
 
+        /*
+        |----------------------------------------------------------------------
+        | Load Weekly Progress
+        |----------------------------------------------------------------------
+        */
+
         const skillProgress =
-            await skillProgressService.getSkillProgressByAssessment(
-                assessment.id,
-            );
+            await skillProgressService
+                .getSkillProgressByAssessment(
+                    assessment.id
+                );
 
         const roadmapItems =
-            await roadmapService.getRoadmapItemsByIds(
-                mission.plannedRoadmapItemIds,
-            );
+            await roadmapService
+                .getRoadmapItemsByIds(
+                    mission.plannedRoadmapItemIds
+                );
+
+        /*
+        |----------------------------------------------------------------------
+        | Build AI Input
+        |----------------------------------------------------------------------
+        */
 
         const promptInput =
             WeeklyReportMapper.toPromptInput(
@@ -129,67 +161,74 @@ class WeeklyReportWorkflow {
                 reflection,
                 skillProgress,
                 roadmapItems.map(
-                    item => item.title,
-                ),
+                    item =>
+                        item.title
+                )
             );
-
-        console.log(
-            "WEEKLY REPORT PROMPT INPUT:",
-            JSON.stringify(
-                promptInput,
-                null,
-                2
-            )
-        );
 
         const prompt =
             buildWeeklyReportPrompt(
-                promptInput,
+                promptInput
             );
+
+        /*
+        |----------------------------------------------------------------------
+        | Generate Weekly Report
+        |----------------------------------------------------------------------
+        */
 
         const response =
             await aiService.generate({
-
                 prompt,
-
             });
 
+        const parsedResponse =
+            aiParser
+                .parse<WeeklyReportGenerationOutput>(
+                    response.text
+                );
+
         const aiOutput =
-            JSON.parse(
-                response.text,
-            ) as WeeklyReportGenerationOutput;
+            aiValidator
+                .validateWeeklyReport(
+                    parsedResponse
+                );
 
-        aiValidator.validateWeeklyReport(
-            aiOutput,
-        );
+        /*
+        |----------------------------------------------------------------------
+        | Persist Weekly Report
+        |----------------------------------------------------------------------
+        */
 
-        return weeklyReportService.createWeeklyReport({
+        return weeklyReportService
+            .createWeeklyReport({
 
-            careerJourneyId:
-                mission.careerJourneyId,
+                careerJourneyId:
+                    mission.careerJourneyId,
 
-            missionId:
-                mission._id,
+                missionId:
+                    mission._id,
 
-            assessmentId:
-                assessment._id,
+                assessmentId:
+                    assessment._id,
 
-            reflectionId:
-                reflection._id,
+                reflectionId:
+                    reflection._id,
 
-            promptVersion:
-                WEEKLY_REPORT_CONSTANTS.DEFAULT_PROMPT_VERSION,
+                promptVersion:
+                    WEEKLY_REPORT_CONSTANTS
+                        .DEFAULT_PROMPT_VERSION,
 
-            summary:
-                aiOutput.summary,
+                summary:
+                    aiOutput.summary,
 
-            mentorFeedback:
-                aiOutput.mentorFeedback,
+                mentorFeedback:
+                    aiOutput.mentorFeedback,
 
-            recommendation:
-                aiOutput.recommendation,
+                recommendation:
+                    aiOutput.recommendation,
 
-        });
+            });
 
     }
 

@@ -2,10 +2,11 @@ import { AUTH_MESSAGES } from './auth.constants.js';
 import {
   AuthResponse,
   JwtPayload,
+  LoginInput,
   RefreshResponse,
+  RegisterInput,
   RegisterResponse,
 } from './auth.types.js';
-import { LoginInput, RegisterInput } from './auth.validation.js';
 
 import { userRepository } from '../users/user.repository.js';
 import { toUserResponse } from '../users/user.mapper.js';
@@ -148,8 +149,8 @@ class AuthService {
     }
 
     if (
-      user.accountStatus !==
-      AccountStatus.ACTIVE
+      user.accountStatus ===
+      AccountStatus.INACTIVE
     ) {
       throw new AppError(
         HTTP_STATUS.FORBIDDEN,
@@ -157,11 +158,18 @@ class AuthService {
       );
     }
 
-    const jwtPayload: JwtPayload = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    if (
+      user.accountStatus ===
+      AccountStatus.SUSPENDED
+    ) {
+      throw new AppError(
+        HTTP_STATUS.FORBIDDEN,
+        AUTH_MESSAGES.ACCOUNT_SUSPENDED
+      );
+    }
+
+    const jwtPayload =
+      createJwtPayload(user);
 
     const accessToken =
       generateAccessToken(jwtPayload);
@@ -184,7 +192,7 @@ class AuthService {
     if (!user) {
       throw new AppError(
         HTTP_STATUS.NOT_FOUND,
-        "User not found."
+        AUTH_MESSAGES.USER_NOT_FOUND
       );
     }
 

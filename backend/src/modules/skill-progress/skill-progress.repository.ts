@@ -3,27 +3,18 @@ import {
     Types,
     UpdateQuery,
 } from "mongoose";
+import { SkillProgressDocument, SkillProgressModel } from "./index.js";
+import { UserSkillDocument } from "../user-skill/index.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/index.js";
 
-import {
-    SkillProgressDocument,
-    SkillProgressModel,
-} from "./skill-progress.schema.js";
-import { PopulatedSkillProgressDocument } from "../weekly-report/weekly-report.types.js";
-import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
-import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
+
 
 class SkillProgressRepository {
 
     async create(
         data: Partial<SkillProgressDocument>,
         session?: ClientSession
-    ) {
-
-        console.log(
-            "SKILL PROGRESS REPOSITORY CREATE:",
-            data
-        );
-
+    ): Promise<SkillProgressDocument> {
 
         const [skillProgress] =
             await SkillProgressModel.create(
@@ -33,46 +24,37 @@ class SkillProgressRepository {
                 }
             );
 
-
-        console.log(
-            "MONGODB CREATED SKILL PROGRESS:",
-            skillProgress.toObject()
-        );
-
         return skillProgress;
     }
 
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOne({
-            _id: id,
-        }).session(session ?? null);
-
+        return SkillProgressModel
+            .findById(id)
+            .session(session ?? null);
     }
 
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOne({
-            ...filter,
-        }).session(session ?? null);
-
+        return SkillProgressModel
+            .findOne(filter)
+            .session(session ?? null);
     }
 
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument[]> {
 
-        return SkillProgressModel.find({
-            ...filter,
-        }).session(session ?? null);
-
+        return SkillProgressModel
+            .find(filter)
+            .session(session ?? null);
     }
 
     async exists(
@@ -81,24 +63,21 @@ class SkillProgressRepository {
     ): Promise<boolean> {
 
         const exists =
-            await SkillProgressModel.exists(
-                filter
-            ).session(session ?? null);
+            await SkillProgressModel
+                .exists(filter)
+                .session(session ?? null);
 
         return Boolean(exists);
-
     }
 
     async updateById(
         id: Types.ObjectId,
         data: UpdateQuery<SkillProgressDocument>,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOneAndUpdate(
-            {
-                _id: id,
-            },
+        return SkillProgressModel.findByIdAndUpdate(
+            id,
             data,
             {
                 new: true,
@@ -106,65 +85,65 @@ class SkillProgressRepository {
                 session,
             }
         );
-
     }
 
     async deleteById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOneAndDelete(
-            {
-                _id: id,
-            },
+        return SkillProgressModel.findByIdAndDelete(
+            id,
             {
                 session,
             }
         );
-
     }
 
     async findHistoryByUserSkill(
         userSkillId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument[]> {
 
-        return SkillProgressModel.find({
-            userSkillId,
-        })
+        return SkillProgressModel
+            .find({
+                userSkillId,
+            })
             .sort({
                 createdAt: 1,
             })
             .session(session ?? null);
-
     }
 
     async findLatestByUserSkill(
         userSkillId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOne({
-            userSkillId,
-        })
+        return SkillProgressModel
+            .findOne({
+                userSkillId,
+            })
             .sort({
                 createdAt: -1,
             })
             .session(session ?? null);
-
     }
 
     async findByAssessment(
         assessmentId: Types.ObjectId,
         session?: ClientSession
     ) {
-        return SkillProgressModel.find({
-            assessmentId,
-        })
+
+        return SkillProgressModel
+            .find({
+                assessmentId,
+            })
             .populate<{
-                userSkillId: UserSkillDocument & {
-                    skillCatalogId: SkillCatalogDocument;
+                userSkillId:
+                UserSkillDocument & {
+                    skillCatalogId:
+                    SkillCatalogDocument;
                 };
             }>({
                 path: "userSkillId",
@@ -184,19 +163,18 @@ class SkillProgressRepository {
         assessmentId: Types.ObjectId,
         userSkillId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<SkillProgressDocument | null> {
 
-        return SkillProgressModel.findOne({
-            assessmentId,
-            userSkillId,
-        })
+        return SkillProgressModel
+            .findOne({
+                assessmentId,
+                userSkillId,
+            })
             .sort({
                 createdAt: -1,
             })
             .session(session ?? null);
-
     }
-
 }
 
 export const skillProgressRepository =

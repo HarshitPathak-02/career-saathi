@@ -1,6 +1,6 @@
 import {
     WeeklyReportDocument,
-} from "./weekly-report.schema.js";
+} from "./weekly-report.model.js";
 
 export class WeeklyReportResponseMapper {
 

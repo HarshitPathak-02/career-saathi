@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 import { roadmapRepository } from "./roadmap.repository.js";
 import { roadmapItemRepository } from "./roadmap-item.repository.js";
-import { RoadmapDocument } from "./roadmap.schema.js";
+import { RoadmapDocument } from "./roadmap.model.js";
 
 class RoadmapService {
 
@@ -43,7 +43,7 @@ class RoadmapService {
             limit
         );
     }
-    
+
     async getRoadmapItemsByIds(
         roadmapItemIds: Types.ObjectId[]
     ) {

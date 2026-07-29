@@ -14,7 +14,7 @@ import { AppError } from "../../core/errors/app-error.js";
 
 import {
     MissionDocument,
-} from "./mission.schema.js";
+} from "./mission.model.js";
 
 import {
     MissionPlanningInput,
@@ -26,7 +26,7 @@ import {
     DEFAULT_DURATION_DAYS,
     DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION,
     DEFAULT_WORKLOAD_MULTIPLIER,
-} from "./mission.config.js";
+} from "./mission.constants.js";
 
 export class MissionWorkflow {
 

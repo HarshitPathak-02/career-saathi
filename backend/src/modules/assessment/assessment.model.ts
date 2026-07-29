@@ -1,21 +1,27 @@
-import mongoose, { HydratedDocument, InferSchemaType } from "mongoose";
-
 import {
-    AssessmentStatus,
-    AssessmentType,
-} from "./assessment.enums.js";
+    HydratedDocument,
+    InferSchemaType,
+    Schema,
+    Types,
+    model,
+} from "mongoose";
+import { ASSESSMENT_COLLECTION, ASSESSMENT_MODEL, AssessmentStatus, AssessmentType } from "./index.js";
 
-const AssessmentSchema = new mongoose.Schema(
+
+const AssessmentSchema = new Schema(
     {
         careerJourneyId: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "CareerJourney",
             required: true,
+            index: true,
         },
 
         type: {
             type: String,
-            enum: Object.values(AssessmentType),
+            enum: Object.values(
+                AssessmentType
+            ),
             required: true,
         },
 
@@ -34,12 +40,17 @@ const AssessmentSchema = new mongoose.Schema(
         description: {
             type: String,
             trim: true,
+            default: "",
         },
 
         status: {
             type: String,
-            enum: Object.values(AssessmentStatus),
-            default: AssessmentStatus.PENDING,
+            enum: Object.values(
+                AssessmentStatus
+            ),
+            default:
+                AssessmentStatus.PENDING,
+            index: true,
         },
 
         completedAt: {
@@ -50,6 +61,7 @@ const AssessmentSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false,
+            index: true,
         },
 
         deletedAt: {
@@ -59,12 +71,12 @@ const AssessmentSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
+        versionKey: false,
+        strict: "throw",
+        collection:
+            ASSESSMENT_COLLECTION,
     }
 );
-
-AssessmentSchema.index({
-    careerJourneyId: 1,
-});
 
 AssessmentSchema.index({
     careerJourneyId: 1,
@@ -79,6 +91,7 @@ AssessmentSchema.index(
     },
     {
         unique: true,
+
         partialFilterExpression: {
             isDeleted: false,
         },
@@ -86,12 +99,15 @@ AssessmentSchema.index(
 );
 
 export type Assessment =
-    InferSchemaType<typeof AssessmentSchema>;
+    InferSchemaType<
+        typeof AssessmentSchema
+    >;
 
 export type AssessmentDocument =
     HydratedDocument<Assessment>;
 
-export const AssessmentModel = mongoose.model(
-    "Assessment",
-    AssessmentSchema
-);
+export const AssessmentModel =
+    model<Assessment>(
+        ASSESSMENT_MODEL,
+        AssessmentSchema
+    );

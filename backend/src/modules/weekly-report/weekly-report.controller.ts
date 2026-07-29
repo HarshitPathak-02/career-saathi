@@ -1,12 +1,19 @@
 import {
     Request,
     Response,
-    NextFunction,
 } from "express";
 
 import {
     Types,
 } from "mongoose";
+
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
+
+import {
+    successResponse,
+} from "../../core/responses/successResponse.js";
 
 import {
     weeklyReportService,
@@ -22,103 +29,130 @@ import {
 
 class WeeklyReportController {
 
-    async getLatestWeeklyReport(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
+    /*
+    |--------------------------------------------------------------------------
+    | Get Latest Weekly Report
+    |--------------------------------------------------------------------------
+    */
 
-        try {
+    getLatestWeeklyReport =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const weeklyReport =
-                await weeklyReportService
-                    .getLatestWeeklyReport(
-                        new Types.ObjectId(
+                const careerJourneyId =
+                    new Types.ObjectId(
+                        req.params
+                            .careerJourneyId as string
+                    );
+
+                const weeklyReport =
+                    await weeklyReportService
+                        .getLatestWeeklyReport(
+                            careerJourneyId
+                        );
+
+                const data =
+                    weeklyReportResponseMapper
+                        .toWeeklyReportResponse(
+                            weeklyReport
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode: 200,
+
+                    message:
+                        "Latest weekly report fetched successfully.",
+
+                    data,
+                });
+
+            }
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Weekly Report History
+    |--------------------------------------------------------------------------
+    */
+
+    getWeeklyReports =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const careerJourneyId =
+                    new Types.ObjectId(
+                        req.params
+                            .careerJourneyId as string
+                    );
+
+                const weeklyReports =
+                    await weeklyReportService
+                        .getWeeklyReports(
+                            careerJourneyId
+                        );
+
+                const data =
+                    weeklyReportResponseMapper
+                        .toWeeklyReportsResponse(
+                            weeklyReports
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode: 200,
+
+                    message:
+                        "Weekly reports fetched successfully.",
+
+                    data,
+                });
+
+            }
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Weekly Report By Id
+    |--------------------------------------------------------------------------
+    */
+
+    getWeeklyReport =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const weeklyReport =
+                    await weeklyReportDetailsWorkflow
+                        .getWeeklyReportDetails(
                             req.params
-                                .careerJourneyId as string
-                        )
-                    );
+                                .reportId as string
+                        );
 
-            res.json(
-                weeklyReportResponseMapper
-                    .toWeeklyReportResponse(
-                        weeklyReport
-                    )
-            );
+                return successResponse({
+                    res,
 
-        } catch (error) {
+                    statusCode: 200,
 
-            next(error);
+                    message:
+                        "Weekly report fetched successfully.",
 
-        }
+                    data:
+                        weeklyReport,
+                });
 
-    }
-
-    async getWeeklyReports(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-
-        try {
-
-            const weeklyReports =
-                await weeklyReportService
-                    .getWeeklyReports(
-                        new Types.ObjectId(
-                            req.params
-                                .careerJourneyId as string
-                        )
-                    );
-
-            res.json(
-                weeklyReportResponseMapper
-                    .toWeeklyReportsResponse(
-                        weeklyReports
-                    )
-            );
-
-        } catch (error) {
-
-            next(error);
-
-        }
-
-    }
-
-    async getWeeklyReport(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-
-        try {
-
-            const reportId =
-                req.params.reportId as string;
-
-            const weeklyReport =
-                await weeklyReportDetailsWorkflow
-                    .getWeeklyReportDetails(
-                        reportId
-                    );
-
-            res.status(200).json({
-
-                success: true,
-
-                data:
-                    weeklyReport,
-
-            });
-
-        } catch (error) {
-
-            next(error);
-
-        }
-
-    }
+            }
+        );
 
 }
 

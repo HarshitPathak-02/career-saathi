@@ -1,11 +1,8 @@
 import Joi from "joi";
 
-import { objectIdSchema } from "../../shared/validators/common-validator.js";
-
 import {
     CareerJourneyStatus,
     PreferredLanguage,
-    SkillSource,
 } from "./career-journey.enums.js";
 
 import {
@@ -15,65 +12,118 @@ import {
     MIN_TARGET_DURATION_MONTHS,
 } from "./career-journey.constants.js";
 
-/**
- * Create Career Journey
- */
-export const createCareerJourneySchema = Joi.object({
-    domainId: objectIdSchema.required(),
 
-    roleId: objectIdSchema.required(),
-
-    targetCompany: Joi.string()
+const objectIdSchema =
+    Joi.string()
         .trim()
-        .max(100)
-        .optional(),
+        .pattern(
+            /^[a-f\d]{24}$/i
+        )
+        .messages({
+            "string.pattern.base":
+                "Invalid ObjectId.",
+        });
 
-    targetDurationMonths: Joi.number()
-        .integer()
-        .min(MIN_TARGET_DURATION_MONTHS)
-        .max(MAX_TARGET_DURATION_MONTHS)
-        .required(),
 
-    dailyStudyHours: Joi.number()
-        .min(MIN_DAILY_STUDY_HOURS)
-        .max(MAX_DAILY_STUDY_HOURS)
-        .required(),
+export const createCareerJourneySchema =
+    Joi.object({
 
-    preferredLanguage: Joi.string()
-        .valid(...Object.values(PreferredLanguage))
-        .default(PreferredLanguage.ENGLISH),
+        domainId:
+            objectIdSchema
+                .required(),
 
-});
+        roleId:
+            objectIdSchema
+                .required(),
 
-/**
- * Update Career Journey
- */
-export const updateCareerJourneySchema = Joi.object({
-    domainId: objectIdSchema,
-    roleId: objectIdSchema,
-    targetCompany: Joi.string().trim().max(100),
-    targetDurationMonths: Joi.number()
-        .integer()
-        .min(MIN_TARGET_DURATION_MONTHS)
-        .max(MAX_TARGET_DURATION_MONTHS),
-    dailyStudyHours: Joi.number()
-        .min(MIN_DAILY_STUDY_HOURS)
-        .max(MAX_DAILY_STUDY_HOURS),
-    preferredLanguage: Joi.string().valid(...Object.values(PreferredLanguage)),
-}).min(1);
+        targetCompany:
+            Joi.string()
+                .trim()
+                .max(100)
+                .optional(),
 
-/**
- * Update Career Journey Status
- */
-export const updateCareerJourneyStatusSchema = Joi.object({
-    status: Joi.string()
-        .valid(...Object.values(CareerJourneyStatus))
-        .required(),
-});
+        targetDurationMonths:
+            Joi.number()
+                .integer()
+                .min(
+                    MIN_TARGET_DURATION_MONTHS
+                )
+                .max(
+                    MAX_TARGET_DURATION_MONTHS
+                )
+                .required(),
 
-/**
- * Params
- */
-export const careerJourneyIdParamSchema = Joi.object({
-    careerJourneyId: objectIdSchema.required(),
-});
+        dailyStudyHours:
+            Joi.number()
+                .min(
+                    MIN_DAILY_STUDY_HOURS
+                )
+                .max(
+                    MAX_DAILY_STUDY_HOURS
+                )
+                .required(),
+
+        preferredLanguage:
+            Joi.string()
+                .valid(
+                    ...Object.values(
+                        PreferredLanguage
+                    )
+                )
+                .default(
+                    PreferredLanguage.ENGLISH
+                ),
+    });
+
+
+export const updateCareerJourneySchema =
+    Joi.object({
+
+        domainId:
+            objectIdSchema,
+
+        roleId:
+            objectIdSchema,
+
+        targetCompany:
+            Joi.string()
+                .trim()
+                .max(100),
+
+        targetDurationMonths:
+            Joi.number()
+                .integer()
+                .min(
+                    MIN_TARGET_DURATION_MONTHS
+                )
+                .max(
+                    MAX_TARGET_DURATION_MONTHS
+                ),
+
+        dailyStudyHours:
+            Joi.number()
+                .min(
+                    MIN_DAILY_STUDY_HOURS
+                )
+                .max(
+                    MAX_DAILY_STUDY_HOURS
+                ),
+
+        preferredLanguage:
+            Joi.string()
+                .valid(
+                    ...Object.values(
+                        PreferredLanguage
+                    )
+                ),
+
+    }).min(1);
+
+
+export const careerJourneyIdParamSchema =
+    Joi.object({
+
+        careerJourneyId:
+            objectIdSchema
+                .required(),
+    });

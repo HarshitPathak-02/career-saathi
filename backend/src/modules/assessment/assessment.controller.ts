@@ -12,37 +12,54 @@ import {
 } from "../../core/middleware/async-handler.js";
 
 import {
-    assessmentService,
-} from "./assessment.service.js";
+    successResponse,
+} from "../../core/responses/successResponse.js";
 
 import {
-    assessmentWorkflowService,
-} from "./assessment-workflow.service.js";
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+import { assessmentWorkflowService, ASSESSMENT_MESSAGES, assessmentService } from "./index.js";
+import { getAuthUser } from "../../shared/utils/get-auth-user.js";
+
+
 
 class AssessmentController {
 
-    startInitialAssessment = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    /*
+    |--------------------------------------------------------------------------
+    | Start Initial Assessment
+    |--------------------------------------------------------------------------
+    */
 
-            const assessment =
-                await assessmentWorkflowService
-                    .startInitialAssessment(
-                        req.body.careerJourneyId
-                    );
+    startInitialAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            res.status(201).json({
-                success: true,
+                const assessment =
+                    await assessmentWorkflowService
+                        .startInitialAssessment(
+                            req.body
+                                .careerJourneyId
+                        );
 
-                message:
-                    "Initial assessment created successfully.",
+                return successResponse({
+                    res,
 
-                data: assessment,
-            });
-        }
-    );
+                    statusCode:
+                        HTTP_STATUS.CREATED,
+
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .INITIAL_CREATED,
+
+                    data:
+                        assessment,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -50,28 +67,35 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    startWeeklyAssessment = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    startWeeklyAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const assessment =
-                await assessmentWorkflowService
-                    .startWeeklyAssessment(
-                        req.body.careerJourneyId
-                    );
+                const assessment =
+                    await assessmentWorkflowService
+                        .startWeeklyAssessment(
+                            req.body
+                                .careerJourneyId
+                        );
 
-            res.status(201).json({
-                success: true,
+                return successResponse({
+                    res,
 
-                message:
-                    "Weekly assessment created successfully.",
+                    statusCode:
+                        HTTP_STATUS.CREATED,
 
-                data: assessment,
-            });
-        }
-    );
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .WEEKLY_CREATED,
+
+                    data:
+                        assessment,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -79,28 +103,37 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    submitInitialAssessment = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    submitInitialAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const assessment =
-                await assessmentWorkflowService
-                    .completeInitialAssessment(
-                        req.body
-                    );
+                const user = getAuthUser(req);
 
-            res.status(200).json({
-                success: true,
+                const assessment =
+                    await assessmentWorkflowService
+                        .completeInitialAssessment(
+                            user.userId,
+                            req.body
+                        );
 
-                message:
-                    "Initial assessment submitted successfully.",
+                return successResponse({
+                    res,
 
-                data: assessment,
-            });
-        }
-    );
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .INITIAL_SUBMITTED,
+
+                    data:
+                        assessment,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -108,28 +141,34 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    submitWeeklyAssessment = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    submitWeeklyAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const assessment =
-                await assessmentWorkflowService
-                    .completeWeeklyAssessment(
-                        req.body
-                    );
+                const assessment =
+                    await assessmentWorkflowService
+                        .completeWeeklyAssessment(
+                            req.body
+                        );
 
-            res.status(200).json({
-                success: true,
+                return successResponse({
+                    res,
 
-                message:
-                    "Weekly assessment submitted successfully.",
+                    statusCode:
+                        HTTP_STATUS.OK,
 
-                data: assessment,
-            });
-        }
-    );
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .WEEKLY_SUBMITTED,
+
+                    data:
+                        assessment,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -137,36 +176,44 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    getAssessmentHistory = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    getAssessmentHistory =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const {
-                careerJourneyId,
-            } = req.params as {
-                careerJourneyId: string;
-            };
+                const {
+                    careerJourneyId,
+                } =
+                    req.params as {
+                        careerJourneyId:
+                        string;
+                    };
 
-            const assessments =
-                await assessmentService
-                    .getAssessmentHistory(
-                        new Types.ObjectId(
-                            careerJourneyId
-                        )
-                    );
+                const assessments =
+                    await assessmentService
+                        .getAssessmentHistory(
+                            new Types.ObjectId(
+                                careerJourneyId
+                            )
+                        );
 
-            res.status(200).json({
-                success: true,
+                return successResponse({
+                    res,
 
-                message:
-                    "Assessment history fetched successfully.",
+                    statusCode:
+                        HTTP_STATUS.OK,
 
-                data: assessments,
-            });
-        }
-    );
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .HISTORY_FETCHED,
+
+                    data:
+                        assessments,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -174,34 +221,42 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    getAssessmentDetails = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    getAssessmentDetails =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const {
-                assessmentId,
-            } = req.params as {
-                assessmentId: string;
-            };
+                const {
+                    assessmentId,
+                } =
+                    req.params as {
+                        assessmentId:
+                        string;
+                    };
 
-            const assessment =
-                await assessmentService
-                    .getAssessmentDetails(
-                        assessmentId
-                    );
+                const assessment =
+                    await assessmentService
+                        .getAssessmentDetails(
+                            assessmentId
+                        );
 
-            res.status(200).json({
-                success: true,
+                return successResponse({
+                    res,
 
-                message:
-                    "Assessment details fetched successfully.",
+                    statusCode:
+                        HTTP_STATUS.OK,
 
-                data: assessment,
-            });
-        }
-    );
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .DETAILS_FETCHED,
+
+                    data:
+                        assessment,
+                });
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -209,53 +264,85 @@ class AssessmentController {
     |--------------------------------------------------------------------------
     */
 
-    getAssessmentById = asyncHandler(
-        async (
-            req: Request,
-            res: Response
-        ) => {
+    getAssessmentById =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const {
-                assessmentId,
-            } = req.params as {
-                assessmentId: string;
-            };
+                const {
+                    assessmentId,
+                } =
+                    req.params as {
+                        assessmentId:
+                        string;
+                    };
 
-            const assessment =
-                await assessmentService
-                    .getAssessmentById(
-                        assessmentId
-                    );
+                const assessment =
+                    await assessmentService
+                        .getAssessmentById(
+                            assessmentId
+                        );
 
-            res.status(200).json({
-                success: true,
+                return successResponse({
+                    res,
 
-                data: assessment,
-            });
-        }
-    );
+                    statusCode:
+                        HTTP_STATUS.OK,
 
-    async getWeeklyAssessmentPlan(
-        req: Request,
-        res: Response
-    ) {
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .FETCHED,
 
-        const {
-            assessmentId,
-        } = req.params;
+                    data:
+                        assessment,
+                });
+            }
+        );
 
-        const plan =
-            await assessmentWorkflowService
-                .getWeeklyAssessmentPlan(
-                    assessmentId as string
-                );
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Assessment Plan
+    |--------------------------------------------------------------------------
+    */
 
-        res.status(200).json({
-            success: true,
-            data: plan,
-        });
+    getWeeklyAssessmentPlan =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-    }
+                const {
+                    assessmentId,
+                } =
+                    req.params as {
+                        assessmentId:
+                        string;
+                    };
+
+                const plan =
+                    await assessmentWorkflowService
+                        .getWeeklyAssessmentPlan(
+                            assessmentId
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .WEEKLY_PLAN_FETCHED,
+
+                    data:
+                        plan,
+                });
+            }
+        );
 }
 
 export const assessmentController =

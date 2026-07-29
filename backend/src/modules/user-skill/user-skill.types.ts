@@ -1,21 +1,34 @@
-import { Types } from "mongoose";
-import { UserSkillDocument } from "./user-skill.schema.js";
-import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
+import {
+    Types,
+} from "mongoose";
+
+import {
+    UserSkillDocument,
+} from "./user-skill.model.js";
+
+import {
+    SkillCatalogDocument,
+} from "../../master-data/skill-catalog/skill-catalog.schema.js";
 
 export interface InitializeUserSkillsDto {
-    careerJourneyId: Types.ObjectId;
 
-    selectedSkillCatalogIds: Types.ObjectId[];
+    careerJourneyId:
+    Types.ObjectId;
+
+    selectedSkillCatalogIds:
+    Types.ObjectId[];
 }
 
 export interface UpdateUserSkillProgressDTO {
 
-    userSkillId: Types.ObjectId;
+    userSkillId:
+    Types.ObjectId;
 
-    currentScore: number;
+    currentScore:
+    number;
 
-    lastAssessmentAt: Date;
-
+    lastAssessmentAt:
+    Date;
 }
 
 export type PopulatedUserSkill =
@@ -23,6 +36,7 @@ export type PopulatedUserSkill =
         UserSkillDocument,
         "skillCatalogId"
     > & {
+
         skillCatalogId:
         SkillCatalogDocument;
     };

@@ -1,64 +1,77 @@
-import { Types } from "mongoose";
-
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
 import {
-    AssessmentStatus,
-    AssessmentType,
-} from "./assessment.enums.js";
+    AppError,
+} from "../../core/errors/app-error.js";
 
 import {
-    CreateAssessmentDTO,
-    AssessmentDetailResponse,
-    AssessmentHistoryItem,
-} from "./assessment.types.js";
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+import { ASSESSMENT_MESSAGES, AssessmentDetailResponse, AssessmentDocument, AssessmentHistoryItem, assessmentRepository, AssessmentStatus, AssessmentType, CreateAssessmentDTO } from "./index.js";
+import { skillProgressService } from "../skill-progress/index.js";
 
-import {
-    AssessmentMessages,
-} from "./assessment.messages.js";
 
-import {
-    assessmentRepository,
-} from "./assessment.repository.js";
-
-import {
-    AssessmentDocument,
-} from "./assessment.schema.js";
-
-import {
-    skillProgressService,
-} from "../skill-progress/skill-progress.service.js";
 
 class AssessmentService {
 
-    async createAssessment(
-        data: CreateAssessmentDTO
-    ) {
-        return assessmentRepository.create({
-            ...data,
+    /*
+    |--------------------------------------------------------------------------
+    | Create Assessment
+    |--------------------------------------------------------------------------
+    */
 
-            status:
-                AssessmentStatus.PENDING,
-        });
+    async createAssessment(
+        data:
+            CreateAssessmentDTO,
+        session?:
+            ClientSession
+    ) {
+
+        return assessmentRepository
+            .create(
+                {
+                    ...data,
+
+                    status:
+                        AssessmentStatus.PENDING,
+                },
+                session
+            );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Submit Assessment
+    |--------------------------------------------------------------------------
+    */
+
     async submitAssessment(
-        assessmentId: string
+        assessmentId:
+            string,
+        session?:
+            ClientSession
     ) {
+
         const assessmentObjectId =
             new Types.ObjectId(
                 assessmentId
             );
 
         const assessment =
-            await assessmentRepository.findById(
-                assessmentObjectId
-            );
+            await assessmentRepository
+                .findById(
+                    assessmentObjectId,
+                    session
+                );
 
         if (!assessment) {
+
             throw new AppError(
-                404,
-                AssessmentMessages.NOT_FOUND
+                HTTP_STATUS.NOT_FOUND,
+                ASSESSMENT_MESSAGES.NOT_FOUND
             );
         }
 
@@ -66,35 +79,54 @@ class AssessmentService {
             assessment.status ===
             AssessmentStatus.COMPLETED
         ) {
+
             throw new AppError(
-                409,
-                AssessmentMessages.ALREADY_COMPLETED
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .ALREADY_COMPLETED
             );
         }
 
-        return assessmentRepository.updateStatus(
-            assessmentObjectId,
-            AssessmentStatus.COMPLETED
-        );
+        return assessmentRepository
+            .updateStatus(
+                assessmentObjectId,
+
+                AssessmentStatus.COMPLETED,
+
+                session
+            );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Get Assessment By Id
+    |--------------------------------------------------------------------------
+    */
+
     async getAssessmentById(
-        assessmentId: string
+        assessmentId:
+            string,
+        session?:
+            ClientSession
     ) {
+
         const assessmentObjectId =
             new Types.ObjectId(
                 assessmentId
             );
 
         const assessment =
-            await assessmentRepository.findById(
-                assessmentObjectId
-            );
+            await assessmentRepository
+                .findById(
+                    assessmentObjectId,
+                    session
+                );
 
         if (!assessment) {
+
             throw new AppError(
-                404,
-                AssessmentMessages.NOT_FOUND
+                HTTP_STATUS.NOT_FOUND,
+                ASSESSMENT_MESSAGES.NOT_FOUND
             );
         }
 
@@ -108,18 +140,27 @@ class AssessmentService {
     */
 
     async getAssessmentHistory(
-        careerJourneyId: Types.ObjectId
-    ): Promise<AssessmentHistoryItem[]> {
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentHistoryItem[]
+    > {
 
         const assessments =
-            await assessmentRepository.findHistory(
-                careerJourneyId
-            );
+            await assessmentRepository
+                .findHistory(
+                    careerJourneyId,
+                    session
+                );
 
         return assessments.map(
             (assessment) => ({
+
                 id:
-                    assessment._id.toString(),
+                    assessment._id
+                        .toString(),
 
                 type:
                     assessment.type,
@@ -153,13 +194,17 @@ class AssessmentService {
     */
 
     async getAssessmentDetails(
-        assessmentId: string
-    ): Promise<AssessmentDetailResponse> {
+        assessmentId:
+            string
+    ): Promise<
+        AssessmentDetailResponse
+    > {
 
         const assessment =
-            await this.getAssessmentById(
-                assessmentId
-            );
+            await this
+                .getAssessmentById(
+                    assessmentId
+                );
 
         const progress =
             await skillProgressService
@@ -168,52 +213,59 @@ class AssessmentService {
                 );
 
         const skills =
-            progress.map((item) => ({
-                id:
-                    item._id.toString(),
+            progress.map(
+                (item) => ({
 
-                userSkillId:
-                    item.userSkillId._id.toString(),
+                    id:
+                        item._id
+                            .toString(),
 
-                skillCatalogId:
-                    item.userSkillId
-                        .skillCatalogId
-                        ._id
-                        .toString(),
+                    userSkillId:
+                        item.userSkillId
+                            ._id
+                            .toString(),
 
-                skillName:
-                    item.userSkillId
-                        .skillCatalogId
-                        .name,
+                    skillCatalogId:
+                        item.userSkillId
+                            .skillCatalogId
+                            ._id
+                            .toString(),
 
-                obtainedMarks:
-                    item.obtainedMarks,
+                    skillName:
+                        item.userSkillId
+                            .skillCatalogId
+                            .name,
 
-                totalMarks:
-                    item.totalMarks,
+                    obtainedMarks:
+                        item.obtainedMarks,
 
-                percentage:
-                    item.percentage,
+                    totalMarks:
+                        item.totalMarks,
 
-                improvementPercentage:
-                    item.improvementPercentage ??
-                    null,
+                    percentage:
+                        item.percentage,
 
-                assessmentMethod:
-                    item.assessmentMethod,
+                    improvementPercentage:
+                        item.improvementPercentage ??
+                        null,
 
-                assessmentPlatform:
-                    item.assessmentPlatform,
+                    assessmentMethod:
+                        item.assessmentMethod,
 
-                assessmentName:
-                    item.assessmentName,
+                    assessmentPlatform:
+                        item.assessmentPlatform,
 
-                remarks:
-                    item.remarks,
-            }));
+                    assessmentName:
+                        item.assessmentName,
+
+                    remarks:
+                        item.remarks,
+                })
+            );
 
         const averagePercentage =
             skills.length > 0
+
                 ? Number(
                     (
                         skills.reduce(
@@ -228,15 +280,20 @@ class AssessmentService {
                         skills.length
                     ).toFixed(2)
                 )
+
                 : 0;
 
         return {
+
             assessment: {
+
                 id:
-                    assessment._id.toString(),
+                    assessment._id
+                        .toString(),
 
                 careerJourneyId:
-                    assessment.careerJourneyId
+                    assessment
+                        .careerJourneyId
                         .toString(),
 
                 type:
@@ -265,6 +322,7 @@ class AssessmentService {
             skills,
 
             summary: {
+
                 totalSkills:
                     skills.length,
 
@@ -273,45 +331,79 @@ class AssessmentService {
         };
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Assessment
+    |--------------------------------------------------------------------------
+    */
+
     async deleteAssessment(
-        assessmentId: Types.ObjectId
+        assessmentId:
+            Types.ObjectId,
+        session?:
+            ClientSession
     ) {
+
         const assessment =
-            await assessmentRepository.findById(
-                assessmentId
-            );
+            await assessmentRepository
+                .findById(
+                    assessmentId,
+                    session
+                );
 
         if (!assessment) {
+
             throw new AppError(
-                404,
-                AssessmentMessages.NOT_FOUND
+                HTTP_STATUS.NOT_FOUND,
+                ASSESSMENT_MESSAGES.NOT_FOUND
             );
         }
 
-        return assessmentRepository.softDelete(
-            assessmentId
-        );
+        return assessmentRepository
+            .softDelete(
+                assessmentId,
+                session
+            );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Get Weekly Assessment
+    |--------------------------------------------------------------------------
+    */
+
     async getWeeklyAssessment(
-        careerJourneyId: Types.ObjectId,
-        weekNumber: number
-    ): Promise<AssessmentDocument> {
+        careerJourneyId:
+            Types.ObjectId,
+
+        weekNumber:
+            number,
+
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument
+    > {
 
         const assessment =
-            await assessmentRepository.findOne({
-                careerJourneyId,
+            await assessmentRepository
+                .findOne(
+                    {
+                        careerJourneyId,
 
-                weekNumber,
+                        weekNumber,
 
-                type:
-                    AssessmentType.WEEKLY,
-            });
+                        type:
+                            AssessmentType.WEEKLY,
+                    },
+                    session
+                );
 
         if (!assessment) {
+
             throw new AppError(
-                404,
-                AssessmentMessages.NOT_FOUND
+                HTTP_STATUS.NOT_FOUND,
+                ASSESSMENT_MESSAGES.NOT_FOUND
             );
         }
 

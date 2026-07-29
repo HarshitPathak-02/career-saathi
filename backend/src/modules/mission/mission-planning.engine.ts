@@ -20,23 +20,40 @@ class MissionPlanningEngine {
             );
 
         /*
-         * Carry-forward items always get priority.
-         */
-        const plannedRoadmapItemIds: Types.ObjectId[] =
-            [
+        |--------------------------------------------------------------------------
+        | Carry Forward
+        |--------------------------------------------------------------------------
+        |
+        | Incomplete items from the previous mission
+        | always receive priority.
+        |
+        */
+
+        const plannedRoadmapItemIds:
+            Types.ObjectId[] = [
                 ...input.carryForwardRoadmapItemIds,
             ];
 
         /*
-         * Revision consumes part of the weekly capacity.
-         *
-         * We treat the existence of revision work as
-         * one roadmap-sized workload unit for V1.
-         */
+        |--------------------------------------------------------------------------
+        | Revision Capacity
+        |--------------------------------------------------------------------------
+        |
+        | For V1, the existence of revision work
+        | consumes one roadmap-sized workload unit.
+        |
+        */
+
         const revisionCapacityCost =
             input.revisionPlans.length > 0
                 ? 1
                 : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remaining Capacity
+        |--------------------------------------------------------------------------
+        */
 
         const remainingCapacity =
             Math.max(
@@ -46,20 +63,31 @@ class MissionPlanningEngine {
                 0
             );
 
+        /*
+        |--------------------------------------------------------------------------
+        | New Roadmap Items
+        |--------------------------------------------------------------------------
+        |
+        | Add new items only after carry-forward
+        | and revision workload have been considered.
+        |
+        */
+
         const newItems =
             input.newRoadmapItems
-                .filter(item =>
-                    !plannedRoadmapItemIds.some(
-                        id =>
-                            id.equals(item._id)
-                    )
+                .filter(
+                    (item) =>
+                        !this.containsId(
+                            plannedRoadmapItemIds,
+                            item._id
+                        )
                 )
                 .slice(
                     0,
                     remainingCapacity
                 )
                 .map(
-                    item =>
+                    (item) =>
                         item._id
                 );
 
@@ -68,7 +96,6 @@ class MissionPlanningEngine {
         );
 
         return {
-
             missionNumber:
                 input.missionNumber,
 
@@ -82,7 +109,6 @@ class MissionPlanningEngine {
 
             endDate:
                 input.endDate,
-
         };
     }
 
@@ -107,7 +133,6 @@ class MissionPlanningEngine {
             capacity,
             1
         );
-
     }
 
     /*
@@ -122,14 +147,12 @@ class MissionPlanningEngine {
     ): boolean {
 
         return ids.some(
-            id =>
+            (id) =>
                 id.equals(
                     targetId
                 )
         );
-
     }
-
 }
 
 export const missionPlanningEngine =

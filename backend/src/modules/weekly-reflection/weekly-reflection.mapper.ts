@@ -1,4 +1,4 @@
-import { WeeklyReflectionDocument } from "./weekly-reflection.schema.js";
+import { WeeklyReflectionDocument } from "./weekly-reflection.model.js";
 
 export class WeeklyReflectionMapper {
 

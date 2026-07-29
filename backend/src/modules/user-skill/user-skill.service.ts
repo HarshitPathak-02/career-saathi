@@ -1,157 +1,316 @@
-import { Types } from "mongoose";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
-import { userSkillRepository } from "./user-skill.repository.js";
-import { careerJourneyRepository } from "../career-journey/career-journey.repository.js";
+import {
+    userSkillRepository,
+} from "./user-skill.repository.js";
 
-import { SkillLevel } from "./user-skill.enums.js";
-import { CareerJourneyStatus } from "../career-journey/career-journey.enums.js";
+import {
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
 
-import { CareerRoleSkillModel } from "../../master-data/career-role-skill/career-role-skill.schema.js";
-import { SkillCatalogModel } from "../../master-data/skill-catalog/skill-catalog.schema.js";
+import {
+    SkillLevel,
+} from "./user-skill.enums.js";
 
-import { AppError } from "../../core/errors/app-error.js";
-import { UpdateUserSkillProgressDTO } from "./user-skill.types.js";
+import {
+    CareerRoleSkillModel,
+} from "../../master-data/career-role-skill/career-role-skill.schema.js";
+
+import {
+    SkillCatalogModel,
+} from "../../master-data/skill-catalog/skill-catalog.schema.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
+
+import {
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+
+import {
+    UpdateUserSkillProgressDTO,
+} from "./user-skill.types.js";
 
 class UserSkillService {
+
     async getAvailableSkills(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: string,
+        session?: ClientSession
     ) {
-        const journey = await careerJourneyRepository.findOne({
-            _id: careerJourneyId,
-        });
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
+
+        const journey =
+            await careerJourneyRepository
+                .findOne(
+                    {
+                        _id:
+                            careerJourneyObjectId,
+                    },
+                    session
+                );
 
         if (!journey) {
-            throw new AppError(404, "Career Journey not found.");
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Career Journey not found."
+            );
         }
 
-        const roleSkills = await CareerRoleSkillModel.find({
-            roleId: journey.roleId,
-        })
-            .sort({ displayOrder: 1 })
-            .lean();
+        const roleSkillsQuery =
+            CareerRoleSkillModel
+                .find({
+                    roleId:
+                        journey.roleId,
+                })
+                .sort({
+                    displayOrder: 1,
+                });
 
-        const skillIds = roleSkills.map(
-            (roleSkill) => roleSkill.skillId
-        );
+        if (session) {
+            roleSkillsQuery.session(
+                session
+            );
+        }
 
-        return await SkillCatalogModel.find({
-            _id: {
-                $in: skillIds,
-            },
-            isActive: true,
-        }).lean();
+        const roleSkills =
+            await roleSkillsQuery.lean();
+
+        const skillIds =
+            roleSkills.map(
+                roleSkill =>
+                    roleSkill.skillId
+            );
+
+        const skillsQuery =
+            SkillCatalogModel.find({
+                _id: {
+                    $in:
+                        skillIds,
+                },
+
+                isActive: true,
+            });
+
+        if (session) {
+            skillsQuery.session(
+                session
+            );
+        }
+
+        return skillsQuery.lean();
     }
 
     async initializeUserSkills(
         careerJourneyId: string,
-        selectedSkillCatalogIds: Types.ObjectId[]
+        selectedSkillCatalogIds:
+            Types.ObjectId[],
+        session?: ClientSession
     ) {
-        const careerJourneyObjectId = new Types.ObjectId(careerJourneyId)
-        const journey = await careerJourneyRepository.findOne({
-            _id: careerJourneyObjectId,
-        });
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
+
+        const journey =
+            await careerJourneyRepository
+                .findOne(
+                    {
+                        _id:
+                            careerJourneyObjectId,
+                    },
+                    session
+                );
 
         if (!journey) {
-            throw new AppError(404, "Career Journey not found.");
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Career Journey not found."
+            );
         }
 
-
         const alreadyInitialized =
-            await userSkillRepository.exists({
-                careerJourneyId: careerJourneyObjectId,
-                isActive: true,
-            });
+            await userSkillRepository
+                .exists(
+                    {
+                        careerJourneyId:
+                            careerJourneyObjectId,
+
+                        isActive: true,
+                    },
+                    session
+                );
 
         if (alreadyInitialized) {
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "User skills have already been initialized."
             );
         }
 
-        const roleSkills = await CareerRoleSkillModel.find({
-            roleId: journey.roleId,
-        })
-            .sort({ displayOrder: 1 })
-            .lean();
+        const roleSkillsQuery =
+            CareerRoleSkillModel
+                .find({
+                    roleId:
+                        journey.roleId,
+                })
+                .sort({
+                    displayOrder: 1,
+                });
 
-        const skills = await SkillCatalogModel.find({
-            _id: {
-                $in: roleSkills.map(
-                    (roleSkill) => roleSkill.skillId
-                ),
-            },
-            isActive: true,
-        });
+        if (session) {
+            roleSkillsQuery.session(
+                session
+            );
+        }
 
-        const documents = skills.map((skill) => ({
-            careerJourneyId: careerJourneyObjectId,
+        const roleSkills =
+            await roleSkillsQuery.lean();
 
-            skillCatalogId: skill._id,
+        const skillsQuery =
+            SkillCatalogModel.find({
+                _id: {
+                    $in:
+                        roleSkills.map(
+                            roleSkill =>
+                                roleSkill.skillId
+                        ),
+                },
 
-            selectedByUser:
-                selectedSkillCatalogIds.some(
-                    (id) =>
-                        id.toString() ===
-                        skill._id.toString()
-                ),
+                isActive: true,
+            });
 
-            currentScore: 0,
+        if (session) {
+            skillsQuery.session(
+                session
+            );
+        }
 
-            currentLevel: SkillLevel.NOT_STARTED,
+        const skills =
+            await skillsQuery;
 
-            isActive: true,
-        }));
+        const documents =
+            skills.map(
+                skill => ({
+                    careerJourneyId:
+                        careerJourneyObjectId,
 
-        console.log(documents);
+                    skillCatalogId:
+                        skill._id,
 
-        await userSkillRepository.createMany(documents);
+                    selectedByUser:
+                        selectedSkillCatalogIds
+                            .some(
+                                id =>
+                                    id.toString() ===
+                                    skill._id.toString()
+                            ),
 
+                    currentScore: 0,
+
+                    currentLevel:
+                        SkillLevel.NOT_STARTED,
+
+                    isActive: true,
+                })
+            );
+
+        await userSkillRepository
+            .createMany(
+                documents,
+                session
+            );
     }
 
     async getUserSkills(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: string,
+        session?: ClientSession
     ) {
-        return userSkillRepository.findMany({
-            careerJourneyId,
-            isActive: true,
-        });
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
+
+        return userSkillRepository
+            .findMany(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
+
+                    isActive: true,
+                },
+                undefined,
+                undefined,
+                session
+            );
     }
 
     async updateSelectedSkills(
-        careerJourneyId: Types.ObjectId,
-        selectedSkillCatalogIds: Types.ObjectId[]
+        careerJourneyId: string,
+        selectedSkillCatalogIds:
+            Types.ObjectId[],
+        session?: ClientSession
     ) {
-        await userSkillRepository.updateMany(
-            {
-                careerJourneyId,
-            },
-            {
-                $set: {
-                    selectedByUser: false,
-                },
-            }
-        );
 
-        await userSkillRepository.updateMany(
-            {
-                careerJourneyId,
-                skillCatalogId: {
-                    $in: selectedSkillCatalogIds,
-                },
-            },
-            {
-                $set: {
-                    selectedByUser: true,
-                },
-            }
-        );
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
 
-        return this.getUserSkills(careerJourneyId);
+        await userSkillRepository
+            .updateMany(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
+                },
+                {
+                    $set: {
+                        selectedByUser:
+                            false,
+                    },
+                },
+                session
+            );
+
+        await userSkillRepository
+            .updateMany(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
+
+                    skillCatalogId: {
+                        $in:
+                            selectedSkillCatalogIds,
+                    },
+                },
+                {
+                    $set: {
+                        selectedByUser:
+                            true,
+                    },
+                },
+                session
+            );
+
+        return this.getUserSkills(
+            careerJourneyId,
+            session
+        );
     }
 
     async updateManySkills(
-        skills: UpdateUserSkillProgressDTO[]
+        skills:
+            UpdateUserSkillProgressDTO[],
+        session?: ClientSession
     ) {
 
         const updatedSkills = [];
@@ -164,19 +323,21 @@ class UserSkillService {
                 );
 
             const updatedSkill =
-                await userSkillRepository.updateProgress(
-                    skill.userSkillId,
-                    skill.currentScore,
-                    currentLevel,
-                    skill.lastAssessmentAt
-                );
+                await userSkillRepository
+                    .updateProgress(
+                        skill.userSkillId,
+                        skill.currentScore,
+                        currentLevel,
+                        skill.lastAssessmentAt,
+                        session
+                    );
 
-            updatedSkills.push(updatedSkill);
-
+            updatedSkills.push(
+                updatedSkill
+            );
         }
 
         return updatedSkills;
-
     }
 
     private calculateSkillLevel(
@@ -200,24 +361,30 @@ class UserSkillService {
         }
 
         return SkillLevel.NOT_STARTED;
-
     }
 
     async getUserSkillsByCatalogIds(
-        careerJourneyId: Types.ObjectId,
-        skillCatalogIds: Types.ObjectId[]
+        careerJourneyId:
+            Types.ObjectId,
+
+        skillCatalogIds:
+            Types.ObjectId[],
+
+        session?: ClientSession
     ) {
 
-        if (skillCatalogIds.length === 0) {
+        if (
+            skillCatalogIds.length === 0
+        ) {
             return [];
         }
 
         return userSkillRepository
             .findByCareerJourneyAndSkillCatalogIds(
                 careerJourneyId,
-                skillCatalogIds
+                skillCatalogIds,
+                session
             );
-
     }
 }
 

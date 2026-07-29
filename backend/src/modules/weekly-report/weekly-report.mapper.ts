@@ -1,14 +1,14 @@
 import {
     MissionDocument,
-} from "../mission/mission.schema.js";
+} from "../mission/mission.model.js";
 
 import {
     AssessmentDocument,
-} from "../assessment/assessment.schema.js";
+} from "../assessment/assessment.model.js";
 
 import {
     WeeklyReflectionDocument,
-} from "../weekly-reflection/weekly-reflection.schema.js";
+} from "../weekly-reflection/weekly-reflection.model.js";
 
 import {
     BuildWeeklyReportPromptInput,

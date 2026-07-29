@@ -1,22 +1,34 @@
-import { Router } from "express";
+import {
+    Router,
+} from "express";
 
 import {
     assessmentController,
 } from "./assessment.controller.js";
 
 import {
-    validateRequest,
-} from "../../core/middleware/validate.middleware.js";
+    authenticate,
+} from "../../core/middleware/authenticate.middleware.js";
 
 import {
-    startInitialAssessmentSchema,
-    startWeeklyAssessmentSchema,
-    submitAssessmentSchema,
-    assessmentIdParamSchema,
-    careerJourneyIdParamSchema,
-} from "./assessment.validator.js";
+    validateRequest,
+} from "../../core/middleware/validate.middleware.js";
+import { assessmentIdParamSchema, careerJourneyIdParamSchema, startInitialAssessmentSchema, startWeeklyAssessmentSchema, submitAssessmentSchema } from "./index.js";
 
-const assessmentRouter = Router();
+
+
+const assessmentRouter =
+    Router();
+
+/*
+|--------------------------------------------------------------------------
+| Authentication
+|--------------------------------------------------------------------------
+*/
+
+assessmentRouter.use(
+    authenticate
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +128,24 @@ assessmentRouter.get(
 
 /*
 |--------------------------------------------------------------------------
+| Weekly Assessment Plan
+|--------------------------------------------------------------------------
+*/
+
+assessmentRouter.get(
+    "/:assessmentId/weekly-plan",
+
+    validateRequest({
+        params:
+            assessmentIdParamSchema,
+    }),
+
+    assessmentController
+        .getWeeklyAssessmentPlan
+);
+
+/*
+|--------------------------------------------------------------------------
 | Assessment
 |--------------------------------------------------------------------------
 */
@@ -130,12 +160,6 @@ assessmentRouter.get(
 
     assessmentController
         .getAssessmentById
-);
-
-assessmentRouter.get(
-    "/:assessmentId/weekly-plan",
-    assessmentController
-        .getWeeklyAssessmentPlan
 );
 
 export default assessmentRouter;

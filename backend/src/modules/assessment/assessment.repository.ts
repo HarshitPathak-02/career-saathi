@@ -3,163 +3,361 @@ import {
     Types,
     UpdateQuery,
 } from "mongoose";
+import { AssessmentDocument, AssessmentModel, AssessmentStatus, AssessmentType } from "./index.js";
 
-import {
-    AssessmentDocument,
-    AssessmentModel,
-} from "./assessment.schema.js";
 
-import { AssessmentStatus, AssessmentType } from "./assessment.enums.js";
 
 class AssessmentRepository {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create
+    |--------------------------------------------------------------------------
+    */
+
     async create(
-        data: Partial<AssessmentDocument>,
-        session?: ClientSession
-    ) {
-        const [assessment] = await AssessmentModel.create(
-            [data],
-            { session }
-        );
+        data:
+            Partial<AssessmentDocument>,
+        session?:
+            ClientSession
+    ): Promise<AssessmentDocument> {
+
+        const [assessment] =
+            await AssessmentModel.create(
+                [data],
+                {
+                    session,
+                }
+            );
 
         return assessment;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Find By Id
+    |--------------------------------------------------------------------------
+    */
+
     async findById(
-        id: Types.ObjectId
-    ) {
-        return this.findOne({
-            _id: id,
-        });
+        id:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return this.findOne(
+            {
+                _id: id,
+            },
+            session
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find One
+    |--------------------------------------------------------------------------
+    */
 
     async findOne(
-        filter: Record<string, unknown>,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.findOne({
-            ...filter,
-            isDeleted: false,
-        });
+        filter:
+            Record<string, unknown>,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOne({
+                ...filter,
+
+                isDeleted: false,
+            })
+            .session(
+                session ?? null
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find Many
+    |--------------------------------------------------------------------------
+    */
 
     async findMany(
-        filter: Record<string, unknown>,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.find({
-            ...filter,
-            isDeleted: false,
-        });
+        filter:
+            Record<string, unknown>,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument[]
+    > {
+
+        return AssessmentModel
+            .find({
+                ...filter,
+
+                isDeleted: false,
+            })
+            .session(
+                session ?? null
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exists
+    |--------------------------------------------------------------------------
+    */
 
     async exists(
-        filter: Record<string, unknown>,
-        session?: ClientSession
-    ) {
-        const exists =
-            await AssessmentModel.exists({
-                ...filter,
-                isDeleted: false,
-            });
+        filter:
+            Record<string, unknown>,
+        session?:
+            ClientSession
+    ): Promise<boolean> {
 
-        return Boolean(exists);
+        const exists =
+            await AssessmentModel
+                .exists({
+                    ...filter,
+
+                    isDeleted: false,
+                })
+                .session(
+                    session ?? null
+                );
+
+        return Boolean(
+            exists
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update
+    |--------------------------------------------------------------------------
+    */
 
     async updateById(
-        id: Types.ObjectId,
-        update: UpdateQuery<AssessmentDocument>,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.findOneAndUpdate(
-            id,
-            update,
-            {
-                new: true,
-                session,
-            }
-        );
+        id:
+            Types.ObjectId,
+
+        update:
+            UpdateQuery<
+                AssessmentDocument
+            >,
+
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOneAndUpdate(
+                {
+                    _id: id,
+
+                    isDeleted: false,
+                },
+                update,
+                {
+                    new: true,
+
+                    runValidators: true,
+
+                    session,
+                }
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Status
+    |--------------------------------------------------------------------------
+    */
 
     async updateStatus(
-        id: Types.ObjectId,
-        status: AssessmentStatus,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.findByIdAndUpdate(
-            id,
-            {
-                status,
-                ...(status === AssessmentStatus.COMPLETED && {
-                    completedAt: new Date(),
-                }),
-            },
-            {
-                new: true,
-                session,
-            }
-        );
+        id:
+            Types.ObjectId,
+
+        status:
+            AssessmentStatus,
+
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOneAndUpdate(
+                {
+                    _id: id,
+
+                    isDeleted: false,
+                },
+                {
+                    status,
+
+                    ...(
+                        status ===
+                        AssessmentStatus.COMPLETED
+                        && {
+                            completedAt:
+                                new Date(),
+                        }
+                    ),
+                },
+                {
+                    new: true,
+
+                    runValidators: true,
+
+                    session,
+                }
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Soft Delete
+    |--------------------------------------------------------------------------
+    */
 
     async softDelete(
-        id: Types.ObjectId,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.findByIdAndUpdate(
-            id,
-            {
-                isDeleted: true,
-                deletedAt: new Date(),
-            },
-            {
-                new: true,
-                session,
-            }
-        );
+        id:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOneAndUpdate(
+                {
+                    _id: id,
+
+                    isDeleted: false,
+                },
+                {
+                    $set: {
+
+                        isDeleted:
+                            true,
+
+                        deletedAt:
+                            new Date(),
+                    },
+                },
+                {
+                    new: true,
+
+                    session,
+                }
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Assessment History
+    |--------------------------------------------------------------------------
+    */
 
     async findHistory(
-        careerJourneyId: Types.ObjectId,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.find({
-            careerJourneyId,
-            isDeleted: false,
-        }).sort({
-            weekNumber: 1,
-        });
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument[]
+    > {
+
+        return AssessmentModel
+            .find({
+                careerJourneyId,
+
+                isDeleted: false,
+            })
+            .sort({
+                weekNumber: 1,
+            })
+            .session(
+                session ?? null
+            );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Latest Weekly Assessment
+    |--------------------------------------------------------------------------
+    */
 
     async findLatestWeeklyAssessment(
-        careerJourneyId: Types.ObjectId,
-        session?: ClientSession
-    ) {
-        return AssessmentModel.findOne({
-            careerJourneyId,
-            type: AssessmentType.WEEKLY,
-            isDeleted: false,
-        }).sort({
-            weekNumber: -1,
-        });
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOne({
+                careerJourneyId,
+
+                type:
+                    AssessmentType.WEEKLY,
+
+                isDeleted: false,
+            })
+            .sort({
+                weekNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Assessment
+    |--------------------------------------------------------------------------
+    */
+
     async findWeeklyAssessment(
-        careerJourneyId: Types.ObjectId,
-        weekNumber: number
-    ) {
+        careerJourneyId:
+            Types.ObjectId,
 
-        return AssessmentModel.findOne({
+        weekNumber:
+            number,
 
-            careerJourneyId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
 
-            type:
-                AssessmentType.WEEKLY,
+        return AssessmentModel
+            .findOne({
+                careerJourneyId,
 
-            weekNumber,
+                type:
+                    AssessmentType.WEEKLY,
 
-            isDeleted: false,
+                weekNumber,
 
-        });
-
+                isDeleted: false,
+            })
+            .session(
+                session ?? null
+            );
     }
 }
 

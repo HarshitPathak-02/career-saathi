@@ -1,8 +1,11 @@
-import { ClientSession, Types } from "mongoose";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
 import {
     WeeklyReflectionModel,
-} from "./weekly-reflection.schema.js";
+} from "./weekly-reflection.model.js";
 
 import {
     CreateWeeklyReflectionDTO,
@@ -16,36 +19,61 @@ class WeeklyReflectionRepository {
         session?: ClientSession,
     ) {
 
-        const reflection = new WeeklyReflectionModel(data);
+        const [reflection] =
+            await WeeklyReflectionModel.create(
+                [data],
+                {
+                    session,
+                }
+            );
 
-        return reflection.save({ session });
+        return reflection;
 
     }
 
     async findById(
-        id: string | Types.ObjectId
+        id: string | Types.ObjectId,
+        session?: ClientSession,
     ) {
 
-        return WeeklyReflectionModel.findById(id);
+        return WeeklyReflectionModel
+            .findById(id)
+            .session(
+                session ?? null
+            );
 
     }
 
     async findOne(
-        query: WeeklyReflectionQuery
+        query: WeeklyReflectionQuery,
+        session?: ClientSession,
     ) {
 
-        return WeeklyReflectionModel.findOne(query);
+        return WeeklyReflectionModel
+            .findOne(query)
+            .session(
+                session ?? null
+            );
 
     }
 
     async exists(
-        query: WeeklyReflectionQuery
-    ) {
+        query: WeeklyReflectionQuery,
+        session?: ClientSession,
+    ): Promise<boolean> {
 
-        return WeeklyReflectionModel.exists(query);
+        const exists =
+            await WeeklyReflectionModel
+                .exists(query)
+                .session(
+                    session ?? null
+                );
+
+        return Boolean(exists);
 
     }
 
 }
 
-export const weeklyReflectionRepository = new WeeklyReflectionRepository();
+export const weeklyReflectionRepository =
+    new WeeklyReflectionRepository();

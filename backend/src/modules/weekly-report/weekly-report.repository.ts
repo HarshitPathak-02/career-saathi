@@ -4,11 +4,13 @@ import {
 } from "mongoose";
 
 import {
-    WeeklyReport,
     WeeklyReportDocument,
     WeeklyReportModel,
-} from "./weekly-report.schema.js";
-import { CreateWeeklyReportDTO } from "./weekly-report.types.js";
+} from "./weekly-report.model.js";
+
+import {
+    CreateWeeklyReportDTO,
+} from "./weekly-report.types.js";
 
 class WeeklyReportRepository {
 
@@ -30,30 +32,41 @@ class WeeklyReportRepository {
     }
 
     async existsByReflectionId(
-        reflectionId: Types.ObjectId
+        reflectionId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<boolean> {
 
         const exists =
-            await WeeklyReportModel.exists({
-                reflectionId,
-            });
+            await WeeklyReportModel
+                .exists({
+                    reflectionId,
+                })
+                .session(
+                    session ?? null
+                );
 
-        return !!exists;
+        return Boolean(exists);
 
     }
 
     async getById(
-        weeklyReportId: Types.ObjectId
+        weeklyReportId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument | null> {
 
-        return WeeklyReportModel.findById(
-            weeklyReportId
-        );
+        return WeeklyReportModel
+            .findById(
+                weeklyReportId
+            )
+            .session(
+                session ?? null
+            );
 
     }
 
     async getLatestByCareerJourney(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument | null> {
 
         return WeeklyReportModel
@@ -62,12 +75,16 @@ class WeeklyReportRepository {
             })
             .sort({
                 createdAt: -1,
-            });
+            })
+            .session(
+                session ?? null
+            );
 
     }
 
     async getByCareerJourney(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument[]> {
 
         return WeeklyReportModel
@@ -76,36 +93,28 @@ class WeeklyReportRepository {
             })
             .sort({
                 createdAt: -1,
-            });
-
-    }
-
-    async getByMissionNumber(
-        careerJourneyId: Types.ObjectId,
-        missionNumber: number
-    ): Promise<WeeklyReportDocument | null> {
-
-        return WeeklyReportModel.findOne({
-            careerJourneyId,
-            missionNumber,
-        });
+            })
+            .session(
+                session ?? null
+            );
 
     }
 
     async getByReflectionId(
         reflectionId: Types.ObjectId,
-        session?: ClientSession,
-    ) {
+        session?: ClientSession
+    ): Promise<WeeklyReportDocument | null> {
 
         return WeeklyReportModel
             .findOne({
                 reflectionId,
             })
             .session(
-                session ?? null,
+                session ?? null
             );
 
     }
+
 }
 
 export const weeklyReportRepository =

@@ -26,16 +26,12 @@ import {
 const missionRouter =
     Router();
 
-/*
-|--------------------------------------------------------------------------
-| Create Initial Mission
-|--------------------------------------------------------------------------
-*/
+missionRouter.use(
+    authenticate
+);
 
 missionRouter.post(
     "/:careerJourneyId",
-
-    authenticate,
 
     validateRequest({
         params:
@@ -46,16 +42,8 @@ missionRouter.post(
         .createInitialMission
 );
 
-/*
-|--------------------------------------------------------------------------
-| Next Mission
-|--------------------------------------------------------------------------
-*/
-
 missionRouter.post(
     "/:careerJourneyId/next",
-
-    authenticate,
 
     validateRequest({
         params:
@@ -66,16 +54,8 @@ missionRouter.post(
         .generateNextMission
 );
 
-/*
-|--------------------------------------------------------------------------
-| Current Mission
-|--------------------------------------------------------------------------
-*/
-
 missionRouter.get(
     "/career-journey/:careerJourneyId/current",
-
-    authenticate,
 
     validateRequest({
         params:
@@ -86,16 +66,8 @@ missionRouter.get(
         .getCurrentMission
 );
 
-/*
-|--------------------------------------------------------------------------
-| Latest Mission
-|--------------------------------------------------------------------------
-*/
-
 missionRouter.get(
     "/career-journey/:careerJourneyId/latest",
-
-    authenticate,
 
     validateRequest({
         params:
@@ -106,16 +78,8 @@ missionRouter.get(
         .getLatestMission
 );
 
-/*
-|--------------------------------------------------------------------------
-| Mission History
-|--------------------------------------------------------------------------
-*/
-
 missionRouter.get(
     "/career-journey/:careerJourneyId/history",
-
-    authenticate,
 
     validateRequest({
         params:
@@ -126,16 +90,8 @@ missionRouter.get(
         .getMissionHistory
 );
 
-/*
-|--------------------------------------------------------------------------
-| Mission By Id
-|--------------------------------------------------------------------------
-*/
-
 missionRouter.get(
     "/:missionId",
-
-    authenticate,
 
     validateRequest({
         params:

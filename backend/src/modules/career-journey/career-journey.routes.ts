@@ -1,16 +1,9 @@
 import { Router } from "express";
 
-import { careerJourneyController } from "./career-journey.controller.js";
-
 import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
+import { careerJourneyController, careerJourneyIdParamSchema, createCareerJourneySchema, updateCareerJourneySchema } from "./index.js";
 
-import {
-    careerJourneyIdParamSchema,
-    createCareerJourneySchema,
-    updateCareerJourneySchema,
-    updateCareerJourneyStatusSchema,
-} from "./career-journey.validation.js";
 
 const router = Router();
 
@@ -44,15 +37,6 @@ router.patch(
         body: updateCareerJourneySchema,
     }),
     careerJourneyController.updateCareerJourney
-);
-
-router.patch(
-    "/:careerJourneyId/status",
-    validateRequest({
-        params: careerJourneyIdParamSchema,
-        body: updateCareerJourneyStatusSchema,
-    }),
-    careerJourneyController.updateCareerJourneyStatus
 );
 
 router.delete(

@@ -8,7 +8,7 @@ import {
 
 import {
     userRepository,
-} from "../../modules/users/user.repository.js";
+} from "../users/user.repository.js";
 
 import {
     careerJourneyRepository,
@@ -107,7 +107,8 @@ export class WorkspaceService {
             dayNumber,
 
             remainingDays:
-                totalDays - dayNumber,
+                totalDays -
+                dayNumber,
 
         };
 
@@ -130,14 +131,15 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 1. User
+        | User
         |--------------------------------------------------------------------------
         */
 
         const user =
-            await userRepository.findById(
-                userId
-            );
+            await userRepository
+                .findById(
+                    userId
+                );
 
         if (!user) {
 
@@ -150,7 +152,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 2. Active Career Journey
+        | Active Career Journey
         |--------------------------------------------------------------------------
         */
 
@@ -171,7 +173,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 3. Initial Assessment + Roadmap
+        | Initial Assessment + Roadmap
         |--------------------------------------------------------------------------
         */
 
@@ -180,15 +182,16 @@ export class WorkspaceService {
             roadmap,
         ] = await Promise.all([
 
-            assessmentRepository.findOne({
+            assessmentRepository
+                .findOne({
 
-                careerJourneyId:
-                    careerJourney._id,
+                    careerJourneyId:
+                        careerJourney._id,
 
-                type:
-                    AssessmentType.INITIAL,
+                    type:
+                        AssessmentType.INITIAL,
 
-            }),
+                }),
 
             roadmapRepository
                 .findByCareerJourneyId(
@@ -199,18 +202,8 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 4. Resolve Mission Lifecycle
+        | Resolve Mission Lifecycle
         |--------------------------------------------------------------------------
-        |
-        | We only resolve the mission lifecycle once a roadmap exists.
-        |
-        | Possible states:
-        |
-        | INITIAL_MISSION_REQUIRED
-        | ACTIVE
-        | WAITING_FOR_NEXT_MISSION
-        | ROADMAP_COMPLETED
-        |
         */
 
         let lifecycleState:
@@ -246,7 +239,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 5. Mission Tasks
+        | Mission Tasks
         |--------------------------------------------------------------------------
         */
 
@@ -260,7 +253,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 6. Today's Task
+        | Today's Task
         |--------------------------------------------------------------------------
         */
 
@@ -285,8 +278,12 @@ export class WorkspaceService {
             const missionDuration =
                 Math.floor(
                     (
-                        activeMission.endDate.getTime() -
-                        activeMission.startDate.getTime()
+                        activeMission
+                            .endDate
+                            .getTime() -
+                        activeMission
+                            .startDate
+                            .getTime()
                     ) /
                     millisecondsPerDay
                 ) + 1;
@@ -308,7 +305,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 7. Career Target Names
+        | Career Target Names
         |--------------------------------------------------------------------------
         */
 
@@ -320,7 +317,7 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
-        | 8. Workspace Response
+        | Workspace Response
         |--------------------------------------------------------------------------
         */
 

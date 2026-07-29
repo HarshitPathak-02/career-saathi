@@ -1,8 +1,18 @@
-import { Router } from "express";
+import {
+    Router,
+} from "express";
 
-import { userSkillController } from "./user-skill.controller.js";
+import {
+    userSkillController,
+} from "./user-skill.controller.js";
 
-import { validateRequest } from "../../core/middleware/validate.middleware.js";
+import {
+    authenticate,
+} from "../../core/middleware/authenticate.middleware.js";
+
+import {
+    validateRequest,
+} from "../../core/middleware/validate.middleware.js";
 
 import {
     initializeUserSkillsBodyValidator,
@@ -12,38 +22,60 @@ import {
 
 const router = Router();
 
+router.use(authenticate);
+
 router.get(
     "/career-journeys/:careerJourneyId/available-skills",
+
     validateRequest({
-        params: careerJourneyIdParamsValidator,
+        params:
+            careerJourneyIdParamsValidator,
     }),
-    userSkillController.getAvailableSkills
+
+    userSkillController
+        .getAvailableSkills
 );
 
 router.post(
     "/career-journeys/:careerJourneyId",
+
     validateRequest({
-        params: careerJourneyIdParamsValidator,
-        body: initializeUserSkillsBodyValidator,
+        params:
+            careerJourneyIdParamsValidator,
+
+        body:
+            initializeUserSkillsBodyValidator,
     }),
-    userSkillController.initializeUserSkills
+
+    userSkillController
+        .initializeUserSkills
 );
 
 router.get(
     "/career-journeys/:careerJourneyId",
+
     validateRequest({
-        params: careerJourneyIdParamsValidator,
+        params:
+            careerJourneyIdParamsValidator,
     }),
-    userSkillController.getUserSkills
+
+    userSkillController
+        .getUserSkills
 );
 
 router.patch(
     "/career-journeys/:careerJourneyId",
+
     validateRequest({
-        params: careerJourneyIdParamsValidator,
-        body: updateSelectedSkillsBodyValidator,
+        params:
+            careerJourneyIdParamsValidator,
+
+        body:
+            updateSelectedSkillsBodyValidator,
     }),
-    userSkillController.updateSelectedSkills
+
+    userSkillController
+        .updateSelectedSkills
 );
 
 export default router;

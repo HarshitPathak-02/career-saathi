@@ -12,11 +12,8 @@ import {
 } from "./user-skill.constants.js";
 
 import {
-  SkillCategory,
-  SkillDifficulty,
-} from "../../master-data/skill-catalog/skill-catalog.enums.js";
-
-import { SkillLevel } from "./user-skill.enums.js";
+  SkillLevel,
+} from "./user-skill.enums.js";
 
 const UserSkillSchema = new Schema(
   {
@@ -24,6 +21,7 @@ const UserSkillSchema = new Schema(
       type: Types.ObjectId,
       ref: "CareerJourney",
       required: true,
+      index: true,
     },
 
     skillCatalogId: {
@@ -46,12 +44,16 @@ const UserSkillSchema = new Schema(
 
     currentLevel: {
       type: String,
-      enum: Object.values(SkillLevel),
-      default: SkillLevel.NOT_STARTED,
+      enum: Object.values(
+        SkillLevel
+      ),
+      default:
+        SkillLevel.NOT_STARTED,
     },
 
     lastAssessmentAt: {
       type: Date,
+      default: null,
     },
 
     isActive: {
@@ -61,8 +63,13 @@ const UserSkillSchema = new Schema(
   },
   {
     timestamps: true,
+
     versionKey: false,
-    collection: USER_SKILL_COLLECTION,
+
+    strict: "throw",
+
+    collection:
+      USER_SKILL_COLLECTION,
   }
 );
 
@@ -77,17 +84,13 @@ UserSkillSchema.index(
 );
 
 UserSkillSchema.index({
-  careerJourneyId: 1,
-});
-
-UserSkillSchema.index({
   selectedByUser: 1,
 });
 
-
-export type UserSkill = InferSchemaType<
-  typeof UserSkillSchema
->;
+export type UserSkill =
+  InferSchemaType<
+    typeof UserSkillSchema
+  >;
 
 export type UserSkillDocument =
   HydratedDocument<UserSkill>;

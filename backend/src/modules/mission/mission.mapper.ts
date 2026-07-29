@@ -1,6 +1,16 @@
-import { MissionProgress } from "../daily-task/daily-task.types.js";
-import { MissionDetailsDto, MissionSummaryDto } from "./mission.dto.js";
-import { MissionDocument } from "./mission.schema.js";
+import {
+    MissionProgress,
+} from "../daily-task/daily-task.types.js";
+
+import {
+    MissionDetailsDto,
+    MissionSummaryDto,
+} from "./mission.dto.js";
+
+import {
+    MissionDocument,
+} from "./mission.model.js";
+
 import {
     CreateMissionDTO,
     MissionPlanningResult,
@@ -15,7 +25,6 @@ class MissionMapper {
     ): CreateMissionDTO {
 
         return {
-
             careerJourneyId:
                 context.careerJourney._id,
 
@@ -28,14 +37,14 @@ class MissionMapper {
             plannedRoadmapItemIds:
                 planning.plannedRoadmapItemIds,
 
+            revisionPlans: planning.revisionPlans,
+
             startDate:
                 planning.startDate,
 
             endDate:
                 planning.endDate,
-
         };
-
     }
 
     toMissionSummaryDto(
@@ -44,7 +53,6 @@ class MissionMapper {
     ): MissionSummaryDto {
 
         return {
-
             id:
                 mission._id.toString(),
 
@@ -68,9 +76,7 @@ class MissionMapper {
 
             progressPercentage:
                 progress.progressPercentage,
-
         };
-
     }
 
     toMissionDetailsDto(
@@ -80,25 +86,22 @@ class MissionMapper {
     ): MissionDetailsDto {
 
         return {
-
             ...this.toMissionSummaryDto(
                 mission,
                 progress
             ),
 
             roadmapItemIds:
-                mission.plannedRoadmapItemIds.map(
-                    id => id.toString()
-                ),
+                mission
+                    .plannedRoadmapItemIds
+                    .map(
+                        id =>
+                            id.toString()
+                    ),
 
-            currentMissionDay:
-                currentMissionDay
-
-
+            currentMissionDay,
         };
-
     }
-
 }
 
 export const missionMapper =

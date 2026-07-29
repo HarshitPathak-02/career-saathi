@@ -1,66 +1,163 @@
-import { Request, Response } from "express";
+import {
+    Request,
+    Response,
+} from "express";
 
-import { asyncHandler } from "../../core/middleware/async-handler.js";
-import { userSkillService } from "./user-skill.service.js";
-import { successResponse } from "../../core/responses/successResponse.js";
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
+
+import {
+    successResponse,
+} from "../../core/responses/successResponse.js";
+
+import {
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+
+import {
+    userSkillService,
+} from "./user-skill.service.js";
+import { CareerJourneyIdParamDto } from "../career-journey/career-journey.types.js";
 
 class UserSkillController {
-    getAvailableSkills = asyncHandler(
-        async (req: Request, res: Response) => {
-            const { careerJourneyId } = req.params;
 
-            const skills = await userSkillService.getAvailableSkills(
-                careerJourneyId as any
-            );
+    getAvailableSkills =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            return successResponse({ res, statusCode: 200, message: "Skills are fetched", data: skills })
-        }
-    );
+                const {
+                    careerJourneyId,
+                } = req.params as unknown as CareerJourneyIdParamDto;
 
-    initializeUserSkills = asyncHandler(
-        async (req: Request, res: Response) => {
-            const { selectedSkillCatalogIds } = req.body;
-            const { careerJourneyId } = req.params as {
-                careerJourneyId: string
+                const skills =
+                    await userSkillService
+                        .getAvailableSkills(
+                            careerJourneyId
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        "Available skills fetched successfully.",
+
+                    data:
+                        skills,
+                });
             }
+        );
 
-            console.log("user-skill req params", req.params);
+    initializeUserSkills =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            await userSkillService.initializeUserSkills(
-                careerJourneyId,
-                selectedSkillCatalogIds
-            );
+                const {
+                    careerJourneyId,
+                } = req.params as {
+                    careerJourneyId: string;
+                };
 
-            return successResponse({ res, statusCode: 201, message: "Skills are initialized", data: null })
-        }
-    );
+                const {
+                    selectedSkillCatalogIds,
+                } = req.body;
 
-    getUserSkills = asyncHandler(
-        async (req: Request, res: Response) => {
-            const { careerJourneyId } = req.params;
+                await userSkillService
+                    .initializeUserSkills(
+                        careerJourneyId,
+                        selectedSkillCatalogIds
+                    );
 
-            const skills = await userSkillService.getUserSkills(
-                careerJourneyId as any
-            );
+                return successResponse({
+                    res,
 
-            return successResponse({ res, statusCode: 200, message: "Skills are fetched", data: skills })
-        }
-    );
+                    statusCode:
+                        HTTP_STATUS.CREATED,
 
-    updateSelectedSkills = asyncHandler(
-        async (req: Request, res: Response) => {
-            const { careerJourneyId } = req.params;
-            const { selectedSkillCatalogIds } = req.body;
+                    message:
+                        "User skills initialized successfully.",
+                });
+            }
+        );
 
-            const skills =
-                await userSkillService.updateSelectedSkills(
-                    careerJourneyId as any,
-                    selectedSkillCatalogIds
-                );
+    getUserSkills =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            return successResponse({ res, statusCode: 200, message: "Skills are fetched", data: skills })
-        }
-    );
+                const {
+                    careerJourneyId,
+                } = req.params as unknown as CareerJourneyIdParamDto
+
+                const skills =
+                    await userSkillService
+                        .getUserSkills(
+                            careerJourneyId
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        "User skills fetched successfully.",
+
+                    data:
+                        skills,
+                });
+            }
+        );
+
+    updateSelectedSkills =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const {
+                    careerJourneyId,
+                } = req.params as unknown as CareerJourneyIdParamDto
+
+                const {
+                    selectedSkillCatalogIds,
+                } = req.body;
+
+                const skills =
+                    await userSkillService
+                        .updateSelectedSkills(
+                            careerJourneyId,
+                            selectedSkillCatalogIds
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        "Selected skills updated successfully.",
+
+                    data:
+                        skills,
+                });
+            }
+        );
 }
 
-export const userSkillController = new UserSkillController();
+export const userSkillController =
+    new UserSkillController();

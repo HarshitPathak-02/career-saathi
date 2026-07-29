@@ -15,8 +15,3 @@ export enum CareerJourneyStatus {
 
   ARCHIVED = "archived",
 }
-
-export enum SkillSource {
-  MANUAL = "manual",
-  RESUME = "resume",
-}

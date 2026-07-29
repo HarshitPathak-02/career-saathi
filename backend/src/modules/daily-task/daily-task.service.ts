@@ -43,18 +43,26 @@ class DailyTaskService {
                 missionId,
 
                 roadmapItemIds:
-                    (task.roadmapItemIds ?? [])
-                        .map(
-                            id =>
-                                new Types.ObjectId(id)
-                        ),
+                    (
+                        task.roadmapItemIds ??
+                        []
+                    ).map(
+                        id =>
+                            new Types.ObjectId(
+                                id
+                            )
+                    ),
 
                 revisionSkillIds:
-                    (task.revisionSkillIds ?? [])
-                        .map(
-                            id =>
-                                new Types.ObjectId(id)
-                        ),
+                    (
+                        task.revisionSkillIds ??
+                        []
+                    ).map(
+                        id =>
+                            new Types.ObjectId(
+                                id
+                            )
+                    ),
 
                 dayNumber:
                     task.dayNumber,
@@ -77,10 +85,11 @@ class DailyTaskService {
 
             }));
 
-        return dailyTaskRepository.createMany(
-            dailyTasks,
-            session
-        );
+        return dailyTaskRepository
+            .createMany(
+                dailyTasks,
+                session
+            );
 
     }
 
@@ -88,9 +97,10 @@ class DailyTaskService {
         taskId: Types.ObjectId
     ) {
 
-        return dailyTaskRepository.findById(
-            taskId
-        );
+        return dailyTaskRepository
+            .findById(
+                taskId
+            );
 
     }
 
@@ -98,9 +108,10 @@ class DailyTaskService {
         missionId: Types.ObjectId
     ) {
 
-        return dailyTaskRepository.findByMissionId(
-            missionId
-        );
+        return dailyTaskRepository
+            .findByMissionId(
+                missionId
+            );
 
     }
 
@@ -129,10 +140,11 @@ class DailyTaskService {
     ) {
 
         const task =
-            await dailyTaskRepository.findById(
-                taskId,
-                session
-            );
+            await dailyTaskRepository
+                .findById(
+                    taskId,
+                    session
+                );
 
         if (!task) {
 
@@ -178,7 +190,10 @@ class DailyTaskService {
                 session
             );
 
-        if (task.roadmapItemIds.length > 0) {
+        if (
+            task.roadmapItemIds.length >
+            0
+        ) {
 
             await roadmapItemProgressService
                 .syncRoadmapItemsForTask(
@@ -190,6 +205,7 @@ class DailyTaskService {
         }
 
         return updatedTask;
+
     }
 
     /*
@@ -271,12 +287,19 @@ class DailyTaskService {
                 session
             );
 
-        await roadmapItemProgressService
-            .syncRoadmapItemsForTask(
-                task.missionId,
-                task.roadmapItemIds,
-                session
-            );
+        if (
+            task.roadmapItemIds.length >
+            0
+        ) {
+
+            await roadmapItemProgressService
+                .syncRoadmapItemsForTask(
+                    task.missionId,
+                    task.roadmapItemIds,
+                    session
+                );
+
+        }
 
         return updatedTask;
 
@@ -300,12 +323,19 @@ class DailyTaskService {
                 session
             );
 
-        await roadmapItemProgressService
-            .syncRoadmapItemsForTask(
-                task.missionId,
-                task.roadmapItemIds,
-                session
-            );
+        if (
+            task.roadmapItemIds.length >
+            0
+        ) {
+
+            await roadmapItemProgressService
+                .syncRoadmapItemsForTask(
+                    task.missionId,
+                    task.roadmapItemIds,
+                    session
+                );
+
+        }
 
         return updatedTask;
 
@@ -342,13 +372,9 @@ class DailyTaskService {
                 );
 
         return {
-
             totalDays,
-
             completedDays,
-
             progressPercentage,
-
         };
 
     }
@@ -359,19 +385,20 @@ class DailyTaskService {
         session?: ClientSession
     ) {
 
-        return dailyTaskRepository.updateById(
-            taskId,
-            {
-                status,
+        return dailyTaskRepository
+            .updateById(
+                taskId,
+                {
+                    status,
 
-                completedAt:
-                    status ===
-                        DailyTaskStatus.COMPLETED
-                        ? new Date()
-                        : null,
-            },
-            session
-        );
+                    completedAt:
+                        status ===
+                            DailyTaskStatus.COMPLETED
+                            ? new Date()
+                            : null,
+                },
+                session
+            );
 
     }
 
@@ -381,10 +408,11 @@ class DailyTaskService {
     ) {
 
         const task =
-            await dailyTaskRepository.findById(
-                taskId,
-                session
-            );
+            await dailyTaskRepository
+                .findById(
+                    taskId,
+                    session
+                );
 
         if (!task) {
 
@@ -407,6 +435,7 @@ class DailyTaskService {
         return task;
 
     }
+
 }
 
 export const dailyTaskService =

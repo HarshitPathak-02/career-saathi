@@ -1,141 +1,219 @@
 import {
     Request,
     Response,
-    NextFunction,
 } from "express";
 
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
-import { roadmapService } from "./roadmap.service.js";
-import { roadmapWorkflowService } from "./roadmap-workflow.service.js";
-import { roadmapResponseMapper } from "./roadmap-response.mapper.js";
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
+
+import {
+    successResponse,
+} from "../../core/responses/successResponse.js";
+
+import {
+    roadmapService,
+} from "./roadmap.service.js";
+
+import {
+    roadmapWorkflowService,
+} from "./roadmap-workflow.service.js";
+
+import {
+    roadmapResponseMapper,
+} from "./roadmap-response.mapper.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
 
 class RoadmapController {
 
-    async generateRoadmap(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
+    /*
+    |--------------------------------------------------------------------------
+    | Generate Roadmap
+    |--------------------------------------------------------------------------
+    */
 
-        try {
+    generateRoadmap =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            const {
-                careerJourneyId,
-            } = req.body;
+                const {
+                    careerJourneyId,
+                } = req.body;
 
-            const roadmap =
-                await roadmapWorkflowService.generateRoadmap(
-                    new Types.ObjectId(
-                        careerJourneyId
-                    )
-                );
+                const roadmap =
+                    await roadmapWorkflowService
+                        .generateRoadmap(
+                            new Types.ObjectId(
+                                careerJourneyId
+                            )
+                        );
 
-            res.status(201).json(
-                roadmapResponseMapper.toGenerateRoadmapResponse(
-                    roadmap
-                )
-            );
+                const data =
+                    roadmapResponseMapper
+                        .toRoadmapResponse(
+                            roadmap
+                        );
 
-        } catch (error) {
+                return successResponse({
+                    res,
 
-            next(error);
+                    statusCode: 201,
 
-        }
+                    message:
+                        "Roadmap generated successfully.",
 
-    }
+                    data,
+                });
 
-    async getRoadmap(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-
-        try {
-
-            const roadmap =
-                await roadmapService.getRoadmapByCareerJourney(
-                    req.params.careerJourneyId as string
-                );
-
-            if (!roadmap) {
-                throw new AppError(404, "Roadmap not found.");
             }
+        );
 
-            res.json(
-                roadmapResponseMapper.toRoadmapResponse(
-                    roadmap
-                )
-            );
+    /*
+    |--------------------------------------------------------------------------
+    | Get Roadmap
+    |--------------------------------------------------------------------------
+    */
 
-        } catch (error) {
+    getRoadmap =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-            next(error);
+                const roadmap =
+                    await roadmapService
+                        .getRoadmapByCareerJourney(
+                            req.params
+                                .careerJourneyId as string
+                        );
 
-        }
+                if (!roadmap) {
 
-    }
+                    throw new AppError(
+                        404,
+                        "Roadmap not found."
+                    );
 
-    async getRoadmapItems(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
+                }
 
-        try {
+                const data =
+                    roadmapResponseMapper
+                        .toRoadmapResponse(
+                            roadmap
+                        );
 
-            const roadmapItems =
-                await roadmapService.getRoadmapItems(
-                    req.params.roadmapId as string
-                );
+                return successResponse({
+                    res,
 
-            res.json(
-                roadmapResponseMapper.toRoadmapItemsResponse(
-                    roadmapItems
-                )
-            );
+                    statusCode: 200,
 
-        } catch (error) {
+                    message:
+                        "Roadmap fetched successfully.",
 
-            next(error);
+                    data,
+                });
 
-        }
+            }
+        );
 
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Get Roadmap Items
+    |--------------------------------------------------------------------------
+    */
 
-    async getNextPendingItems(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
+    getRoadmapItems =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-        try {
+                const roadmapItems =
+                    await roadmapService
+                        .getRoadmapItems(
+                            req.params
+                                .roadmapId as string
+                        );
 
-            const limit =
-                Number(req.query.limit) || 5;
+                const data =
+                    roadmapResponseMapper
+                        .toRoadmapItemsResponse(
+                            roadmapItems
+                        );
 
-            const roadmapItems =
-                await roadmapService.getNextPendingItems(
-                    new Types.ObjectId(
-                        req.params.roadmapId as string
-                    ),
-                    limit
-                );
+                return successResponse({
+                    res,
 
-            res.json(
-                roadmapResponseMapper.toRoadmapItemsResponse(
-                    roadmapItems
-                )
-            );
+                    statusCode: 200,
 
-        } catch (error) {
+                    message:
+                        "Roadmap items fetched successfully.",
 
-            next(error);
+                    data,
+                });
 
-        }
+            }
+        );
 
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Get Next Pending Items
+    |--------------------------------------------------------------------------
+    */
+
+    getNextPendingItems =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const limit =
+                    Number(
+                        req.query.limit
+                    ) || 5;
+
+                const roadmapItems =
+                    await roadmapService
+                        .getNextPendingItems(
+                            new Types.ObjectId(
+                                req.params
+                                    .roadmapId as string
+                            ),
+                            limit
+                        );
+
+                const data =
+                    roadmapResponseMapper
+                        .toRoadmapItemsResponse(
+                            roadmapItems
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode: 200,
+
+                    message:
+                        "Next pending roadmap items fetched successfully.",
+
+                    data,
+                });
+
+            }
+        );
 
 }
 

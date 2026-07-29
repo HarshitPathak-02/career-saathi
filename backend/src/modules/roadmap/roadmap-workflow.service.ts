@@ -57,7 +57,7 @@ import {
 
 import {
     RoadmapDocument,
-} from "./roadmap.schema.js";
+} from "./roadmap.model.js";
 
 import {
     RoadmapGenerationInput,
@@ -68,7 +68,6 @@ import {
 import {
     AppError,
 } from "../../core/errors/app-error.js";
-
 
 export class RoadmapWorkflowService {
 
@@ -97,21 +96,20 @@ export class RoadmapWorkflowService {
         );
     }
 
-
     /*
-     * ----------------------------------------------------------------------
-     * Load everything required to generate
-     * the personalized roadmap.
-     * ----------------------------------------------------------------------
-     */
+    |-------------------------------------------------------------------------- 
+    | Load Workflow Context
+    |--------------------------------------------------------------------------
+    */
 
     private async loadWorkflowContext(
         careerJourneyId: Types.ObjectId
     ): Promise<RoadmapWorkflowContext> {
 
         /*
-         * 1. Career Journey
+         * Career Journey
          */
+
         const careerJourney =
             await careerJourneyRepository.findOne({
                 _id: careerJourneyId,
@@ -124,10 +122,10 @@ export class RoadmapWorkflowService {
             );
         }
 
-
         /*
-         * 2. Prevent duplicate roadmap
+         * Prevent Duplicate Roadmap
          */
+
         const roadmapExists =
             await roadmapRepository.exists({
                 careerJourneyId,
@@ -140,10 +138,10 @@ export class RoadmapWorkflowService {
             );
         }
 
-
         /*
-         * 3. Target role
+         * Target Role
          */
+
         const role =
             await CareerRoleModel.findById(
                 careerJourney.roleId
@@ -156,10 +154,10 @@ export class RoadmapWorkflowService {
             );
         }
 
-
         /*
-         * 4. Target domain
+         * Target Domain
          */
+
         const domain =
             await CareerDomainModel.findById(
                 careerJourney.domainId
@@ -172,11 +170,10 @@ export class RoadmapWorkflowService {
             );
         }
 
-
         /*
-         * 5. Get ONLY skills required
-         * for this career role.
+         * Role Skills
          */
+
         const careerRoleSkills =
             await CareerRoleSkillModel.find({
                 roleId: role._id,
@@ -186,28 +183,25 @@ export class RoadmapWorkflowService {
                 })
                 .lean();
 
-        if (careerRoleSkills.length === 0) {
+        if (
+            careerRoleSkills.length === 0
+        ) {
             throw new AppError(
                 400,
                 "No skills are configured for this career role."
             );
         }
 
-
-        /*
-         * Preserve role-defined ordering.
-         */
         const roleSkillIds =
             careerRoleSkills.map(
                 roleSkill =>
                     roleSkill.skillId
             );
 
-
         /*
-         * 6. Fetch active catalog entries
-         * belonging to the selected role.
+         * Skill Catalog
          */
+
         const skillCatalogDocuments =
             await SkillCatalogModel.find({
                 _id: {
@@ -216,7 +210,6 @@ export class RoadmapWorkflowService {
 
                 isActive: true,
             });
-
 
         if (
             skillCatalogDocuments.length === 0
@@ -227,13 +220,11 @@ export class RoadmapWorkflowService {
             );
         }
 
-
         /*
-         * MongoDB $in does not preserve the
-         * CareerRoleSkill displayOrder.
-         *
-         * Restore it manually.
+         * MongoDB $in does not preserve
+         * CareerRoleSkill display order.
          */
+
         const skillCatalogMap =
             new Map(
                 skillCatalogDocuments.map(
@@ -243,7 +234,6 @@ export class RoadmapWorkflowService {
                     ]
                 )
             );
-
 
         const skillCatalog =
             roleSkillIds
@@ -260,14 +250,10 @@ export class RoadmapWorkflowService {
                         Boolean(skill)
                 );
 
-
         /*
-         * 7. User skill state
-         *
-         * UserSkill already contains all
-         * role skills initialized for this
-         * career journey.
+         * User Skills
          */
+
         const userSkills =
             await userSkillRepository.findMany({
                 careerJourneyId,
@@ -279,14 +265,14 @@ export class RoadmapWorkflowService {
                 },
             });
 
-
-        if (userSkills.length === 0) {
+        if (
+            userSkills.length === 0
+        ) {
             throw new AppError(
                 400,
                 "User skills are not initialized."
             );
         }
-
 
         return {
             careerJourney,
@@ -301,12 +287,11 @@ export class RoadmapWorkflowService {
         };
     }
 
-
     /*
-     * ----------------------------------------------------------------------
-     * Convert DB context into clean AI input.
-     * ----------------------------------------------------------------------
-     */
+    |-------------------------------------------------------------------------- 
+    | Build AI Generation Input
+    |--------------------------------------------------------------------------
+    */
 
     private buildGenerationInput(
         context: RoadmapWorkflowContext
@@ -322,11 +307,10 @@ export class RoadmapWorkflowService {
                 )
             );
 
-
         /*
-         * Skills required for the user's
-         * selected career role.
+         * Required Skills
          */
+
         const requiredSkills =
             context.skillCatalog.map(
                 skill => ({
@@ -347,11 +331,10 @@ export class RoadmapWorkflowService {
                 })
             );
 
-
         /*
-         * Current user state against the
-         * required role skills.
+         * Current User Skills
          */
+
         const currentSkills =
             context.userSkills.map(
                 userSkill => {
@@ -361,14 +344,12 @@ export class RoadmapWorkflowService {
                             userSkill.skillCatalogId.toString()
                         );
 
-
                     if (!catalogSkill) {
                         throw new AppError(
                             500,
                             `Skill catalog not found for user skill ${userSkill.skillCatalogId.toString()}.`
                         );
                     }
-
 
                     return {
                         skillId:
@@ -393,14 +374,10 @@ export class RoadmapWorkflowService {
                 }
             );
 
-
         /*
-         * For now, availableSkills contains
-         * the role-specific skill universe.
-         *
-         * AI must choose roadmap skills from
-         * these IDs.
+         * Available Skills
          */
+
         const availableSkills =
             context.skillCatalog.map(
                 skill => ({
@@ -413,14 +390,13 @@ export class RoadmapWorkflowService {
                     description:
                         skill.description,
 
-                    difficulty:
-                        skill.difficulty,
-
                     category:
                         skill.category,
+
+                    difficulty:
+                        skill.difficulty,
                 })
             );
-
 
         return {
             target: {
@@ -443,20 +419,19 @@ export class RoadmapWorkflowService {
                         .dailyStudyHours,
             },
 
-            requiredSkills,
-
             currentSkills,
+
+            requiredSkills,
 
             availableSkills,
         };
     }
 
-
     /*
-     * ----------------------------------------------------------------------
-     * AI generation
-     * ----------------------------------------------------------------------
-     */
+    |-------------------------------------------------------------------------- 
+    | Generate Roadmap Using AI
+    |--------------------------------------------------------------------------
+    */
 
     private async generateRoadmapOutput(
         input: RoadmapGenerationInput
@@ -467,51 +442,26 @@ export class RoadmapWorkflowService {
                 input
             );
 
-
         const aiResponse =
             await aiService.generate({
                 prompt,
             });
-
-
-        console.log(
-            "===== RAW AI RESPONSE ====="
-        );
-
-        console.log(
-            aiResponse.text
-        );
-
 
         const parsedResponse =
             aiParser.parse<RoadmapGenerationOutput>(
                 aiResponse.text
             );
 
-
-        console.log(
-            "===== PARSED ROADMAP OUTPUT ====="
-        );
-
-        console.dir(
-            parsedResponse,
-            {
-                depth: null,
-            }
-        );
-
-
         return aiValidator.validateRoadmap(
             parsedResponse
         ) as RoadmapGenerationOutput;
     }
 
-
     /*
-     * ----------------------------------------------------------------------
-     * Persist generated roadmap
-     * ----------------------------------------------------------------------
-     */
+    |-------------------------------------------------------------------------- 
+    | Save Roadmap
+    |--------------------------------------------------------------------------
+    */
 
     private async saveRoadmap(
         context: RoadmapWorkflowContext,
@@ -521,11 +471,9 @@ export class RoadmapWorkflowService {
         const session =
             await mongoose.startSession();
 
-
         try {
 
             session.startTransaction();
-
 
             const roadmap =
                 await this.persistRoadmap(
@@ -534,9 +482,7 @@ export class RoadmapWorkflowService {
                     session
                 );
 
-
             await session.commitTransaction();
-
 
             return roadmap;
 
@@ -553,6 +499,11 @@ export class RoadmapWorkflowService {
         }
     }
 
+    /*
+    |-------------------------------------------------------------------------- 
+    | Persist Roadmap
+    |--------------------------------------------------------------------------
+    */
 
     private async persistRoadmap(
         context: RoadmapWorkflowContext,
@@ -568,22 +519,18 @@ export class RoadmapWorkflowService {
                 ) =>
                     sum +
                     item.estimatedHours,
-
                 0
             );
-
 
         const availableHoursPerWeek =
             context.careerJourney
                 .dailyStudyHours * 7;
-
 
         const estimatedWeeks =
             Math.ceil(
                 totalEstimatedHours /
                 availableHoursPerWeek
             );
-
 
         const roadmapData =
             roadmapMapper.buildRoadmap(
@@ -592,13 +539,11 @@ export class RoadmapWorkflowService {
                 estimatedWeeks
             );
 
-
         const roadmap =
             await roadmapRepository.create(
                 roadmapData,
                 session
             );
-
 
         const roadmapItems =
             roadmapMapper.buildRoadmapItems(
@@ -606,17 +551,14 @@ export class RoadmapWorkflowService {
                 output.roadmapItems
             );
 
-
         await roadmapItemRepository.createMany(
             roadmapItems,
             session
         );
 
-
         return roadmap;
     }
 }
-
 
 export const roadmapWorkflowService =
     new RoadmapWorkflowService();

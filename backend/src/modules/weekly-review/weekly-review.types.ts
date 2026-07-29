@@ -1,10 +1,12 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
+
 import {
     SubmitAssessmentDTO,
 } from "../assessment/assessment.types.js";
 
 import {
-    CreateWeeklyReflectionDTO,
     SubmitWeeklyReflectionDTO,
 } from "../weekly-reflection/weekly-reflection.types.js";
 
@@ -46,7 +48,8 @@ export interface WeeklyReviewSkillDTO {
     revisionTopics:
     string[];
 
-    roadmapItems: WeeklyReviewRoadmapItemDTO[];
+    roadmapItems:
+    WeeklyReviewRoadmapItemDTO[];
 
 }
 
@@ -60,18 +63,30 @@ export interface WeeklyReviewPreparationDTO {
 
     assessmentId: string;
 
-    skills: WeeklyReviewSkillDTO[];
+    skills:
+    WeeklyReviewSkillDTO[];
 
 }
 
-
 export interface MissionAssessmentContext {
-    plannedRoadmapItemIds: Types.ObjectId[];
+
+    plannedRoadmapItemIds:
+    Types.ObjectId[];
 
     revisionPlans: {
-        skillCatalogId: Types.ObjectId;
-        skillName: string;
-        percentage: number;
-        revisionTopics: string[];
+
+        skillCatalogId:
+        Types.ObjectId;
+
+        skillName:
+        string;
+
+        percentage:
+        number;
+
+        revisionTopics:
+        string[];
+
     }[];
+
 }

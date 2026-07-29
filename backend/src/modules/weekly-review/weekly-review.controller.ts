@@ -1,8 +1,15 @@
 import {
-    NextFunction,
     Request,
     Response,
 } from "express";
+
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
+
+import {
+    successResponse,
+} from "../../core/responses/successResponse.js";
 
 import {
     getAuthUser,
@@ -24,38 +31,36 @@ class WeeklyReviewController {
     |--------------------------------------------------------------------------
     */
 
-    async getCurrentWeeklyReview(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
+    getCurrentWeeklyReview =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-        try {
+                const user =
+                    getAuthUser(req);
 
-            const user =
-                getAuthUser(req);
+                const review =
+                    await weeklyReviewWorkflow
+                        .getCurrentWeeklyReview(
+                            user.userId
+                        );
 
-            const review =
-                await weeklyReviewWorkflow
-                    .getCurrentWeeklyReview(
-                        user.userId
-                    );
+                return successResponse({
+                    res,
 
-            res.status(200).json({
+                    statusCode: 200,
 
-                success: true,
+                    message:
+                        "Weekly review fetched successfully.",
 
-                data: review,
+                    data:
+                        review,
+                });
 
-            });
-
-        } catch (error) {
-
-            next(error);
-
-        }
-
-    }
+            }
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -63,49 +68,40 @@ class WeeklyReviewController {
     |--------------------------------------------------------------------------
     */
 
-    async submitWeeklyReview(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
+    submitWeeklyReview =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
 
-        try {
+                const user =
+                    getAuthUser(req);
 
-            console.log("Submit weekly review hit");
+                const dto =
+                    req.body as SubmitWeeklyReviewDTO;
 
-            const user =
-                getAuthUser(req);
+                const result =
+                    await weeklyReviewWorkflow
+                        .submitWeeklyReview(
+                            user.userId,
+                            dto
+                        );
 
-            const dto =
-                req.body as SubmitWeeklyReviewDTO;
+                return successResponse({
+                    res,
 
-            console.log("The submit weekly review hit with dto", dto);
+                    statusCode: 201,
 
-            const result =
-                await weeklyReviewWorkflow
-                    .submitWeeklyReview(
-                        user.userId,
-                        dto
-                    );
+                    message:
+                        "Weekly review completed successfully.",
 
-            res.status(201).json({
+                    data:
+                        result,
+                });
 
-                success: true,
-
-                message:
-                    "Weekly review completed successfully.",
-
-                data: result,
-
-            });
-
-        } catch (error) {
-
-            next(error);
-
-        }
-
-    }
+            }
+        );
 
 }
 

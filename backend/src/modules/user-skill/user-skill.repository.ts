@@ -5,61 +5,103 @@ import {
   Types,
   UpdateQuery,
 } from "mongoose";
+import { SkillLevel, UserSkill, UserSkillDocument, UserSkillModel } from "./index.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/index.js";
 
-import {
-  UserSkill,
-  UserSkillDocument,
-  UserSkillModel,
-} from "./user-skill.schema.js";
-import { SkillLevel } from "./user-skill.enums.js";
-import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
-import { PopulatedUserSkill } from "./user-skill.types.js";
+
 
 class UserSkillRepository {
+
   async create(
     data: Partial<UserSkill>,
     session?: ClientSession
   ): Promise<UserSkillDocument> {
-    return UserSkillModel.create([data], { session }).then(
-      ([document]) => document
-    );
+
+    const [document] =
+      await UserSkillModel.create(
+        [data],
+        {
+          session,
+        }
+      );
+
+    return document;
   }
 
   async createMany(
     data: Partial<UserSkill>[],
     session?: ClientSession
   ): Promise<UserSkillDocument[]> {
-    return UserSkillModel.insertMany(data, { session });
+
+    return UserSkillModel.insertMany(
+      data,
+      {
+        session,
+      }
+    );
   }
 
   async findOne(
     filter: Record<string, unknown>,
     projection?: ProjectionType<UserSkill>,
-    options?: QueryOptions
+    options?: QueryOptions,
+    session?: ClientSession
   ): Promise<UserSkillDocument | null> {
-    return UserSkillModel.findOne(filter, projection, options);
+
+    return UserSkillModel
+      .findOne(
+        filter,
+        projection,
+        options
+      )
+      .session(
+        session ?? null
+      );
   }
 
   async findMany(
     filter: Record<string, unknown>,
     projection?: ProjectionType<UserSkill>,
-    options?: QueryOptions
+    options?: QueryOptions,
+    session?: ClientSession
   ): Promise<UserSkillDocument[]> {
-    return UserSkillModel.find(filter, projection, options);
+
+    return UserSkillModel
+      .find(
+        filter,
+        projection,
+        options
+      )
+      .session(
+        session ?? null
+      );
   }
 
   async exists(
-    filter: Record<string, unknown>
+    filter: Record<string, unknown>,
+    session?: ClientSession
   ): Promise<boolean> {
-    const document = await UserSkillModel.exists(filter);
 
-    return !!document;
+    const document =
+      await UserSkillModel
+        .exists(filter)
+        .session(
+          session ?? null
+        );
+
+    return Boolean(document);
   }
 
   async count(
-    filter: Record<string, unknown>
+    filter: Record<string, unknown>,
+    session?: ClientSession
   ): Promise<number> {
-    return UserSkillModel.countDocuments(filter);
+
+    return UserSkillModel
+      .countDocuments(filter)
+      .session(
+        session ?? null
+      );
   }
 
   async updateOne(
@@ -67,7 +109,15 @@ class UserSkillRepository {
     update: UpdateQuery<UserSkill>,
     session?: ClientSession
   ): Promise<void> {
-    await UserSkillModel.updateOne(filter, update, { session });
+
+    await UserSkillModel.updateOne(
+      filter,
+      update,
+      {
+        runValidators: true,
+        session,
+      }
+    );
   }
 
   async updateMany(
@@ -75,40 +125,63 @@ class UserSkillRepository {
     update: UpdateQuery<UserSkill>,
     session?: ClientSession
   ): Promise<void> {
-    await UserSkillModel.updateMany(filter, update, { session });
+
+    await UserSkillModel.updateMany(
+      filter,
+      update,
+      {
+        runValidators: true,
+        session,
+      }
+    );
   }
 
   async bulkWrite(
-    operations: any[],
+    operations: Parameters<
+      typeof UserSkillModel.bulkWrite
+    >[0],
     session?: ClientSession
   ): Promise<void> {
-    await UserSkillModel.bulkWrite(operations, {
-      session,
-    });
+
+    await UserSkillModel.bulkWrite(
+      operations,
+      {
+        session,
+      }
+    );
   }
 
   async deleteOne(
     filter: Record<string, unknown>,
     session?: ClientSession
   ): Promise<void> {
-    await UserSkillModel.deleteOne(filter, {
-      session,
-    });
+
+    await UserSkillModel.deleteOne(
+      filter,
+      {
+        session,
+      }
+    );
   }
 
   async deleteMany(
     filter: Record<string, unknown>,
     session?: ClientSession
   ): Promise<void> {
-    await UserSkillModel.deleteMany(filter, {
-      session,
-    });
+
+    await UserSkillModel.deleteMany(
+      filter,
+      {
+        session,
+      }
+    );
   }
 
   async softDelete(
     filter: Record<string, unknown>,
     session?: ClientSession
   ): Promise<void> {
+
     await UserSkillModel.updateMany(
       filter,
       {
@@ -148,7 +221,6 @@ class UserSkillRepository {
         session,
       }
     );
-
   }
 
   async findByCareerJourneyAndSkillCatalogIds(
@@ -176,7 +248,6 @@ class UserSkillRepository {
       .session(
         session ?? null
       );
-
   }
 }
 

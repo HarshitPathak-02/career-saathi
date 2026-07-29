@@ -1,10 +1,15 @@
 import {
     Request,
     Response,
-    NextFunction,
 } from "express";
 
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
+
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
 
 import {
     dailyTaskService,
@@ -20,157 +25,161 @@ import {
 
 class DailyTaskController {
 
-    async getTask(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-
-        try {
+    getTask = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
             const task =
-                await dailyTaskService.getTask(
-                    new Types.ObjectId(
-                        req.params.taskId as string
-                    )
-                );
+                await dailyTaskService
+                    .getTask(
+                        new Types.ObjectId(
+                            req.params.taskId as string
+                        )
+                    );
 
             if (!task) {
+
                 throw new AppError(
                     404,
                     "Daily task not found."
                 );
+
             }
 
-            res.json(
-                dailyTaskResponseMapper.toTaskResponse(
-                    task
-                )
+            res.status(200).json(
+                dailyTaskResponseMapper
+                    .toTaskResponse(
+                        task
+                    )
             );
 
-        } catch (error) {
-
-            next(error);
-
         }
+    );
 
-    }
-
-    async getTasksByMission(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-
-        try {
+    getTasksByMission = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
             const tasks =
-                await dailyTaskService.getTasksByMission(
-                    new Types.ObjectId(
-                        req.params.missionId as string
-                    )
-                );
+                await dailyTaskService
+                    .getTasksByMission(
+                        new Types.ObjectId(
+                            req.params.missionId as string
+                        )
+                    );
 
-            res.json(
-                dailyTaskResponseMapper.toTasksResponse(
-                    tasks
-                )
+            res.status(200).json(
+                dailyTaskResponseMapper
+                    .toTasksResponse(
+                        tasks
+                    )
             );
 
-        } catch (error) {
-
-            next(error);
-
         }
+    );
 
-    }
-
-    async markCompleted(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-
-        try {
+    markCompleted = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
             const task =
-                await dailyTaskService.markCompleted(
-                    new Types.ObjectId(
-                        req.params.taskId as string
-                    )
+                await dailyTaskService
+                    .markCompleted(
+                        new Types.ObjectId(
+                            req.params.taskId as string
+                        )
+                    );
+
+            if (!task) {
+
+                throw new AppError(
+                    404,
+                    "Daily task not found."
                 );
 
-            res.json(
-                dailyTaskResponseMapper.toTaskResponse(
-                    task!
-                )
+            }
+
+            res.status(200).json(
+                dailyTaskResponseMapper
+                    .toTaskResponse(
+                        task
+                    )
             );
 
-        } catch (error) {
-
-            next(error);
-
         }
+    );
 
-    }
-
-    async markPending(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-
-        try {
+    markPending = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
             const task =
-                await dailyTaskService.markPending(
-                    new Types.ObjectId(
-                        req.params.taskId as string
-                    )
+                await dailyTaskService
+                    .markPending(
+                        new Types.ObjectId(
+                            req.params.taskId as string
+                        )
+                    );
+
+            if (!task) {
+
+                throw new AppError(
+                    404,
+                    "Daily task not found."
                 );
 
-            res.json(
-                dailyTaskResponseMapper.toTaskResponse(
-                    task!
-                )
+            }
+
+            res.status(200).json(
+                dailyTaskResponseMapper
+                    .toTaskResponse(
+                        task
+                    )
             );
 
-        } catch (error) {
-
-            next(error);
-
         }
+    );
 
-    }
-
-    async markSkipped(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-
-        try {
+    markSkipped = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
             const task =
-                await dailyTaskService.markSkipped(
-                    new Types.ObjectId(
-                        req.params.taskId as string
-                    )
+                await dailyTaskService
+                    .markSkipped(
+                        new Types.ObjectId(
+                            req.params.taskId as string
+                        )
+                    );
+
+            if (!task) {
+
+                throw new AppError(
+                    404,
+                    "Daily task not found."
                 );
 
-            res.json(
-                dailyTaskResponseMapper.toTaskResponse(
-                    task!
-                )
+            }
+
+            res.status(200).json(
+                dailyTaskResponseMapper
+                    .toTaskResponse(
+                        task
+                    )
             );
 
-        } catch (error) {
-
-            next(error);
-
         }
-
-    }
+    );
 
 }
 

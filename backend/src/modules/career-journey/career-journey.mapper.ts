@@ -1,18 +1,7 @@
 import { Types } from "mongoose";
+import { CareerJourneyStatus, CreateCareerJourneyDto, CreateCareerJourneyInput, UpdateCareerJourneyDto, UpdateCareerJourneyInput } from "./index.js";
 
-import {
-  CreateCareerJourneyDto,
-  UpdateCareerJourneyDto,
-} from "./career-journey.types.js";
 
-import {
-  CareerJourneyStatus,
-} from "./career-journey.enums.js";
-
-import {
-  CreateCareerJourneyInput,
-  UpdateCareerJourneyInput,
-} from "./career-journey.types.js";
 
 export class CareerJourneyMapper {
   static toCreateInput(
@@ -66,7 +55,7 @@ export class CareerJourneyMapper {
     if (dto.preferredLanguage !== undefined) {
       updateData.preferredLanguage = dto.preferredLanguage;
     }
-    
+
     return updateData;
   }
 }

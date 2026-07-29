@@ -1,5 +1,21 @@
-import { UserRole } from '../users/user.enums.js';
-import { UserResponse } from '../users/user.types.js';
+import {
+  UserRole,
+} from "../users/user.enums.js";
+
+import type {
+  UserResponse,
+} from "../users/user.types.js";
+
+export interface RegisterInput {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
 
 export interface JwtPayload {
   userId: string;
@@ -9,9 +25,7 @@ export interface JwtPayload {
 
 export interface AuthResponse {
   user: UserResponse;
-
   accessToken: string;
-
   refreshToken: string;
 }
 
@@ -20,6 +34,8 @@ export interface RefreshResponse {
   refreshToken: string;
 }
 
-export type RegisterResponse = AuthResponse;
+export type RegisterResponse =
+  AuthResponse;
 
-export type LoginResponse = AuthResponse;
+export type LoginResponse =
+  AuthResponse;

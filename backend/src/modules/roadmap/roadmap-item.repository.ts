@@ -14,6 +14,7 @@ import {
 } from "./roadmap.enums.js";
 
 class RoadmapItemRepository {
+
     async createMany(
         data: Partial<RoadmapItemDocument>[],
         session?: ClientSession
@@ -30,34 +31,45 @@ class RoadmapItemRepository {
         id: Types.ObjectId,
         session?: ClientSession
     ) {
-        return this.findOne({
-            _id: id,
-        });
+        return this.findOne(
+            {
+                _id: id,
+            },
+            session
+        );
     }
 
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return RoadmapItemModel.findOne(filter);
+        return RoadmapItemModel
+            .findOne(filter)
+            .session(session ?? null);
     }
 
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return RoadmapItemModel.find(filter)
+        return RoadmapItemModel
+            .find(filter)
             .sort({
                 order: 1,
-            });
+            })
+            .session(session ?? null);
     }
 
     async findByRoadmapId(
-        roadmapId: Types.ObjectId
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
     ) {
-        return this.findMany({
-            roadmapId,
-        });
+        return this.findMany(
+            {
+                roadmapId,
+            },
+            session
+        );
     }
 
     async exists(
@@ -65,7 +77,9 @@ class RoadmapItemRepository {
         session?: ClientSession
     ) {
         const exists =
-            await RoadmapItemModel.exists(filter);
+            await RoadmapItemModel
+                .exists(filter)
+                .session(session ?? null);
 
         return Boolean(exists);
     }
@@ -80,6 +94,7 @@ class RoadmapItemRepository {
             update,
             {
                 new: true,
+                runValidators: true,
                 session,
             }
         );
@@ -97,6 +112,7 @@ class RoadmapItemRepository {
             },
             {
                 new: true,
+                runValidators: true,
                 session,
             }
         );
@@ -107,26 +123,32 @@ class RoadmapItemRepository {
         limit: number,
         session?: ClientSession
     ) {
-        return RoadmapItemModel.find({
-            roadmapId,
-            status:
-                RoadmapItemStatus.PENDING,
-        })
+        return RoadmapItemModel
+            .find({
+                roadmapId,
+
+                status:
+                    RoadmapItemStatus.PENDING,
+            })
             .sort({
                 order: 1,
             })
-            .limit(limit);
+            .limit(limit)
+            .session(session ?? null);
     }
 
     async countCompleted(
         roadmapId: Types.ObjectId,
         session?: ClientSession
     ) {
-        return RoadmapItemModel.countDocuments({
-            roadmapId,
-            status:
-                RoadmapItemStatus.COMPLETED,
-        });
+        return RoadmapItemModel
+            .countDocuments({
+                roadmapId,
+
+                status:
+                    RoadmapItemStatus.COMPLETED,
+            })
+            .session(session ?? null);
     }
 
     async deleteByRoadmapId(
@@ -144,30 +166,36 @@ class RoadmapItemRepository {
     }
 
     async findByIds(
-        ids: Types.ObjectId[]
+        ids: Types.ObjectId[],
+        session?: ClientSession
     ) {
-
-        return RoadmapItemModel.find({
-            _id: {
-                $in: ids,
-            },
-        });
-
+        return RoadmapItemModel
+            .find({
+                _id: {
+                    $in: ids,
+                },
+            })
+            .sort({
+                order: 1,
+            })
+            .session(session ?? null);
     }
 
     async findPendingItems(
         roadmapId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<RoadmapItemDocument[]> {
-
         return RoadmapItemModel
             .find({
                 roadmapId,
-                status: RoadmapItemStatus.PENDING,
+
+                status:
+                    RoadmapItemStatus.PENDING,
             })
             .sort({
                 order: 1,
-            });
-
+            })
+            .session(session ?? null);
     }
 }
 

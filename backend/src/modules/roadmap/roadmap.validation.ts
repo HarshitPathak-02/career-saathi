@@ -1,43 +1,52 @@
 import Joi from "joi";
 
-import {
-    objectIdSchema,
-} from "../../shared/validators/common-validator.js";
 
+const objectIdSchema =
+    Joi.string()
+        .trim()
+        .pattern(/^[0-9a-fA-F]{24}$/)
+        .messages({
+            "string.empty":
+                "Id is required.",
 
-/*
- * Generate roadmap
- */
+            "string.pattern.base":
+                "Invalid MongoDB ObjectId.",
+        });
+
 export const generateRoadmapSchema =
     Joi.object({
         careerJourneyId:
-            objectIdSchema.required(),
+            objectIdSchema
+                .required()
+                .messages({
+                    "any.required":
+                        "Career journey id is required.",
+                }),
     });
 
-
-/*
- * Career journey param
- */
 export const careerJourneyIdParamSchema =
     Joi.object({
         careerJourneyId:
-            objectIdSchema.required(),
+            objectIdSchema
+                .required()
+                .messages({
+                    "any.required":
+                        "Career journey id is required.",
+                }),
     });
 
-
-/*
- * Roadmap param
- */
 export const roadmapIdParamSchema =
     Joi.object({
         roadmapId:
-            objectIdSchema.required(),
+            objectIdSchema
+                .required()
+                .messages({
+                    "any.required":
+                        "Roadmap id is required.",
+                }),
     });
 
 
-/*
- * Next pending items query
- */
 export const nextPendingItemsQuerySchema =
     Joi.object({
         limit:

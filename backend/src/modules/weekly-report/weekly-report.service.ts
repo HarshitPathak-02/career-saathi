@@ -4,9 +4,8 @@ import {
 } from "mongoose";
 
 import {
-    WeeklyReport,
     WeeklyReportDocument,
-} from "./weekly-report.schema.js";
+} from "./weekly-report.model.js";
 
 import {
     weeklyReportRepository,
@@ -16,10 +15,11 @@ import {
     AppError,
 } from "../../core/errors/app-error.js";
 
+
 import {
-    WEEKLY_REPORT_MESSAGES,
-} from "./weekly-report.messages.js";
-import { CreateWeeklyReportDTO } from "./weekly-report.types.js";
+    CreateWeeklyReportDTO,
+} from "./weekly-report.types.js";
+import { WEEKLY_REPORT_MESSAGES } from "./weekly-report.constants.js";
 
 class WeeklyReportService {
 
@@ -36,30 +36,38 @@ class WeeklyReportService {
     }
 
     async existsByReflectionId(
-        reflectionId: Types.ObjectId
+        reflectionId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<boolean> {
 
         return weeklyReportRepository
             .existsByReflectionId(
-                reflectionId
+                reflectionId,
+                session
             );
 
     }
 
     async getWeeklyReport(
-        weeklyReportId: Types.ObjectId
+        weeklyReportId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument> {
 
         const weeklyReport =
-            await weeklyReportRepository.getById(
-                weeklyReportId
-            );
+            await weeklyReportRepository
+                .getById(
+                    weeklyReportId,
+                    session
+                );
 
         if (!weeklyReport) {
+
             throw new AppError(
                 404,
-                WEEKLY_REPORT_MESSAGES.WEEKLY_REPORT_NOT_FOUND
+                WEEKLY_REPORT_MESSAGES
+                    .WEEKLY_REPORT_NOT_FOUND
             );
+
         }
 
         return weeklyReport;
@@ -67,20 +75,25 @@ class WeeklyReportService {
     }
 
     async getLatestWeeklyReport(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument> {
 
         const weeklyReport =
             await weeklyReportRepository
                 .getLatestByCareerJourney(
-                    careerJourneyId
+                    careerJourneyId,
+                    session
                 );
 
         if (!weeklyReport) {
+
             throw new AppError(
                 404,
-                WEEKLY_REPORT_MESSAGES.WEEKLY_REPORT_NOT_FOUND
+                WEEKLY_REPORT_MESSAGES
+                    .WEEKLY_REPORT_NOT_FOUND
             );
+
         }
 
         return weeklyReport;
@@ -88,42 +101,40 @@ class WeeklyReportService {
     }
 
     async getWeeklyReports(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument[]> {
 
-        return weeklyReportRepository.getByCareerJourney(
-            careerJourneyId
-        );
+        return weeklyReportRepository
+            .getByCareerJourney(
+                careerJourneyId,
+                session
+            );
 
     }
 
     async getWeeklyReportById(
-        weeklyReportId: Types.ObjectId
+        weeklyReportId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument> {
 
         return this.getWeeklyReport(
-            weeklyReportId
-        );
-
-    }
-
-    async getWeeklyReportByReflectionId(
-        reflectionId: Types.ObjectId,
-    ): Promise<WeeklyReportDocument | null> {
-
-        return weeklyReportRepository.getByReflectionId(
-            reflectionId,
+            weeklyReportId,
+            session
         );
 
     }
 
     async getByReflectionId(
-        reflectionId: Types.ObjectId
+        reflectionId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<WeeklyReportDocument | null> {
 
-        return weeklyReportRepository.getByReflectionId(
-            reflectionId
-        );
+        return weeklyReportRepository
+            .getByReflectionId(
+                reflectionId,
+                session
+            );
 
     }
 

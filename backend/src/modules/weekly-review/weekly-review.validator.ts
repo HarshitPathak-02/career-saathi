@@ -7,6 +7,10 @@ import {
     ReflectionReason,
 } from "../weekly-reflection/weekly-reflection.enums.js";
 
+import {
+    WeeklyReflectionConstants,
+} from "../weekly-reflection/weekly-reflection.constants.js";
+
 /*
 |--------------------------------------------------------------------------
 | Assessment Skill
@@ -93,8 +97,16 @@ const learningReflectionSchema =
         confidenceRating:
             Joi.number()
                 .integer()
-                .min(1)
-                .max(5)
+                .min(
+                    WeeklyReflectionConstants
+                        .CONFIDENCE_RATING
+                        .MIN
+                )
+                .max(
+                    WeeklyReflectionConstants
+                        .CONFIDENCE_RATING
+                        .MAX
+                )
                 .required(),
 
     });

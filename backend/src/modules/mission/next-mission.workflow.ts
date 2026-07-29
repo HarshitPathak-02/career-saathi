@@ -1,17 +1,50 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
 
-import { roadmapRepository } from "../roadmap/roadmap.repository.js";
-import { roadmapItemRepository } from "../roadmap/roadmap-item.repository.js";
+import {
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
 
-import { weeklyReportService } from "../weekly-report/weekly-report.service.js";
-import { skillProgressService } from "../skill-progress/skill-progress.service.js";
+import {
+    CareerJourneyStatus,
+} from "../career-journey/career-journey.enums.js";
 
-import { missionService } from "./mission.service.js";
-import { missionPlanningEngine } from "./mission-planning.engine.js";
+import {
+    roadmapRepository,
+} from "../roadmap/roadmap.repository.js";
 
-import { dailyTaskWorkflow } from "../daily-task/daily-task.workflow.js";
+import {
+    roadmapItemRepository,
+} from "../roadmap/roadmap-item.repository.js";
+
+import {
+    weeklyReportService,
+} from "../weekly-report/weekly-report.service.js";
+
+import {
+    skillProgressService,
+} from "../skill-progress/skill-progress.service.js";
+
+import {
+    dailyTaskWorkflow,
+} from "../daily-task/daily-task.workflow.js";
+
+import {
+    missionService,
+} from "./mission.service.js";
+
+import {
+    missionPlanningEngine,
+} from "./mission-planning.engine.js";
+
+import {
+    MissionStatus,
+} from "./mission.enums.js";
 
 import {
     MissionPlanningInput,
@@ -22,11 +55,11 @@ import {
 import {
     DEFAULT_DURATION_DAYS,
     DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION,
-} from "./mission.config.js";
+} from "./mission.constants.js";
 
 import {
     MissionDocument,
-} from "./mission.schema.js";
+} from "./mission.model.js";
 
 import {
     NextMissionWorkflowContext,
@@ -36,103 +69,242 @@ export class NextMissionWorkflow {
 
     async generateNextMission(
         userId: string,
-        careerJourneyId: Types.ObjectId,
+        careerJourneyId: Types.ObjectId
     ): Promise<MissionDocument> {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Career Journey
+        |--------------------------------------------------------------------------
+        */
+
+        await this.validateCareerJourney(
+            userId,
+            careerJourneyId
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Load Workflow Context
+        |--------------------------------------------------------------------------
+        */
 
         const context =
             await this.loadWorkflowContext(
-                careerJourneyId,
+                careerJourneyId
             );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Previous Mission
+        |--------------------------------------------------------------------------
+        */
+
+        this.validatePreviousMission(
+            context.previousMission
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prepare Mission Plan
+        |--------------------------------------------------------------------------
+        */
 
         const planningInput =
             this.prepareMissionPlan(
-                context,
+                context
             );
 
         const planningResult =
             missionPlanningEngine.planMission(
-                planningInput,
+                planningInput
             );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save Mission
+        |--------------------------------------------------------------------------
+        */
 
         return this.saveMission(
             userId,
             context,
-            planningResult,
+            planningResult
         );
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Career Journey
+    |--------------------------------------------------------------------------
+    */
+
+    private async validateCareerJourney(
+        userId: string,
+        careerJourneyId: Types.ObjectId
+    ): Promise<void> {
+
+        const userObjectId =
+            new Types.ObjectId(
+                userId
+            );
+
+        const careerJourney =
+            await careerJourneyRepository
+                .findByIdAndUserId(
+                    careerJourneyId,
+                    userObjectId
+                );
+
+        if (!careerJourney) {
+            throw new AppError(
+                404,
+                "Career journey not found."
+            );
+        }
+
+        if (
+            careerJourney.status !==
+            CareerJourneyStatus.ACTIVE
+        ) {
+            throw new AppError(
+                409,
+                "Career journey must be active before generating the next mission."
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Workflow Context
+    |--------------------------------------------------------------------------
+    */
+
     private async loadWorkflowContext(
-        careerJourneyId: Types.ObjectId,
+        careerJourneyId: Types.ObjectId
     ): Promise<NextMissionWorkflowContext> {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Previous Mission
+        |--------------------------------------------------------------------------
+        */
+
         const previousMission =
-            await missionService.getLatestMission(
-                careerJourneyId.toString(),
-            );
+            await missionService
+                .getLatestMission(
+                    careerJourneyId.toString()
+                );
 
         if (!previousMission) {
             throw new AppError(
                 404,
-                "Previous mission not found.",
+                "Previous mission not found."
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Weekly Report
+        |--------------------------------------------------------------------------
+        */
 
         const weeklyReport =
             await weeklyReportService
                 .getLatestWeeklyReport(
-                    careerJourneyId,
+                    careerJourneyId
                 );
 
         if (!weeklyReport) {
             throw new AppError(
-                404,
-                "Weekly report not found.",
+                409,
+                "Weekly report must be completed before generating the next mission."
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap
+        |--------------------------------------------------------------------------
+        */
 
         const roadmap =
             await roadmapRepository
                 .findByCareerJourneyId(
-                    careerJourneyId,
+                    careerJourneyId
                 );
 
         if (!roadmap) {
             throw new AppError(
                 404,
-                "Roadmap not found.",
+                "Roadmap not found."
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Assessment Skill Progress
+        |--------------------------------------------------------------------------
+        */
+
         const skillProgress =
-            await skillProgressService.getSkillPlanningData(
-                weeklyReport.assessmentId.toString(),
-            );
+            await skillProgressService
+                .getSkillPlanningData(
+                    weeklyReport
+                        .assessmentId
+                        .toString()
+                );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pending Roadmap Items
+        |--------------------------------------------------------------------------
+        */
 
         const pendingRoadmapItems =
             await roadmapItemRepository
                 .findPendingItems(
-                    roadmap._id,
+                    roadmap._id
                 );
 
         return {
-
             previousMission,
-
             weeklyReport,
-
             roadmap,
-
             skillProgress,
-
             pendingRoadmapItems,
-
         };
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Previous Mission
+    |--------------------------------------------------------------------------
+    */
+
+    private validatePreviousMission(
+        previousMission: MissionDocument
+    ): void {
+
+        if (
+            previousMission.status !==
+            MissionStatus.COMPLETED
+        ) {
+            throw new AppError(
+                409,
+                "Previous mission must be completed before generating the next mission."
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prepare Mission Plan
+    |--------------------------------------------------------------------------
+    */
+
     private prepareMissionPlan(
-        context: NextMissionWorkflowContext,
+        context: NextMissionWorkflowContext
     ): MissionPlanningInput {
 
         const startDate =
@@ -142,39 +314,41 @@ export class NextMissionWorkflow {
             0,
             0,
             0,
-            0,
+            0
         );
 
         const endDate =
-            new Date(startDate);
+            new Date(
+                startDate
+            );
 
         endDate.setUTCDate(
             endDate.getUTCDate() +
             DEFAULT_DURATION_DAYS -
-            1,
+            1
         );
 
         return {
-
             missionNumber:
-                context.previousMission.missionNumber + 1,
+                context.previousMission
+                    .missionNumber + 1,
 
             newRoadmapItems:
                 context.pendingRoadmapItems,
 
             carryForwardRoadmapItemIds:
                 this.getCarryForwardRoadmapItemIds(
-                    context,
+                    context
                 ),
 
             revisionPlans:
                 this.getRevisionPlans(
-                    context,
+                    context
                 ),
 
             workloadMultiplier:
                 this.getWorkloadMultiplier(
-                    context,
+                    context
                 ),
 
             targetRoadmapItemsPerMission:
@@ -183,38 +357,50 @@ export class NextMissionWorkflow {
             startDate,
 
             endDate,
-
         };
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Carry Forward Roadmap Items
+    |--------------------------------------------------------------------------
+    */
+
     private getCarryForwardRoadmapItemIds(
-        context: NextMissionWorkflowContext,
+        context: NextMissionWorkflowContext
     ): Types.ObjectId[] {
 
         const pendingIds =
             new Set(
                 context.pendingRoadmapItems.map(
-                    item => item._id.toString(),
-                ),
+                    (item) =>
+                        item._id.toString()
+                )
             );
 
         return context.previousMission
             .plannedRoadmapItemIds
-            .filter(id =>
-                pendingIds.has(
-                    id.toString(),
-                ),
+            .filter(
+                (id) =>
+                    pendingIds.has(
+                        id.toString()
+                    )
             );
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Revision Plans
+    |--------------------------------------------------------------------------
+    */
+
     private getRevisionPlans(
-        context: NextMissionWorkflowContext,
+        context: NextMissionWorkflowContext
     ): MissionRevisionPlan[] {
 
         const recommendation =
-            context.weeklyReport.recommendation;
+            context.weeklyReport
+                .recommendation;
 
         if (
             !recommendation ||
@@ -225,22 +411,25 @@ export class NextMissionWorkflow {
 
         const weakSkillNames =
             new Set(
-                recommendation.weakSkills.map(
-                    skill =>
-                        skill
-                            .trim()
-                            .toLowerCase()
-                )
+                recommendation
+                    .weakSkills
+                    .map(
+                        (skill) =>
+                            skill
+                                .trim()
+                                .toLowerCase()
+                    )
             );
 
         const weakSkillProgress =
             context.skillProgress
-                .filter(skill =>
-                    weakSkillNames.has(
-                        skill.skillName
-                            .trim()
-                            .toLowerCase()
-                    )
+                .filter(
+                    (skill) =>
+                        weakSkillNames.has(
+                            skill.skillName
+                                .trim()
+                                .toLowerCase()
+                        )
                 )
                 .sort(
                     (a, b) =>
@@ -249,8 +438,7 @@ export class NextMissionWorkflow {
                 );
 
         return weakSkillProgress.map(
-            skill => ({
-
+            (skill) => ({
                 skillCatalogId:
                     skill.skillCatalogId,
 
@@ -263,31 +451,36 @@ export class NextMissionWorkflow {
                 revisionTopics:
                     this.getRevisionTopicsForSkill(
                         skill.skillName,
-                        recommendation.revisionTopics,
+                        recommendation.revisionTopics
                     ),
-
             })
         );
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Workload Multiplier
+    |--------------------------------------------------------------------------
+    */
+
     private getWorkloadMultiplier(
-        context: NextMissionWorkflowContext,
+        context: NextMissionWorkflowContext
     ): number {
+
         const recommendation =
-            context.weeklyReport.recommendation;
+            context.weeklyReport
+                .recommendation;
 
         if (!recommendation) {
-
             throw new AppError(
-                400,
-                "Weekly report recommendation not found.",
+                409,
+                "Weekly report recommendation not found."
             );
-
         }
 
-        switch (recommendation.recommendedDifficulty) {
-
+        switch (
+        recommendation.recommendedDifficulty
+        ) {
             case "EASY":
                 return 0.8;
 
@@ -299,14 +492,18 @@ export class NextMissionWorkflow {
 
             default:
                 return 1;
-
         }
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Revision Topics
+    |--------------------------------------------------------------------------
+    */
 
     private getRevisionTopicsForSkill(
         skillName: string,
-        revisionTopics: string[],
+        revisionTopics: string[]
     ): string[] {
 
         const normalizedSkillName =
@@ -316,7 +513,7 @@ export class NextMissionWorkflow {
 
         const matchedTopics =
             revisionTopics.filter(
-                topic =>
+                (topic) =>
                     topic
                         .toLowerCase()
                         .includes(
@@ -327,57 +524,59 @@ export class NextMissionWorkflow {
         return matchedTopics.length > 0
             ? matchedTopics
             : revisionTopics;
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Mission
+    |--------------------------------------------------------------------------
+    */
 
     private async saveMission(
         userId: string,
         context: NextMissionWorkflowContext,
-        planningResult: MissionPlanningResult,
+        planningResult: MissionPlanningResult
     ): Promise<MissionDocument> {
 
         const mission =
-            await missionService.createMission({
+            await missionService
+                .createMission({
+                    careerJourneyId:
+                        context.previousMission
+                            .careerJourneyId,
 
-                careerJourneyId:
-                    context.previousMission
-                        .careerJourneyId,
+                    roadmapId:
+                        context.roadmap._id,
 
-                roadmapId:
-                    context.roadmap._id,
+                    missionNumber:
+                        planningResult
+                            .missionNumber,
 
-                missionNumber:
-                    planningResult
-                        .missionNumber,
+                    plannedRoadmapItemIds:
+                        planningResult
+                            .plannedRoadmapItemIds,
 
-                plannedRoadmapItemIds:
-                    planningResult
-                        .plannedRoadmapItemIds,
+                    revisionPlans:
+                        planningResult
+                            .revisionPlans,
 
-                revisionPlans:
-                    planningResult
-                        .revisionPlans,
+                    startDate:
+                        planningResult
+                            .startDate,
 
-                startDate:
-                    planningResult
-                        .startDate,
-
-                endDate:
-                    planningResult
-                        .endDate,
-
-            });
+                    endDate:
+                        planningResult
+                            .endDate,
+                });
 
         await dailyTaskWorkflow
             .generateDailyTasks(
                 userId,
-                mission._id.toString(),
+                mission._id.toString()
             );
 
         return mission;
-
     }
-
 }
 
 export const nextMissionWorkflow =

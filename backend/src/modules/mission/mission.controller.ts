@@ -3,7 +3,9 @@ import {
     Response,
 } from "express";
 
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
 import {
     missionService,
@@ -12,165 +14,334 @@ import {
 import {
     missionWorkflowService,
 } from "./mission.workflow.js";
-import { getAuthUser } from "../../shared/utils/get-auth-user.js";
-import { missionMapper } from "./mission.mapper.js";
-import { dailyTaskService } from "../daily-task/daily-task.service.js";
+
+import {
+    missionMapper,
+} from "./mission.mapper.js";
+
+import {
+    dailyTaskService,
+} from "../daily-task/daily-task.service.js";
+
+import {
+    getAuthUser,
+} from "../../shared/utils/get-auth-user.js";
+
+import {
+    asyncHandler,
+} from "../../core/middleware/async-handler.js";
+
+import {
+    successResponse,
+} from "../../core/responses/successResponse.js";
+
+import {
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
+import { MissionMessages } from "./index.js";
+
 
 class MissionController {
 
-    async createInitialMission(
-        req: Request,
-        res: Response
-    ) {
+    /*
+    |--------------------------------------------------------------------------
+    | Create Initial Mission
+    |--------------------------------------------------------------------------
+    */
 
-        const user = getAuthUser(req)
-        console.log(req.params.careerJourneyId);
+    createInitialMission = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
 
-        const mission =
-            await missionWorkflowService.createInitialMission(
-                user.userId,
-                new Types.ObjectId(
-                    req.params.careerJourneyId as string
-                )
-            );
+            const user =
+                getAuthUser(req);
 
-        const progress =
-            await dailyTaskService.getMissionProgress(
-                mission._id
-            );
+            const {
+                careerJourneyId,
+            } = req.params as {
+                careerJourneyId: string;
+            };
 
-        res.status(201).json(
-            missionMapper.toMissionSummaryDto(
-                mission,
-                progress
-            )
-        );
+            const mission =
+                await missionWorkflowService
+                    .createInitialMission(
+                        user.userId,
+                        new Types.ObjectId(
+                            careerJourneyId
+                        )
+                    );
 
-    }
+            const progress =
+                await dailyTaskService
+                    .getMissionProgress(
+                        mission._id
+                    );
 
-    async getMission(
-        req: Request,
-        res: Response
-    ) {
-
-        const mission =
-            await missionService.getMission(
-                req.params.missionId as string
-            );
-
-        if (!mission) {
-            return res.status(404).json({
-                message: "Mission not found",
-            });
-        }
-
-        const progress =
-            await dailyTaskService.getMissionProgress(
-                mission._id
-            );
-
-        const currentMissionDay =
-            await missionService.getCurrentMissionDay(
-                mission._id
-            );
-
-        res.status(200).json(
-            missionMapper.toMissionDetailsDto(
-                mission,
-                progress,
-                currentMissionDay
-            )
-        );
-
-    }
-
-    async getCurrentMission(
-        req: Request,
-        res: Response
-    ) {
-
-        const mission =
-            await missionService.getActiveMission(
-                req.params.careerJourneyId as string
-            );
-
-        if (!mission) {
-            return res.status(404).json(null);
-        }
-
-        const progress =
-            await dailyTaskService.getMissionProgress(
-                mission._id
-            );
-
-        res.status(200).json(
-            missionMapper.toMissionSummaryDto(
-                mission,
-                progress
-            )
-        );
-
-    }
-
-    async getLatestMission(
-        req: Request,
-        res: Response
-    ) {
-
-        const mission =
-            await missionService.getLatestMission(
-                req.params.careerJourneyId as string
-            );
-
-        if (!mission) {
-            return res.status(404).json(null);
-        }
-
-        const progress =
-            await dailyTaskService.getMissionProgress(
-                mission._id
-            );
-
-        res.status(200).json(
-            missionMapper.toMissionSummaryDto(
-                mission,
-                progress
-            )
-        );
-
-    }
-
-    async getMissionHistory(
-        req: Request,
-        res: Response
-    ) {
-
-        const missions =
-            await missionService.getMissionHistory(
-                req.params.careerJourneyId as string
-            );
-
-        const response =
-            await Promise.all(
-                missions.map(async mission => {
-
-                    const progress =
-                        await dailyTaskService.getMissionProgress(
-                            mission._id
-                        );
-
-                    return missionMapper.toMissionSummaryDto(
+            const data =
+                missionMapper
+                    .toMissionSummaryDto(
                         mission,
                         progress
                     );
 
-                })
-            );
+            return successResponse({
+                res,
 
-        res.status(200).json(response);
+                statusCode:
+                    HTTP_STATUS.CREATED,
 
-    }
+                message:
+                    "Initial mission created successfully.",
 
+                data,
+            });
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Mission By Id
+    |--------------------------------------------------------------------------
+    */
+
+    getMission = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
+
+            const {
+                missionId,
+            } = req.params as {
+                missionId: string;
+            };
+
+            const mission =
+                await missionService
+                    .getMission(
+                        missionId
+                    );
+
+            if (!mission) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    MissionMessages.NOT_FOUND
+                );
+            }
+
+            const progress =
+                await dailyTaskService
+                    .getMissionProgress(
+                        mission._id
+                    );
+
+            const currentMissionDay =
+                await missionService
+                    .getCurrentMissionDay(
+                        mission._id
+                    );
+
+            const data =
+                missionMapper
+                    .toMissionDetailsDto(
+                        mission,
+                        progress,
+                        currentMissionDay
+                    );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Mission fetched successfully.",
+
+                data,
+            });
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Current Mission
+    |--------------------------------------------------------------------------
+    */
+
+    getCurrentMission = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
+
+            const {
+                careerJourneyId,
+            } = req.params as {
+                careerJourneyId: string;
+            };
+
+            const mission =
+                await missionService
+                    .getActiveMission(
+                        careerJourneyId
+                    );
+
+            if (!mission) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    MissionMessages.NOT_FOUND
+                );
+            }
+
+            const progress =
+                await dailyTaskService
+                    .getMissionProgress(
+                        mission._id
+                    );
+
+            const data =
+                missionMapper
+                    .toMissionSummaryDto(
+                        mission,
+                        progress
+                    );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Current mission fetched successfully.",
+
+                data,
+            });
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Latest Mission
+    |--------------------------------------------------------------------------
+    */
+
+    getLatestMission = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
+
+            const {
+                careerJourneyId,
+            } = req.params as {
+                careerJourneyId: string;
+            };
+
+            const mission =
+                await missionService
+                    .getLatestMission(
+                        careerJourneyId
+                    );
+
+            if (!mission) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    MissionMessages.NOT_FOUND
+                );
+            }
+
+            const progress =
+                await dailyTaskService
+                    .getMissionProgress(
+                        mission._id
+                    );
+
+            const data =
+                missionMapper
+                    .toMissionSummaryDto(
+                        mission,
+                        progress
+                    );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Latest mission fetched successfully.",
+
+                data,
+            });
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Mission History
+    |--------------------------------------------------------------------------
+    */
+
+    getMissionHistory = asyncHandler(
+        async (
+            req: Request,
+            res: Response
+        ) => {
+
+            const {
+                careerJourneyId,
+            } = req.params as {
+                careerJourneyId: string;
+            };
+
+            const missions =
+                await missionService
+                    .getMissionHistory(
+                        careerJourneyId
+                    );
+
+            const data =
+                await Promise.all(
+                    missions.map(
+                        async (mission) => {
+
+                            const progress =
+                                await dailyTaskService
+                                    .getMissionProgress(
+                                        mission._id
+                                    );
+
+                            return missionMapper
+                                .toMissionSummaryDto(
+                                    mission,
+                                    progress
+                                );
+                        }
+                    )
+                );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Mission history fetched successfully.",
+
+                data,
+            });
+        }
+    );
 }
 
 export const missionController =

@@ -1,16 +1,46 @@
-import { Types } from "mongoose";
+import {
+    Types,
+} from "mongoose";
 
-import { missionService } from "../mission/mission.service.js";
-import { roadmapItemRepository } from "../roadmap/roadmap-item.repository.js";
-import { dailyTaskService } from "./daily-task.service.js";
+import {
+    missionService,
+} from "../mission/mission.service.js";
 
-import { aiService } from "../../shared/ai/ai.service.js";
-import { aiValidator } from "../../shared/ai/ai.validator.js";
+import {
+    roadmapItemRepository,
+} from "../roadmap/roadmap-item.repository.js";
 
-import { buildDailyTaskPrompt } from "./daily-task.prompt.js";
-import { careerJourneyService } from "../career-journey/career-journey.service.js";
-import { createReviewDay } from "./daily-task-review.factory.js";
-import { DailyTaskOutput } from "./daily-task.types.js";
+import {
+    careerJourneyService,
+} from "../career-journey/career-journey.service.js";
+
+import {
+    dailyTaskService,
+} from "./daily-task.service.js";
+
+import {
+    aiService,
+} from "../../shared/ai/ai.service.js";
+
+import {
+    aiValidator,
+} from "../../shared/ai/ai.validator.js";
+
+import {
+    buildDailyTaskPrompt,
+} from "./daily-task.prompt.js";
+
+import {
+    createReviewDay,
+} from "./daily-task-review.factory.js";
+
+import {
+    DailyTaskOutput,
+} from "./daily-task.types.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
 
 class DailyTaskWorkflow {
 
@@ -20,63 +50,90 @@ class DailyTaskWorkflow {
     ) {
 
         /*
-         * Step 1
-         * Fetch Mission
-         */
+        |--------------------------------------------------------------------------
+        | Mission
+        |--------------------------------------------------------------------------
+        */
+
         const mission =
             await missionService.getMission(
                 missionId
             );
 
         if (!mission) {
-            throw new Error(
+
+            throw new AppError(
+                404,
                 "Mission not found."
             );
+
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Career Journey
+        |--------------------------------------------------------------------------
+        */
 
         const careerJourney =
-            await careerJourneyService.getCareerJourneyById(
-                userId,
-                mission.careerJourneyId.toString()
-            );
+            await careerJourneyService
+                .getCareerJourneyById(
+                    userId,
+                    mission.careerJourneyId
+                        .toString()
+                );
 
         if (!careerJourney) {
-            throw new Error(
+
+            throw new AppError(
+                404,
                 "Career journey not found."
             );
+
         }
 
         /*
-         * Step 2
-         * Fetch planned roadmap items
-         */
+        |--------------------------------------------------------------------------
+        | Planned Roadmap Items
+        |--------------------------------------------------------------------------
+        */
+
         const roadmapItems =
-            await roadmapItemRepository.findMany({
-                _id: {
-                    $in: mission.plannedRoadmapItemIds,
-                },
-            });
+            await roadmapItemRepository
+                .findMany({
+                    _id: {
+                        $in:
+                            mission.plannedRoadmapItemIds,
+                    },
+                });
 
         /*
-         * Step 3
-         * Build Prompt
-         */
+        |--------------------------------------------------------------------------
+        | Prompt
+        |--------------------------------------------------------------------------
+        */
+
         const prompt =
             buildDailyTaskPrompt({
 
                 roadmapItems,
 
-                revisionPlans: mission.revisionPlans ?? [],
+                revisionPlans:
+                    mission.revisionPlans ??
+                    [],
 
                 studyHoursPerDay:
-                    careerJourney.dailyStudyHours,
+                    careerJourney
+                        .dailyStudyHours,
 
             });
 
         /*
-         * Step 4
-         * Call AI
-         */
+        |--------------------------------------------------------------------------
+        | AI Generation
+        |--------------------------------------------------------------------------
+        */
+
         const response =
             await aiService.generate({
 
@@ -98,11 +155,12 @@ Descriptions must be one short sentence.
             });
 
         /*
-         * Step 5
-         * Parse Response
-         */
+        |--------------------------------------------------------------------------
+        | Parse AI Response
+        |--------------------------------------------------------------------------
+        */
 
-        let parsed;
+        let parsed: unknown;
 
         try {
 
@@ -113,19 +171,19 @@ Descriptions must be one short sentence.
 
         } catch {
 
-            throw new Error(
+            throw new AppError(
+                500,
                 "AI returned an invalid or incomplete daily task response."
             );
 
         }
 
-
-
-
         /*
-         * Step 6
-         * Validate
-         */
+        |--------------------------------------------------------------------------
+        | Allowed References
+        |--------------------------------------------------------------------------
+        */
+
         const allowedRoadmapItemIds =
             roadmapItems.map(
                 item =>
@@ -133,33 +191,20 @@ Descriptions must be one short sentence.
             );
 
         const allowedRevisionSkillIds =
-            (mission.revisionPlans ?? [])
-                .map(
-                    revision =>
-                        revision.skillCatalogId.toString()
-                );
+            (
+                mission.revisionPlans ??
+                []
+            ).map(
+                revision =>
+                    revision.skillCatalogId
+                        .toString()
+            );
 
-
-        console.log(
-            "MISSION PLANNED IDS:",
-            mission.plannedRoadmapItemIds.map(
-                id => id.toString()
-            )
-        );
-
-        console.log(
-            "FETCHED ROADMAP IDS:",
-            allowedRoadmapItemIds
-        );
-
-        console.log(
-            "AI ROADMAP IDS:",
-            parsed.map(
-                (task: DailyTaskOutput) =>
-                    task.roadmapItemIds
-            )
-        );
-
+        /*
+        |--------------------------------------------------------------------------
+        | Validate AI Output
+        |--------------------------------------------------------------------------
+        */
 
         const tasks =
             aiValidator.validateDailyTasks(
@@ -168,18 +213,29 @@ Descriptions must be one short sentence.
                 allowedRevisionSkillIds
             );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Weekly Review — Day 7
+        |--------------------------------------------------------------------------
+        */
+
         tasks.push(
             createReviewDay()
         );
 
         /*
-         * Step 7
-         * Persist
-         */
-        return dailyTaskService.createMany(
-            new Types.ObjectId(missionId),
-            tasks
-        );
+        |--------------------------------------------------------------------------
+        | Persist Daily Tasks
+        |--------------------------------------------------------------------------
+        */
+
+        return dailyTaskService
+            .createMany(
+                new Types.ObjectId(
+                    missionId
+                ),
+                tasks
+            );
 
     }
 

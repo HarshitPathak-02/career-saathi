@@ -2,22 +2,17 @@ import {
     ClientSession,
     Types,
 } from "mongoose";
+import { CareerJourneyDocument, CareerJourneyModel, CareerJourneyStatus, CreateCareerJourneyInput, PopulatedCareerJourneyDocument, UpdateCareerJourneyInput } from "./index.js";
 
-import {
-    CareerJourney,
-    CareerJourneyDocument,
-    CareerJourneyModel,
-} from "./career-journey.model.js";
 
-import { CreateCareerJourneyInput, PopulatedCareerJourneyDocument, UpdateCareerJourneyInput } from "./career-journey.types.js";
-import { CareerJourneyStatus } from "./career-journey.enums.js";
+
 
 export class CareerJourneyRepository {
 
     async create(
         data: CreateCareerJourneyInput,
         session?: ClientSession
-    ): Promise<CareerJourney> {
+    ): Promise<CareerJourneyDocument> {
 
         const [careerJourney] =
             await CareerJourneyModel.create(
@@ -36,11 +31,18 @@ export class CareerJourneyRepository {
         session?: ClientSession
     ): Promise<CareerJourneyDocument | null> {
 
-        return CareerJourneyModel.findOne({
-            _id: id,
-            userId,
-            isDeleted: false,
-        }).session(session ?? null);
+        const query =
+            CareerJourneyModel.findOne({
+                _id: id,
+                userId,
+                isDeleted: false,
+            });
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query;
     }
 
     async findOne(
@@ -48,10 +50,17 @@ export class CareerJourneyRepository {
         session?: ClientSession
     ): Promise<CareerJourneyDocument | null> {
 
-        return CareerJourneyModel.findOne({
-            ...filter,
-            isDeleted: false,
-        }).session(session ?? null);
+        const query =
+            CareerJourneyModel.findOne({
+                ...filter,
+                isDeleted: false,
+            });
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query;
     }
 
     async exists(
@@ -59,11 +68,18 @@ export class CareerJourneyRepository {
         session?: ClientSession
     ): Promise<boolean> {
 
-        const exists =
-            await CareerJourneyModel.exists({
+        const query =
+            CareerJourneyModel.exists({
                 ...filter,
                 isDeleted: false,
-            }).session(session ?? null);
+            });
+
+        if (session) {
+            query.session(session);
+        }
+
+        const exists =
+            await query;
 
         return Boolean(exists);
     }
@@ -73,37 +89,47 @@ export class CareerJourneyRepository {
         session?: ClientSession
     ): Promise<PopulatedCareerJourneyDocument | null> {
 
-        return CareerJourneyModel.findOne({
-            userId,
+        const query =
+            CareerJourneyModel.findOne({
+                userId,
 
-            status: {
-                $in: [
-                    CareerJourneyStatus.DRAFT,
-                    CareerJourneyStatus.ACTIVE,
-                ],
-            },
+                status: {
+                    $in: [
+                        CareerJourneyStatus.DRAFT,
+                        CareerJourneyStatus.ACTIVE,
+                    ],
+                },
 
-            isDeleted: false,
-        })
-            .populate("roleId")
-            .populate("domainId")
-            .session(session ?? null) as unknown as Promise<
-                PopulatedCareerJourneyDocument | null
-            >;
+                isDeleted: false,
+            })
+                .populate("roleId")
+                .populate("domainId");
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query as unknown as Promise<
+            PopulatedCareerJourneyDocument | null
+        >;
     }
 
-    async updateById(
+    async updateByIdAndUserId(
         id: Types.ObjectId,
+        userId: Types.ObjectId,
         data: UpdateCareerJourneyInput,
         session?: ClientSession
-    ): Promise<CareerJourney | null> {
+    ): Promise<CareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOneAndUpdate(
             {
                 _id: id,
+                userId,
                 isDeleted: false,
             },
-            data,
+            {
+                $set: data,
+            },
             {
                 new: true,
                 runValidators: true,
@@ -112,14 +138,42 @@ export class CareerJourneyRepository {
         );
     }
 
-    async softDelete(
+    async updateStatusByIdAndUserId(
         id: Types.ObjectId,
+        userId: Types.ObjectId,
+        status: CareerJourneyStatus,
         session?: ClientSession
-    ): Promise<CareerJourney | null> {
+    ): Promise<CareerJourneyDocument | null> {
 
         return CareerJourneyModel.findOneAndUpdate(
             {
                 _id: id,
+                userId,
+                isDeleted: false,
+            },
+            {
+                $set: {
+                    status,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
+    async softDeleteByIdAndUserId(
+        id: Types.ObjectId,
+        userId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<CareerJourneyDocument | null> {
+
+        return CareerJourneyModel.findOneAndUpdate(
+            {
+                _id: id,
+                userId,
                 isDeleted: false,
             },
             {
@@ -130,32 +184,14 @@ export class CareerJourneyRepository {
             },
             {
                 new: true,
-                session,
-            }
-        );
-    }
-
-    async updateStatus(
-        id: Types.ObjectId,
-        status: CareerJourneyStatus,
-        session?: ClientSession
-    ): Promise<CareerJourney | null> {
-        return CareerJourneyModel.findOneAndUpdate(
-            {
-                _id: id,
-                isDeleted: false,
-            },
-            {
-                status,
-            },
-            {
-                new: true,
                 runValidators: true,
                 session,
             }
         );
     }
+
 }
+
 
 export const careerJourneyRepository =
     new CareerJourneyRepository();

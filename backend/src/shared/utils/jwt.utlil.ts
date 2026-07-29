@@ -45,6 +45,7 @@ export const verifyAccessToken = (
     );
   }
 };
+
 export const verifyRefreshToken = (
   token: string
 ): JwtPayload => {

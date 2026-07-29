@@ -16,17 +16,26 @@ import {
 } from "./roadmap-item.repository.js";
 
 import {
+    roadmapRepository,
+} from "./roadmap.repository.js";
+
+import {
     RoadmapItemStatus,
 } from "./roadmap.enums.js";
-import { roadmapRepository } from "./roadmap.repository.js";
 
 class RoadmapItemProgressService {
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Sync Roadmap Items For Task
+    |--------------------------------------------------------------------------
+    */
 
     async syncRoadmapItemsForTask(
         missionId: Types.ObjectId,
         roadmapItemIds: Types.ObjectId[],
         session?: ClientSession
-    ) {
+    ): Promise<void> {
 
         for (
             const roadmapItemId
@@ -40,16 +49,24 @@ class RoadmapItemProgressService {
             );
 
         }
-
     }
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Sync Roadmap Item
+    |--------------------------------------------------------------------------
+    */
 
     private async syncRoadmapItem(
         missionId: Types.ObjectId,
         roadmapItemId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<void> {
 
-        console.log("syncRoadmapItem called");
+        /*
+         * Fetch Daily Tasks
+         */
+
         const tasks =
             await dailyTaskRepository
                 .findByMissionAndRoadmapItem(
@@ -58,9 +75,15 @@ class RoadmapItemProgressService {
                     session
                 );
 
-        if (tasks.length === 0) {
+        if (
+            tasks.length === 0
+        ) {
             return;
         }
+
+        /*
+         * Calculate Completed Tasks
+         */
 
         const completedCount =
             tasks.filter(
@@ -68,6 +91,10 @@ class RoadmapItemProgressService {
                     task.status ===
                     DailyTaskStatus.COMPLETED
             ).length;
+
+        /*
+         * Determine Roadmap Item Status
+         */
 
         let status:
             RoadmapItemStatus;
@@ -94,6 +121,10 @@ class RoadmapItemProgressService {
 
         }
 
+        /*
+         * Update Roadmap Item
+         */
+
         await roadmapItemRepository
             .updateStatus(
                 roadmapItemId,
@@ -101,7 +132,9 @@ class RoadmapItemProgressService {
                 session
             );
 
-        console.log("Updated roadmap item status:", status);
+        /*
+         * Fetch Roadmap Item
+         */
 
         const roadmapItem =
             await roadmapItemRepository.findById(
@@ -113,6 +146,10 @@ class RoadmapItemProgressService {
             return;
         }
 
+        /*
+         * Count Completed Roadmap Items
+         */
+
         const completedItems =
             await roadmapItemRepository
                 .countCompleted(
@@ -120,7 +157,9 @@ class RoadmapItemProgressService {
                     session
                 );
 
-        console.log("Completed items:", completedItems);
+        /*
+         * Update Roadmap Progress
+         */
 
         await roadmapRepository
             .updateCompletedItems(
@@ -128,9 +167,7 @@ class RoadmapItemProgressService {
                 completedItems,
                 session
             );
-
     }
-
 }
 
 export const roadmapItemProgressService =

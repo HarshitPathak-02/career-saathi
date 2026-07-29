@@ -3,7 +3,7 @@ import { CareerRoleDocument } from "../../master-data/career-role/career-role.sc
 import { SkillCatalogDocument, SkillDifficulty } from "../../master-data/skill-catalog/index.js";
 import { CareerJourneyDocument } from "../career-journey/career-journey.model.js";
 import { SkillLevel } from "../user-skill/user-skill.enums.js";
-import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
+import { UserSkillDocument } from "../user-skill/user-skill.model.js";
 import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus } from "./roadmap.enums.js";
 
 /* -------------------------------------------------------------------------- */

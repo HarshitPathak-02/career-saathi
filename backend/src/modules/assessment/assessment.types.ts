@@ -1,148 +1,185 @@
-import { Types } from "mongoose";
-
 import {
-    AssessmentSkillSource,
-    AssessmentStatus,
-    AssessmentType,
-} from "./assessment.enums.js";
-import { CreateSkillProgressDTO } from "../skill-progress/skill-progress.types.js";
-import { AssessmentMethod } from "../skill-progress/skill-progress.enums.js";
+    Types,
+} from "mongoose";
+import { AssessmentSkillSource, AssessmentStatus, AssessmentType } from "./index.js";
+import { AssessmentMethod, CreateSkillProgressDTO } from "../skill-progress/index.js";
 
 export interface CreateAssessmentDTO {
-    careerJourneyId: Types.ObjectId;
 
-    type: AssessmentType;
+    careerJourneyId:
+    Types.ObjectId;
 
-    weekNumber: number;
+    type:
+    AssessmentType;
 
-    title: string;
+    weekNumber:
+    number;
 
-    description?: string;
+    title:
+    string;
+
+    description?:
+    string;
 }
 
 export interface UpdateAssessmentStatusDTO {
-    status: AssessmentStatus;
 
-    completedAt?: Date;
+    status:
+    AssessmentStatus;
+
+    completedAt?:
+    Date;
 }
 
 export interface SubmitAssessmentDTO {
 
-    assessmentId: string;
+    assessmentId:
+    string;
 
-    skills: CreateSkillProgressDTO[];
-
+    skills:
+    CreateSkillProgressDTO[];
 }
-
-/*
-|--------------------------------------------------------------------------
-| Assessment History
-|--------------------------------------------------------------------------
-*/
 
 export interface AssessmentHistoryItem {
-    id: string;
 
-    type: AssessmentType;
+    id:
+    string;
 
-    weekNumber: number;
+    type:
+    AssessmentType;
 
-    title: string;
+    weekNumber:
+    number;
 
-    description?: string | null;
+    title:
+    string;
 
-    status: AssessmentStatus;
+    description?:
+    string | null;
 
-    completedAt: Date | null;
+    status:
+    AssessmentStatus;
 
-    createdAt: Date;
+    completedAt:
+    Date | null;
+
+    createdAt:
+    Date;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Assessment Detail
-|--------------------------------------------------------------------------
-*/
-
 export interface AssessmentSkillDetail {
-    id: string;
 
-    userSkillId: string;
+    id:
+    string;
 
-    skillCatalogId: string;
+    userSkillId:
+    string;
 
-    skillName: string;
+    skillCatalogId:
+    string;
 
-    obtainedMarks: number;
+    skillName:
+    string;
 
-    totalMarks: number;
+    obtainedMarks:
+    number;
 
-    percentage: number;
+    totalMarks:
+    number;
 
-    improvementPercentage: number | null;
+    percentage:
+    number;
 
-    assessmentMethod: AssessmentMethod;
+    improvementPercentage:
+    number | null;
 
-    assessmentPlatform?: string | null;
+    assessmentMethod:
+    AssessmentMethod;
 
-    assessmentName?: string | null;
+    assessmentPlatform?:
+    string | null;
 
-    remarks?: string | null;
+    assessmentName?:
+    string | null;
+
+    remarks?:
+    string | null;
 }
 
 export interface AssessmentDetailResponse {
+
     assessment: {
-        id: string;
 
-        careerJourneyId: string;
+        id:
+        string;
 
-        type: AssessmentType;
+        careerJourneyId:
+        string;
 
-        weekNumber: number;
+        type:
+        AssessmentType;
 
-        title: string;
+        weekNumber:
+        number;
 
-        description?: string | null;
+        title:
+        string;
 
-        status: AssessmentStatus;
+        description?:
+        string | null;
 
-        completedAt: Date | null;
+        status:
+        AssessmentStatus;
 
-        createdAt: Date;
+        completedAt:
+        Date | null;
+
+        createdAt:
+        Date;
     };
 
-    skills: AssessmentSkillDetail[];
+    skills:
+    AssessmentSkillDetail[];
 
     summary: {
-        totalSkills: number;
 
-        averagePercentage: number;
+        totalSkills:
+        number;
+
+        averagePercentage:
+        number;
     };
 }
 
-
 export interface WeeklyAssessmentSkill {
 
-    userSkillId: string;
+    userSkillId:
+    string;
 
-    skillCatalogId: string;
+    skillCatalogId:
+    string;
 
-    skillName: string;
+    skillName:
+    string;
 
-    source: AssessmentSkillSource;
+    source:
+    AssessmentSkillSource;
 
-    previousPercentage: number | null;
+    previousPercentage:
+    number | null;
 
-    revisionTopics: string[];
-
+    revisionTopics:
+    string[];
 }
 
 export interface WeeklyAssessmentPlan {
 
-    assessmentId: string;
+    assessmentId:
+    string;
 
-    weekNumber: number;
+    weekNumber:
+    number;
 
-    skills: WeeklyAssessmentSkill[];
-
+    skills:
+    WeeklyAssessmentSkill[];
 }

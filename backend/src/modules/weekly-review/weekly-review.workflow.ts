@@ -56,7 +56,6 @@ import type {
     WeeklyReviewPreparationDTO,
     WeeklyReviewSkillDTO,
 } from "./weekly-review.types.js";
-import { MissionDocument } from "../mission/mission.schema.js";
 
 class WeeklyReviewWorkflow {
 
@@ -69,12 +68,6 @@ class WeeklyReviewWorkflow {
     async getCurrentWeeklyReview(
         userId: string
     ): Promise<WeeklyReviewPreparationDTO> {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Active Career Journey
-        |--------------------------------------------------------------------------
-        */
 
         const careerJourney =
             await careerJourneyService
@@ -91,16 +84,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Active Mission
-        |--------------------------------------------------------------------------
-        */
-
         const mission =
-            await missionService.getActiveMission(
-                careerJourney.id
-            );
+            await missionService
+                .getActiveMission(
+                    careerJourney._id.toString()
+                );
 
         if (!mission) {
 
@@ -111,16 +99,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Weekly Review Availability
-        |--------------------------------------------------------------------------
-        */
-
         const currentMissionDay =
-            await missionService.getCurrentMissionDay(
-                mission._id
-            );
+            await missionService
+                .getCurrentMissionDay(
+                    mission._id
+                );
 
         if (currentMissionDay < 7) {
 
@@ -131,22 +114,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Roadmap Items Covered This Week
-        |--------------------------------------------------------------------------
-        */
-
         const roadmapItems =
-            await roadmapService.getRoadmapItemsByIds(
-                mission.plannedRoadmapItemIds
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Extract Unique Skill Catalog IDs
-        |--------------------------------------------------------------------------
-        */
+            await roadmapService
+                .getRoadmapItemsByIds(
+                    mission.plannedRoadmapItemIds
+                );
 
         const skillCatalogIds =
             await this.resolveMissionAssessmentSkillIds(
@@ -161,12 +133,6 @@ class WeeklyReviewWorkflow {
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | User Skills
-        |--------------------------------------------------------------------------
-        */
 
         const userSkills =
             await userSkillService
@@ -184,12 +150,6 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Weekly Assessment
-        |--------------------------------------------------------------------------
-        */
-
         const assessment =
             await assessmentWorkflowService
                 .getOrCreateWeeklyAssessment(
@@ -197,18 +157,13 @@ class WeeklyReviewWorkflow {
                     mission.missionNumber
                 );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Build Skill Groups
-        |--------------------------------------------------------------------------
-        */
-
         const revisionSkillIds =
             new Set(
                 (mission.revisionPlans ?? [])
                     .map(
                         revision =>
-                            revision.skillCatalogId.toString()
+                            revision.skillCatalogId
+                                .toString()
                     )
             );
 
@@ -234,13 +189,16 @@ class WeeklyReviewWorkflow {
                         (mission.revisionPlans ?? [])
                             .find(
                                 revision =>
-                                    revision.skillCatalogId.toString() ===
-                                    populatedSkill._id.toString()
+                                    revision.skillCatalogId
+                                        .toString() ===
+                                    populatedSkill._id
+                                        .toString()
                             );
 
                     const isRevision =
                         revisionSkillIds.has(
-                            populatedSkill._id.toString()
+                            populatedSkill._id
+                                .toString()
                         );
 
                     return {
@@ -293,12 +251,6 @@ class WeeklyReviewWorkflow {
                 }
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Response
-        |--------------------------------------------------------------------------
-        */
-
         return {
 
             missionId:
@@ -320,24 +272,15 @@ class WeeklyReviewWorkflow {
     }
 
     /*
-|--------------------------------------------------------------------------
-| Submit Weekly Review
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Submit Weekly Review
+    |--------------------------------------------------------------------------
+    */
 
     async submitWeeklyReview(
         userId: string,
         dto: SubmitWeeklyReviewDTO
     ) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Active Career Journey
-        |--------------------------------------------------------------------------
-        */
-
-        console.log("Submit weekly review workflow:", userId);
-        console.log("Submit weekly review workflow:", dto);
 
         const careerJourney =
             await careerJourneyService
@@ -354,16 +297,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Active Mission
-        |--------------------------------------------------------------------------
-        */
-
         const mission =
-            await missionService.getActiveMission(
-                careerJourney._id.toString()
-            );
+            await missionService
+                .getActiveMission(
+                    careerJourney._id.toString()
+                );
 
         if (!mission) {
 
@@ -374,16 +312,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Weekly Review Availability
-        |--------------------------------------------------------------------------
-        */
-
         const currentMissionDay =
-            await missionService.getCurrentMissionDay(
-                mission._id
-            );
+            await missionService
+                .getCurrentMissionDay(
+                    mission._id
+                );
 
         if (currentMissionDay < 7) {
 
@@ -394,26 +327,12 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Weekly Assessment
-        |--------------------------------------------------------------------------
-        */
-
-        console.log("STEP 1: completing assessment");
-
         let assessment =
             await assessmentWorkflowService
                 .getOrCreateWeeklyAssessment(
                     careerJourney._id,
                     mission.missionNumber
                 );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Assessment Ownership
-        |--------------------------------------------------------------------------
-        */
 
         if (
             assessment._id.toString() !==
@@ -427,24 +346,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Submitted Skills
-        |--------------------------------------------------------------------------
-        */
-
         await this.validateSubmittedSkills(
             careerJourney._id,
             mission,
             dto.assessment.skills
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Day 7 Task
-        |--------------------------------------------------------------------------
-        */
 
         const daySevenTask =
             await dailyTaskService
@@ -462,12 +368,6 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Already Fully Completed
-        |--------------------------------------------------------------------------
-        */
-
         if (
             daySevenTask.status ===
             DailyTaskStatus.COMPLETED
@@ -479,16 +379,6 @@ class WeeklyReviewWorkflow {
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Complete Assessment
-        |
-        | Retry Safe:
-        | If assessment was completed during a previous request,
-        | don't create SkillProgress again.
-        |--------------------------------------------------------------------------
-        */
 
         if (
             assessment.status !==
@@ -503,25 +393,11 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Create / Reuse Weekly Reflection
-        |--------------------------------------------------------------------------
-        */
-
-        console.log("STEP 1 DONE");
-
-
-        console.log("STEP 2: creating reflection");
-
-
         let reflection =
             await weeklyReflectionService
                 .getReflection({
-
                     missionId:
                         mission._id,
-
                 });
 
         if (!reflection) {
@@ -558,17 +434,6 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Create / Reuse Weekly Report
-        |--------------------------------------------------------------------------
-        */
-
-        console.log("STEP 2 DONE");
-
-
-        console.log("STEP 3: generating weekly report");
-
         let weeklyReport =
             await weeklyReportService
                 .getByReflectionId(
@@ -587,48 +452,15 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Complete Day 7
-        |--------------------------------------------------------------------------
-        */
+        await dailyTaskService
+            .completeWeeklyReviewTask(
+                mission._id
+            );
 
-
-        console.log("STEP 3 DONE");
-
-
-        console.log(
-            "STEP 4: completing weekly review task",
-            {
-                missionId: mission._id.toString(),
-                daySevenTaskId: daySevenTask._id.toString(),
-            }
-        );
-
-        await dailyTaskService.completeWeeklyReviewTask(
-            mission._id
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Complete Mission
-        |--------------------------------------------------------------------------
-        */
-
-        console.log("STEP 4 DONE");
-
-
-        console.log("STEP 5: completinsg mission");
-
-        await missionService.markAsCompleted(
-            mission._id.toString()
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Response
-        |--------------------------------------------------------------------------
-        */
+        await missionService
+            .markAsCompleted(
+                mission._id.toString()
+            );
 
         return {
 
@@ -648,20 +480,21 @@ class WeeklyReviewWorkflow {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Resolve Mission Assessment Skills
+    |--------------------------------------------------------------------------
+    */
+
     private async resolveMissionAssessmentSkillIds(
         mission: MissionAssessmentContext
     ): Promise<Types.ObjectId[]> {
 
-        /*
-        |----------------------------------------------------------------------
-        | New Skills From Planned Roadmap Items
-        |----------------------------------------------------------------------
-        */
-
         const roadmapItems =
-            await roadmapService.getRoadmapItemsByIds(
-                mission.plannedRoadmapItemIds
-            );
+            await roadmapService
+                .getRoadmapItemsByIds(
+                    mission.plannedRoadmapItemIds
+                );
 
         const newSkillIds =
             roadmapItems
@@ -676,29 +509,21 @@ class WeeklyReviewWorkflow {
                         )
                 );
 
-        /*
-        |----------------------------------------------------------------------
-        | Revision Skills
-        |----------------------------------------------------------------------
-        */
-
         const revisionSkillIds =
             (mission.revisionPlans ?? [])
                 .map(
                     revision =>
                         new Types.ObjectId(
-                            revision.skillCatalogId.toString()
+                            revision.skillCatalogId
+                                .toString()
                         )
                 );
 
-        /*
-        |----------------------------------------------------------------------
-        | Merge + Deduplicate
-        |----------------------------------------------------------------------
-        */
-
         const uniqueSkillIds =
-            new Map<string, Types.ObjectId>();
+            new Map<
+                string,
+                Types.ObjectId
+            >();
 
         [
             ...newSkillIds,
@@ -720,6 +545,12 @@ class WeeklyReviewWorkflow {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Submitted Skills
+    |--------------------------------------------------------------------------
+    */
+
     private async validateSubmittedSkills(
         careerJourneyId: Types.ObjectId,
         mission: MissionAssessmentContext,
@@ -729,23 +560,6 @@ class WeeklyReviewWorkflow {
             totalMarks: number;
         }[]
     ): Promise<void> {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Roadmap Items For Current Mission
-        |--------------------------------------------------------------------------
-        */
-
-        const roadmapItems =
-            await roadmapService.getRoadmapItemsByIds(
-                mission.plannedRoadmapItemIds
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Extract Skills Actually Covered This Week
-        |--------------------------------------------------------------------------
-        */
 
         const skillCatalogIds =
             await this.resolveMissionAssessmentSkillIds(
@@ -760,12 +574,6 @@ class WeeklyReviewWorkflow {
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Resolve Valid User Skills
-        |--------------------------------------------------------------------------
-        */
 
         const userSkills =
             await userSkillService
@@ -782,23 +590,11 @@ class WeeklyReviewWorkflow {
                 )
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Submitted IDs
-        |--------------------------------------------------------------------------
-        */
-
         const submittedUserSkillIds =
             submittedSkills.map(
                 skill =>
                     skill.userSkillId.toString()
             );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Reject Duplicate Skills
-        |--------------------------------------------------------------------------
-        */
 
         const uniqueSubmittedIds =
             new Set(
@@ -817,12 +613,6 @@ class WeeklyReviewWorkflow {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Reject Skills Outside Current Mission
-        |--------------------------------------------------------------------------
-        */
-
         const containsInvalidSkill =
             submittedUserSkillIds.some(
                 id =>
@@ -839,12 +629,6 @@ class WeeklyReviewWorkflow {
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Ensure Every Required Skill Was Submitted
-        |--------------------------------------------------------------------------
-        */
 
         if (
             uniqueSubmittedIds.size !==

@@ -1,6 +1,6 @@
 import {
     DailyTaskDocument,
-} from "./daily-task.schema.js";
+} from "./daily-task.model.js";
 
 class DailyTaskResponseMapper {
 

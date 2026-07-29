@@ -1,24 +1,24 @@
-import { Types } from "mongoose";
-
-import { AppError } from "../../core/errors/app-error.js";
+import {
+    ClientSession,
+    Types,
+} from "mongoose";
 
 import {
-    skillProgressRepository,
-} from "./skill-progress.repository.js";
+    AppError,
+} from "../../core/errors/app-error.js";
 
 import {
-    SkillProgressMessages,
-} from "./skill-progress.messages.js";
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+import { CreateSkillProgressDTO, SkillProgressMessages, SkillProgressPlanningData, skillProgressRepository } from "./index.js";
 
-import {
-    CreateSkillProgressDTO,
-    SkillProgressPlanningData,
-} from "./skill-progress.types.js";
+
 
 class SkillProgressService {
 
     async createSkillProgress(
-        data: CreateSkillProgressDTO
+        data: CreateSkillProgressDTO,
+        session?: ClientSession
     ) {
 
         this.validateMarks(
@@ -33,26 +33,32 @@ class SkillProgressService {
             );
 
         const latestProgress =
-            await skillProgressRepository.findLatestByUserSkill(
-                data.userSkillId
-            );
+            await skillProgressRepository
+                .findLatestByUserSkill(
+                    data.userSkillId,
+                    session
+                );
 
         const improvementPercentage =
             this.calculateImprovement(
-                latestProgress?.percentage ?? null,
+                latestProgress?.percentage ??
+                null,
                 percentage
             );
 
-        return skillProgressRepository.create({
-            ...data,
-            percentage,
-            improvementPercentage,
-        });
-
+        return skillProgressRepository.create(
+            {
+                ...data,
+                percentage,
+                improvementPercentage,
+            },
+            session
+        );
     }
 
     async createManySkillProgress(
-        skills: CreateSkillProgressDTO[]
+        skills: CreateSkillProgressDTO[],
+        session?: ClientSession
     ) {
 
         const createdProgress = [];
@@ -61,61 +67,115 @@ class SkillProgressService {
 
             const progress =
                 await this.createSkillProgress(
-                    skill
+                    skill,
+                    session
                 );
 
-            createdProgress.push(progress);
-
+            createdProgress.push(
+                progress
+            );
         }
 
         return createdProgress;
-
     }
 
     async getSkillProgressById(
-        id: Types.ObjectId
+        id: Types.ObjectId,
+        session?: ClientSession
     ) {
 
         const progress =
-            await skillProgressRepository.findById(
-                id
-            );
+            await skillProgressRepository
+                .findById(
+                    id,
+                    session
+                );
 
         if (!progress) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 SkillProgressMessages.NOT_FOUND
             );
         }
 
         return progress;
-
     }
 
     async getHistoryByUserSkill(
-        userSkillId: Types.ObjectId
+        userSkillId: Types.ObjectId,
+        session?: ClientSession
     ) {
 
-        return skillProgressRepository.findHistoryByUserSkill(
-            userSkillId
-        );
-
+        return skillProgressRepository
+            .findHistoryByUserSkill(
+                userSkillId,
+                session
+            );
     }
 
     async getAssessmentProgress(
-        assessmentId: Types.ObjectId
+        assessmentId: Types.ObjectId,
+        session?: ClientSession
     ) {
 
-        return skillProgressRepository.findByAssessment(
-            assessmentId
-        );
+        return skillProgressRepository
+            .findByAssessment(
+                assessmentId,
+                session
+            );
+    }
 
+    async getSkillProgressByAssessment(
+        assessmentId: string,
+        session?: ClientSession
+    ) {
+
+        return this.getAssessmentProgress(
+            new Types.ObjectId(
+                assessmentId
+            ),
+            session
+        );
+    }
+
+    async getSkillPlanningData(
+        assessmentId: string,
+        session?: ClientSession
+    ): Promise<
+        SkillProgressPlanningData[]
+    > {
+
+        const progress =
+            await this.getAssessmentProgress(
+                new Types.ObjectId(
+                    assessmentId
+                ),
+                session
+            );
+
+        return progress.map(
+            (item) => ({
+                userSkillId:
+                    item.userSkillId._id,
+
+                skillCatalogId:
+                    item.userSkillId
+                        .skillCatalogId._id,
+
+                skillName:
+                    item.userSkillId
+                        .skillCatalogId.name,
+
+                percentage:
+                    item.percentage,
+            })
+        );
     }
 
     private validateMarks(
         obtainedMarks: number,
         totalMarks: number
-    ) {
+    ): void {
 
         if (
             !Number.isFinite(obtainedMarks) ||
@@ -124,28 +184,27 @@ class SkillProgressService {
             totalMarks <= 0 ||
             obtainedMarks > totalMarks
         ) {
-
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 SkillProgressMessages.INVALID_MARKS
             );
-
         }
-
     }
 
     private calculatePercentage(
         obtainedMarks: number,
         totalMarks: number
-    ) {
+    ): number {
 
         return Number(
             (
-                (obtainedMarks / totalMarks) *
+                (
+                    obtainedMarks /
+                    totalMarks
+                ) *
                 100
             ).toFixed(2)
         );
-
     }
 
     private calculateImprovement(
@@ -153,7 +212,9 @@ class SkillProgressService {
         currentPercentage: number
     ): number | null {
 
-        if (previousPercentage === null) {
+        if (
+            previousPercentage === null
+        ) {
             return null;
         }
 
@@ -163,44 +224,6 @@ class SkillProgressService {
                 previousPercentage
             ).toFixed(2)
         );
-    }
-
-    async getSkillProgressByAssessment(
-        assessmentId: string
-    ) {
-
-        return this.getAssessmentProgress(
-            new Types.ObjectId(
-                assessmentId
-            )
-        );
-
-    }
-
-    async getSkillPlanningData(
-        assessmentId: string,
-    ): Promise<SkillProgressPlanningData[]> {
-
-        const progress =
-            await this.getAssessmentProgress(
-                new Types.ObjectId(assessmentId),
-            );
-
-        return progress.map(item => ({
-
-            userSkillId: item.userSkillId._id,
-
-            skillCatalogId:
-                item.userSkillId.skillCatalogId._id,
-
-            skillName:
-                item.userSkillId.skillCatalogId.name,
-
-            percentage:
-                item.percentage,
-
-        }));
-
     }
 }
 

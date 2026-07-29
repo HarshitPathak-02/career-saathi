@@ -7,13 +7,14 @@ import {
 import {
     RoadmapDocument,
     RoadmapModel,
-} from "./roadmap.schema.js";
+} from "./roadmap.model.js";
 
 import {
     RoadmapStatus,
 } from "./roadmap.enums.js";
 
 class RoadmapRepository {
+
     async create(
         data: Partial<RoadmapDocument>,
         session?: ClientSession
@@ -21,40 +22,54 @@ class RoadmapRepository {
         const [roadmap] =
             await RoadmapModel.create(
                 [data],
-                { session }
+                {
+                    session,
+                }
             );
 
         return roadmap;
     }
 
     async findById(
-        id: Types.ObjectId
+        id: Types.ObjectId,
+        session?: ClientSession
     ) {
-        return this.findOne({
-            _id: id,
-        });
+        return this.findOne(
+            {
+                _id: id,
+            },
+            session
+        );
     }
 
     async findByCareerJourneyId(
-        careerJourneyId: Types.ObjectId
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
     ) {
-        return this.findOne({
-            careerJourneyId,
-        });
+        return this.findOne(
+            {
+                careerJourneyId,
+            },
+            session
+        );
     }
 
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return RoadmapModel.findOne(filter);
+        return RoadmapModel
+            .findOne(filter)
+            .session(session ?? null);
     }
 
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
     ) {
-        return RoadmapModel.find(filter);
+        return RoadmapModel
+            .find(filter)
+            .session(session ?? null);
     }
 
     async exists(
@@ -62,7 +77,9 @@ class RoadmapRepository {
         session?: ClientSession
     ) {
         const exists =
-            await RoadmapModel.exists(filter);
+            await RoadmapModel
+                .exists(filter)
+                .session(session ?? null);
 
         return Boolean(exists);
     }
@@ -77,6 +94,7 @@ class RoadmapRepository {
             update,
             {
                 new: true,
+                runValidators: true,
                 session,
             }
         );
@@ -91,13 +109,14 @@ class RoadmapRepository {
             id,
             {
                 status,
-                ...(status ===
-                    RoadmapStatus.ACTIVE && {
+
+                ...(status === RoadmapStatus.ACTIVE && {
                     generatedAt: new Date(),
                 }),
             },
             {
                 new: true,
+                runValidators: true,
                 session,
             }
         );
@@ -108,39 +127,14 @@ class RoadmapRepository {
         completedItems: number,
         session?: ClientSession
     ) {
-
-        console.log("Updating roadmap:", roadmapId);
-        console.log("New completedItems:", completedItems);
-
-        const roadmap = RoadmapModel.findByIdAndUpdate(
+        return RoadmapModel.findByIdAndUpdate(
             roadmapId,
             {
                 completedItems,
             },
             {
-                session,
-            }
-        );
-
-
-        console.log("Roadmap after update:", roadmap);
-
-        return roadmap;
-
-    }
-
-    async softDelete(
-        id: Types.ObjectId,
-        session?: ClientSession
-    ) {
-        return RoadmapModel.findByIdAndUpdate(
-            id,
-            {
-                isDeleted: true,
-                deletedAt: new Date(),
-            },
-            {
                 new: true,
+                runValidators: true,
                 session,
             }
         );

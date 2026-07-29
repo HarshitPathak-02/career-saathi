@@ -10,9 +10,12 @@ import {
     workspaceController,
 } from "./workspace.controller.js";
 
-const router = Router();
+const router =
+    Router();
 
-router.use(authenticate);
+router.use(
+    authenticate
+);
 
 router.get(
     "/",

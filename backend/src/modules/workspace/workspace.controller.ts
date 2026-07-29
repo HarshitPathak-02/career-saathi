@@ -47,8 +47,10 @@ class WorkspaceController {
                 data:
                     workspace,
             });
+
         }
     );
+
 }
 
 export const workspaceController =

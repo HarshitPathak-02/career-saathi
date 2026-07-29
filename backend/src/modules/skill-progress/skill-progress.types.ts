@@ -1,53 +1,67 @@
-import { Types } from "mongoose";
-
 import {
-    AssessmentMethod,
-    SkillLevel,
-} from "./skill-progress.enums.js";
-import { UserSkillDocument } from "../user-skill/user-skill.schema.js";
-import { SkillProgressDocument } from "./skill-progress.schema.js";
-import { SkillCatalogDocument } from "../../master-data/skill-catalog/skill-catalog.schema.js";
+    Types,
+} from "mongoose";
+import { AssessmentMethod, SkillProgressDocument } from "./index.js";
+import { UserSkillDocument } from "../user-skill/index.js";
+import { SkillCatalogDocument } from "../../master-data/skill-catalog/index.js";
+
+
 
 export interface CreateSkillProgressDTO {
-    careerJourneyId: Types.ObjectId;
 
-    assessmentId: Types.ObjectId;
+    careerJourneyId:
+    Types.ObjectId;
 
-    userSkillId: Types.ObjectId;
+    assessmentId:
+    Types.ObjectId;
 
-    obtainedMarks: number;
+    userSkillId:
+    Types.ObjectId;
 
-    totalMarks: number;
+    obtainedMarks:
+    number;
 
-    assessmentMethod: AssessmentMethod;
+    totalMarks:
+    number;
 
-    assessmentPlatform?: string;
+    assessmentMethod:
+    AssessmentMethod;
 
-    assessmentName?: string;
+    assessmentPlatform?:
+    string;
 
-    remarks?: string;
+    assessmentName?:
+    string;
+
+    remarks?:
+    string;
 }
 
 export interface UpdateSkillProgressDTO {
 
-    obtainedMarks?: number;
+    obtainedMarks?:
+    number;
 
-    totalMarks?: number;
+    totalMarks?:
+    number;
 
-    percentage?: number;
+    percentage?:
+    number;
 
-    improvementPercentage: number | null;
+    improvementPercentage?:
+    number | null;
 
-    level?: SkillLevel;
+    assessmentMethod?:
+    AssessmentMethod;
 
-    assessmentMethod?: AssessmentMethod;
+    assessmentPlatform?:
+    string;
 
-    assessmentPlatform?: string;
+    assessmentName?:
+    string;
 
-    assessmentName?: string;
-
-    remarks?: string;
-
+    remarks?:
+    string;
 }
 
 export type PopulatedSkillProgressDocument =
@@ -58,19 +72,20 @@ export type PopulatedSkillProgressDocument =
 
             skillCatalogId:
             SkillCatalogDocument;
-
         };
-
     };
 
 export interface SkillProgressPlanningData {
 
-    userSkillId: Types.ObjectId;
+    userSkillId:
+    Types.ObjectId;
 
-    skillCatalogId: Types.ObjectId;
+    skillCatalogId:
+    Types.ObjectId;
 
-    skillName: string;
+    skillName:
+    string;
 
-    percentage: number;
-
+    percentage:
+    number;
 }

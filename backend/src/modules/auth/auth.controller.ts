@@ -1,8 +1,5 @@
 import { Request, Response } from 'express';
 
-import { authService } from './auth.service.js';
-import { AUTH_MESSAGES } from './auth.constants.js';
-
 import { asyncHandler } from '../../core/middleware/async-handler.js';
 import { successResponse } from '../../core/responses/successResponse.js';
 
@@ -10,6 +7,9 @@ import { clearRefreshTokenCookie, setRefreshTokenCookie } from '../../shared/uti
 
 import { HTTP_STATUS } from '../../core/constants/http-status.constants.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { getAuthUser } from '../../shared/utils/get-auth-user.js';
+import { REFRESH_TOKEN_COOKIE_NAME } from '../../core/constants/cookie.constants.js';
+import { AUTH_MESSAGES, authService } from './index.js';
 
 class AuthController {
     register = asyncHandler(
@@ -28,6 +28,7 @@ class AuthController {
                 statusCode: HTTP_STATUS.CREATED,
                 message: AUTH_MESSAGES.REGISTER_SUCCESS,
                 data: {
+                    user: result.user,
                     accessToken: result.accessToken,
                 },
             });
@@ -61,26 +62,33 @@ class AuthController {
     me = asyncHandler(
         async (req, res) => {
 
-            const user = await authService.me(
-                req.user!.userId
-            );
+            const authUser =
+                getAuthUser(req);
+
+            const user =
+                await authService.me(
+                    authUser.userId
+                );
 
             return successResponse({
                 res,
-                message: "Authenticated.",
+                message: AUTH_MESSAGES.PROFILE_FETCH_SUCCESS,
                 data: user,
             });
         }
     );
+
     refresh = asyncHandler(
         async (req, res) => {
             const refreshToken =
-                req.cookies.refreshToken;
+                req.cookies[
+                REFRESH_TOKEN_COOKIE_NAME
+                ];
 
             if (!refreshToken) {
                 throw new AppError(
                     HTTP_STATUS.UNAUTHORIZED,
-                    'Refresh token is required.'
+                    AUTH_MESSAGES.REFRESH_TOKEN_REQUIRED
                 );
             }
 
@@ -97,7 +105,7 @@ class AuthController {
             return successResponse({
                 res,
                 message:
-                    'Token refreshed successfully.',
+                    AUTH_MESSAGES.REFRESH_SUCCESS,
                 data: {
                     accessToken:
                         result.accessToken,
