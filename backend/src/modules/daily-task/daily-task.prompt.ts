@@ -1,70 +1,70 @@
 import {
-    MissionRevisionPlan,
+  MissionRevisionPlan,
 } from "../mission/mission.types.js";
 
 import {
-    RoadmapItemDocument,
-} from "../roadmap/roadmap-item.schema.js";
+  RoadmapItemDocument,
+} from "../roadmap/roadmap-item.model.js";
 
 interface BuildDailyTaskPromptInput {
 
-    roadmapItems:
-    RoadmapItemDocument[];
+  roadmapItems:
+  RoadmapItemDocument[];
 
-    revisionPlans:
-    MissionRevisionPlan[];
+  revisionPlans:
+  MissionRevisionPlan[];
 
-    studyHoursPerDay:
-    number;
+  studyHoursPerDay:
+  number;
 
 }
 
 export function buildDailyTaskPrompt(
-    input: BuildDailyTaskPromptInput
+  input: BuildDailyTaskPromptInput
 ): string {
 
-    const revisionPlans =
-        input.revisionPlans.map(
-            revision => ({
+  const revisionPlans =
+    input.revisionPlans.map(
+      revision => ({
 
-                skillCatalogId:
-                    revision.skillCatalogId.toString(),
+        skillCatalogId:
+          revision.skillCatalogId.toString(),
 
-                skillName:
-                    revision.skillName,
+        skillName:
+          revision.skillName,
 
-                currentPercentage:
-                    revision.percentage,
+        currentPercentage:
+          revision.percentage,
 
-                revisionTopics:
-                    revision.revisionTopics,
+        revisionTopics:
+          revision.revisionTopics,
 
-            })
-        );
+      })
+    );
 
-    const roadmapItems =
-        input.roadmapItems.map(
-            item => ({
+  const roadmapItems =
+    input.roadmapItems.map(
+      item => ({
 
-                id:
-                    item._id.toString(),
+        id:
+          item._id.toString(),
 
-                title:
-                    item.title,
+        title:
+          item.title,
 
-                description:
-                    item.description,
+        description:
+          item.description,
 
-                estimatedHours:
-                    item.estimatedHours,
+        estimatedHours:
+          item.estimatedHours,
 
-                type:
-                    item.type,
+        type:
+          item.type,
 
-            })
-        );
+      })
+    );
 
-    return `
+  return `
 Generate a 6-day adaptive study plan.
 
 The student can study for approximately ${input.studyHoursPerDay} hour(s) per day.

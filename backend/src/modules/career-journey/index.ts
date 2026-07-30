@@ -9,3 +9,4 @@ export * from "./career-journey.validation.js";
 export * from "./career-journey.enums.js";
 export * from "./career-journey.constants.js";
 export * from "./career-journey.types.js";
+export * from "./career-journey.mapper.js";

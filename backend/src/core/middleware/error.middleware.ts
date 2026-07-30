@@ -1,7 +1,16 @@
-import { NextFunction, Request, Response } from 'express';
+import {
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 
-import { AppError } from '../errors/app-error.js';
-import { HTTP_STATUS } from '../constants/http-status.constants.js';
+import {
+  AppError,
+} from "../errors/app-error.js";
+
+import {
+  HTTP_STATUS,
+} from "../constants/http-status.constants.js";
 
 export const errorMiddleware = (
   error: Error,
@@ -9,17 +18,61 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
-      success: false,
-      message: error.message,
-    });
+
+  /*
+  |--------------------------------------------------------------------------
+  | Operational Errors
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    error instanceof AppError
+  ) {
+
+    req.log.warn(
+      {
+        err: error,
+
+        statusCode:
+          error.statusCode,
+      },
+      "Operational request error."
+    );
+
+    return res
+      .status(
+        error.statusCode
+      )
+      .json({
+        success: false,
+
+        message:
+          error.message,
+      });
   }
 
-  console.error(error);
+  /*
+  |--------------------------------------------------------------------------
+  | Unexpected Errors
+  |--------------------------------------------------------------------------
+  */
 
-  return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-    success: false,
-    message: 'Internal Server Error',
-  });
+  req.log.error(
+    {
+      err: error,
+    },
+    "Unexpected request error."
+  );
+
+  return res
+    .status(
+      HTTP_STATUS
+        .INTERNAL_SERVER_ERROR
+    )
+    .json({
+      success: false,
+
+      message:
+        "Internal Server Error",
+    });
 };

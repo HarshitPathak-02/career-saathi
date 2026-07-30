@@ -7,7 +7,7 @@ import {
 import {
     RoadmapItemDocument,
     RoadmapItemModel,
-} from "./roadmap-item.schema.js";
+} from "./roadmap-item.model.js";
 
 import {
     RoadmapItemStatus,

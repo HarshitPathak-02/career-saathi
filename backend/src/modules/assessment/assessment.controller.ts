@@ -20,6 +20,7 @@ import {
 } from "../../core/constants/http-status.constants.js";
 import { assessmentWorkflowService, ASSESSMENT_MESSAGES, assessmentService } from "./index.js";
 import { getAuthUser } from "../../shared/utils/get-auth-user.js";
+import { assessmentResponseMapper } from "./assessment.mapper.js";
 
 
 
@@ -56,7 +57,10 @@ class AssessmentController {
                             .INITIAL_CREATED,
 
                     data:
-                        assessment,
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
                 });
             }
         );
@@ -92,7 +96,10 @@ class AssessmentController {
                             .WEEKLY_CREATED,
 
                     data:
-                        assessment,
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
                 });
             }
         );
@@ -130,7 +137,10 @@ class AssessmentController {
                             .INITIAL_SUBMITTED,
 
                     data:
-                        assessment,
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
                 });
             }
         );
@@ -165,7 +175,10 @@ class AssessmentController {
                             .WEEKLY_SUBMITTED,
 
                     data:
-                        assessment,
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
                 });
             }
         );
@@ -296,7 +309,10 @@ class AssessmentController {
                             .FETCHED,
 
                     data:
-                        assessment,
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
                 });
             }
         );

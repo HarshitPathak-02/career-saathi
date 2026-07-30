@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 
 import {
     RoadmapItemDocument,
-} from "../roadmap/roadmap-item.schema.js";
+} from "../roadmap/roadmap-item.model.js";
 
 import {
     DailyTaskStatus,

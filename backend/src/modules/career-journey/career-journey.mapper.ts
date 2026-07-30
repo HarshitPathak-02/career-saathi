@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { CareerJourneyStatus, CreateCareerJourneyDto, CreateCareerJourneyInput, UpdateCareerJourneyDto, UpdateCareerJourneyInput } from "./index.js";
+import { CareerJourneyDocument, CareerJourneyResponse, CareerJourneyStatus, CreateCareerJourneyDto, CreateCareerJourneyInput, UpdateCareerJourneyDto, UpdateCareerJourneyInput } from "./index.js";
 
 
 
@@ -58,4 +58,53 @@ export class CareerJourneyMapper {
 
     return updateData;
   }
+
+  static toResponse(
+    careerJourney:
+      CareerJourneyDocument
+  ): CareerJourneyResponse {
+
+    return {
+
+      id:
+        careerJourney._id
+          .toString(),
+
+      domainId:
+        careerJourney.domainId
+          .toString(),
+
+      roleId:
+        careerJourney.roleId
+          .toString(),
+
+      targetCompany:
+        careerJourney.targetCompany ??
+        "",
+
+      targetDurationMonths:
+        careerJourney
+          .targetDurationMonths,
+
+      dailyStudyHours:
+        careerJourney
+          .dailyStudyHours,
+
+      preferredLanguage:
+        careerJourney
+          .preferredLanguage,
+
+      status:
+        careerJourney.status,
+
+      createdAt:
+        careerJourney.createdAt,
+
+      updatedAt:
+        careerJourney.updatedAt,
+
+    };
+
+  }
+
 }

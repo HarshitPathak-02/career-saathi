@@ -183,3 +183,26 @@ export interface WeeklyAssessmentPlan {
     skills:
     WeeklyAssessmentSkill[];
 }
+
+export interface AssessmentResponse {
+
+    id: string;
+
+    careerJourneyId: string;
+
+    type: AssessmentType;
+
+    weekNumber: number;
+
+    title: string;
+
+    description: string | null;
+
+    status: AssessmentStatus;
+
+    completedAt: Date | null;
+
+    createdAt: Date;
+
+    updatedAt: Date;
+}

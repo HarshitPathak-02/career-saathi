@@ -12,7 +12,7 @@ import {
 
 import {
     RoadmapItemDocument,
-} from "../roadmap/roadmap-item.schema.js";
+} from "../roadmap/roadmap-item.model.js";
 
 import {
     SkillProgressPlanningData,

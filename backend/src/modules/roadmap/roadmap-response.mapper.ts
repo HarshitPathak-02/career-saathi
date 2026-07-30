@@ -4,7 +4,7 @@ import {
 
 import {
     RoadmapItemDocument,
-} from "./roadmap-item.schema.js";
+} from "./roadmap-item.model.js";
 
 import {
     GenerateRoadmapResponse,

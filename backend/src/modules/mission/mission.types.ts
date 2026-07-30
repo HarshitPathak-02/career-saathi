@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { MissionStatus } from "./mission.enums.js";
-import { RoadmapItemDocument } from "../roadmap/roadmap-item.schema.js";
+import { RoadmapItemDocument } from "../roadmap/roadmap-item.model.js";
 import { CareerJourneyDocument } from "../career-journey/career-journey.model.js";
 import { RoadmapDocument } from "../roadmap/roadmap.model.js";
 
