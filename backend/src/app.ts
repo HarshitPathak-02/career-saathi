@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 
 import router from './routes/index.js';
 import { errorMiddleware } from './core/middleware/error.middleware.js';
-import { httpLogger } from './core/middleware/http-logger.js';
 
 const app = express();
 
@@ -23,8 +22,6 @@ app.use(
 
 // Compression
 app.use(compression());
-
-app.use(httpLogger);
 
 // Body Parser
 app.use(express.json());

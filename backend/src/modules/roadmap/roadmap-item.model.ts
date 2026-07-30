@@ -79,6 +79,11 @@ const RoadmapItemSchema = new Schema(
             type: Schema.Types.Mixed,
             default: {},
         },
+
+        completedAt: {
+            type: Date,
+            default: null
+        }
     },
     {
         timestamps: true,
