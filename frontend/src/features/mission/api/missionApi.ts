@@ -1,6 +1,7 @@
 import {
     baseApi,
 } from "../../../shared/api/baseApi";
+import type { ApiResponse } from "../../../shared/types/api.types";
 
 import type {
     Mission,
@@ -96,7 +97,7 @@ export const missionApi =
 
             getMissionHistory:
                 builder.query<
-                    MissionSummary[],
+                    ApiResponse<MissionSummary[]>,
                     string
                 >({
                     query: (

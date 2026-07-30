@@ -20,7 +20,9 @@ export type RoadmapItemStatus =
     | "COMPLETED"
     | "SKIPPED";
 
+
 export interface Roadmap {
+
     id: string;
 
     title: string;
@@ -40,9 +42,12 @@ export interface Roadmap {
     status: RoadmapStatus;
 
     generatedAt?: string | null;
+
 }
 
+
 export interface RoadmapItem {
+
     id: string;
 
     order: number;
@@ -58,14 +63,12 @@ export interface RoadmapItem {
     aiReason: string;
 
     status: RoadmapItemStatus;
+
 }
+
 
 export interface GenerateRoadmapRequest {
+
     careerJourneyId: string;
-}
 
-export interface GenerateRoadmapResponse {
-    roadmapId: string;
-
-    message: string;
 }

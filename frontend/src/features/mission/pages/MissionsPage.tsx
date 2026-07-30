@@ -1,6 +1,5 @@
 import {
     AlertCircle,
-    ArrowLeft,
     RefreshCw,
     Target,
 } from "lucide-react";
@@ -48,7 +47,7 @@ const MissionsPage = () => {
     */
 
     const {
-        data: missions,
+        data: missionHistoryResponse,
         isLoading: isMissionLoading,
         isError: isMissionError,
         refetch: refetchMissions,
@@ -58,6 +57,9 @@ const MissionsPage = () => {
             skip: !activeCareerJourney,
         },
     );
+
+    const missions =
+        missionHistoryResponse?.data ?? [];
 
     /*
     |----------------------------------------------------------------------

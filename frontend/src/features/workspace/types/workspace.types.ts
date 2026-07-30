@@ -55,7 +55,7 @@ export type DailyTaskType =
 export interface WorkspaceUser {
     id: string;
 
-    firstName: string;
+    fullName: string;
 }
 
 

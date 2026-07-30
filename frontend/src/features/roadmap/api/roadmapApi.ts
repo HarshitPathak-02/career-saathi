@@ -3,78 +3,121 @@ import {
 } from "../../../shared/api/baseApi";
 
 import type {
+    ApiResponse,
+} from "../../../shared/types/api.types";
+
+import type {
     GenerateRoadmapRequest,
-    GenerateRoadmapResponse,
     Roadmap,
     RoadmapItem,
 } from "../types/roadmap.types";
+
 
 export const roadmapApi =
     baseApi.injectEndpoints({
         endpoints: (builder) => ({
 
+            /*
+            |--------------------------------------------------------------------------
+            | Generate Roadmap
+            |--------------------------------------------------------------------------
+            */
+
             generateRoadmap:
                 builder.mutation<
-                    GenerateRoadmapResponse,
+                    ApiResponse<Roadmap>,
                     GenerateRoadmapRequest
                 >({
-                    query: (data) => ({
-                        url: "/roadmaps/generate",
 
-                        method: "POST",
+                    query: (data) => ({
+
+                        url:
+                            "/roadmaps/generate",
+
+                        method:
+                            "POST",
 
                         data,
+
                     }),
 
                     invalidatesTags: [
                         "CareerJourney",
                         "Roadmap",
                     ],
+
                 }),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Roadmap By Career Journey
+            |--------------------------------------------------------------------------
+            */
 
             getRoadmapByCareerJourney:
                 builder.query<
-                    Roadmap,
+                    ApiResponse<Roadmap>,
                     string
                 >({
+
                     query: (
                         careerJourneyId
                     ) => ({
+
                         url:
                             `/roadmaps/career-journey/${careerJourneyId}`,
 
-                        method: "GET",
+                        method:
+                            "GET",
+
                     }),
 
                     providesTags: [
                         "Roadmap",
                     ],
+
                 }),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Roadmap Items
+            |--------------------------------------------------------------------------
+            */
 
             getRoadmapItems:
                 builder.query<
-                    RoadmapItem[],
+                    ApiResponse<RoadmapItem[]>,
                     string
                 >({
+
                     query: (
                         roadmapId
                     ) => ({
+
                         url:
                             `/roadmaps/${roadmapId}/items`,
 
-                        method: "GET",
+                        method:
+                            "GET",
+
                     }),
 
                     providesTags: [
                         "Roadmap",
                     ],
+
                 }),
 
         }),
     });
 
+
 export const {
+
     useGenerateRoadmapMutation,
+
     useGetRoadmapByCareerJourneyQuery,
+
     useGetRoadmapItemsQuery,
+
 } = roadmapApi;

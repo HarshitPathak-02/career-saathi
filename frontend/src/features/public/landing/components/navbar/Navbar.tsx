@@ -85,7 +85,7 @@ const Navbar = () => {
                     mx-auto
                     flex
                     h-20
-                    max-w-[1440px]
+                    max-w-360
                     items-center
                     justify-between
                     px-6

@@ -1,10 +1,8 @@
 import {
     Navigate,
-    useNavigate,
 } from "react-router-dom";
 
 import {
-    ArrowLeft,
     Check,
     CheckCircle2,
     Clock3,
@@ -26,9 +24,6 @@ import {
 
 const RoadmapPage = () => {
 
-    const navigate =
-        useNavigate();
-
     const {
         data: workspaceResponse,
         isLoading: workspaceLoading,
@@ -43,7 +38,7 @@ const RoadmapPage = () => {
         workspace?.careerJourney.id ?? "";
 
     const {
-        data: roadmap,
+        data: roadmapResponse,
         isLoading: roadmapLoading,
         isError: roadmapError,
         refetch: refetchRoadmap,
@@ -54,11 +49,14 @@ const RoadmapPage = () => {
         }
     );
 
+    const roadmap =
+        roadmapResponse?.data;
+
     const roadmapId =
         roadmap?.id ?? "";
 
     const {
-        data: roadmapItems,
+        data: roadmapItemsResponse,
         isLoading: itemsLoading,
         isError: itemsError,
         refetch: refetchItems,
@@ -68,6 +66,9 @@ const RoadmapPage = () => {
             skip: !roadmapId,
         }
     );
+
+    const roadmapItems =
+        roadmapItemsResponse?.data ?? [];
 
     /*
     |--------------------------------------------------------------------------

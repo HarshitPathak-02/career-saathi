@@ -172,7 +172,7 @@ const WorkspaceHeader = ({
                             sm:text-3xl
                         "
                     >
-                        Welcome back, {user.firstName}
+                        Welcome back, {user.fullName}
                     </h1>
 
                     <p

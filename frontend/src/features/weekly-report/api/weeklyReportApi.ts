@@ -42,7 +42,6 @@ export const weeklyReportApi =
 
                 }),
 
-
             /*
             |--------------------------------------------------------------------------
             | Latest Weekly Report
@@ -72,7 +71,6 @@ export const weeklyReportApi =
 
                 }),
 
-
             /*
             |--------------------------------------------------------------------------
             | Weekly Report Details
@@ -85,12 +83,15 @@ export const weeklyReportApi =
                     string
                 >({
 
-                    query: (reportId) => ({
+                    query: (
+                        reportId
+                    ) => ({
 
                         url:
                             `/weekly-reports/report/${reportId}`,
 
-                        method: "GET",
+                        method:
+                            "GET",
 
                     }),
 

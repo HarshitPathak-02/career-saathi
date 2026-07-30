@@ -18,7 +18,11 @@ const NavbarLogo = () => {
             "
     >
 
-      <img src={logo} alt="CareerSaathi Logo" />
+      <img
+        src={logo}
+        alt="CareerSaathi Logo"
+        className="max-h-20 w-auto object-contain"
+      />
 
     </Link>
 
