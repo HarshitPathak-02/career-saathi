@@ -2,7 +2,9 @@ import {
     RoadmapDocument,
 } from "./roadmap.model.js";
 
-import { RoadmapItemDocument } from "./roadmap-item.schema.js"
+import {
+    RoadmapItemDocument,
+} from "./roadmap-item.schema.js";
 
 import {
     GenerateRoadmapResponse,
@@ -10,7 +12,14 @@ import {
     RoadmapResponse,
 } from "./roadmap.types.js";
 
+
 class RoadmapResponseMapper {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roadmap
+    |--------------------------------------------------------------------------
+    */
 
     toRoadmapResponse(
         roadmap: RoadmapDocument
@@ -18,13 +27,17 @@ class RoadmapResponseMapper {
 
         return {
 
-            id: roadmap._id.toString(),
+            id:
+                roadmap._id.toString(),
 
-            title: roadmap.title,
+            title:
+                roadmap.title,
 
-            targetRole: roadmap.targetRole,
+            targetRole:
+                roadmap.targetRole,
 
-            targetDomain: roadmap.targetDomain,
+            targetDomain:
+                roadmap.targetDomain,
 
             targetDurationMonths:
                 roadmap.targetDurationMonths,
@@ -47,6 +60,12 @@ class RoadmapResponseMapper {
         };
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roadmap Item
+    |--------------------------------------------------------------------------
+    */
 
     toRoadmapItemResponse(
         roadmapItem: RoadmapItemDocument
@@ -82,16 +101,30 @@ class RoadmapResponseMapper {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Roadmap Items
+    |--------------------------------------------------------------------------
+    */
+
     toRoadmapItemsResponse(
         roadmapItems: RoadmapItemDocument[]
     ): RoadmapItemResponse[] {
 
         return roadmapItems.map(
-            item =>
-                this.toRoadmapItemResponse(item)
+            roadmapItem =>
+                this.toRoadmapItemResponse(
+                    roadmapItem
+                )
         );
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate Roadmap
+    |--------------------------------------------------------------------------
+    */
 
     toGenerateRoadmapResponse(
         roadmap: RoadmapDocument
@@ -110,6 +143,7 @@ class RoadmapResponseMapper {
     }
 
 }
+
 
 export const roadmapResponseMapper =
     new RoadmapResponseMapper();

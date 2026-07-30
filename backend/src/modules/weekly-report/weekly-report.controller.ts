@@ -56,7 +56,7 @@ class WeeklyReportController {
 
                 const data =
                     weeklyReportResponseMapper
-                        .toWeeklyReportResponse(
+                        .toWeeklyReport(
                             weeklyReport
                         );
 
@@ -101,7 +101,7 @@ class WeeklyReportController {
 
                 const data =
                     weeklyReportResponseMapper
-                        .toWeeklyReportsResponse(
+                        .toWeeklyReports(
                             weeklyReports
                         );
 

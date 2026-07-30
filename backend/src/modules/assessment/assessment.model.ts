@@ -5,7 +5,8 @@ import {
     Types,
     model,
 } from "mongoose";
-import { ASSESSMENT_COLLECTION, ASSESSMENT_MODEL, AssessmentStatus, AssessmentType } from "./index.js";
+import { AssessmentStatus, AssessmentType } from "./assessment.enums.js";
+import { ASSESSMENT_COLLECTION, ASSESSMENT_MODEL } from "./assessment.constants.js";
 
 
 const AssessmentSchema = new Schema(

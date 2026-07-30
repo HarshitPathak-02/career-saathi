@@ -68,6 +68,7 @@ import {
 import {
     AppError,
 } from "../../core/errors/app-error.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
 
 export class RoadmapWorkflowService {
 
@@ -468,35 +469,17 @@ export class RoadmapWorkflowService {
         output: RoadmapGenerationOutput
     ): Promise<RoadmapDocument> {
 
-        const session =
-            await mongoose.startSession();
+        return executeTransaction(
+            async (session) => {
 
-        try {
-
-            session.startTransaction();
-
-            const roadmap =
-                await this.persistRoadmap(
+                return this.persistRoadmap(
                     context,
                     output,
                     session
                 );
 
-            await session.commitTransaction();
-
-            return roadmap;
-
-        } catch (error) {
-
-            await session.abortTransaction();
-
-            throw error;
-
-        } finally {
-
-            await session.endSession();
-
-        }
+            }
+        );
     }
 
     /*

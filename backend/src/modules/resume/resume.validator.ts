@@ -1,5 +1,13 @@
 import Joi from "joi";
-import { objectIdSchema } from "../../shared/validators/common-validator.js";
+
+const objectIdSchema = Joi.string()
+    .trim()
+    .pattern(/^[a-f\d]{24}$/i)
+    .messages({
+        "string.pattern.base":
+            "Invalid ObjectId.",
+    });
+
 
 export const createResumeSchema = Joi.object({
     careerJourneyId: objectIdSchema.required(),

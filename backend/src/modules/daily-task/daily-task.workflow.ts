@@ -3,20 +3,8 @@ import {
 } from "mongoose";
 
 import {
-    missionService,
-} from "../mission/mission.service.js";
-
-import {
     roadmapItemRepository,
 } from "../roadmap/roadmap-item.repository.js";
-
-import {
-    careerJourneyService,
-} from "../career-journey/career-journey.service.js";
-
-import {
-    dailyTaskService,
-} from "./daily-task.service.js";
 
 import {
     aiService,
@@ -35,67 +23,53 @@ import {
 } from "./daily-task-review.factory.js";
 
 import {
-    DailyTaskOutput,
+    DailyTaskGenerationOutput,
 } from "./daily-task.types.js";
 
 import {
     AppError,
 } from "../../core/errors/app-error.js";
 
+import {
+    MissionRevisionPlan,
+} from "../mission/mission.types.js";
+
+interface PrepareDailyTasksInput {
+
+    plannedRoadmapItemIds:
+    Types.ObjectId[];
+
+    revisionPlans:
+    MissionRevisionPlan[];
+
+    dailyStudyHours:
+    number;
+
+}
+
 class DailyTaskWorkflow {
 
-    async generateDailyTasks(
-        userId: string,
-        missionId: string
-    ) {
+    /*
+    |--------------------------------------------------------------------------
+    | Prepare Daily Tasks
+    |--------------------------------------------------------------------------
+    |
+    | Generates and validates the complete
+    | daily-task plan.
+    |
+    | IMPORTANT:
+    | This method performs NO database writes.
+    |
+    */
+
+    async prepareDailyTasks(
+        input: PrepareDailyTasksInput
+    ): Promise<DailyTaskGenerationOutput> {
 
         /*
-        |--------------------------------------------------------------------------
-        | Mission
-        |--------------------------------------------------------------------------
-        */
-
-        const mission =
-            await missionService.getMission(
-                missionId
-            );
-
-        if (!mission) {
-
-            throw new AppError(
-                404,
-                "Mission not found."
-            );
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Career Journey
-        |--------------------------------------------------------------------------
-        */
-
-        const careerJourney =
-            await careerJourneyService
-                .getCareerJourneyById(
-                    userId,
-                    mission.careerJourneyId
-                        .toString()
-                );
-
-        if (!careerJourney) {
-
-            throw new AppError(
-                404,
-                "Career journey not found."
-            );
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | Planned Roadmap Items
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         const roadmapItems =
@@ -103,14 +77,33 @@ class DailyTaskWorkflow {
                 .findMany({
                     _id: {
                         $in:
-                            mission.plannedRoadmapItemIds,
+                            input
+                                .plannedRoadmapItemIds,
                     },
                 });
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
+        | Validate Roadmap Items
+        |----------------------------------------------------------------------
+        */
+
+        if (
+            roadmapItems.length !==
+            input.plannedRoadmapItemIds.length
+        ) {
+
+            throw new AppError(
+                409,
+                "Some planned roadmap items could not be found."
+            );
+
+        }
+
+        /*
+        |----------------------------------------------------------------------
         | Prompt
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         const prompt =
@@ -119,19 +112,17 @@ class DailyTaskWorkflow {
                 roadmapItems,
 
                 revisionPlans:
-                    mission.revisionPlans ??
-                    [],
+                    input.revisionPlans,
 
                 studyHoursPerDay:
-                    careerJourney
-                        .dailyStudyHours,
+                    input.dailyStudyHours,
 
             });
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | AI Generation
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         const response =
@@ -155,9 +146,9 @@ Descriptions must be one short sentence.
             });
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | Parse AI Response
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         let parsed: unknown;
@@ -179,9 +170,9 @@ Descriptions must be one short sentence.
         }
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | Allowed References
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         const allowedRoadmapItemIds =
@@ -191,51 +182,38 @@ Descriptions must be one short sentence.
             );
 
         const allowedRevisionSkillIds =
-            (
-                mission.revisionPlans ??
-                []
-            ).map(
+            input.revisionPlans.map(
                 revision =>
-                    revision.skillCatalogId
+                    revision
+                        .skillCatalogId
                         .toString()
             );
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | Validate AI Output
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         const tasks =
-            aiValidator.validateDailyTasks(
-                parsed,
-                allowedRoadmapItemIds,
-                allowedRevisionSkillIds
-            );
+            aiValidator
+                .validateDailyTasks(
+                    parsed,
+                    allowedRoadmapItemIds,
+                    allowedRevisionSkillIds
+                );
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | Weekly Review — Day 7
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         tasks.push(
             createReviewDay()
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Persist Daily Tasks
-        |--------------------------------------------------------------------------
-        */
-
-        return dailyTaskService
-            .createMany(
-                new Types.ObjectId(
-                    missionId
-                ),
-                tasks
-            );
+        return tasks;
 
     }
 

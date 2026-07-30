@@ -5,8 +5,8 @@ import {
   Types,
   model,
 } from "mongoose";
-import { MIN_TARGET_DURATION_MONTHS, MAX_DAILY_STUDY_HOURS, MAX_TARGET_DURATION_MONTHS, MIN_DAILY_STUDY_HOURS, PreferredLanguage, CareerJourneyStatus, CAREER_JOURNEY_COLLECTION, CAREER_JOURNEY_MODEL, } from "./index.js";
-
+import { CAREER_JOURNEY_COLLECTION, CAREER_JOURNEY_MODEL, MAX_DAILY_STUDY_HOURS, MAX_TARGET_DURATION_MONTHS, MIN_DAILY_STUDY_HOURS, MIN_TARGET_DURATION_MONTHS } from "./career-journey.constants.js";
+import { CareerJourneyStatus, PreferredLanguage } from "./career-journey.enums.js";
 
 
 const CareerJourneySchema =
@@ -17,7 +17,6 @@ const CareerJourneySchema =
         type: Types.ObjectId,
         ref: "User",
         required: true,
-        index: true,
       },
 
       domainId: {

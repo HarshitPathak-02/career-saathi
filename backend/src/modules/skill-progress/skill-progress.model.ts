@@ -5,10 +5,8 @@ import {
     Types,
     model,
 } from "mongoose";
+import { AssessmentMethod } from "./skill-progress.enums.js";
 
-import {
-    AssessmentMethod,
-} from "./index.js";
 
 const SkillProgressSchema = new Schema(
     {

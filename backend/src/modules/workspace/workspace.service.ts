@@ -48,12 +48,6 @@ import {
 
 export class WorkspaceService {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Mission Day
-    |--------------------------------------------------------------------------
-    */
-
     private calculateMissionDay(
         startDate: Date,
         totalDays: number
@@ -114,12 +108,6 @@ export class WorkspaceService {
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get Workspace
-    |--------------------------------------------------------------------------
-    */
-
     async getWorkspace(
         userId: string
     ) {
@@ -128,12 +116,6 @@ export class WorkspaceService {
             new Types.ObjectId(
                 userId
             );
-
-        /*
-        |--------------------------------------------------------------------------
-        | User
-        |--------------------------------------------------------------------------
-        */
 
         const user =
             await userRepository
@@ -150,12 +132,6 @@ export class WorkspaceService {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Active Career Journey
-        |--------------------------------------------------------------------------
-        */
-
         const careerJourney =
             await careerJourneyRepository
                 .findActiveByUserId(
@@ -170,12 +146,6 @@ export class WorkspaceService {
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Initial Assessment + Roadmap
-        |--------------------------------------------------------------------------
-        */
 
         const [
             assessment,
@@ -199,12 +169,6 @@ export class WorkspaceService {
                 ),
 
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Resolve Mission Lifecycle
-        |--------------------------------------------------------------------------
-        */
 
         let lifecycleState:
             MissionLifecycleState | null =
@@ -237,12 +201,6 @@ export class WorkspaceService {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Mission Tasks
-        |--------------------------------------------------------------------------
-        */
-
         const tasks =
             activeMission
                 ? await dailyTaskRepository
@@ -250,12 +208,6 @@ export class WorkspaceService {
                         activeMission._id
                     )
                 : [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Today's Task
-        |--------------------------------------------------------------------------
-        */
 
         let today:
             {
@@ -303,23 +255,11 @@ export class WorkspaceService {
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Career Target Names
-        |--------------------------------------------------------------------------
-        */
-
         const targetRole =
             careerJourney.roleId.name;
 
         const targetDomain =
             careerJourney.domainId.name;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Workspace Response
-        |--------------------------------------------------------------------------
-        */
 
         return WorkspaceMapper.toResponse({
 

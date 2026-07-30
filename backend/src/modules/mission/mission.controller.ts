@@ -297,6 +297,8 @@ class MissionController {
             res: Response
         ) => {
 
+            console.log("Mission hit");
+
             const {
                 careerJourneyId,
             } = req.params as {
@@ -328,6 +330,8 @@ class MissionController {
                         }
                     )
                 );
+
+            console.log("Mission data:", data);
 
             return successResponse({
                 res,

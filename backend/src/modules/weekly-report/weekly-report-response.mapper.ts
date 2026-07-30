@@ -4,64 +4,13 @@ import {
 
 export class WeeklyReportResponseMapper {
 
-    static toGenerateWeeklyReportResponse(
-        weeklyReport: WeeklyReportDocument
-    ) {
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Report
+    |--------------------------------------------------------------------------
+    */
 
-        return {
-
-            success: true,
-
-            message:
-                "Weekly report generated successfully.",
-
-            data:
-                this.toWeeklyReport(
-                    weeklyReport
-                ),
-
-        };
-
-    }
-
-    static toWeeklyReportResponse(
-        weeklyReport: WeeklyReportDocument
-    ) {
-
-        return {
-
-            success: true,
-
-            data:
-                this.toWeeklyReport(
-                    weeklyReport
-                ),
-
-        };
-
-    }
-
-    static toWeeklyReportsResponse(
-        weeklyReports: WeeklyReportDocument[]
-    ) {
-
-        return {
-
-            success: true,
-
-            data:
-                weeklyReports.map(
-                    (weeklyReport) =>
-                        this.toWeeklyReport(
-                            weeklyReport
-                        )
-                ),
-
-        };
-
-    }
-
-    private static toWeeklyReport(
+    static toWeeklyReport(
         weeklyReport: WeeklyReportDocument
     ) {
 
@@ -107,6 +56,25 @@ export class WeeklyReportResponseMapper {
                 weeklyReport.updatedAt,
 
         };
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Reports
+    |--------------------------------------------------------------------------
+    */
+
+    static toWeeklyReports(
+        weeklyReports: WeeklyReportDocument[]
+    ) {
+
+        return weeklyReports.map(
+            weeklyReport =>
+                this.toWeeklyReport(
+                    weeklyReport
+                )
+        );
 
     }
 

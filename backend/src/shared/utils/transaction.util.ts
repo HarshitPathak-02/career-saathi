@@ -1,28 +1,44 @@
-import mongoose, { ClientSession } from 'mongoose';
+import mongoose, {
+  ClientSession,
+} from "mongoose";
 
-export const executeTransaction = async <T>(
-  operation: (
-    session: ClientSession
-  ) => Promise<T>
-): Promise<T> => {
-  const session =
-    await mongoose.startSession();
+export const executeTransaction =
+  async <T>(
+    operation: (
+      session: ClientSession
+    ) => Promise<T>
+  ): Promise<T> => {
 
-  try {
-    session.startTransaction();
+    const session =
+      await mongoose.startSession();
 
-    const result = await operation(
-      session
-    );
+    try {
 
-    await session.commitTransaction();
+      session.startTransaction();
 
-    return result;
-  } catch (error) {
-    await session.abortTransaction();
+      const result =
+        await operation(
+          session
+        );
 
-    throw error;
-  } finally {
-    session.endSession();
-  }
-};
+      await session.commitTransaction();
+
+      return result;
+
+    } catch (error) {
+
+      if (
+        session.inTransaction()
+      ) {
+        await session.abortTransaction();
+      }
+
+      throw error;
+
+    } finally {
+
+      await session.endSession();
+
+    }
+
+  };

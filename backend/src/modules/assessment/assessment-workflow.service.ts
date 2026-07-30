@@ -40,6 +40,7 @@ import {
 } from "../roadmap/roadmap-item.repository.js";
 import { careerJourneyRepository, CareerJourneyStatus } from "../career-journey/index.js";
 import { ASSESSMENT_MESSAGES, assessmentRepository, assessmentService, AssessmentSkillSource, AssessmentStatus, AssessmentType } from "./index.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
 
 class AssessmentWorkflowService {
 
@@ -71,12 +72,6 @@ class AssessmentWorkflowService {
             );
         }
 
-        /*
-         * Initial assessment is only
-         * available while the journey
-         * is still in DRAFT state.
-         */
-
         if (
             careerJourney.status !==
             CareerJourneyStatus.DRAFT
@@ -88,11 +83,6 @@ class AssessmentWorkflowService {
                     .INVALID_STATUS
             );
         }
-
-        /*
-         * A career journey can have
-         * only one initial assessment.
-         */
 
         const alreadyExists =
             await assessmentRepository
@@ -165,18 +155,6 @@ class AssessmentWorkflowService {
             );
         }
 
-        /*
-         * Weekly assessments belong to
-         * an ACTIVE career journey.
-         *
-         * DRAFT:
-         * Initial assessment not completed.
-         *
-         * ACTIVE:
-         * Initial assessment completed and
-         * career journey is in progress.
-         */
-
         if (
             careerJourney.status !==
             CareerJourneyStatus.ACTIVE
@@ -224,102 +202,120 @@ class AssessmentWorkflowService {
 
     async completeInitialAssessment(
         userId: string,
-        data: SubmitAssessmentDTO,
-        session?: ClientSession
+        data: SubmitAssessmentDTO
     ) {
 
+        return executeTransaction(
+            async (session) => {
 
-        const assessment =
-            await assessmentService
-                .getAssessmentById(
-                    data.assessmentId,
-                    session
-                );
+                const assessment =
+                    await assessmentService
+                        .getAssessmentById(
+                            data.assessmentId,
+                            session
+                        );
 
-        if (
-            assessment.type !==
-            AssessmentType.INITIAL
-        ) {
+                if (
+                    assessment.type !==
+                    AssessmentType.INITIAL
+                ) {
 
-            throw new AppError(
-                HTTP_STATUS.CONFLICT,
-                ASSESSMENT_MESSAGES
-                    .NOT_INITIAL_ASSESSMENT
-            );
-        }
+                    throw new AppError(
+                        HTTP_STATUS.CONFLICT,
+                        ASSESSMENT_MESSAGES
+                            .NOT_INITIAL_ASSESSMENT
+                    );
 
+                }
 
-        if (
-            assessment.status ===
-            AssessmentStatus.COMPLETED
-        ) {
+                if (
+                    assessment.status ===
+                    AssessmentStatus.COMPLETED
+                ) {
 
-            throw new AppError(
-                HTTP_STATUS.CONFLICT,
-                ASSESSMENT_MESSAGES
-                    .ALREADY_COMPLETED
-            );
-        }
+                    throw new AppError(
+                        HTTP_STATUS.CONFLICT,
+                        ASSESSMENT_MESSAGES
+                            .ALREADY_COMPLETED
+                    );
 
-        const skillProgress =
-            await skillProgressService
-                .createManySkillProgress(
-                    data.skills.map(
-                        (skill) => ({
-                            ...skill,
+                }
 
-                            assessmentId:
-                                assessment._id,
+                const skillProgress =
+                    await skillProgressService
+                        .createManySkillProgress(
+                            data.skills.map(
+                                (skill) => ({
+                                    ...skill,
 
-                            careerJourneyId:
-                                assessment
-                                    .careerJourneyId,
+                                    assessmentId:
+                                        assessment._id,
 
-                            assessmentMethod:
-                                AssessmentMethod
-                                    .PLATFORM,
-                        })
-                    ),
-                    session
-                );
+                                    careerJourneyId:
+                                        assessment
+                                            .careerJourneyId,
 
-        await userSkillService
-            .updateManySkills(
-                skillProgress.map(
-                    (progress) => ({
-                        userSkillId:
-                            progress.userSkillId,
+                                    assessmentMethod:
+                                        AssessmentMethod
+                                            .PLATFORM,
+                                })
+                            ),
+                            session
+                        );
 
-                        currentScore:
-                            progress.percentage,
+                await userSkillService
+                    .updateManySkills(
+                        skillProgress.map(
+                            (progress) => ({
+                                userSkillId:
+                                    progress.userSkillId,
 
-                        lastAssessmentAt:
-                            progress.createdAt,
-                    })
-                ),
-                session
-            );
+                                currentScore:
+                                    progress.percentage,
 
+                                lastAssessmentAt:
+                                    progress.createdAt,
+                            })
+                        ),
+                        session
+                    );
 
-        await assessmentService
-            .submitAssessment(
-                assessment._id.toString(),
-                session
-            );
+                await assessmentService
+                    .submitAssessment(
+                        assessment._id
+                            .toString(),
+                        session
+                    );
 
-        await careerJourneyRepository
-            .updateStatusByIdAndUserId(
-                assessment.careerJourneyId,
-                new Types.ObjectId(userId),
-                CareerJourneyStatus.ACTIVE,
-                session
-            );
+                const careerJourney =
+                    await careerJourneyRepository
+                        .updateStatusByIdAndUserId(
+                            assessment.careerJourneyId,
+                            new Types.ObjectId(
+                                userId
+                            ),
+                            CareerJourneyStatus.ACTIVE,
+                            session
+                        );
 
-        return assessmentService
-            .getAssessmentById(
-                assessment._id.toString(),
-                session
-            );
+                if (!careerJourney) {
+
+                    throw new AppError(
+                        HTTP_STATUS.NOT_FOUND,
+                        "Career journey not found."
+                    );
+
+                }
+
+                return assessmentService
+                    .getAssessmentById(
+                        assessment._id
+                            .toString(),
+                        session
+                    );
+
+            }
+        );
     }
 
 
@@ -328,94 +324,40 @@ class AssessmentWorkflowService {
         session?: ClientSession
     ) {
 
-        const assessment =
-            await assessmentService
-                .getAssessmentById(
-                    data.assessmentId,
+        /*
+        |--------------------------------------------------------------------------
+        | Join Existing Transaction
+        |--------------------------------------------------------------------------
+        */
+
+        if (session) {
+
+            return this
+                .completeWeeklyAssessmentWithSession(
+                    data,
                     session
                 );
 
-        if (
-            assessment.type !==
-            AssessmentType.WEEKLY
-        ) {
-
-            throw new AppError(
-                HTTP_STATUS.CONFLICT,
-                ASSESSMENT_MESSAGES
-                    .NOT_WEEKLY_ASSESSMENT
-            );
         }
 
-        if (
-            assessment.status ===
-            AssessmentStatus.COMPLETED
-        ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Start Transaction
+        |--------------------------------------------------------------------------
+        */
 
-            throw new AppError(
-                HTTP_STATUS.CONFLICT,
-                ASSESSMENT_MESSAGES
-                    .ALREADY_COMPLETED
-            );
-        }
+        return executeTransaction(
+            async (transactionSession) => {
 
-        await this
-            .validateWeeklyAssessmentSubmission(
-                assessment._id.toString(),
-                data.skills,
-                session
-            );
+                return this
+                    .completeWeeklyAssessmentWithSession(
+                        data,
+                        transactionSession
+                    );
 
-        const skillProgress =
-            await skillProgressService
-                .createManySkillProgress(
-                    data.skills.map(
-                        (skill) => ({
-                            ...skill,
+            }
+        );
 
-                            assessmentId:
-                                assessment._id,
-
-                            careerJourneyId:
-                                assessment
-                                    .careerJourneyId,
-
-                            assessmentMethod:
-                                AssessmentMethod
-                                    .PLATFORM,
-                        })
-                    ),
-                    session
-                );
-
-        await userSkillService
-            .updateManySkills(
-                skillProgress.map(
-                    (progress) => ({
-                        userSkillId:
-                            progress.userSkillId,
-
-                        currentScore:
-                            progress.percentage,
-
-                        lastAssessmentAt:
-                            progress.createdAt,
-                    })
-                ),
-                session
-            );
-
-        await assessmentService
-            .submitAssessment(
-                assessment._id.toString(),
-                session
-            );
-
-        return assessmentService
-            .getAssessmentById(
-                assessment._id.toString(),
-                session
-            );
     }
 
 
@@ -821,6 +763,107 @@ class AssessmentWorkflowService {
                 );
             }
         }
+    }
+
+    private async completeWeeklyAssessmentWithSession(
+        data: SubmitAssessmentDTO,
+        session: ClientSession
+    ) {
+
+        const assessment =
+            await assessmentService
+                .getAssessmentById(
+                    data.assessmentId,
+                    session
+                );
+
+        if (
+            assessment.type !==
+            AssessmentType.WEEKLY
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .NOT_WEEKLY_ASSESSMENT
+            );
+
+        }
+
+        if (
+            assessment.status ===
+            AssessmentStatus.COMPLETED
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .ALREADY_COMPLETED
+            );
+
+        }
+
+        await this
+            .validateWeeklyAssessmentSubmission(
+                assessment._id
+                    .toString(),
+                data.skills,
+                session
+            );
+
+        const skillProgress =
+            await skillProgressService
+                .createManySkillProgress(
+                    data.skills.map(
+                        (skill) => ({
+                            ...skill,
+
+                            assessmentId:
+                                assessment._id,
+
+                            careerJourneyId:
+                                assessment
+                                    .careerJourneyId,
+
+                            assessmentMethod:
+                                AssessmentMethod
+                                    .PLATFORM,
+                        })
+                    ),
+                    session
+                );
+
+        await userSkillService
+            .updateManySkills(
+                skillProgress.map(
+                    (progress) => ({
+                        userSkillId:
+                            progress.userSkillId,
+
+                        currentScore:
+                            progress.percentage,
+
+                        lastAssessmentAt:
+                            progress.createdAt,
+                    })
+                ),
+                session
+            );
+
+        await assessmentService
+            .submitAssessment(
+                assessment._id
+                    .toString(),
+                session
+            );
+
+        return assessmentService
+            .getAssessmentById(
+                assessment._id
+                    .toString(),
+                session
+            );
+
     }
 }
 

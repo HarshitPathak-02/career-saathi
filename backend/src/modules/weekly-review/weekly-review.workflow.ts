@@ -7,6 +7,10 @@ import {
 } from "../../core/errors/app-error.js";
 
 import {
+    executeTransaction,
+} from "../../shared/utils/transaction.util.js";
+
+import {
     careerJourneyService,
 } from "../career-journey/career-journey.service.js";
 
@@ -56,6 +60,7 @@ import type {
     WeeklyReviewPreparationDTO,
     WeeklyReviewSkillDTO,
 } from "./weekly-review.types.js";
+
 
 class WeeklyReviewWorkflow {
 
@@ -121,11 +126,14 @@ class WeeklyReviewWorkflow {
                 );
 
         const skillCatalogIds =
-            await this.resolveMissionAssessmentSkillIds(
-                mission
-            );
+            await this
+                .resolveMissionAssessmentSkillIds(
+                    mission
+                );
 
-        if (skillCatalogIds.length === 0) {
+        if (
+            skillCatalogIds.length === 0
+        ) {
 
             throw new AppError(
                 409,
@@ -141,7 +149,9 @@ class WeeklyReviewWorkflow {
                     skillCatalogIds
                 );
 
-        if (userSkills.length === 0) {
+        if (
+            userSkills.length === 0
+        ) {
 
             throw new AppError(
                 409,
@@ -159,41 +169,54 @@ class WeeklyReviewWorkflow {
 
         const revisionSkillIds =
             new Set(
-                (mission.revisionPlans ?? [])
-                    .map(
-                        revision =>
-                            revision.skillCatalogId
-                                .toString()
-                    )
+                (
+                    mission.revisionPlans ??
+                    []
+                ).map(
+                    revision =>
+                        revision
+                            .skillCatalogId
+                            .toString()
+                )
             );
 
-        const skills: WeeklyReviewSkillDTO[] =
+        const skills:
+            WeeklyReviewSkillDTO[] =
             userSkills.map(
                 userSkill => {
 
                     const populatedSkill =
-                        userSkill.skillCatalogId as unknown as {
-                            _id: Types.ObjectId;
-                            name: string;
-                        };
+                        userSkill
+                            .skillCatalogId as unknown as {
+                                _id:
+                                Types.ObjectId;
+
+                                name:
+                                string;
+                            };
 
                     const matchingRoadmapItems =
                         roadmapItems.filter(
                             item =>
                                 item.skillId &&
-                                item.skillId.toString() ===
-                                populatedSkill._id.toString()
+                                item.skillId
+                                    .toString() ===
+                                populatedSkill._id
+                                    .toString()
                         );
 
                     const revisionPlan =
-                        (mission.revisionPlans ?? [])
-                            .find(
-                                revision =>
-                                    revision.skillCatalogId
-                                        .toString() ===
-                                    populatedSkill._id
-                                        .toString()
-                            );
+                        (
+                            mission.revisionPlans ??
+                            []
+                        ).find(
+                            revision =>
+                                revision
+                                    .skillCatalogId
+                                    .toString() ===
+                                populatedSkill._id
+                                    .toString()
+                        );
 
                     const isRevision =
                         revisionSkillIds.has(
@@ -204,10 +227,12 @@ class WeeklyReviewWorkflow {
                     return {
 
                         userSkillId:
-                            userSkill._id.toString(),
+                            userSkill._id
+                                .toString(),
 
                         skillCatalogId:
-                            populatedSkill._id.toString(),
+                            populatedSkill._id
+                                .toString(),
 
                         skillName:
                             populatedSkill.name,
@@ -222,29 +247,33 @@ class WeeklyReviewWorkflow {
 
                         previousPercentage:
                             revisionPlan
-                                ? revisionPlan.percentage
+                                ? revisionPlan
+                                    .percentage
                                 : null,
 
                         revisionTopics:
                             revisionPlan
-                                ? revisionPlan.revisionTopics
+                                ? revisionPlan
+                                    .revisionTopics
                                 : [],
 
                         roadmapItems:
-                            matchingRoadmapItems.map(
-                                item => ({
+                            matchingRoadmapItems
+                                .map(
+                                    item => ({
 
-                                    id:
-                                        item._id.toString(),
+                                        id:
+                                            item._id
+                                                .toString(),
 
-                                    title:
-                                        item.title,
+                                        title:
+                                            item.title,
 
-                                    description:
-                                        item.description,
+                                        description:
+                                            item.description,
 
-                                })
-                            ),
+                                    })
+                                ),
 
                     };
 
@@ -254,7 +283,8 @@ class WeeklyReviewWorkflow {
         return {
 
             missionId:
-                mission._id.toString(),
+                mission._id
+                    .toString(),
 
             missionNumber:
                 mission.missionNumber,
@@ -263,7 +293,8 @@ class WeeklyReviewWorkflow {
                 assessment.weekNumber,
 
             assessmentId:
-                assessment._id.toString(),
+                assessment._id
+                    .toString(),
 
             skills,
 
@@ -282,6 +313,12 @@ class WeeklyReviewWorkflow {
         dto: SubmitWeeklyReviewDTO
     ) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Career Journey
+        |--------------------------------------------------------------------------
+        */
+
         const careerJourney =
             await careerJourneyService
                 .getActiveCareerJourney(
@@ -297,10 +334,17 @@ class WeeklyReviewWorkflow {
 
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Active Mission
+        |--------------------------------------------------------------------------
+        */
+
         const mission =
             await missionService
                 .getActiveMission(
-                    careerJourney._id.toString()
+                    careerJourney._id
+                        .toString()
                 );
 
         if (!mission) {
@@ -312,13 +356,21 @@ class WeeklyReviewWorkflow {
 
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Mission Day
+        |--------------------------------------------------------------------------
+        */
+
         const currentMissionDay =
             await missionService
                 .getCurrentMissionDay(
                     mission._id
                 );
 
-        if (currentMissionDay < 7) {
+        if (
+            currentMissionDay < 7
+        ) {
 
             throw new AppError(
                 409,
@@ -326,6 +378,12 @@ class WeeklyReviewWorkflow {
             );
 
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Weekly Assessment
+        |--------------------------------------------------------------------------
+        */
 
         let assessment =
             await assessmentWorkflowService
@@ -335,8 +393,10 @@ class WeeklyReviewWorkflow {
                 );
 
         if (
-            assessment._id.toString() !==
-            dto.assessment.assessmentId
+            assessment._id
+                .toString() !==
+            dto.assessment
+                .assessmentId
         ) {
 
             throw new AppError(
@@ -346,11 +406,24 @@ class WeeklyReviewWorkflow {
 
         }
 
-        await this.validateSubmittedSkills(
-            careerJourney._id,
-            mission,
-            dto.assessment.skills
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Submitted Skills
+        |--------------------------------------------------------------------------
+        */
+
+        await this
+            .validateSubmittedSkills(
+                careerJourney._id,
+                mission,
+                dto.assessment.skills
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Day Seven Task
+        |--------------------------------------------------------------------------
+        */
 
         const daySevenTask =
             await dailyTaskService
@@ -380,59 +453,125 @@ class WeeklyReviewWorkflow {
 
         }
 
-        if (
-            assessment.status !==
-            AssessmentStatus.COMPLETED
-        ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Transaction 1
+        |--------------------------------------------------------------------------
+        |
+        | Complete assessment and create reflection atomically.
+        |
+        */
 
-            assessment =
-                await assessmentWorkflowService
-                    .completeWeeklyAssessment(
-                        dto.assessment
-                    );
+        const preparation =
+            await executeTransaction(
+                async (session) => {
 
-        }
+                    let transactionAssessment =
+                        assessment;
 
-        let reflection =
-            await weeklyReflectionService
-                .getReflection({
-                    missionId:
-                        mission._id,
-                });
+                    /*
+                    |------------------------------------------------------------------
+                    | Complete Assessment
+                    |------------------------------------------------------------------
+                    */
 
-        if (!reflection) {
+                    if (
+                        transactionAssessment
+                            .status !==
+                        AssessmentStatus.COMPLETED
+                    ) {
 
-            reflection =
-                await weeklyReflectionService
-                    .createReflection({
+                        transactionAssessment =
+                            await assessmentWorkflowService
+                                .completeWeeklyAssessment(
+                                    dto.assessment,
+                                    session
+                                );
 
-                        careerJourneyId:
-                            careerJourney._id,
+                    }
 
-                        missionId:
-                            mission._id,
+                    /*
+                    |------------------------------------------------------------------
+                    | Reflection
+                    |------------------------------------------------------------------
+                    */
 
-                        assessmentId:
-                            assessment._id,
+                    let reflection =
+                        await weeklyReflectionService
+                            .getReflection(
+                                {
+                                    missionId:
+                                        mission._id,
+                                },
+                                session
+                            );
 
-                        weekNumber:
-                            assessment.weekNumber,
+                    if (!reflection) {
 
-                        learningReflection:
-                            dto.reflection
-                                .learningReflection,
+                        reflection =
+                            await weeklyReflectionService
+                                .createReflection(
+                                    {
 
-                        mentorCheckIn:
-                            dto.reflection
-                                .mentorCheckIn,
+                                        careerJourneyId:
+                                            careerJourney._id,
 
-                        additionalComments:
-                            dto.reflection
-                                .additionalComments,
+                                        missionId:
+                                            mission._id,
 
-                    });
+                                        assessmentId:
+                                            transactionAssessment
+                                                ._id,
 
-        }
+                                        weekNumber:
+                                            transactionAssessment
+                                                .weekNumber,
+
+                                        learningReflection:
+                                            dto.reflection
+                                                .learningReflection,
+
+                                        mentorCheckIn:
+                                            dto.reflection
+                                                .mentorCheckIn,
+
+                                        additionalComments:
+                                            dto.reflection
+                                                .additionalComments,
+
+                                    },
+                                    session
+                                );
+
+                    }
+
+                    return {
+
+                        assessment:
+                            transactionAssessment,
+
+                        reflection,
+
+                    };
+
+                }
+            );
+
+        assessment =
+            preparation.assessment;
+
+        const reflection =
+            preparation.reflection;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Existing Weekly Report
+        |--------------------------------------------------------------------------
+        |
+        | This happens before AI generation so we do not regenerate the report
+        | unnecessarily.
+        |
+        */
 
         let weeklyReport =
             await weeklyReportService
@@ -440,11 +579,30 @@ class WeeklyReviewWorkflow {
                     reflection._id
                 );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Weekly Report AI Output
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        | AI execution stays OUTSIDE the MongoDB transaction.
+        |
+        */
+
+        let weeklyReportOutput:
+            Awaited<
+                ReturnType<
+                    typeof weeklyReportWorkflow
+                    .generateWeeklyReportOutput
+                >
+            > | null =
+            null;
+
         if (!weeklyReport) {
 
-            weeklyReport =
+            weeklyReportOutput =
                 await weeklyReportWorkflow
-                    .generateWeeklyReport(
+                    .generateWeeklyReportOutput(
                         mission,
                         assessment,
                         reflection
@@ -452,20 +610,124 @@ class WeeklyReviewWorkflow {
 
         }
 
-        await dailyTaskService
-            .completeWeeklyReviewTask(
-                mission._id
+        /*
+        |--------------------------------------------------------------------------
+        | Transaction 2
+        |--------------------------------------------------------------------------
+        |
+        | Persist report, complete Day 7 and complete mission atomically.
+        |
+        */
+
+        const result =
+            await executeTransaction(
+                async (session) => {
+
+                    /*
+                    |------------------------------------------------------------------
+                    | Re-check Weekly Report
+                    |------------------------------------------------------------------
+                    |
+                    | Do not rely only on the value read before AI generation.
+                    |
+                    */
+
+                    let transactionWeeklyReport =
+                        await weeklyReportService
+                            .getByReflectionId(
+                                reflection._id,
+                                session
+                            );
+
+                    /*
+                    |------------------------------------------------------------------
+                    | Persist Weekly Report
+                    |------------------------------------------------------------------
+                    */
+
+                    if (
+                        !transactionWeeklyReport &&
+                        weeklyReportOutput
+                    ) {
+
+                        transactionWeeklyReport =
+                            await weeklyReportWorkflow
+                                .persistWeeklyReport(
+                                    mission,
+                                    assessment,
+                                    reflection,
+                                    weeklyReportOutput,
+                                    session
+                                );
+
+                    }
+
+                    /*
+                    |------------------------------------------------------------------
+                    | Safety Check
+                    |------------------------------------------------------------------
+                    */
+
+                    if (
+                        !transactionWeeklyReport
+                    ) {
+
+                        throw new AppError(
+                            500,
+                            "Weekly report could not be created."
+                        );
+
+                    }
+
+                    /*
+                    |------------------------------------------------------------------
+                    | Complete Day Seven
+                    |------------------------------------------------------------------
+                    */
+
+                    await dailyTaskService
+                        .completeWeeklyReviewTask(
+                            mission._id,
+                            session
+                        );
+
+                    /*
+                    |------------------------------------------------------------------
+                    | Complete Mission
+                    |------------------------------------------------------------------
+                    */
+
+                    await missionService
+                        .markAsCompleted(
+                            mission._id
+                                .toString(),
+                            session
+                        );
+
+                    return {
+
+                        weeklyReport:
+                            transactionWeeklyReport,
+
+                    };
+
+                }
             );
 
-        await missionService
-            .markAsCompleted(
-                mission._id.toString()
-            );
+        weeklyReport =
+            result.weeklyReport;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
 
         return {
 
             missionId:
-                mission._id.toString(),
+                mission._id
+                    .toString(),
 
             missionNumber:
                 mission.missionNumber,
@@ -505,19 +767,23 @@ class WeeklyReviewWorkflow {
                 .map(
                     item =>
                         new Types.ObjectId(
-                            item.skillId!.toString()
+                            item.skillId!
+                                .toString()
                         )
                 );
 
         const revisionSkillIds =
-            (mission.revisionPlans ?? [])
-                .map(
-                    revision =>
-                        new Types.ObjectId(
-                            revision.skillCatalogId
-                                .toString()
-                        )
-                );
+            (
+                mission.revisionPlans ??
+                []
+            ).map(
+                revision =>
+                    new Types.ObjectId(
+                        revision
+                            .skillCatalogId
+                            .toString()
+                    )
+            );
 
         const uniqueSkillIds =
             new Map<
@@ -555,18 +821,26 @@ class WeeklyReviewWorkflow {
         careerJourneyId: Types.ObjectId,
         mission: MissionAssessmentContext,
         submittedSkills: {
-            userSkillId: Types.ObjectId;
-            obtainedMarks: number;
-            totalMarks: number;
+            userSkillId:
+            Types.ObjectId;
+
+            obtainedMarks:
+            number;
+
+            totalMarks:
+            number;
         }[]
     ): Promise<void> {
 
         const skillCatalogIds =
-            await this.resolveMissionAssessmentSkillIds(
-                mission
-            );
+            await this
+                .resolveMissionAssessmentSkillIds(
+                    mission
+                );
 
-        if (skillCatalogIds.length === 0) {
+        if (
+            skillCatalogIds.length === 0
+        ) {
 
             throw new AppError(
                 409,
@@ -586,20 +860,28 @@ class WeeklyReviewWorkflow {
             new Set(
                 userSkills.map(
                     skill =>
-                        skill._id.toString()
+                        skill._id
+                            .toString()
                 )
             );
 
         const submittedUserSkillIds =
             submittedSkills.map(
                 skill =>
-                    skill.userSkillId.toString()
+                    skill.userSkillId
+                        .toString()
             );
 
         const uniqueSubmittedIds =
             new Set(
                 submittedUserSkillIds
             );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Duplicate Skills
+        |--------------------------------------------------------------------------
+        */
 
         if (
             uniqueSubmittedIds.size !==
@@ -613,15 +895,25 @@ class WeeklyReviewWorkflow {
 
         }
 
-        const containsInvalidSkill =
-            submittedUserSkillIds.some(
-                id =>
-                    !allowedUserSkillIds.has(
-                        id
-                    )
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Invalid Skills
+        |--------------------------------------------------------------------------
+        */
 
-        if (containsInvalidSkill) {
+        const containsInvalidSkill =
+            submittedUserSkillIds
+                .some(
+                    id =>
+                        !allowedUserSkillIds
+                            .has(
+                                id
+                            )
+                );
+
+        if (
+            containsInvalidSkill
+        ) {
 
             throw new AppError(
                 400,
@@ -629,6 +921,12 @@ class WeeklyReviewWorkflow {
             );
 
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Missing Skills
+        |--------------------------------------------------------------------------
+        */
 
         if (
             uniqueSubmittedIds.size !==

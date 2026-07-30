@@ -1,4 +1,8 @@
 import {
+    ClientSession,
+} from "mongoose";
+
+import {
     AppError,
 } from "../../core/errors/app-error.js";
 
@@ -54,17 +58,26 @@ import {
     WEEKLY_REPORT_CONSTANTS,
 } from "./weekly-report.constants.js";
 
-import {
-    WEEKLY_REPORT_MESSAGES,
-} from "./weekly-report.messages.js";
 
 class WeeklyReportWorkflow {
 
-    async generateWeeklyReport(
+    /*
+    |----------------------------------------------------------------------
+    | Generate Weekly Report Output
+    |----------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | No database writes happen here.
+    |
+    | AI generation must remain outside MongoDB transactions.
+    |
+    */
+
+    async generateWeeklyReportOutput(
         mission: MissionDocument,
         assessment: AssessmentDocument,
         reflection: WeeklyReflectionDocument
-    ) {
+    ): Promise<WeeklyReportGenerationOutput> {
 
         /*
         |----------------------------------------------------------------------
@@ -110,28 +123,6 @@ class WeeklyReportWorkflow {
 
         /*
         |----------------------------------------------------------------------
-        | Prevent Duplicate Report
-        |----------------------------------------------------------------------
-        */
-
-        const alreadyGenerated =
-            await weeklyReportService
-                .existsByReflectionId(
-                    reflection._id
-                );
-
-        if (alreadyGenerated) {
-
-            throw new AppError(
-                409,
-                WEEKLY_REPORT_MESSAGES
-                    .ALREADY_GENERATED
-            );
-
-        }
-
-        /*
-        |----------------------------------------------------------------------
         | Load Weekly Progress
         |----------------------------------------------------------------------
         */
@@ -139,7 +130,7 @@ class WeeklyReportWorkflow {
         const skillProgress =
             await skillProgressService
                 .getSkillProgressByAssessment(
-                    assessment.id
+                    assessment._id.toString()
                 );
 
         const roadmapItems =
@@ -182,11 +173,23 @@ class WeeklyReportWorkflow {
                 prompt,
             });
 
+        /*
+        |----------------------------------------------------------------------
+        | Parse AI Response
+        |----------------------------------------------------------------------
+        */
+
         const parsedResponse =
             aiParser
                 .parse<WeeklyReportGenerationOutput>(
                     response.text
                 );
+
+        /*
+        |----------------------------------------------------------------------
+        | Validate AI Response
+        |----------------------------------------------------------------------
+        */
 
         const aiOutput =
             aiValidator
@@ -194,41 +197,56 @@ class WeeklyReportWorkflow {
                     parsedResponse
                 );
 
-        /*
-        |----------------------------------------------------------------------
-        | Persist Weekly Report
-        |----------------------------------------------------------------------
-        */
+        return aiOutput as WeeklyReportGenerationOutput;
+
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | Persist Weekly Report
+    |----------------------------------------------------------------------
+    */
+
+    async persistWeeklyReport(
+        mission: MissionDocument,
+        assessment: AssessmentDocument,
+        reflection: WeeklyReflectionDocument,
+        output: WeeklyReportGenerationOutput,
+        session: ClientSession
+    ) {
 
         return weeklyReportService
-            .createWeeklyReport({
+            .createWeeklyReport(
+                {
 
-                careerJourneyId:
-                    mission.careerJourneyId,
+                    careerJourneyId:
+                        mission.careerJourneyId,
 
-                missionId:
-                    mission._id,
+                    missionId:
+                        mission._id,
 
-                assessmentId:
-                    assessment._id,
+                    assessmentId:
+                        assessment._id,
 
-                reflectionId:
-                    reflection._id,
+                    reflectionId:
+                        reflection._id,
 
-                promptVersion:
-                    WEEKLY_REPORT_CONSTANTS
-                        .DEFAULT_PROMPT_VERSION,
+                    promptVersion:
+                        WEEKLY_REPORT_CONSTANTS
+                            .DEFAULT_PROMPT_VERSION,
 
-                summary:
-                    aiOutput.summary,
+                    summary:
+                        output.summary,
 
-                mentorFeedback:
-                    aiOutput.mentorFeedback,
+                    mentorFeedback:
+                        output.mentorFeedback,
 
-                recommendation:
-                    aiOutput.recommendation,
+                    recommendation:
+                        output.recommendation,
 
-            });
+                },
+                session
+            );
 
     }
 

@@ -28,6 +28,7 @@ import {
 import {
     roadmapItemProgressService,
 } from "../roadmap/roadmap-item-progress.service.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
 
 class DailyTaskService {
 
@@ -94,36 +95,42 @@ class DailyTaskService {
     }
 
     async getTask(
-        taskId: Types.ObjectId
+        taskId: Types.ObjectId,
+        session?: ClientSession
     ) {
 
         return dailyTaskRepository
             .findById(
-                taskId
+                taskId,
+                session
             );
 
     }
 
     async getTasksByMission(
-        missionId: Types.ObjectId
+        missionId: Types.ObjectId,
+        session?: ClientSession
     ) {
 
         return dailyTaskRepository
             .findByMissionId(
-                missionId
+                missionId,
+                session
             );
 
     }
 
     async getTaskByMissionAndDay(
         missionId: Types.ObjectId,
-        dayNumber: number
+        dayNumber: number,
+        session?: ClientSession
     ) {
 
         return dailyTaskRepository
             .findByMissionAndDay(
                 missionId,
-                dayNumber
+                dayNumber,
+                session
             );
 
     }
@@ -135,76 +142,90 @@ class DailyTaskService {
     */
 
     async markCompleted(
-        taskId: Types.ObjectId,
-        session?: ClientSession
+        taskId: Types.ObjectId
     ) {
 
-        const task =
-            await dailyTaskRepository
-                .findById(
-                    taskId,
-                    session
-                );
+        return executeTransaction(
+            async (session) => {
 
-        if (!task) {
+                const task =
+                    await dailyTaskRepository
+                        .findById(
+                            taskId,
+                            session
+                        );
 
-            throw new AppError(
-                404,
-                "Daily task not found."
-            );
+                if (!task) {
 
-        }
+                    throw new AppError(
+                        404,
+                        "Daily task not found."
+                    );
 
-        if (task.dayNumber === 7) {
+                }
 
-            throw new AppError(
-                409,
-                "Day 7 can only be completed through the weekly review."
-            );
+                if (task.dayNumber === 7) {
 
-        }
+                    throw new AppError(
+                        409,
+                        "Day 7 can only be completed through the weekly review."
+                    );
 
-        const currentMissionDay =
-            await missionService
-                .getCurrentMissionDay(
-                    task.missionId,
-                    session
-                );
+                }
 
-        if (
-            task.dayNumber >
-            currentMissionDay
-        ) {
+                const currentMissionDay =
+                    await missionService
+                        .getCurrentMissionDay(
+                            task.missionId,
+                            session
+                        );
 
-            throw new AppError(
-                409,
-                "Future daily tasks cannot be completed."
-            );
+                if (
+                    task.dayNumber >
+                    currentMissionDay
+                ) {
 
-        }
+                    throw new AppError(
+                        409,
+                        "Future daily tasks cannot be completed."
+                    );
 
-        const updatedTask =
-            await this.updateTaskStatus(
-                taskId,
-                DailyTaskStatus.COMPLETED,
-                session
-            );
+                }
 
-        if (
-            task.roadmapItemIds.length >
-            0
-        ) {
+                const updatedTask =
+                    await this.updateTaskStatus(
+                        taskId,
+                        DailyTaskStatus.COMPLETED,
+                        session
+                    );
 
-            await roadmapItemProgressService
-                .syncRoadmapItemsForTask(
-                    task.missionId,
-                    task.roadmapItemIds,
-                    session
-                );
+                if (!updatedTask) {
 
-        }
+                    throw new AppError(
+                        404,
+                        "Daily task not found."
+                    );
 
-        return updatedTask;
+                }
+
+                if (
+                    task.roadmapItemIds.length >
+                    0
+                ) {
+
+                    await roadmapItemProgressService
+                        .syncRoadmapItemsForTask(
+                            task.missionId,
+                            task.roadmapItemIds,
+                            session
+                        );
+
+                }
+
+                return updatedTask;
+
+            }
+        );
 
     }
 
@@ -270,85 +291,115 @@ class DailyTaskService {
     }
 
     async markPending(
-        taskId: Types.ObjectId,
-        session?: ClientSession
+        taskId: Types.ObjectId
     ) {
 
-        const task =
-            await this.ensureNormalDailyTask(
-                taskId,
-                session
-            );
+        return executeTransaction(
+            async (session) => {
 
-        const updatedTask =
-            await this.updateTaskStatus(
-                taskId,
-                DailyTaskStatus.PENDING,
-                session
-            );
+                const task =
+                    await this.ensureNormalDailyTask(
+                        taskId,
+                        session
+                    );
 
-        if (
-            task.roadmapItemIds.length >
-            0
-        ) {
+                const updatedTask =
+                    await this.updateTaskStatus(
+                        taskId,
+                        DailyTaskStatus.PENDING,
+                        session
+                    );
 
-            await roadmapItemProgressService
-                .syncRoadmapItemsForTask(
-                    task.missionId,
-                    task.roadmapItemIds,
-                    session
-                );
+                if (!updatedTask) {
 
-        }
+                    throw new AppError(
+                        404,
+                        "Daily task not found."
+                    );
 
-        return updatedTask;
+                }
+
+                if (
+                    task.roadmapItemIds.length >
+                    0
+                ) {
+
+                    await roadmapItemProgressService
+                        .syncRoadmapItemsForTask(
+                            task.missionId,
+                            task.roadmapItemIds,
+                            session
+                        );
+
+                }
+
+                return updatedTask;
+
+            }
+        );
 
     }
 
     async markSkipped(
-        taskId: Types.ObjectId,
-        session?: ClientSession
+        taskId: Types.ObjectId
     ) {
 
-        const task =
-            await this.ensureNormalDailyTask(
-                taskId,
-                session
-            );
+        return executeTransaction(
+            async (session) => {
 
-        const updatedTask =
-            await this.updateTaskStatus(
-                taskId,
-                DailyTaskStatus.SKIPPED,
-                session
-            );
+                const task =
+                    await this.ensureNormalDailyTask(
+                        taskId,
+                        session
+                    );
 
-        if (
-            task.roadmapItemIds.length >
-            0
-        ) {
+                const updatedTask =
+                    await this.updateTaskStatus(
+                        taskId,
+                        DailyTaskStatus.SKIPPED,
+                        session
+                    );
 
-            await roadmapItemProgressService
-                .syncRoadmapItemsForTask(
-                    task.missionId,
-                    task.roadmapItemIds,
-                    session
-                );
+                if (!updatedTask) {
 
-        }
+                    throw new AppError(
+                        404,
+                        "Daily task not found."
+                    );
 
-        return updatedTask;
+                }
+
+                if (
+                    task.roadmapItemIds.length >
+                    0
+                ) {
+
+                    await roadmapItemProgressService
+                        .syncRoadmapItemsForTask(
+                            task.missionId,
+                            task.roadmapItemIds,
+                            session
+                        );
+
+                }
+
+                return updatedTask;
+
+            }
+        );
 
     }
 
     async getMissionProgress(
-        missionId: Types.ObjectId
+        missionId: Types.ObjectId,
+        session?: ClientSession
     ): Promise<MissionProgress> {
 
         const tasks =
             await dailyTaskRepository
                 .findByMissionId(
-                    missionId
+                    missionId,
+                    session
                 );
 
         const totalDays =

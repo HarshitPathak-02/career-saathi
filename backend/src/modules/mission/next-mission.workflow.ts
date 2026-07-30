@@ -15,6 +15,10 @@ import {
 } from "../career-journey/career-journey.enums.js";
 
 import {
+    CareerJourneyDocument,
+} from "../career-journey/career-journey.model.js";
+
+import {
     roadmapRepository,
 } from "../roadmap/roadmap.repository.js";
 
@@ -33,6 +37,10 @@ import {
 import {
     dailyTaskWorkflow,
 } from "../daily-task/daily-task.workflow.js";
+
+import {
+    dailyTaskService,
+} from "../daily-task/daily-task.service.js";
 
 import {
     missionService,
@@ -64,6 +72,7 @@ import {
 import {
     NextMissionWorkflowContext,
 } from "./next-mission.types.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
 
 export class NextMissionWorkflow {
 
@@ -78,10 +87,11 @@ export class NextMissionWorkflow {
         |--------------------------------------------------------------------------
         */
 
-        await this.validateCareerJourney(
-            userId,
-            careerJourneyId
-        );
+        const careerJourney =
+            await this.validateCareerJourney(
+                userId,
+                careerJourneyId
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -116,20 +126,65 @@ export class NextMissionWorkflow {
             );
 
         const planningResult =
-            missionPlanningEngine.planMission(
-                planningInput
-            );
+            missionPlanningEngine
+                .planMission(
+                    planningInput
+                );
 
         /*
         |--------------------------------------------------------------------------
-        | Save Mission
+        | Prepare Daily Tasks
+        |--------------------------------------------------------------------------
+        |
+        | AI generation happens before
+        | starting the database transaction.
+        |
+        */
+
+        const dailyTasks =
+            await dailyTaskWorkflow
+                .prepareDailyTasks({
+
+                    plannedRoadmapItemIds:
+                        planningResult
+                            .plannedRoadmapItemIds,
+
+                    revisionPlans:
+                        planningResult
+                            .revisionPlans,
+
+                    dailyStudyHours:
+                        careerJourney
+                            .dailyStudyHours,
+
+                });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Persist Mission + Daily Tasks Atomically
         |--------------------------------------------------------------------------
         */
 
-        return this.saveMission(
-            userId,
-            context,
-            planningResult
+        return executeTransaction(
+            async session => {
+
+                const mission =
+                    await this.saveMission(
+                        context,
+                        planningResult,
+                        session
+                    );
+
+                await dailyTaskService
+                    .createMany(
+                        mission._id,
+                        dailyTasks,
+                        session
+                    );
+
+                return mission;
+
+            }
         );
     }
 
@@ -142,7 +197,7 @@ export class NextMissionWorkflow {
     private async validateCareerJourney(
         userId: string,
         careerJourneyId: Types.ObjectId
-    ): Promise<void> {
+    ): Promise<CareerJourneyDocument> {
 
         const userObjectId =
             new Types.ObjectId(
@@ -157,21 +212,27 @@ export class NextMissionWorkflow {
                 );
 
         if (!careerJourney) {
+
             throw new AppError(
                 404,
                 "Career journey not found."
             );
+
         }
 
         if (
             careerJourney.status !==
             CareerJourneyStatus.ACTIVE
         ) {
+
             throw new AppError(
                 409,
                 "Career journey must be active before generating the next mission."
             );
+
         }
+
+        return careerJourney;
     }
 
     /*
@@ -193,14 +254,17 @@ export class NextMissionWorkflow {
         const previousMission =
             await missionService
                 .getLatestMission(
-                    careerJourneyId.toString()
+                    careerJourneyId
+                        .toString()
                 );
 
         if (!previousMission) {
+
             throw new AppError(
                 404,
                 "Previous mission not found."
             );
+
         }
 
         /*
@@ -216,10 +280,12 @@ export class NextMissionWorkflow {
                 );
 
         if (!weeklyReport) {
+
             throw new AppError(
                 409,
                 "Weekly report must be completed before generating the next mission."
             );
+
         }
 
         /*
@@ -235,10 +301,12 @@ export class NextMissionWorkflow {
                 );
 
         if (!roadmap) {
+
             throw new AppError(
                 404,
                 "Roadmap not found."
             );
+
         }
 
         /*
@@ -290,10 +358,12 @@ export class NextMissionWorkflow {
             previousMission.status !==
             MissionStatus.COMPLETED
         ) {
+
             throw new AppError(
                 409,
                 "Previous mission must be completed before generating the next mission."
             );
+
         }
     }
 
@@ -329,6 +399,7 @@ export class NextMissionWorkflow {
         );
 
         return {
+
             missionNumber:
                 context.previousMission
                     .missionNumber + 1,
@@ -357,6 +428,7 @@ export class NextMissionWorkflow {
             startDate,
 
             endDate,
+
         };
     }
 
@@ -372,16 +444,18 @@ export class NextMissionWorkflow {
 
         const pendingIds =
             new Set(
-                context.pendingRoadmapItems.map(
-                    (item) =>
-                        item._id.toString()
-                )
+                context.pendingRoadmapItems
+                    .map(
+                        item =>
+                            item._id
+                                .toString()
+                    )
             );
 
         return context.previousMission
             .plannedRoadmapItemIds
             .filter(
-                (id) =>
+                id =>
                     pendingIds.has(
                         id.toString()
                     )
@@ -406,7 +480,9 @@ export class NextMissionWorkflow {
             !recommendation ||
             !recommendation.prioritizeRevision
         ) {
+
             return [];
+
         }
 
         const weakSkillNames =
@@ -414,7 +490,7 @@ export class NextMissionWorkflow {
                 recommendation
                     .weakSkills
                     .map(
-                        (skill) =>
+                        skill =>
                             skill
                                 .trim()
                                 .toLowerCase()
@@ -424,7 +500,7 @@ export class NextMissionWorkflow {
         const weakSkillProgress =
             context.skillProgress
                 .filter(
-                    (skill) =>
+                    skill =>
                         weakSkillNames.has(
                             skill.skillName
                                 .trim()
@@ -438,7 +514,8 @@ export class NextMissionWorkflow {
                 );
 
         return weakSkillProgress.map(
-            (skill) => ({
+            skill => ({
+
                 skillCatalogId:
                     skill.skillCatalogId,
 
@@ -451,8 +528,10 @@ export class NextMissionWorkflow {
                 revisionTopics:
                     this.getRevisionTopicsForSkill(
                         skill.skillName,
-                        recommendation.revisionTopics
+                        recommendation
+                            .revisionTopics
                     ),
+
             })
         );
     }
@@ -472,15 +551,19 @@ export class NextMissionWorkflow {
                 .recommendation;
 
         if (!recommendation) {
+
             throw new AppError(
                 409,
                 "Weekly report recommendation not found."
             );
+
         }
 
         switch (
-        recommendation.recommendedDifficulty
+        recommendation
+            .recommendedDifficulty
         ) {
+
             case "EASY":
                 return 0.8;
 
@@ -492,6 +575,7 @@ export class NextMissionWorkflow {
 
             default:
                 return 1;
+
         }
     }
 
@@ -513,7 +597,7 @@ export class NextMissionWorkflow {
 
         const matchedTopics =
             revisionTopics.filter(
-                (topic) =>
+                topic =>
                     topic
                         .toLowerCase()
                         .includes(
@@ -533,14 +617,15 @@ export class NextMissionWorkflow {
     */
 
     private async saveMission(
-        userId: string,
         context: NextMissionWorkflowContext,
-        planningResult: MissionPlanningResult
+        planningResult: MissionPlanningResult,
+        session: import("mongoose").ClientSession
     ): Promise<MissionDocument> {
 
-        const mission =
-            await missionService
-                .createMission({
+        return missionService
+            .createMission(
+                {
+
                     careerJourneyId:
                         context.previousMission
                             .careerJourneyId,
@@ -567,15 +652,10 @@ export class NextMissionWorkflow {
                     endDate:
                         planningResult
                             .endDate,
-                });
 
-        await dailyTaskWorkflow
-            .generateDailyTasks(
-                userId,
-                mission._id.toString()
+                },
+                session
             );
-
-        return mission;
     }
 }
 

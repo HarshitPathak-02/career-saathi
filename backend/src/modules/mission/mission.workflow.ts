@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 
 import { careerJourneyRepository } from "../career-journey/career-journey.repository.js";
 import { roadmapRepository } from "../roadmap/roadmap.repository.js";
@@ -27,6 +27,8 @@ import {
     DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION,
     DEFAULT_WORKLOAD_MULTIPLIER,
 } from "./mission.constants.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
+import { dailyTaskService } from "../daily-task/daily-task.service.js";
 
 export class MissionWorkflow {
 
@@ -50,10 +52,61 @@ export class MissionWorkflow {
                 planningInput
             );
 
-        return this.saveMission(
-            userId,
-            context,
-            planningResult
+        /*
+        |--------------------------------------------------------------------------
+        | Prepare Daily Tasks
+        |--------------------------------------------------------------------------
+        |
+        | AI generation happens BEFORE
+        | starting the transaction.
+        |
+        */
+
+        const dailyTasks =
+            await dailyTaskWorkflow
+                .prepareDailyTasks({
+
+                    plannedRoadmapItemIds:
+                        planningResult
+                            .plannedRoadmapItemIds,
+
+                    revisionPlans:
+                        planningResult
+                            .revisionPlans,
+
+                    dailyStudyHours:
+                        context
+                            .careerJourney
+                            .dailyStudyHours,
+
+                });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Atomic Persistence
+        |--------------------------------------------------------------------------
+        */
+
+        return executeTransaction(
+            async session => {
+
+                const mission =
+                    await this.persistMission(
+                        context,
+                        planningResult,
+                        session
+                    );
+
+                await dailyTaskService
+                    .createMany(
+                        mission._id,
+                        dailyTasks,
+                        session
+                    );
+
+                return mission;
+
+            }
         );
 
     }
@@ -176,30 +229,10 @@ export class MissionWorkflow {
 
     }
 
-    private async saveMission(
-        userId: string,
-        context: MissionWorkflowContext,
-        planningResult: MissionPlanningResult
-    ): Promise<MissionDocument> {
-
-        const mission =
-            await this.persistMission(
-                context,
-                planningResult
-            );
-
-        await dailyTaskWorkflow.generateDailyTasks(
-            userId,
-            mission._id.toString()
-        );
-
-        return mission;
-
-    }
-
     private async persistMission(
         context: MissionWorkflowContext,
-        planningResult: MissionPlanningResult
+        planningResult: MissionPlanningResult,
+        session: ClientSession
     ): Promise<MissionDocument> {
 
         const missionData =
@@ -208,12 +241,11 @@ export class MissionWorkflow {
                 planningResult
             );
 
-        const mission =
-            await missionService.createMission(
-                missionData
+        return missionService
+            .createMission(
+                missionData,
+                session
             );
-
-        return mission;
 
     }
 
