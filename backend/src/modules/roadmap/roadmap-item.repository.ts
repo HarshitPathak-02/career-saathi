@@ -101,21 +101,39 @@ class RoadmapItemRepository {
     }
 
     async updateStatus(
-        id: Types.ObjectId,
-        status: RoadmapItemStatus,
-        session?: ClientSession
+        id:
+            Types.ObjectId,
+
+        status:
+            RoadmapItemStatus,
+
+        session?:
+            ClientSession
     ) {
-        return RoadmapItemModel.findByIdAndUpdate(
-            id,
-            {
-                status,
-            },
-            {
-                new: true,
-                runValidators: true,
-                session,
-            }
-        );
+
+        return RoadmapItemModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    $set: {
+
+                        status,
+
+                        completedAt:
+                            status ===
+                                RoadmapItemStatus.COMPLETED
+                                ? new Date()
+                                : null,
+                    },
+                },
+                {
+                    new: true,
+
+                    runValidators: true,
+
+                    session,
+                }
+            );
     }
 
     async findNextPendingItems(
@@ -196,6 +214,90 @@ class RoadmapItemRepository {
                 order: 1,
             })
             .session(session ?? null);
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Find Completed In Period
+|--------------------------------------------------------------------------
+*/
+
+    async findCompletedInPeriod(
+        roadmapIds:
+            Types.ObjectId[],
+
+        startDate:
+            Date,
+
+        endDate:
+            Date,
+
+        session?:
+            ClientSession
+    ): Promise<RoadmapItemDocument[]> {
+
+        if (
+            roadmapIds.length === 0
+        ) {
+            return [];
+        }
+
+        return RoadmapItemModel
+            .find({
+                roadmapId: {
+                    $in: roadmapIds,
+                },
+
+                status:
+                    RoadmapItemStatus.COMPLETED,
+
+                completedAt: {
+                    $gte: startDate,
+                    $lte: endDate,
+                },
+            })
+            .sort({
+                completedAt: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Find By Roadmap Ids
+|--------------------------------------------------------------------------
+*/
+
+    async findByRoadmapIds(
+        roadmapIds:
+            Types.ObjectId[],
+
+        session?:
+            ClientSession
+    ): Promise<RoadmapItemDocument[]> {
+
+        if (
+            roadmapIds.length === 0
+        ) {
+            return [];
+        }
+
+
+        return RoadmapItemModel
+            .find({
+                roadmapId: {
+                    $in:
+                        roadmapIds,
+                },
+            })
+            .sort({
+                order: 1,
+            })
+            .session(
+                session ?? null
+            );
     }
 }
 

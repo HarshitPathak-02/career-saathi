@@ -2,9 +2,12 @@ import { CareerDomainDocument } from "../../master-data/career-domain/career-dom
 import { CareerRoleDocument } from "../../master-data/career-role/career-role.schema.js";
 import { SkillCatalogDocument, SkillDifficulty } from "../../master-data/skill-catalog/index.js";
 import { CareerJourneyDocument } from "../career-journey/career-journey.model.js";
+import { MockInterviewDocument } from "../mock-interview/mock-interview.model.js";
+import { ReadinessEvaluation } from "../readiness/readiness.types.js";
 import { SkillLevel } from "../user-skill/user-skill.enums.js";
 import { UserSkillDocument } from "../user-skill/user-skill.model.js";
-import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus } from "./roadmap.enums.js";
+import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus, RoadmapType } from "./roadmap.enums.js";
+import { RoadmapDocument } from "./roadmap.model.js";
 
 /* -------------------------------------------------------------------------- */
 /*                           AI INPUT (Backend -> AI)                         */
@@ -90,7 +93,6 @@ export interface SkillCatalogItem {
 /* -------------------------------------------------------------------------- */
 
 export interface RoadmapGenerationOutput {
-    version: number;
     title: string;
     roadmapItems: RoadmapItemOutput[];
 }
@@ -128,6 +130,12 @@ export interface RoadmapResponse {
 
     id: string;
 
+    version: number;
+
+    type: RoadmapType;
+
+    previousRoadmapId?: string | null;
+
     title: string;
 
     targetRole: string;
@@ -145,6 +153,8 @@ export interface RoadmapResponse {
     status: RoadmapStatus;
 
     generatedAt?: Date | null;
+
+    completedAt?: Date | null;
 
 }
 
@@ -176,4 +186,100 @@ export interface GenerateRoadmapResponse {
 
     message: string;
 
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       ADAPTIVE ROADMAP GENERATION                           */
+/* -------------------------------------------------------------------------- */
+
+export interface AdaptiveRoadmapGenerationInput {
+
+    target:
+    TargetContext;
+
+    previousRoadmap: {
+        roadmapId: string;
+
+        version: number;
+
+        title: string;
+    };
+
+    currentSkills:
+    AdaptiveSkillContext[];
+
+    recentMockInterviews:
+    AdaptiveMockInterviewContext[];
+
+    readiness: {
+        readinessScore: number;
+
+        skillScore: number;
+
+        technicalInterviewScore: number;
+
+        problemSolvingScore: number;
+
+        communicationScore: number;
+
+        weakAreas: string[];
+    };
+}
+
+
+export interface AdaptiveSkillContext {
+
+    skillId: string;
+
+    skillName: string;
+
+    currentScore: number;
+
+    currentLevel:
+    SkillLevel;
+}
+
+
+export interface AdaptiveMockInterviewContext {
+
+    interviewNumber: number;
+
+    interviewType: string;
+
+    overallScore: number;
+
+    technicalScore: number;
+
+    problemSolvingScore: number;
+
+    communicationScore: number;
+
+    feedback: string;
+}
+
+export interface AdaptiveRoadmapWorkflowContext {
+
+    careerJourney:
+    CareerJourneyDocument;
+
+    role:
+    CareerRoleDocument;
+
+    domain:
+    CareerDomainDocument;
+
+    previousRoadmap:
+    RoadmapDocument;
+
+    userSkills:
+    UserSkillDocument[];
+
+    skillCatalog:
+    SkillCatalogDocument[];
+
+    mockInterviews:
+    MockInterviewDocument[];
+
+    readiness:
+    ReadinessEvaluation;
 }

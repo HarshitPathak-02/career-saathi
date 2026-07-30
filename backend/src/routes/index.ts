@@ -12,6 +12,9 @@ import { lookupRoutes } from '../modules/lookup/index.js';
 import workspaceRoutes from '../modules/workspace/workspace.routes.js';
 import dailyTasksRoutes from '../modules/daily-task/daily-task.routes.js';
 import weeklyReviewsRoutes from '../modules/weekly-review/weekly-review.routes.js'
+import mockInterviewsRoutes from '../modules/mock-interview/mock-interview.routes.js'
+import readinessRoutes from '../modules/readiness/readiness.routes.js'
+import monthlyReportRoutes from '../modules/monthly-report/monthly-report.routes.js'
 
 const router = Router();
 
@@ -79,6 +82,20 @@ router.use(
     workspaceRoutes
 );
 
+router.use(
+    "/mock-interviews",
+    mockInterviewsRoutes
+);
+
+router.use(
+    "/readiness",
+    readinessRoutes
+);
+
+router.use(
+    "/monthly-reports",
+    monthlyReportRoutes
+);
 
 
 export default router;

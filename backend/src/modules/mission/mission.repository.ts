@@ -191,6 +191,90 @@ class MissionRepository {
                 session ?? null
             );
     }
+
+    async findFirstMission(
+        careerJourneyId:
+            Types.ObjectId,
+
+        session?:
+            ClientSession
+    ): Promise<
+        MissionDocument | null
+    > {
+
+        return MissionModel
+            .findOne({
+                careerJourneyId,
+            })
+            .sort({
+                missionNumber: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    async findByCareerJourneyAndDateRange(
+        careerJourneyId:
+            Types.ObjectId,
+
+        startDate:
+            Date,
+
+        endDate:
+            Date,
+
+        session?:
+            ClientSession
+    ): Promise<MissionDocument[]> {
+
+        return MissionModel
+            .find({
+                careerJourneyId,
+
+                startDate: {
+                    $lte: endDate,
+                },
+
+                endDate: {
+                    $gte: startDate,
+                },
+            })
+            .sort({
+                startDate: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Find First Mission By Career Journey
+|--------------------------------------------------------------------------
+*/
+
+    async findFirstByCareerJourney(
+        careerJourneyId:
+            Types.ObjectId,
+
+        session?:
+            ClientSession
+    ): Promise<
+        MissionDocument | null
+    > {
+
+        return MissionModel
+            .findOne({
+                careerJourneyId,
+            })
+            .sort({
+                missionNumber: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
 }
 
 export const missionRepository =

@@ -10,6 +10,8 @@ import {
 import {
     roadmapItemRepository,
 } from "./roadmap-item.repository.js";
+import { AppError } from "../../core/errors/app-error.js";
+import { RoadmapStatus } from "./roadmap.enums.js";
 
 class RoadmapService {
 
@@ -41,7 +43,7 @@ class RoadmapService {
             );
 
         return roadmapRepository
-            .findByCareerJourneyId(
+            .findLatestByCareerJourneyId(
                 careerJourneyObjectId,
                 session
             );
@@ -88,6 +90,111 @@ class RoadmapService {
                 roadmapItemIds,
                 session
             );
+    }
+
+    async syncRoadmapProgress(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        const roadmap =
+            await roadmapRepository
+                .findById(
+                    roadmapId,
+                    session
+                );
+
+        if (!roadmap) {
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+        }
+
+        const completedItems =
+            await roadmapItemRepository
+                .countCompleted(
+                    roadmapId,
+                    session
+                );
+
+        const updatedRoadmap =
+            await roadmapRepository
+                .updateCompletedItems(
+                    roadmapId,
+                    completedItems,
+                    session
+                );
+
+        if (!updatedRoadmap) {
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+        }
+
+        return updatedRoadmap;
+    }
+
+    async completeRoadmap(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        const roadmap =
+            await roadmapRepository
+                .findById(
+                    roadmapId,
+                    session
+                );
+
+        if (!roadmap) {
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+        }
+
+        if (
+            roadmap.status ===
+            RoadmapStatus.COMPLETED
+        ) {
+            return roadmap;
+        }
+
+        const completedItems =
+            await roadmapItemRepository
+                .countCompleted(
+                    roadmapId,
+                    session
+                );
+
+        if (
+            completedItems !==
+            roadmap.totalItems
+        ) {
+            throw new AppError(
+                409,
+                "Roadmap cannot be completed because some roadmap items are still pending."
+            );
+        }
+
+        const completedRoadmap =
+            await roadmapRepository
+                .updateStatus(
+                    roadmapId,
+                    RoadmapStatus.COMPLETED,
+                    session
+                );
+
+        if (!completedRoadmap) {
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+        }
+
+        return completedRoadmap;
     }
 }
 

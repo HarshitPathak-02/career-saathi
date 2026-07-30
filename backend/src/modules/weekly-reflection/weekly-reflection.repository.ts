@@ -4,6 +4,7 @@ import {
 } from "mongoose";
 
 import {
+    WeeklyReflectionDocument,
     WeeklyReflectionModel,
 } from "./weekly-reflection.model.js";
 
@@ -73,6 +74,35 @@ class WeeklyReflectionRepository {
 
     }
 
+    async findByMissionIds(
+        missionIds:
+            Types.ObjectId[],
+
+        session?:
+            ClientSession
+    ): Promise<
+        WeeklyReflectionDocument[]
+    > {
+
+        if (
+            missionIds.length === 0
+        ) {
+            return [];
+        }
+
+        return WeeklyReflectionModel
+            .find({
+                missionId: {
+                    $in: missionIds,
+                },
+            })
+            .sort({
+                weekNumber: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
 }
 
 export const weeklyReflectionRepository =

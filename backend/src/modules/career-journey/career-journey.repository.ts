@@ -97,6 +97,8 @@ export class CareerJourneyRepository {
                     $in: [
                         CareerJourneyStatus.DRAFT,
                         CareerJourneyStatus.ACTIVE,
+                        CareerJourneyStatus.READINESS,
+                        CareerJourneyStatus.READY,
                     ],
                 },
 
@@ -149,6 +151,30 @@ export class CareerJourneyRepository {
             {
                 _id: id,
                 userId,
+                isDeleted: false,
+            },
+            {
+                $set: {
+                    status,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
+    async updateStatusById(
+        id: Types.ObjectId,
+        status: CareerJourneyStatus,
+        session?: ClientSession
+    ): Promise<CareerJourneyDocument | null> {
+
+        return CareerJourneyModel.findOneAndUpdate(
+            {
+                _id: id,
                 isDeleted: false,
             },
             {

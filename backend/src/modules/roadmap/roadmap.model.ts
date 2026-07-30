@@ -16,6 +16,7 @@ import {
 
 import {
   RoadmapStatus,
+  RoadmapType,
 } from "./roadmap.enums.js";
 
 const RoadmapSchema = new Schema(
@@ -24,6 +25,16 @@ const RoadmapSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: CAREER_JOURNEY_MODEL,
       required: true,
+    },
+
+    version: {
+      type: Number,
+
+      required: true,
+
+      min: 1,
+
+      default: 1,
     },
 
     title: {
@@ -74,10 +85,40 @@ const RoadmapSchema = new Schema(
       default: RoadmapStatus.GENERATING,
     },
 
+    previousRoadmapId: {
+      type:
+        Schema.Types.ObjectId,
+
+      ref:
+        ROADMAP_MODEL,
+
+      default:
+        null,
+    },
+
+    type: {
+      type: String,
+
+      enum:
+        Object.values(
+          RoadmapType
+        ),
+
+      required: true,
+
+      default:
+        RoadmapType.INITIAL,
+    },
+
     generatedAt: {
       type: Date,
       default: null,
     },
+
+    completedAt: {
+      type: Date,
+      default: null
+    }
   },
   {
     timestamps: true,
@@ -90,6 +131,7 @@ const RoadmapSchema = new Schema(
 RoadmapSchema.index(
   {
     careerJourneyId: 1,
+    version: 1,
   },
   {
     unique: true,
@@ -97,8 +139,13 @@ RoadmapSchema.index(
 );
 
 RoadmapSchema.index({
+  careerJourneyId: 1,
   status: 1,
-}); 
+});
+
+RoadmapSchema.index({
+  status: 1,
+});
 
 export type Roadmap =
   InferSchemaType<typeof RoadmapSchema>;

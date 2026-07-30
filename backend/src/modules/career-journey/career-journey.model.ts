@@ -107,16 +107,16 @@ CareerJourneySchema.index(
     unique: true,
 
     partialFilterExpression: {
-
       isDeleted: false,
 
       status: {
         $in: [
           CareerJourneyStatus.DRAFT,
           CareerJourneyStatus.ACTIVE,
+          CareerJourneyStatus.READINESS,
+          CareerJourneyStatus.READY,
         ],
       },
-
     },
   }
 );

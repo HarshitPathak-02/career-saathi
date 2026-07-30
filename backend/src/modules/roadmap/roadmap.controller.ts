@@ -216,6 +216,53 @@ class RoadmapController {
             }
         );
 
+    /*
+|--------------------------------------------------------------------------
+| Generate Adaptive Roadmap
+|--------------------------------------------------------------------------
+*/
+
+    generateAdaptiveRoadmap =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const user =
+                    getAuthUser(req);
+
+                const careerJourneyId =
+                    req.params
+                        .careerJourneyId as string;
+
+                const roadmap =
+                    await roadmapAdaptiveWorkflowService
+                        .generateAdaptiveRoadmap(
+                            user.userId,
+                            careerJourneyId
+                        );
+
+                const data =
+                    roadmapResponseMapper
+                        .toRoadmapResponse(
+                            roadmap
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.CREATED,
+
+                    message:
+                        "Adaptive roadmap generated successfully.",
+
+                    data,
+                });
+            }
+        );
+
 }
 
 

@@ -32,3 +32,11 @@ export enum RoadmapItemStatus {
 
     SKIPPED = "SKIPPED",
 }
+
+export enum RoadmapType {
+    INITIAL =
+    "initial",
+
+    ADAPTIVE =
+    "adaptive",
+}

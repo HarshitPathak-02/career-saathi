@@ -86,3 +86,26 @@ export type PopulatedCareerJourneyDocument =
 
         domainId: PopulatedCareerDomain;
     };
+
+export interface CareerJourneyResponse {
+
+    id: string;
+
+    domainId: string;
+
+    roleId: string;
+
+    targetCompany: string;
+
+    targetDurationMonths: number;
+
+    dailyStudyHours: number;
+
+    preferredLanguage: PreferredLanguage;
+
+    status: CareerJourneyStatus;
+
+    createdAt: Date;
+
+    updatedAt: Date;
+}

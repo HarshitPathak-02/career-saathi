@@ -175,6 +175,53 @@ class SkillProgressRepository {
             })
             .session(session ?? null);
     }
+
+    /*
+|--------------------------------------------------------------------------
+| Find By Assessment Ids
+|--------------------------------------------------------------------------
+*/
+
+    /*
+|--------------------------------------------------------------------------
+| Find By Assessment Ids
+|--------------------------------------------------------------------------
+*/
+
+    async findByAssessmentIds(
+        assessmentIds:
+            Types.ObjectId[],
+
+        session?:
+            ClientSession
+    ) {
+
+        if (
+            assessmentIds.length === 0
+        ) {
+            return [];
+        }
+
+        return SkillProgressModel
+            .find({
+                assessmentId: {
+                    $in:
+                        assessmentIds,
+                },
+            })
+            .populate({
+                path:
+                    "userSkillId",
+
+                populate: {
+                    path:
+                        "skillCatalogId",
+                },
+            })
+            .session(
+                session ?? null
+            );
+    }
 }
 
 export const skillProgressRepository =

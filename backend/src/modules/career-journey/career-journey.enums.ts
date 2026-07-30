@@ -14,4 +14,9 @@ export enum CareerJourneyStatus {
   COMPLETED = "completed",
 
   ARCHIVED = "archived",
+
+  READINESS = "readiness",
+
+  READY = "ready",
+
 }

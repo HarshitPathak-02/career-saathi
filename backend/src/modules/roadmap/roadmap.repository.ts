@@ -54,6 +54,55 @@ class RoadmapRepository {
         );
     }
 
+    async findLatestByCareerJourneyId(
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+        return RoadmapModel
+            .findOne({
+                careerJourneyId,
+            })
+            .sort({
+                version: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    async findByCareerJourneyAndVersion(
+        careerJourneyId: Types.ObjectId,
+        version: number,
+        session?: ClientSession
+    ) {
+
+        return RoadmapModel
+            .findOne({
+                careerJourneyId,
+                version,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    async findAllByCareerJourneyId(
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        return RoadmapModel
+            .find({
+                careerJourneyId,
+            })
+            .sort({
+                version: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
@@ -105,6 +154,7 @@ class RoadmapRepository {
         status: RoadmapStatus,
         session?: ClientSession
     ) {
+
         return RoadmapModel.findByIdAndUpdate(
             id,
             {
@@ -112,6 +162,10 @@ class RoadmapRepository {
 
                 ...(status === RoadmapStatus.ACTIVE && {
                     generatedAt: new Date(),
+                }),
+
+                ...(status === RoadmapStatus.COMPLETED && {
+                    completedAt: new Date(),
                 }),
             },
             {
@@ -138,6 +192,58 @@ class RoadmapRepository {
                 session,
             }
         );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Find Roadmaps Overlapping Period
+|--------------------------------------------------------------------------
+*/
+
+    async findByCareerJourneyAndPeriod(
+        careerJourneyId:
+            Types.ObjectId,
+
+        periodStart:
+            Date,
+
+        periodEnd:
+            Date,
+
+        session?:
+            ClientSession
+    ): Promise<RoadmapDocument[]> {
+
+        return RoadmapModel
+            .find({
+                careerJourneyId,
+
+                generatedAt: {
+                    $lte:
+                        periodEnd,
+                },
+
+                $or: [
+
+                    {
+                        completedAt: {
+                            $gte:
+                                periodStart,
+                        },
+                    },
+
+                    {
+                        completedAt:
+                            null,
+                    },
+                ],
+            })
+            .sort({
+                version: 1,
+            })
+            .session(
+                session ?? null
+            );
     }
 }
 

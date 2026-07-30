@@ -22,6 +22,8 @@ import {
 import {
     RoadmapItemStatus,
 } from "./roadmap.enums.js";
+import { roadmapService } from "./roadmap.service.js";
+import { roadmapCompletionService } from "./roadmap-completion.service.js";
 
 class RoadmapItemProgressService {
 
@@ -150,21 +152,9 @@ class RoadmapItemProgressService {
          * Count Completed Roadmap Items
          */
 
-        const completedItems =
-            await roadmapItemRepository
-                .countCompleted(
-                    roadmapItem.roadmapId,
-                    session
-                );
-
-        /*
-         * Update Roadmap Progress
-         */
-
-        await roadmapRepository
-            .updateCompletedItems(
+        await roadmapCompletionService
+            .syncRoadmapCompletion(
                 roadmapItem.roadmapId,
-                completedItems,
                 session
             );
     }

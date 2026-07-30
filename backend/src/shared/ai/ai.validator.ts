@@ -8,6 +8,7 @@ import {
 import { DailyTaskGenerationOutput, DailyTaskOutput } from "../../modules/daily-task/daily-task.types.js";
 import { MentorFeedbackOutput, MissionRecommendationOutput, WeeklyReportGenerationOutput, WeeklySummaryOutput } from "../../modules/weekly-report/weekly-report.types.js";
 import { MissionDifficulty } from "../../modules/mission/mission.enums.js";
+import { MonthlyReportAIOutput } from "../../modules/monthly-report/monthly-report-ai.types.js";
 
 class AIValidator {
 
@@ -27,13 +28,6 @@ class AIValidator {
         const roadmap =
             response as RoadmapGenerationOutput;
 
-        if (
-            typeof roadmap.version !== "number"
-        ) {
-            throw new Error(
-                "Invalid roadmap version."
-            );
-        }
 
         if (
             typeof roadmap.title !== "string" ||
@@ -882,6 +876,205 @@ class AIValidator {
 
     }
 
+    /*
+|--------------------------------------------------------------------------
+| Validate Monthly Report
+|--------------------------------------------------------------------------
+*/
+
+    validateMonthlyReport(
+        data:
+            unknown
+    ): MonthlyReportAIOutput {
+
+        /*
+         * Root Object
+         */
+
+        if (
+            !data ||
+            typeof data !==
+            "object" ||
+            Array.isArray(data)
+        ) {
+
+            throw new Error(
+                "Invalid monthly report AI response."
+            );
+        }
+
+
+        const report =
+            data as
+            Record<
+                string,
+                unknown
+            >;
+
+
+        /*
+         * Summary
+         */
+
+        if (
+            typeof report.summary !==
+            "string" ||
+            report.summary
+                .trim()
+                .length === 0
+        ) {
+
+            throw new Error(
+                "Invalid monthly report summary."
+            );
+        }
+
+
+        /*
+         * Strengths
+         */
+
+        const strengths =
+            this.validateStringArray(
+                report.strengths,
+                "strengths",
+                5
+            );
+
+
+        /*
+         * Concerns
+         */
+
+        const concerns =
+            this.validateStringArray(
+                report.concerns,
+                "concerns",
+                5
+            );
+
+
+        /*
+         * Recommendations
+         */
+
+        const recommendations =
+            this.validateStringArray(
+                report.recommendations,
+                "recommendations",
+                5
+            );
+
+
+        /*
+         * Validated Output
+         */
+
+        return {
+
+            summary:
+                report.summary.trim(),
+
+            strengths,
+
+            concerns,
+
+            recommendations,
+        };
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| Validate String Array
+|--------------------------------------------------------------------------
+*/
+
+    private validateStringArray(
+        value:
+            unknown,
+
+        fieldName:
+            string,
+
+        maxItems?:
+            number
+    ): string[] {
+
+        /*
+         * Must Be An Array
+         */
+
+        if (
+            !Array.isArray(
+                value
+            )
+        ) {
+
+            throw new Error(
+                `${fieldName} must be an array.`
+            );
+        }
+
+
+        /*
+         * Maximum Items
+         */
+
+        if (
+            maxItems !== undefined &&
+            value.length > maxItems
+        ) {
+
+            throw new Error(
+                `${fieldName} must contain at most ${maxItems} items.`
+            );
+        }
+
+
+        /*
+         * Validate Every Item
+         */
+
+        const validatedItems =
+            value.map(
+                (
+                    item,
+                    index
+                ) => {
+
+                    if (
+                        typeof item !==
+                        "string"
+                    ) {
+
+                        throw new Error(
+                            `${fieldName}[${index}] must be a string.`
+                        );
+                    }
+
+
+                    const trimmedItem =
+                        item.trim();
+
+
+                    if (
+                        trimmedItem.length ===
+                        0
+                    ) {
+
+                        throw new Error(
+                            `${fieldName}[${index}] must not be empty.`
+                        );
+                    }
+
+
+                    return trimmedItem;
+                }
+            );
+
+
+        return validatedItems;
+    }
 }
 
 export const aiValidator =

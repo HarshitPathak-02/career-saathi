@@ -359,6 +359,48 @@ class AssessmentRepository {
                 session ?? null
             );
     }
+
+    /*
+|--------------------------------------------------------------------------
+| Find Completed In Period
+|--------------------------------------------------------------------------
+*/
+
+    async findCompletedInPeriod(
+        careerJourneyId:
+            Types.ObjectId,
+
+        startDate:
+            Date,
+
+        endDate:
+            Date,
+
+        session?:
+            ClientSession
+    ): Promise<AssessmentDocument[]> {
+
+        return AssessmentModel
+            .find({
+                careerJourneyId,
+
+                status:
+                    AssessmentStatus.COMPLETED,
+
+                completedAt: {
+                    $gte: startDate,
+                    $lte: endDate,
+                },
+
+                isDeleted: false,
+            })
+            .sort({
+                completedAt: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
 }
 
 export const assessmentRepository =

@@ -188,6 +188,31 @@ class DailyTaskRepository {
 
     }
 
+    async findByMissionIds(
+        missionIds:
+            Types.ObjectId[],
+
+        session?:
+            ClientSession
+    ): Promise<DailyTaskDocument[]> {
+
+        if (
+            missionIds.length === 0
+        ) {
+            return [];
+        }
+
+        return DailyTaskModel
+            .find({
+                missionId: {
+                    $in: missionIds,
+                },
+            })
+            .session(
+                session ?? null
+            );
+    }
+
 }
 
 export const dailyTaskRepository =

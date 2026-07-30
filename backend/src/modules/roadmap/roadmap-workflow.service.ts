@@ -69,6 +69,7 @@ import {
     AppError,
 } from "../../core/errors/app-error.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
+import { RoadmapType } from "./roadmap.enums.js";
 
 export class RoadmapWorkflowService {
 
@@ -127,15 +128,19 @@ export class RoadmapWorkflowService {
          * Prevent Duplicate Roadmap
          */
 
-        const roadmapExists =
+        const initialRoadmapExists =
             await roadmapRepository.exists({
                 careerJourneyId,
+
+                type:
+                    RoadmapType.INITIAL,
             });
 
-        if (roadmapExists) {
+        if (initialRoadmapExists) {
+
             throw new AppError(
                 409,
-                "Roadmap already exists for this career journey."
+                "Initial roadmap already exists for this career journey."
             );
         }
 

@@ -12,15 +12,19 @@ import {
 
 import {
     careerJourneyIdParamSchema,
+    generateAdaptiveRoadmapValidation,
     generateRoadmapSchema,
     nextPendingItemsQuerySchema,
     roadmapIdParamSchema,
 } from "./roadmap.validation.js";
+import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 
 
 const router =
     Router();
 
+
+router.use(authenticate);
 
 /*
  * Generate personalized roadmap
@@ -82,6 +86,17 @@ router.get(
     }),
 
     roadmapController.getNextPendingItems
+);
+
+router.post(
+    "/:careerJourneyId/adaptive",
+
+    validateRequest(
+        { params: generateAdaptiveRoadmapValidation },
+    ),
+
+    roadmapController
+        .generateAdaptiveRoadmap
 );
 
 

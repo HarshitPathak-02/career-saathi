@@ -56,3 +56,15 @@ export const nextPendingItemsQuerySchema =
                 .max(50)
                 .optional(),
     });
+
+
+export const generateAdaptiveRoadmapValidation =
+    Joi.object({
+
+        careerJourneyId:
+            Joi.string()
+                .hex()
+                .length(24)
+                .required(),
+
+    });
