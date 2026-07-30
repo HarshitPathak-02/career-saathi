@@ -41,3 +41,9 @@ export const READINESS_WEIGHTS = {
 
 export const READINESS_RECENT_INTERVIEW_LIMIT =
     3;
+
+export const READINESS_EVALUATION_MODEL =
+    "ReadinessEvaluation";
+
+export const READINESS_EVALUATION_COLLECTION =
+    "readiness_evaluations";

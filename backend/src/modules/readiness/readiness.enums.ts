@@ -7,6 +7,9 @@ export enum ReadinessStatus {
 
     READY =
     "ready",
+
+    READY_TO_EVALUATE =
+    "ready_to_evaluate",
 }
 
 
@@ -38,3 +41,4 @@ export enum ReadinessRecommendation {
     START_JOB_APPLICATIONS =
     "start_job_applications",
 }
+

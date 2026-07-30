@@ -15,6 +15,10 @@ import {
 } from "../career-journey/career-journey.repository.js";
 
 import {
+    CareerJourneyStatus,
+} from "../career-journey/career-journey.enums.js";
+
+import {
     assessmentRepository,
 } from "../assessment/assessment.repository.js";
 
@@ -46,7 +50,14 @@ import {
     WorkspaceMapper,
 } from "./workspace.mapper.js";
 
+
 export class WorkspaceService {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate Mission Day
+    |--------------------------------------------------------------------------
+    */
 
     private calculateMissionDay(
         startDate: Date,
@@ -63,8 +74,11 @@ export class WorkspaceService {
             0
         );
 
+
         const missionStart =
-            new Date(startDate);
+            new Date(
+                startDate
+            );
 
         missionStart.setHours(
             0,
@@ -72,6 +86,7 @@ export class WorkspaceService {
             0,
             0
         );
+
 
         const differenceInDays =
             Math.floor(
@@ -87,6 +102,7 @@ export class WorkspaceService {
                 )
             );
 
+
         const dayNumber =
             Math.min(
                 Math.max(
@@ -95,6 +111,7 @@ export class WorkspaceService {
                 ),
                 totalDays
             );
+
 
         return {
 
@@ -108,6 +125,13 @@ export class WorkspaceService {
 
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Workspace
+    |--------------------------------------------------------------------------
+    */
+
     async getWorkspace(
         userId: string
     ) {
@@ -117,11 +141,19 @@ export class WorkspaceService {
                 userId
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | User
+        |--------------------------------------------------------------------------
+        */
+
         const user =
             await userRepository
                 .findById(
                     userId
                 );
+
 
         if (!user) {
 
@@ -132,11 +164,28 @@ export class WorkspaceService {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current Career Journey
+        |--------------------------------------------------------------------------
+        |
+        | findActiveByUserId includes:
+        |
+        | DRAFT
+        | ACTIVE
+        | READINESS
+        | READY
+        |
+        |--------------------------------------------------------------------------
+        */
+
         const careerJourney =
             await careerJourneyRepository
                 .findActiveByUserId(
                     userObjectId
                 );
+
 
         if (!careerJourney) {
 
@@ -147,28 +196,44 @@ export class WorkspaceService {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Assessment + Current Roadmap
+        |--------------------------------------------------------------------------
+        */
+
         const [
             assessment,
             roadmap,
-        ] = await Promise.all([
+        ] =
+            await Promise.all([
 
-            assessmentRepository
-                .findOne({
+                assessmentRepository
+                    .findOne({
 
-                    careerJourneyId:
-                        careerJourney._id,
+                        careerJourneyId:
+                            careerJourney._id,
 
-                    type:
-                        AssessmentType.INITIAL,
+                        type:
+                            AssessmentType
+                                .INITIAL,
 
-                }),
+                    }),
 
-            roadmapRepository
-                .findByCareerJourneyId(
-                    careerJourney._id
-                ),
+                roadmapRepository
+                    .findByCareerJourneyId(
+                        careerJourney._id
+                    ),
 
-        ]);
+            ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mission Lifecycle
+        |--------------------------------------------------------------------------
+        */
 
         let lifecycleState:
             MissionLifecycleState | null =
@@ -181,7 +246,25 @@ export class WorkspaceService {
             Date | null =
             null;
 
-        if (roadmap) {
+
+        /*
+         * Mission lifecycle only belongs
+         * to the ACTIVE learning stage.
+         *
+         * Once the career journey enters:
+         *
+         * READINESS
+         * READY
+         *
+         * we must not attempt to resolve
+         * or generate another mission.
+         */
+
+        if (
+            roadmap &&
+            careerJourney.status ===
+            CareerJourneyStatus.ACTIVE
+        ) {
 
             const lifecycle =
                 await missionLifecycleService
@@ -190,6 +273,7 @@ export class WorkspaceService {
                         careerJourney._id
                     );
 
+
             lifecycleState =
                 lifecycle.state;
 
@@ -197,9 +281,17 @@ export class WorkspaceService {
                 lifecycle.mission;
 
             nextMissionAvailableAt =
-                lifecycle.nextMissionAvailableAt;
+                lifecycle
+                    .nextMissionAvailableAt;
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Mission Tasks
+        |--------------------------------------------------------------------------
+        */
 
         const tasks =
             activeMission
@@ -209,6 +301,13 @@ export class WorkspaceService {
                     )
                 : [];
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Today's Mission State
+        |--------------------------------------------------------------------------
+        */
+
         let today:
             {
                 dayNumber: number;
@@ -216,8 +315,10 @@ export class WorkspaceService {
             } | null =
             null;
 
+
         let todayTask =
             null;
+
 
         if (activeMission) {
 
@@ -227,12 +328,14 @@ export class WorkspaceService {
                 60 *
                 24;
 
+
             const missionDuration =
                 Math.floor(
                     (
                         activeMission
                             .endDate
                             .getTime() -
+
                         activeMission
                             .startDate
                             .getTime()
@@ -240,11 +343,13 @@ export class WorkspaceService {
                     millisecondsPerDay
                 ) + 1;
 
+
             today =
                 this.calculateMissionDay(
                     activeMission.startDate,
                     missionDuration
                 );
+
 
             todayTask =
                 await dailyTaskService
@@ -255,43 +360,64 @@ export class WorkspaceService {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Career Target
+        |--------------------------------------------------------------------------
+        */
+
         const targetRole =
-            careerJourney.roleId.name;
+            careerJourney
+                .roleId
+                .name;
+
 
         const targetDomain =
-            careerJourney.domainId.name;
+            careerJourney
+                .domainId
+                .name;
 
-        return WorkspaceMapper.toResponse({
 
-            user,
+        /*
+        |--------------------------------------------------------------------------
+        | Workspace Response
+        |--------------------------------------------------------------------------
+        */
 
-            careerJourney,
+        return WorkspaceMapper
+            .toResponse({
 
-            assessment,
+                user,
 
-            roadmap,
+                careerJourney,
 
-            activeMission,
+                assessment,
 
-            tasks,
+                roadmap,
 
-            today,
+                activeMission,
 
-            todayTask,
+                tasks,
 
-            targetRole,
+                today,
 
-            targetDomain,
+                todayTask,
 
-            lifecycleState,
+                targetRole,
 
-            nextMissionAvailableAt,
+                targetDomain,
 
-        });
+                lifecycleState,
+
+                nextMissionAvailableAt,
+
+            });
 
     }
 
 }
+
 
 export const workspaceService =
     new WorkspaceService();

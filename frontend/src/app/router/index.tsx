@@ -27,6 +27,9 @@ import WeeklyReviewPage from "../../features/weekly-review/pages/WeeklyReviewPag
 import WeeklyReportsPage from "../../features/weekly-report/pages/WeeklyReportsPage";
 import WeeklyReportDetailsPage from "../../features/weekly-report/pages/WeeklyReportDetailsPage";
 import ProfilePage from "../../features/profile/pages/ProfilePage";
+import MonthlyReportsPage from "../../features/monthly-reports/pages/MonthlyReportsPage";
+import MonthlyReportDetailsPage from "../../features/monthly-reports/pages/MonthlyReportDetailsPage";
+import ReadinessPage from "../../features/readiness/pages/ReadinessPage";
 
 export const router = createBrowserRouter([
   {
@@ -121,6 +124,20 @@ export const router = createBrowserRouter([
           {
             path: "/weekly-reports/:reportId",
             element: <WeeklyReportDetailsPage />,
+          },
+          {
+            path: "/monthly-reports",
+            element: <MonthlyReportsPage />
+          },
+          {
+            path: "/monthly-reports/:reportNumber",
+            element: <MonthlyReportDetailsPage />
+          },
+          {
+            path: "/readiness",
+            element:
+              <ReadinessPage />
+
           },
           {
             path: "/profile",

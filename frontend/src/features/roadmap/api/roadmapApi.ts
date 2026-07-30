@@ -108,6 +108,33 @@ export const roadmapApi =
 
                 }),
 
+            generateAdaptiveRoadmap:
+                builder.mutation<
+                    ApiResponse<Roadmap>,
+                    string
+                >({
+
+                    query: (
+                        careerJourneyId
+                    ) => ({
+
+                        url:
+                            `/roadmaps/${careerJourneyId}/adaptive`,
+
+                        method:
+                            "POST",
+
+                    }),
+
+                    invalidatesTags: [
+                        "CareerJourney",
+                        "Roadmap",
+                        "Workspace",
+                        "Readiness",
+                    ],
+
+                }),
+
         }),
     });
 
@@ -119,5 +146,7 @@ export const {
     useGetRoadmapByCareerJourneyQuery,
 
     useGetRoadmapItemsQuery,
+
+    useGenerateAdaptiveRoadmapMutation,
 
 } = roadmapApi;

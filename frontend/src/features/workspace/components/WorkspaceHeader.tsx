@@ -371,7 +371,7 @@ const JourneyInfo = ({
                 <p
                     className="
                         mt-1
-                        break-words
+                        wrap-break-word
                         text-sm
                         font-semibold
                         leading-5

@@ -23,12 +23,44 @@ const router =
     Router();
 
 
+router.use(
+    authenticate
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Current Readiness State
+|--------------------------------------------------------------------------
+*/
+
 router.get(
     "/:careerJourneyId",
-    authenticate,
-    validateRequest(
-        { params: evaluateReadinessParamsSchema }
-    ),
+
+    validateRequest({
+        params:
+            evaluateReadinessParamsSchema,
+    }),
+
+    readinessController
+        .getReadinessState
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| Perform Readiness Evaluation
+|--------------------------------------------------------------------------
+*/
+
+router.post(
+    "/:careerJourneyId/evaluate",
+
+    validateRequest({
+        params:
+            evaluateReadinessParamsSchema,
+    }),
+
     readinessController
         .evaluateReadiness
 );

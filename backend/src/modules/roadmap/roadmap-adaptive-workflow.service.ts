@@ -52,7 +52,7 @@ class RoadmapAdaptiveWorkflowService {
 
         const readiness =
             await readinessService
-                .evaluateReadiness(
+                .getReadinessState(
                     userId,
                     careerJourneyId
                 );

@@ -38,6 +38,11 @@ import {
     PopulatedCareerJourneyDocument,
 } from "../career-journey/career-journey.types.js";
 
+import {
+    CareerJourneyStatus,
+} from "../career-journey/career-journey.enums.js";
+
+
 interface WorkspaceMapperInput {
 
     user:
@@ -80,6 +85,7 @@ interface WorkspaceMapperInput {
 
 }
 
+
 export class WorkspaceMapper {
 
     /*
@@ -107,6 +113,7 @@ export class WorkspaceMapper {
             nextMissionAvailableAt,
         } = input;
 
+
         /*
         |--------------------------------------------------------------------------
         | Availability Flags
@@ -114,10 +121,15 @@ export class WorkspaceMapper {
         */
 
         const hasInitialAssessment =
-            Boolean(assessment);
+            Boolean(
+                assessment
+            );
 
         const hasRoadmap =
-            Boolean(roadmap);
+            Boolean(
+                roadmap
+            );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -127,10 +139,12 @@ export class WorkspaceMapper {
 
         const workspaceState =
             this.getWorkspaceState(
+                careerJourney.status,
                 hasInitialAssessment,
                 hasRoadmap,
                 lifecycleState
             );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -145,8 +159,10 @@ export class WorkspaceMapper {
                     DailyTaskStatus.COMPLETED
             ).length;
 
+
         const totalTasks =
             tasks.length;
+
 
         const progressPercentage =
             totalTasks > 0
@@ -158,6 +174,7 @@ export class WorkspaceMapper {
                 )
                 : 0;
 
+
         /*
         |--------------------------------------------------------------------------
         | Actions
@@ -167,9 +184,11 @@ export class WorkspaceMapper {
         const canStartAssessment =
             !hasInitialAssessment;
 
+
         const canGenerateRoadmap =
             hasInitialAssessment &&
             !hasRoadmap;
+
 
         const canStartJourney =
             hasInitialAssessment &&
@@ -177,6 +196,7 @@ export class WorkspaceMapper {
             lifecycleState ===
             MissionLifecycleState
                 .INITIAL_MISSION_REQUIRED;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -191,7 +211,8 @@ export class WorkspaceMapper {
             user: {
 
                 id:
-                    user._id.toString(),
+                    user._id
+                        .toString(),
 
                 fullName:
                     user.fullName,
@@ -352,6 +373,7 @@ export class WorkspaceMapper {
 
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | Resolve Workspace State
@@ -359,11 +381,74 @@ export class WorkspaceMapper {
     */
 
     private static getWorkspaceState(
-        hasAssessment: boolean,
-        hasRoadmap: boolean,
+        careerJourneyStatus:
+            CareerJourneyStatus,
+
+        hasAssessment:
+            boolean,
+
+        hasRoadmap:
+            boolean,
+
         lifecycleState:
             MissionLifecycleState | null
+
     ): WorkspaceState {
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Readiness Stage
+        |--------------------------------------------------------------------------
+        |
+        | The learning roadmap has been completed.
+        |
+        | User now needs to:
+        |
+        | - perform mock interviews
+        | - submit scores
+        | - receive readiness evaluation
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            careerJourneyStatus ===
+            CareerJourneyStatus.READINESS
+        ) {
+
+            return WorkspaceState
+                .READINESS;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Interview Ready
+        |--------------------------------------------------------------------------
+        |
+        | User has satisfied readiness thresholds.
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            careerJourneyStatus ===
+            CareerJourneyStatus.READY
+        ) {
+
+            return WorkspaceState
+                .READY;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Assessment
+        |--------------------------------------------------------------------------
+        */
 
         if (!hasAssessment) {
 
@@ -372,12 +457,26 @@ export class WorkspaceMapper {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap Generation
+        |--------------------------------------------------------------------------
+        */
+
         if (!hasRoadmap) {
 
             return WorkspaceState
                 .ROADMAP_PENDING;
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Mission Required
+        |--------------------------------------------------------------------------
+        */
 
         if (
             lifecycleState ===
@@ -390,6 +489,13 @@ export class WorkspaceMapper {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Waiting For Next Mission
+        |--------------------------------------------------------------------------
+        */
+
         if (
             lifecycleState ===
             MissionLifecycleState
@@ -400,6 +506,20 @@ export class WorkspaceMapper {
                 .NEXT_MISSION_PENDING;
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap Completed
+        |--------------------------------------------------------------------------
+        |
+        | Defensive fallback.
+        |
+        | Normally roadmap completion service should
+        | immediately move CareerJourney to READINESS.
+        |
+        |--------------------------------------------------------------------------
+        */
 
         if (
             lifecycleState ===
@@ -412,6 +532,13 @@ export class WorkspaceMapper {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Learning
+        |--------------------------------------------------------------------------
+        */
+
         if (
             lifecycleState ===
             MissionLifecycleState.ACTIVE
@@ -422,8 +549,9 @@ export class WorkspaceMapper {
 
         }
 
+
         throw new Error(
-            "Unable to determine workspace state."
+            `Unable to determine workspace state for career journey status: ${careerJourneyStatus}.`
         );
 
     }

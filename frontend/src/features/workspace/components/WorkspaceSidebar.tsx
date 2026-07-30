@@ -86,8 +86,8 @@ const sidebarItems:
         {
             label: "Monthly Reports",
             icon: BarChart3,
-            disabled: true,
-            badge: "Soon",
+            path: "/monthly-reports",
+            disabled: false,
         },
 
     ];

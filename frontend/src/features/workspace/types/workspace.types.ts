@@ -12,6 +12,11 @@ export const WorkspaceState = {
 
     ROADMAP_COMPLETED:
         "roadmap_completed",
+
+    READINESS:
+        "readiness",
+    READY:
+        "ready",
 } as const;
 
 export type WorkspaceState =

@@ -16,7 +16,10 @@ export const baseApi = createApi({
     "DailyTask",
     "Assessment",
     "Workspace",
-    "WeeklyReport"
+    "WeeklyReport",
+    "MonthlyReport",
+    "Readiness",
+    "MockInterview"
   ],
 
   endpoints: () => ({}),

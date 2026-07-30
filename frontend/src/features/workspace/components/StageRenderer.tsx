@@ -26,11 +26,17 @@ import ActiveMissionCard
 import NextMissionPendingCard
     from "./NextMissionPendingCard";
 
+import ReadinessStageCard
+    from "./ReadinessStageCard";
+
+
 interface StageRendererProps {
 
-    workspace: Workspace;
+    workspace:
+    Workspace;
 
 }
+
 
 const StageRenderer = ({
 
@@ -40,6 +46,7 @@ const StageRenderer = ({
 
     const navigate =
         useNavigate();
+
 
     const [
 
@@ -55,6 +62,7 @@ const StageRenderer = ({
 
     ] =
         useGenerateRoadmapMutation();
+
 
     /*
     |--------------------------------------------------------------------------
@@ -76,6 +84,7 @@ const StageRenderer = ({
 
                 }).unwrap();
 
+
                 navigate(
                     "/roadmap"
                 );
@@ -92,6 +101,7 @@ const StageRenderer = ({
 
         };
 
+
     /*
     |--------------------------------------------------------------------------
     | Render Stage
@@ -102,6 +112,12 @@ const StageRenderer = ({
     workspace.workspaceState
     ) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Assessment
+        |--------------------------------------------------------------------------
+        */
+
         case WorkspaceState
             .INITIAL_ASSESSMENT:
 
@@ -110,6 +126,13 @@ const StageRenderer = ({
                 <InitialAssessmentCard />
 
             );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roadmap Pending
+        |--------------------------------------------------------------------------
+        */
 
         case WorkspaceState
             .ROADMAP_PENDING:
@@ -129,6 +152,7 @@ const StageRenderer = ({
                         }
 
                     />
+
 
                     {generationError && (
 
@@ -155,6 +179,13 @@ const StageRenderer = ({
 
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initial Mission Pending
+        |--------------------------------------------------------------------------
+        */
+
         case WorkspaceState
             .MISSION_PENDING:
 
@@ -172,6 +203,13 @@ const StageRenderer = ({
 
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Next Mission Pending
+        |--------------------------------------------------------------------------
+        */
+
         case WorkspaceState
             .NEXT_MISSION_PENDING:
 
@@ -188,7 +226,15 @@ const StageRenderer = ({
 
             );
 
-        case WorkspaceState.ACTIVE:
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Learning
+        |--------------------------------------------------------------------------
+        */
+
+        case WorkspaceState
+            .ACTIVE:
 
             if (
                 !workspace.activeMission
@@ -197,6 +243,7 @@ const StageRenderer = ({
                 return null;
 
             }
+
 
             return (
 
@@ -223,8 +270,42 @@ const StageRenderer = ({
 
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Readiness Stage
+        |--------------------------------------------------------------------------
+        |
+        | Roadmap has been completed.
+        |
+        | User now:
+        |
+        | 1. Performs mock interviews
+        | 2. Records scores
+        | 3. Gets readiness evaluation
+        | 4. Generates adaptive roadmap if not ready
+        |
+        |--------------------------------------------------------------------------
+        */
+
         case WorkspaceState
-            .ROADMAP_COMPLETED:
+            .READINESS:
+
+            return (
+
+                <ReadinessStageCard />
+
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Interview Ready
+        |--------------------------------------------------------------------------
+        */
+
+        case WorkspaceState
+            .READY:
 
             return (
 
@@ -232,62 +313,136 @@ const StageRenderer = ({
                     className="
                         rounded-2xl
                         border
-                        border-slate-200
+                        border-green-200
                         bg-white
                         p-6
-                        text-center
                         shadow-sm
-                        sm:p-10
+                        sm:p-8
                     "
                 >
 
                     <div
                         className="
                             mx-auto
-                            flex
-                            h-14
-                            w-14
-                            items-center
-                            justify-center
-                            rounded-2xl
-                            bg-blue-50
-                            text-2xl
-                            font-bold
-                            text-blue-600
+                            max-w-2xl
+                            text-center
                         "
                     >
-                        ✓
+
+                        {/* Success Icon */}
+
+                        <div
+                            className="
+                                mx-auto
+                                flex
+                                h-14
+                                w-14
+                                items-center
+                                justify-center
+                                rounded-2xl
+                                bg-green-50
+                                text-2xl
+                                font-bold
+                                text-green-600
+                            "
+                        >
+                            ✓
+                        </div>
+
+
+                        {/* Title */}
+
+                        <h2
+                            className="
+                                mt-5
+                                text-2xl
+                                font-bold
+                                text-slate-900
+                            "
+                        >
+                            You're interview ready
+                        </h2>
+
+
+                        {/* Description */}
+
+                        <p
+                            className="
+                                mt-2
+                                text-sm
+                                leading-6
+                                text-slate-600
+                            "
+                        >
+                            Your recent mock interview
+                            performance meets the readiness
+                            criteria. You can now begin
+                            applying for your target roles.
+                        </p>
+
+
+                        {/* CTA */}
+
+                        <div
+                            className="
+                                mt-6
+                                flex
+                                justify-center
+                            "
+                        >
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    navigate(
+                                        "/jobs"
+                                    )
+                                }
+                                className="
+                                    rounded-xl
+                                    bg-green-600
+                                    px-5
+                                    py-3
+                                    text-sm
+                                    font-semibold
+                                    text-white
+                                    transition
+                                    hover:bg-green-700
+                                "
+                            >
+                                Start Applying
+                            </button>
+
+                        </div>
+
                     </div>
-
-                    <h2
-                        className="
-                            mt-5
-                            text-2xl
-                            font-bold
-                            text-slate-900
-                        "
-                    >
-                        Roadmap completed
-                    </h2>
-
-                    <p
-                        className="
-                            mx-auto
-                            mt-2
-                            max-w-lg
-                            text-sm
-                            leading-6
-                            text-slate-600
-                        "
-                    >
-                        You've completed the learning
-                        roadmap created for this career
-                        journey.
-                    </p>
 
                 </section>
 
             );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Defensive Fallback
+        |--------------------------------------------------------------------------
+        */
+
+        case WorkspaceState
+            .ROADMAP_COMPLETED:
+
+            return (
+
+                <ReadinessStageCard />
+
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Unknown State
+        |--------------------------------------------------------------------------
+        */
 
         default:
 
@@ -296,5 +451,6 @@ const StageRenderer = ({
     }
 
 };
+
 
 export default StageRenderer;
