@@ -12,6 +12,7 @@ import {
 import {
     RoadmapItemStatus,
 } from "./roadmap.enums.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 class RoadmapItemRepository {
 
@@ -122,7 +123,7 @@ class RoadmapItemRepository {
                         completedAt:
                             status ===
                                 RoadmapItemStatus.COMPLETED
-                                ? new Date()
+                                ? appClock.now()
                                 : null,
                     },
                 },
@@ -216,6 +217,47 @@ class RoadmapItemRepository {
             .session(session ?? null);
     }
 
+    async findInProgressItems(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<RoadmapItemDocument[]> {
+
+        return RoadmapItemModel
+            .find({
+                roadmapId,
+
+                status:
+                    RoadmapItemStatus.IN_PROGRESS,
+            })
+            .sort({
+                order: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    async findIncompleteItems(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<RoadmapItemDocument[]> {
+
+        return RoadmapItemModel
+            .find({
+                roadmapId,
+
+                status: {
+                    $ne:
+                        RoadmapItemStatus.COMPLETED,
+                },
+            })
+            .sort({
+                order: 1,
+            })
+            .session(
+                session ?? null
+            );
+    }
     /*
 |--------------------------------------------------------------------------
 | Find Completed In Period

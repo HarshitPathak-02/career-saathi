@@ -29,11 +29,20 @@ The user has already completed a roadmap.
 
 Do not repeat strong areas or recreate previous learning.
 
+Previous mock interview results and readiness scores are EVIDENCE ONLY.
+
+Use them to identify what the user needs to improve.
+
+Do NOT generate mock interviews, assessments, revision tasks,
+readiness evaluations, or other lifecycle activities.
+
+Those are handled separately by the application.
+
 ------------------------------------------------------------
 STRICT SIZE LIMIT
 ------------------------------------------------------------
 
-Generate 5 to 8 roadmap items maximum.
+Generate 3 to 8 roadmap items.
 
 Prefer the smallest roadmap that can realistically correct the identified weaknesses.
 
@@ -59,14 +68,17 @@ Only use:
 
 TOPIC
 PROJECT
-REVISION
-ASSESSMENT
-MOCK_INTERVIEW
-RESUME
 PORTFOLIO
-JOB_APPLICATION
 
 Never generate any other type.
+
+Specifically, NEVER generate:
+
+MOCK_INTERVIEW
+ASSESSMENT
+REVISION
+RESUME
+JOB_APPLICATION
 
 ------------------------------------------------------------
 TOPIC RULES
@@ -81,7 +93,7 @@ For TOPIC:
 - Copy skillName exactly as title.
 - Never rename the skill.
 - Never invent a skill.
-- Only include weak skills that genuinely need improvement.
+- Only include skills that genuinely require improvement.
 
 Non-TOPIC items MUST NOT contain skillId.
 
@@ -91,17 +103,30 @@ ADAPTATION RULES
 
 Use weakAreas as the primary decision signal.
 
+Use Current Skills, Recent Mock Interviews, and Readiness scores
+as supporting evidence.
+
 If technical_skills is weak:
-- revise only weak-scoring technical skills.
+- generate focused TOPIC items for weak technical skills.
+- only use skills from CURRENT SKILLS.
+- do not reteach strong skills.
 
 If technical_interview is weak:
-- add targeted technical interview preparation.
+- generate learning or practical work that improves the technical
+  knowledge responsible for poor interview performance.
+- use TOPIC, PROJECT, or PORTFOLIO as appropriate.
+- do NOT generate a mock interview.
 
 If problem_solving is weak:
-- add assessment/revision focused on interview problem solving.
+- generate TOPIC or PROJECT work that strengthens practical
+  problem-solving ability.
+- do NOT generate an assessment item.
 
 If communication is weak:
-- add mock interview practice emphasizing explanation and structured answers.
+- improve communication through PROJECT or PORTFOLIO work where
+  the user must explain technical decisions, architecture,
+  implementation, or project outcomes clearly.
+- do NOT generate a mock interview.
 
 Do not reteach strong skills.
 
@@ -109,10 +134,16 @@ Do not add unrelated technologies.
 
 Do not add generic beginner material.
 
-Do not add another readiness evaluation item.
-The application handles readiness evaluation separately.
+Do not generate revision items.
 
-The roadmap should normally end with MOCK_INTERVIEW preparation.
+Do not generate assessment items.
+
+Do not generate mock interview items.
+
+Do not generate readiness evaluation items.
+
+The application handles revision, assessments, mock interviews,
+and readiness evaluation separately.
 
 ------------------------------------------------------------
 INPUT
@@ -127,7 +158,7 @@ ${JSON.stringify(input.previousRoadmap)}
 Current Skills:
 ${JSON.stringify(input.currentSkills)}
 
-Recent Mock Interviews:
+Previous Mock Interview Evidence:
 ${JSON.stringify(input.recentMockInterviews)}
 
 Readiness:
@@ -147,24 +178,34 @@ Return exactly:
             "type": "TOPIC",
             "skillId": "existing-skill-id",
             "title": "Exact Current Skill Name",
-            "description": "Short corrective action.",
+            "description": "Short corrective learning action.",
             "estimatedHours": 8,
             "aiReason": "Short evidence-based reason.",
             "metadata": {}
         },
         {
             "order": 2,
-            "type": "MOCK_INTERVIEW",
-            "title": "Targeted Mock Interview",
-            "description": "Practice identified interview weaknesses.",
-            "estimatedHours": 3,
-            "aiReason": "Validates improvement before reevaluation.",
+            "type": "PROJECT",
+            "title": "Focused Practical Improvement",
+            "description": "Apply weak technical areas through focused practical work.",
+            "estimatedHours": 6,
+            "aiReason": "Practical implementation reinforces identified weak areas.",
             "metadata": {}
         }
     ]
 }
 
 Orders must start at 1 and be sequential.
+
+Every type must be one of:
+
+TOPIC
+PROJECT
+PORTFOLIO
+
+Do not copy the example blindly.
+
+Generate items according to the actual weaknesses in the supplied input.
 
 Return ONLY JSON.
 `;

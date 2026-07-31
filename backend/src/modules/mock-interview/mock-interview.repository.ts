@@ -192,6 +192,34 @@ class MockInterviewRepository {
                 session ?? null
             );
     }
+
+    async findRecentCompletedByRoadmap(
+        roadmapId:
+            Types.ObjectId,
+
+        limit:
+            number,
+
+        session?:
+            ClientSession
+    ): Promise<MockInterviewDocument[]> {
+
+        return MockInterviewModel
+            .find({
+                roadmapId,
+
+                status:
+                    MockInterviewStatus
+                        .COMPLETED,
+            })
+            .sort({
+                interviewedAt: -1,
+            })
+            .limit(limit)
+            .session(
+                session ?? null
+            );
+    }
 }
 
 

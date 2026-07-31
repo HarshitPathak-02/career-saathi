@@ -48,6 +48,8 @@ import {
 import {
     executeTransaction,
 } from "../../shared/utils/transaction.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
+import { roadmapRepository } from "../roadmap/roadmap.repository.js";
 
 
 class ReadinessService {
@@ -170,6 +172,20 @@ class ReadinessService {
 
         }
 
+        const roadmap =
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyObjectId,
+                    session
+                );
+
+        if (!roadmap) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Roadmap not found."
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -179,11 +195,13 @@ class ReadinessService {
 
         const mockInterviews =
             await mockInterviewRepository
-                .findRecentCompletedByCareerJourney(
-                    careerJourneyObjectId,
+                .findRecentCompletedByRoadmap(
+                    roadmap._id,
                     READINESS_RECENT_INTERVIEW_LIMIT,
                     session
                 );
+
+
 
 
         /*
@@ -267,6 +285,7 @@ class ReadinessService {
             await readinessRepository
                 .findByEvidenceKey(
                     careerJourneyObjectId,
+                    roadmap._id,
                     evidenceKey,
                     session
                 );
@@ -476,6 +495,21 @@ class ReadinessService {
         }
 
 
+        const roadmap =
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyObjectId,
+                    session
+                );
+
+        if (!roadmap) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Roadmap not found."
+            );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Recent Mock Interviews
@@ -484,8 +518,8 @@ class ReadinessService {
 
         const mockInterviews =
             await mockInterviewRepository
-                .findRecentCompletedByCareerJourney(
-                    careerJourneyObjectId,
+                .findRecentCompletedByRoadmap(
+                    roadmap._id,
                     READINESS_RECENT_INTERVIEW_LIMIT,
                     session
                 );
@@ -576,6 +610,7 @@ class ReadinessService {
             await readinessRepository
                 .findByEvidenceKey(
                     careerJourneyObjectId,
+                    roadmap._id,
                     evidenceKey,
                     session
                 );
@@ -822,9 +857,11 @@ class ReadinessService {
             await readinessRepository
                 .create(
                     {
-
                         careerJourneyId:
                             careerJourneyObjectId,
+
+                        roadmapId:
+                            roadmap._id,
 
                         evaluationNumber,
 
@@ -858,7 +895,7 @@ class ReadinessService {
                         recommendation,
 
                         evaluatedAt:
-                            new Date(),
+                            appClock.now(),
 
                     },
                     session

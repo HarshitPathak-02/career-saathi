@@ -275,6 +275,43 @@ class MissionRepository {
                 session ?? null
             );
     }
+
+    async findLatestMissionByRoadmap(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
+        return MissionModel
+            .findOne({
+                roadmapId,
+            })
+            .sort({
+                missionNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    async findActiveMissionByRoadmap(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
+        return MissionModel
+            .findOne({
+                roadmapId,
+
+                status:
+                    MissionStatus.ACTIVE,
+            })
+            .sort({
+                missionNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
 }
 
 export const missionRepository =

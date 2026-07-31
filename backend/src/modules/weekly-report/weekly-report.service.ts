@@ -138,6 +138,31 @@ class WeeklyReportService {
 
     }
 
+    async getByMissionId(
+        missionId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<WeeklyReportDocument> {
+
+        const weeklyReport =
+            await weeklyReportRepository
+                .getByMissionId(
+                    missionId,
+                    session
+                );
+
+        if (!weeklyReport) {
+
+            throw new AppError(
+                404,
+                WEEKLY_REPORT_MESSAGES
+                    .WEEKLY_REPORT_NOT_FOUND
+            );
+
+        }
+
+        return weeklyReport;
+    }
+
 }
 
 export const weeklyReportService =

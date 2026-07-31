@@ -23,6 +23,8 @@ import {
     AppError,
 } from "../../core/errors/app-error.js";
 import { DEFAULT_DURATION_DAYS } from "./index.js";
+import { differenceInCalendarDays } from "../../shared/utils/date.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 class MissionService {
 
@@ -201,38 +203,10 @@ class MissionService {
         missionStartDate: Date
     ): number {
 
-        const today =
-            new Date();
-
-        const start =
-            new Date(
-                missionStartDate
-            );
-
-        today.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        start.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        const millisecondsPerDay =
-            24 * 60 * 60 * 1000;
-
         const daysPassed =
-            Math.floor(
-                (
-                    today.getTime() -
-                    start.getTime()
-                ) /
-                millisecondsPerDay
+            differenceInCalendarDays(
+                appClock.now(),
+                missionStartDate
             );
 
         return Math.min(
@@ -242,6 +216,30 @@ class MissionService {
             ),
             DEFAULT_DURATION_DAYS
         );
+    }
+
+    async getLatestMissionByRoadmap(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
+        return missionRepository
+            .findLatestMissionByRoadmap(
+                roadmapId,
+                session
+            );
+    }
+
+    async getActiveMissionByRoadmap(
+        roadmapId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<MissionDocument | null> {
+
+        return missionRepository
+            .findActiveMissionByRoadmap(
+                roadmapId,
+                session
+            );
     }
 }
 

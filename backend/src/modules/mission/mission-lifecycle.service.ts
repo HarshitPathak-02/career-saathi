@@ -38,6 +38,9 @@ import {
     MissionLifecycleResult,
     MissionLifecycleState,
 } from "./mission-lifecycle.types.js";
+import { addDays, startOfDay } from "../../shared/utils/date.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
+import { RoadmapStatus } from "../roadmap/roadmap.enums.js";
 
 class MissionLifecycleService {
 
@@ -91,6 +94,20 @@ class MissionLifecycleService {
             );
         }
 
+
+        const roadmap =
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyId
+                );
+
+        if (!roadmap) {
+
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+        }
         /*
         |--------------------------------------------------------------------------
         | Existing Active Mission
@@ -99,8 +116,8 @@ class MissionLifecycleService {
 
         const activeMission =
             await missionService
-                .getActiveMission(
-                    careerJourneyId.toString()
+                .getActiveMissionByRoadmap(
+                    roadmap._id
                 );
 
         if (activeMission) {
@@ -124,8 +141,8 @@ class MissionLifecycleService {
 
         const latestMission =
             await missionService
-                .getLatestMission(
-                    careerJourneyId.toString()
+                .getLatestMissionByRoadmap(
+                    roadmap._id
                 );
 
         /*
@@ -166,25 +183,6 @@ class MissionLifecycleService {
 
         /*
         |--------------------------------------------------------------------------
-        | Load Roadmap
-        |--------------------------------------------------------------------------
-        */
-
-        const roadmap =
-            await roadmapRepository
-                .findByCareerJourneyId(
-                    careerJourneyId
-                );
-
-        if (!roadmap) {
-            throw new AppError(
-                404,
-                "Roadmap not found."
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
         | Check Remaining Roadmap Work
         |--------------------------------------------------------------------------
         */
@@ -196,8 +194,10 @@ class MissionLifecycleService {
                 );
 
         if (
-            pendingRoadmapItems.length === 0
+            roadmap.status ===
+            RoadmapStatus.COMPLETED
         ) {
+
             return {
                 state:
                     MissionLifecycleState
@@ -223,12 +223,12 @@ class MissionLifecycleService {
             );
 
         const today =
-            this.startOfUtcDay(
-                new Date()
+            startOfDay(
+                appClock.now()
             );
 
         const availableAt =
-            this.startOfUtcDay(
+            startOfDay(
                 nextMissionAvailableAt
             );
 
@@ -288,42 +288,14 @@ class MissionLifecycleService {
         previousMissionEndDate: Date
     ): Date {
 
-        const date =
-            this.startOfUtcDay(
+        return addDays(
+            startOfDay(
                 previousMissionEndDate
-            );
-
-        date.setUTCDate(
-            date.getUTCDate() + 1
+            ),
+            1
         );
-
-        return date;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Start Of UTC Day
-    |--------------------------------------------------------------------------
-    */
-
-    private startOfUtcDay(
-        date: Date
-    ): Date {
-
-        const normalized =
-            new Date(
-                date
-            );
-
-        normalized.setUTCHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        return normalized;
-    }
 }
 
 export const missionLifecycleService =

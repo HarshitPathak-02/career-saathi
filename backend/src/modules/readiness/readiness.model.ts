@@ -15,6 +15,7 @@ import {
     ReadinessRecommendation,
 } from "./readiness.enums.js";
 import { READINESS_EVALUATION_COLLECTION, READINESS_EVALUATION_MODEL } from "./readiness.constants.js";
+import { ROADMAP_MODEL } from "../roadmap/roadmap.constants.js";
 
 
 
@@ -80,6 +81,14 @@ const ReadinessEvaluationSchema =
                 required:
                     true,
 
+                index:
+                    true,
+            },
+
+            roadmapId: {
+                type: Schema.Types.ObjectId,
+                ref: ROADMAP_MODEL,
+                required: true,
                 index:
                     true,
             },
@@ -317,6 +326,7 @@ ReadinessEvaluationSchema.index({
 ReadinessEvaluationSchema.index(
     {
         careerJourneyId: 1,
+        roadmapId: 1,
         evidenceKey: 1,
     },
     {

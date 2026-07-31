@@ -1,11 +1,27 @@
-import { AIProvider } from "./ai.enums.js";
+import {
+    AIProvider,
+} from "./ai.enums.js";
+
 
 export const AI_CONSTANTS = {
-    DEFAULT_PROVIDER: AIProvider.GEMINI,
 
-    DEFAULT_MODEL: "gemini-2.5-flash",
+    DEFAULT_PROVIDER:
+        AIProvider.GEMINI,
 
-    DEFAULT_TEMPERATURE: 0.2,
+    DEFAULT_TEMPERATURE:
+        0.2,
 
-    DEFAULT_MAX_OUTPUT_TOKENS: 8192,
+    DEFAULT_MAX_OUTPUT_TOKENS:
+        8192,
+
+    GEMINI: {
+        MODEL:
+            "gemini-2.5-flash",
+    },
+
+    GROQ: {
+        MODEL:
+            "llama-3.1-8b-instant",
+    },
+
 } as const;

@@ -6,6 +6,7 @@ import {
   RoadmapItemDocument,
 } from "../roadmap/roadmap-item.model.js";
 
+
 interface BuildDailyTaskPromptInput {
 
   roadmapItems:
@@ -19,34 +20,22 @@ interface BuildDailyTaskPromptInput {
 
 }
 
+
 export function buildDailyTaskPrompt(
   input: BuildDailyTaskPromptInput
 ): string {
 
-  const revisionPlans =
-    input.revisionPlans.map(
-      revision => ({
-
-        skillCatalogId:
-          revision.skillCatalogId.toString(),
-
-        skillName:
-          revision.skillName,
-
-        currentPercentage:
-          revision.percentage,
-
-        revisionTopics:
-          revision.revisionTopics,
-
-      })
-    );
+  /*
+  |--------------------------------------------------------------------------
+  | Roadmap Items
+  |--------------------------------------------------------------------------
+  */
 
   const roadmapItems =
     input.roadmapItems.map(
       item => ({
 
-        id:
+        roadmapItemId:
           item._id.toString(),
 
         title:
@@ -64,194 +53,403 @@ export function buildDailyTaskPrompt(
       })
     );
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Revision Plans
+  |--------------------------------------------------------------------------
+  */
+
+  const revisionPlans =
+    input.revisionPlans.map(
+      revision => ({
+
+        skillCatalogId:
+          revision
+            .skillCatalogId
+            .toString(),
+
+        skillName:
+          revision.skillName,
+
+        currentPercentage:
+          revision.percentage,
+
+        revisionTopics:
+          revision.revisionTopics,
+
+      })
+    );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Explicit Allowed IDs
+  |--------------------------------------------------------------------------
+  */
+
+  const allowedRoadmapItemIds =
+    roadmapItems.map(
+      item =>
+        item.roadmapItemId
+    );
+
+
+  const allowedRevisionSkillIds =
+    revisionPlans.map(
+      revision =>
+        revision.skillCatalogId
+    );
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Prompt
+  |--------------------------------------------------------------------------
+  */
+
   return `
-Generate a 6-day adaptive study plan.
+You are generating the 6 study days of a CareerSaathi weekly mission.
 
-The student can study for approximately ${input.studyHoursPerDay} hour(s) per day.
+Create a practical and sequential study plan using ONLY the roadmap items and revision requirements supplied below.
 
-The plan may contain:
+The student can study approximately ${input.studyHoursPerDay} hour(s) per day.
 
-1. New roadmap learning.
-2. Revision work based on weaknesses from the previous week's assessment.
-3. A combination of revision and new roadmap learning on the same day.
+Return EXACTLY 6 study-day objects.
 
-NEW ROADMAP ITEMS:
+Do NOT generate Day 7.
+Day 7 is created separately by the backend as the weekly review day.
 
-${JSON.stringify(roadmapItems, null, 2)}
 
-REVISION REQUIREMENTS FROM THE PREVIOUS WEEK:
+----------------------------------------------------------------------
+NEW ROADMAP ITEMS
+----------------------------------------------------------------------
 
-${JSON.stringify(revisionPlans, null, 2)}
+${JSON.stringify(
+    roadmapItems,
+    null,
+    2
+  )}
 
-Rules:
 
-1. Generate EXACTLY 6 study days.
+----------------------------------------------------------------------
+REVISION REQUIREMENTS
+----------------------------------------------------------------------
 
-2. Day numbers must be exactly 1 through 6.
+${JSON.stringify(
+    revisionPlans,
+    null,
+    2
+  )}
 
-3. Every day must contain:
-   - dayNumber
-   - roadmapItemIds
-   - revisionSkillIds
-   - title
-   - description
-   - topics
-   - estimatedMinutes
 
-4. roadmapItemIds must always be an array.
+----------------------------------------------------------------------
+ALLOWED ROADMAP ITEM IDS
+----------------------------------------------------------------------
 
-5. revisionSkillIds must always be an array.
+${JSON.stringify(
+    allowedRoadmapItemIds,
+    null,
+    2
+  )}
 
-6. For NEW roadmap learning, roadmapItemIds must contain the IDs of the roadmap items studied on that day.
 
-7. Use ONLY roadmap item IDs supplied in NEW ROADMAP ITEMS.
+----------------------------------------------------------------------
+ALLOWED REVISION SKILL IDS
+----------------------------------------------------------------------
 
-8. Never invent, modify, or reuse an ID that was not supplied.
+${JSON.stringify(
+    allowedRevisionSkillIds,
+    null,
+    2
+  )}
 
-9. A roadmap item may appear on multiple days if its workload requires multiple study sessions.
 
-10. A day may contain multiple roadmap item IDs.
+----------------------------------------------------------------------
+CRITICAL DATABASE ID RULES
+----------------------------------------------------------------------
 
-11. Every supplied NEW roadmap item must appear in roadmapItemIds on at least one of the 6 days.
+The values in ALLOWED ROADMAP ITEM IDS and ALLOWED REVISION SKILL IDS are database identifiers.
 
-12. If REVISION REQUIREMENTS are provided, they MUST be included in the 6-day plan.
+They are NOT examples.
 
-13. Give greater revision attention to skills with lower currentPercentage values.
+They are the ONLY IDs that may appear in the output.
 
-14. Revision topics must come from the supplied revision requirements.
+For roadmapItemIds:
 
-15. A revision-only day MUST use:
+1. Use ONLY exact string values from ALLOWED ROADMAP ITEM IDS.
+
+2. Copy each ID EXACTLY as supplied.
+
+3. Never invent a roadmap item ID.
+
+4. Never modify a roadmap item ID.
+
+5. Never shorten a roadmap item ID.
+
+6. Never use a roadmap item's order number as its ID.
+
+7. Never use a roadmap item's title as its ID.
+
+8. Never output placeholder values such as:
+   - "ROADMAP_ITEM_ID"
+   - "ITEM_ID"
+   - "roadmapItemId"
+
+9. If a day contains no new roadmap learning, use:
 
    "roadmapItemIds": []
 
-   because revision work does not represent a new roadmap item.
+For revisionSkillIds:
 
-16. A day containing both revision and new roadmap learning should contain only the IDs of the NEW roadmap items in roadmapItemIds.
+10. Use ONLY exact string values from ALLOWED REVISION SKILL IDS.
 
-17. Do NOT attach the ID of an already-completed roadmap item to revision work.
+11. Copy each skill ID EXACTLY as supplied.
 
-18. Revision should reinforce weak areas while still allowing reasonable progress through new roadmap items.
+12. Never invent, modify, or shorten a revision skill ID.
 
-19. For revision work, revisionSkillIds must contain the skillCatalogId of each revision skill studied on that day.
+13. Never use a skill name as its ID.
 
-20. Use ONLY skillCatalogId values supplied in REVISION REQUIREMENTS for revisionSkillIds.
+14. Never output placeholder values such as:
+    - "SKILL_CATALOG_ID"
+    - "SKILL_ID"
+    - "revisionSkillId"
 
-21. Never invent, modify, or reuse a revision skill ID that was not supplied in REVISION REQUIREMENTS.
+15. If a day contains no revision work, use:
 
-22. Every supplied revision requirement must have its skillCatalogId included in revisionSkillIds on at least one of the 6 days.
+    "revisionSkillIds": []
 
-23. A revision skill may appear in revisionSkillIds on multiple days if additional revision is appropriate.
 
-24. If a day contains no revision work, revisionSkillIds MUST be [].
+----------------------------------------------------------------------
+ROADMAP LEARNING RULES
+----------------------------------------------------------------------
 
-25. If a day contains only revision work, roadmapItemIds MUST be [] and revisionSkillIds MUST contain the relevant revision skill IDs.
+1. Every supplied NEW roadmap item must appear in roadmapItemIds on at least one of the 6 days.
 
-26. A day may contain both new roadmap learning and revision work. In that case:
-   - roadmapItemIds must contain only the relevant NEW roadmap item IDs.
-   - revisionSkillIds must contain only the relevant revision skill IDs.
+2. A roadmap item may appear on multiple days when its workload requires multiple study sessions.
 
-27. When a skill ID is included in revisionSkillIds, the revision topics studied for that skill must come from that skill's supplied revisionTopics.
+3. A day may contain multiple roadmap item IDs.
 
-28. Topics must be practical and sequential.
+4. roadmapItemIds must always be an array of strings.
 
-29. Distribute the workload reasonably across all 6 days.
+5. For new roadmap learning, include the exact roadmapItemId of every roadmap item studied on that day.
 
-30. The estimatedMinutes for each day should reasonably fit within approximately ${input.studyHoursPerDay} hour(s) of study time.
+6. Do not attach unrelated roadmap item IDs to a day.
 
-31. estimatedMinutes must be a positive integer.
+7. Do not attach completed or unavailable roadmap items.
 
-32. Do NOT generate Day 7.
+8. Use only the roadmap items supplied in NEW ROADMAP ITEMS.
 
-33. Do NOT include markdown.
+9. Distribute roadmap learning sequentially and practically across the available study days.
 
-34. Keep the response concise.
+10. Consider each roadmap item's estimatedHours when distributing its work.
 
-35. Each day should contain approximately 3 to 5 topics.
 
-36. Each topic should be a short phrase, not a sentence.
+----------------------------------------------------------------------
+REVISION RULES
+----------------------------------------------------------------------
 
-37. Keep each description concise, preferably one sentence.
+1. If REVISION REQUIREMENTS are provided, every supplied revision requirement must be represented in the 6-day plan.
 
-38. Avoid unnecessary explanations in titles, descriptions, and topics.
+2. For revision work, revisionSkillIds must contain the exact skillCatalogId of the revision skill studied on that day.
 
-39. Return ONLY valid JSON.
+3. Every supplied revision skill must appear in revisionSkillIds on at least one day.
 
-OUTPUT SIZE RULES:
+4. A revision skill may appear on multiple days when additional revision is appropriate.
 
-- Keep the entire response compact.
-- Each day must contain exactly 3 topics.
-- Each topic must be a short phrase, preferably under 8 words.
-- title must be concise, preferably under 10 words.
-- description must be exactly one short sentence.
-- Do not explain concepts inside topics.
-- Do not repeat information from the description in topics.
+5. Give greater revision attention to skills with lower currentPercentage values.
 
-PLANNING RULE:
+6. Revision topics must come from the supplied revisionTopics for that skill.
 
-- Perform the planning internally, but output only the final compact JSON.
-- Do not include reasoning, explanations, alternatives, or commentary.
+7. Do not invent revision topics unrelated to the supplied revision requirement.
 
-Example of a NEW roadmap learning day:
+8. Revision work does NOT represent new roadmap progress.
 
-[
-  {
-    "dayNumber": 1,
-    "roadmapItemIds": [
-      "ROADMAP_ITEM_ID"
-    ],
-    "revisionSkillIds": [],
-    "title": "Learn Express Middleware",
-    "description": "Understand middleware execution and build custom middleware.",
-    "topics": [
-      "Middleware execution",
-      "Custom middleware",
-      "Error middleware"
-    ],
-    "estimatedMinutes": 120
-  }
-]
+Therefore, a revision-only day must use:
 
-Example of a REVISION-ONLY day:
+"roadmapItemIds": []
 
-[
-  {
-    "dayNumber": 2,
-    "roadmapItemIds": [],
-    "revisionSkillIds": [
-      "SKILL_CATALOG_ID"
-    ],
-    "title": "Git Revision",
-    "description": "Reinforce weak Git concepts identified in the previous assessment.",
-    "topics": [
-      "Git Basic Commands",
-      "Git Branching Strategies"
-    ],
-    "estimatedMinutes": 90
-  }
-]
+and must contain the relevant IDs in revisionSkillIds.
 
-Example of a MIXED revision and new-learning day:
 
-[
-  {
-    "dayNumber": 3,
-    "roadmapItemIds": [
-      "ROADMAP_ITEM_ID"
-    ],
-    "revisionSkillIds": [
-      "SKILL_CATALOG_ID"
-    ],
-    "title": "Postman Revision and Express API Practice",
-    "description": "Reinforce weak Postman concepts while progressing through Express API development.",
-    "topics": [
-      "Postman Collections and Environments",
-      "Express Routing",
-      "Testing Express APIs"
-    ],
-    "estimatedMinutes": 180
-  }
-]
+----------------------------------------------------------------------
+MIXED DAY RULES
+----------------------------------------------------------------------
 
-Return the final result as ONE JSON array containing exactly 6 objects.
+A study day may contain both:
+
+- new roadmap learning
+- revision work
+
+For a mixed day:
+
+1. roadmapItemIds must contain ONLY exact IDs of the NEW roadmap items studied that day.
+
+2. revisionSkillIds must contain ONLY exact skillCatalogIds of revision skills studied that day.
+
+3. Never put a revision skill ID inside roadmapItemIds.
+
+4. Never put a roadmap item ID inside revisionSkillIds.
+
+
+----------------------------------------------------------------------
+DAY REQUIREMENTS
+----------------------------------------------------------------------
+
+Generate EXACTLY 6 objects.
+
+The dayNumber values must be exactly:
+
+1
+2
+3
+4
+5
+6
+
+Every object must contain exactly these fields:
+
+- dayNumber
+- roadmapItemIds
+- revisionSkillIds
+- title
+- description
+- topics
+- estimatedMinutes
+
+Every day must contain meaningful study work.
+
+Therefore, a day must contain at least one of:
+
+- one or more roadmapItemIds
+- one or more revisionSkillIds
+
+Do not create a day where BOTH arrays are empty.
+
+CRITICAL EMPTY-DAY RULE:
+
+A review, practice, recap, reinforcement, preparation, or continuation day
+is NOT exempt from the reference requirements.
+
+If a day reviews, practices, reinforces, prepares for, or continues work
+related to a supplied roadmap item, include that exact roadmapItemId in
+roadmapItemIds.
+
+If a day reviews a supplied revision skill, include that exact
+skillCatalogId in revisionSkillIds.
+
+NEVER create generic filler days such as "Review and Revision" with:
+
+"roadmapItemIds": []
+"revisionSkillIds": []
+
+If only one roadmap item is supplied and no revision skills are supplied,
+that same roadmap item may and SHOULD appear on multiple days when needed
+to create a meaningful 6-day schedule.
+
+Before responding, reject your own draft and regenerate it if any day has
+both reference arrays empty.  
+
+
+----------------------------------------------------------------------
+CONTENT RULES
+----------------------------------------------------------------------
+
+1. Each day must contain exactly 3 topics.
+
+2. Each topic must be a short phrase.
+
+3. Prefer topics under 8 words.
+
+4. Topics should be practical and sequential.
+
+5. title must be concise.
+
+6. Prefer titles under 10 words.
+
+7. description must be exactly one short sentence.
+
+8. Do not repeat the description inside the topics.
+
+9. estimatedMinutes must be a positive integer.
+
+10. estimatedMinutes should reasonably fit within approximately ${input.studyHoursPerDay} hour(s) of study time.
+
+11. Distribute the workload reasonably across all 6 days.
+
+12. Avoid unnecessary explanations.
+
+
+----------------------------------------------------------------------
+OUTPUT FORMAT
+----------------------------------------------------------------------
+
+Return ONLY one valid JSON array.
+
+The array must contain EXACTLY 6 objects.
+
+Do not return Markdown.
+
+Do not return a code fence.
+
+Do not return explanations.
+
+Do not return reasoning.
+
+Do not return commentary.
+
+Do not return text before the JSON.
+
+Do not return text after the JSON.
+
+The required structure of every object is:
+
+{
+    "dayNumber": number,
+    "roadmapItemIds": string[],
+    "revisionSkillIds": string[],
+    "title": string,
+    "description": string,
+    "topics": string[],
+    "estimatedMinutes": number
+}
+
+
+----------------------------------------------------------------------
+FINAL VALIDATION BEFORE RESPONDING
+----------------------------------------------------------------------
+
+Before returning the JSON, internally verify all of the following:
+
+1. There are exactly 6 objects.
+
+2. dayNumber values are exactly 1 through 6.
+
+3. Every roadmapItemId is copied EXACTLY from ALLOWED ROADMAP ITEM IDS.
+
+4. Every revisionSkillId is copied EXACTLY from ALLOWED REVISION SKILL IDS.
+
+5. No placeholder IDs exist.
+
+6. No roadmap order numbers are being used as IDs.
+
+7. No invented IDs exist.
+
+8. Every supplied NEW roadmap item appears on at least one day.
+
+9. Every supplied revision requirement appears on at least one day.
+
+10. Every day contains roadmap learning, revision work, or both.
+
+11. Every day contains exactly 3 short topics.
+
+12. Every estimatedMinutes value is a positive integer.
+
+13. The response is valid JSON.
+
+Perform this validation internally.
+
+Return ONLY the final JSON array.
 `;
+
 }

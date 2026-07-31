@@ -73,6 +73,8 @@ import {
     NextMissionWorkflowContext,
 } from "./next-mission.types.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
+import { addDays, startOfDay } from "../../shared/utils/date.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 export class NextMissionWorkflow {
 
@@ -251,11 +253,25 @@ export class NextMissionWorkflow {
         |--------------------------------------------------------------------------
         */
 
+        const roadmap =
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyId
+                );
+
+        if (!roadmap) {
+
+            throw new AppError(
+                404,
+                "Roadmap not found."
+            );
+
+        }
+
         const previousMission =
             await missionService
-                .getLatestMission(
-                    careerJourneyId
-                        .toString()
+                .getLatestMissionByRoadmap(
+                    roadmap._id
                 );
 
         if (!previousMission) {
@@ -275,8 +291,8 @@ export class NextMissionWorkflow {
 
         const weeklyReport =
             await weeklyReportService
-                .getLatestWeeklyReport(
-                    careerJourneyId
+                .getByMissionId(
+                    previousMission._id
                 );
 
         if (!weeklyReport) {
@@ -294,20 +310,7 @@ export class NextMissionWorkflow {
         |--------------------------------------------------------------------------
         */
 
-        const roadmap =
-            await roadmapRepository
-                .findByCareerJourneyId(
-                    careerJourneyId
-                );
 
-        if (!roadmap) {
-
-            throw new AppError(
-                404,
-                "Roadmap not found."
-            );
-
-        }
 
         /*
         |--------------------------------------------------------------------------
@@ -335,12 +338,19 @@ export class NextMissionWorkflow {
                     roadmap._id
                 );
 
+        const inProgressRoadmapItems =
+            await roadmapItemRepository
+                .findInProgressItems(
+                    roadmap._id
+                );
+
         return {
             previousMission,
             weeklyReport,
             roadmap,
             skillProgress,
             pendingRoadmapItems,
+            inProgressRoadmapItems
         };
     }
 
@@ -378,25 +388,15 @@ export class NextMissionWorkflow {
     ): MissionPlanningInput {
 
         const startDate =
-            new Date();
-
-        startDate.setUTCHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        const endDate =
-            new Date(
-                startDate
+            startOfDay(
+                appClock.now()
             );
 
-        endDate.setUTCDate(
-            endDate.getUTCDate() +
-            DEFAULT_DURATION_DAYS -
-            1
-        );
+        const endDate =
+            addDays(
+                startDate,
+                DEFAULT_DURATION_DAYS - 1
+            );
 
         return {
 
@@ -442,23 +442,11 @@ export class NextMissionWorkflow {
         context: NextMissionWorkflowContext
     ): Types.ObjectId[] {
 
-        const pendingIds =
-            new Set(
-                context.pendingRoadmapItems
-                    .map(
-                        item =>
-                            item._id
-                                .toString()
-                    )
-            );
-
-        return context.previousMission
-            .plannedRoadmapItemIds
-            .filter(
-                id =>
-                    pendingIds.has(
-                        id.toString()
-                    )
+        return context
+            .inProgressRoadmapItems
+            .map(
+                item =>
+                    item._id
             );
     }
 

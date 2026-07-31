@@ -11,6 +11,7 @@ import {
     RoadmapWorkflowContext,
     RoadmapItemOutput,
 } from "./roadmap.types.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 class RoadmapMapper {
 
@@ -48,7 +49,7 @@ class RoadmapMapper {
                 RoadmapStatus.ACTIVE,
 
             generatedAt:
-                new Date(),
+                appClock.now(),
 
         };
 

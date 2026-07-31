@@ -18,6 +18,7 @@ import {
     MockInterviewStatus,
     MockInterviewType,
 } from "./mock-interview.enums.js";
+import { ROADMAP_MODEL } from "../roadmap/roadmap.constants.js";
 
 
 const MockInterviewSchema =
@@ -32,6 +33,13 @@ const MockInterviewSchema =
 
                 required:
                     true,
+            },
+
+            roadmapId: {
+                type: Schema.Types.ObjectId,
+                ref: ROADMAP_MODEL,
+                required: true,
+                index: true
             },
 
             interviewNumber: {

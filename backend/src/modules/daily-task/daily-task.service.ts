@@ -29,6 +29,7 @@ import {
     roadmapItemProgressService,
 } from "../roadmap/roadmap-item-progress.service.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 class DailyTaskService {
 
@@ -445,7 +446,7 @@ class DailyTaskService {
                     completedAt:
                         status ===
                             DailyTaskStatus.COMPLETED
-                            ? new Date()
+                            ? appClock.now()
                             : null,
                 },
                 session

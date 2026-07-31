@@ -34,4 +34,7 @@ export interface NextMissionWorkflowContext {
 
     pendingRoadmapItems:
     RoadmapItemDocument[];
+
+    inProgressRoadmapItems:
+    RoadmapItemDocument[];
 }

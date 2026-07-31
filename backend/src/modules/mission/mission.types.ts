@@ -83,6 +83,8 @@ export interface MissionWorkflowContext {
 
     roadmapItems: RoadmapItemDocument[];
 
+    missionNumber: number
+
 }
 
 export interface MissionRevisionPlan {

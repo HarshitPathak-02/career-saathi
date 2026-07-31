@@ -29,7 +29,7 @@ export class GeminiProvider
             await this.client.models.generateContent({
 
                 model:
-                    AI_CONSTANTS.DEFAULT_MODEL,
+                    AI_CONSTANTS.GEMINI.MODEL,
 
                 contents: request.prompt,
 
@@ -66,7 +66,7 @@ export class GeminiProvider
                     AI_CONSTANTS.DEFAULT_PROVIDER,
 
                 model:
-                    AI_CONSTANTS.DEFAULT_MODEL,
+                    AI_CONSTANTS.GEMINI.MODEL,
 
                 generatedAt:
                     new Date(),

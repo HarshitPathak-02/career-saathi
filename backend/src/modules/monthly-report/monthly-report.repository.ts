@@ -15,6 +15,7 @@ import {
 import {
     MonthlyReportStatus,
 } from "./monthly-report.enums.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 class MonthlyReportRepository {
@@ -284,7 +285,7 @@ class MonthlyReportRepository {
                             MonthlyReportStatus.COMPLETED
                             && {
                                 generatedAt:
-                                    new Date(),
+                                    appClock.now(),
                             }
                         ),
                     },
@@ -299,34 +300,7 @@ class MonthlyReportRepository {
             );
     }
 
-    /*
-|--------------------------------------------------------------------------
-| Find By Career Journey And Report Number
-|--------------------------------------------------------------------------
-*/
 
-    async findByCareerJourneyAndReportNumber(
-        careerJourneyId:
-            Types.ObjectId,
-
-        reportNumber:
-            number,
-
-        session?:
-            ClientSession
-    ): Promise<
-        MonthlyReportDocument | null
-    > {
-
-        return MonthlyReportModel
-            .findOne({
-                careerJourneyId,
-                reportNumber,
-            })
-            .session(
-                session ?? null
-            );
-    }
 }
 
 

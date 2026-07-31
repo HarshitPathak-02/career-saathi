@@ -57,19 +57,23 @@ export const differenceInCalendarDays = (
 ): number => {
 
     const later =
-        startOfDay(
-            laterDate
+        new Date(
+            laterDate.getFullYear(),
+            laterDate.getMonth(),
+            laterDate.getDate()
         );
 
     const earlier =
-        startOfDay(
-            earlierDate
+        new Date(
+            earlierDate.getFullYear(),
+            earlierDate.getMonth(),
+            earlierDate.getDate()
         );
 
     const millisecondsPerDay =
         24 * 60 * 60 * 1000;
 
-    return Math.floor(
+    return Math.round(
         (
             later.getTime() -
             earlier.getTime()

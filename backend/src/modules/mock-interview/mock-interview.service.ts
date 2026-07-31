@@ -28,6 +28,7 @@ import {
 import {
     mockInterviewRepository,
 } from "./mock-interview.repository.js";
+import { roadmapRepository } from "../roadmap/roadmap.repository.js";
 
 
 class MockInterviewService {
@@ -89,6 +90,21 @@ class MockInterviewService {
             );
         }
 
+        const roadmap =
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyId,
+                    session
+                );
+
+        if (!roadmap) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Roadmap not found."
+            );
+        }
+
         /*
          * Determine Next Interview Number
          */
@@ -114,6 +130,9 @@ class MockInterviewService {
             CreateMockInterviewInput = {
 
             careerJourneyId,
+
+            roadmapId:
+                roadmap._id,
 
             interviewNumber,
 

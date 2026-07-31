@@ -14,6 +14,7 @@ import {
     RoadmapResponse,
 } from "./roadmap.types.js";
 import { RoadmapStatus, RoadmapType } from "./roadmap.enums.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 class RoadmapResponseMapper {
@@ -202,7 +203,7 @@ class RoadmapResponseMapper {
                 RoadmapStatus.ACTIVE,
 
             generatedAt:
-                new Date(),
+                appClock.now(),
 
             completedAt:
                 null,

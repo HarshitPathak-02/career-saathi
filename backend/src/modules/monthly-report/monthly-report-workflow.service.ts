@@ -61,6 +61,7 @@ import {
 import {
     MONTHLY_REPORT_CYCLE_DAYS,
 } from "./monthly-report.constants.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 class MonthlyReportWorkflowService {
@@ -774,7 +775,7 @@ class MonthlyReportWorkflowService {
 
         const today =
             startOfDay(
-                new Date()
+                appClock.now()
             );
 
 

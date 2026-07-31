@@ -10,17 +10,8 @@ export enum RoadmapItemType {
 
     PROJECT = "PROJECT",
 
-    REVISION = "REVISION",
-
-    MOCK_INTERVIEW = "MOCK_INTERVIEW",
-
-    RESUME = "RESUME",
-
     PORTFOLIO = "PORTFOLIO",
 
-    JOB_APPLICATION = "JOB_APPLICATION",
-
-    ASSESSMENT = "ASSESSMENT",
 }
 
 export enum RoadmapItemStatus {

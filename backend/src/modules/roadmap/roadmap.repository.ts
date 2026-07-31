@@ -12,6 +12,7 @@ import {
 import {
     RoadmapStatus,
 } from "./roadmap.enums.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 class RoadmapRepository {
 
@@ -161,11 +162,11 @@ class RoadmapRepository {
                 status,
 
                 ...(status === RoadmapStatus.ACTIVE && {
-                    generatedAt: new Date(),
+                    generatedAt: appClock.now(),
                 }),
 
                 ...(status === RoadmapStatus.COMPLETED && {
-                    completedAt: new Date(),
+                    completedAt: appClock.now(),
                 }),
             },
             {

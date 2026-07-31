@@ -29,6 +29,8 @@ import {
 } from "./mission.constants.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
 import { dailyTaskService } from "../daily-task/daily-task.service.js";
+import { addDays, startOfDay } from "../../shared/utils/date.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 export class MissionWorkflow {
 
@@ -116,48 +118,96 @@ export class MissionWorkflow {
     ): Promise<MissionWorkflowContext> {
 
         const careerJourney =
-            await careerJourneyRepository.findOne({
-                _id: careerJourneyId,
-            });
+            await careerJourneyRepository
+                .findOne({
+                    _id:
+                        careerJourneyId,
+                });
 
         if (!careerJourney) {
+
             throw new AppError(
                 404,
                 "Career journey not found."
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Current / Latest Roadmap
+        |--------------------------------------------------------------------------
+        */
+
         const roadmap =
-            await roadmapRepository.findByCareerJourneyId(
-                careerJourneyId
-            );
+            await roadmapRepository
+                .findLatestByCareerJourneyId(
+                    careerJourneyId
+                );
 
         if (!roadmap) {
+
             throw new AppError(
                 404,
                 "Roadmap not found."
             );
         }
 
-        const existingMission =
-            await missionService.getLatestMission(
-                careerJourneyId.toString()
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Ensure Current Roadmap Has No Mission Yet
+        |--------------------------------------------------------------------------
+        */
 
-        if (existingMission) {
+        const existingRoadmapMission =
+            await missionService
+                .getLatestMissionByRoadmap(
+                    roadmap._id
+                );
+
+        if (existingRoadmapMission) {
+
             throw new AppError(
                 409,
-                "Initial mission already exists."
+                "A mission already exists for the current roadmap."
             );
         }
 
-        const roadmapItems =
-            await roadmapItemRepository.findNextPendingItems(
-                roadmap._id,
-                DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Determine Global Mission Number
+        |--------------------------------------------------------------------------
+        */
 
-        if (roadmapItems.length === 0) {
+        const latestCareerJourneyMission =
+            await missionService
+                .getLatestMission(
+                    careerJourneyId
+                        .toString()
+                );
+
+        const missionNumber =
+            latestCareerJourneyMission
+                ? latestCareerJourneyMission
+                    .missionNumber + 1
+                : 1;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current Roadmap Items
+        |--------------------------------------------------------------------------
+        */
+
+        const roadmapItems =
+            await roadmapItemRepository
+                .findNextPendingItems(
+                    roadmap._id,
+                    DEFAULT_TARGET_ROADMAP_ITEMS_PER_MISSION
+                );
+
+        if (
+            roadmapItems.length === 0
+        ) {
+
             throw new AppError(
                 400,
                 "No pending roadmap items found."
@@ -165,11 +215,15 @@ export class MissionWorkflow {
         }
 
         return {
-            careerJourney,
-            roadmap,
-            roadmapItems,
-        };
 
+            careerJourney,
+
+            roadmap,
+
+            roadmapItems,
+
+            missionNumber,
+        };
     }
 
     private buildPlanningInput(
@@ -177,27 +231,19 @@ export class MissionWorkflow {
     ): MissionPlanningInput {
 
         const startDate =
-            new Date();
-
-        startDate.setHours(
-            0,
-            0,
-            0,
-            0
-        );
+            startOfDay(
+                appClock.now()
+            );
 
         const endDate =
-            new Date(startDate);
-
-        endDate.setDate(
-            endDate.getDate() +
-            DEFAULT_DURATION_DAYS -
-            1
-        );
+            addDays(
+                startDate,
+                DEFAULT_DURATION_DAYS - 1
+            );
 
         return {
 
-            missionNumber: 1,
+            missionNumber: context.missionNumber,
 
             newRoadmapItems:
                 context.roadmapItems,

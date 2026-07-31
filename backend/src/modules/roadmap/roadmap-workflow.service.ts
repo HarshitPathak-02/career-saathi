@@ -515,9 +515,12 @@ export class RoadmapWorkflowService {
                 .dailyStudyHours * 7;
 
         const estimatedWeeks =
-            Math.ceil(
-                totalEstimatedHours /
-                availableHoursPerWeek
+            Math.max(
+                1,
+                Math.ceil(
+                    totalEstimatedHours /
+                    availableHoursPerWeek
+                )
             );
 
         const roadmapData =

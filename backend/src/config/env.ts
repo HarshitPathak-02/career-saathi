@@ -20,4 +20,6 @@ export const env = {
     process.env.JWT_REFRESH_EXPIRES_IN!,
 
   CLIENT_URL: process.env.CLIENT_URL!,
+
+  TEST_APP_DATE: process.env.TEST_APP_DATE!
 };

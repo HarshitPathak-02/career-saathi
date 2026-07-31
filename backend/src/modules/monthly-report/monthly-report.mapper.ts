@@ -9,6 +9,7 @@ import {
 import {
     MonthlyReportStatus,
 } from "./monthly-report.enums.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 /*
@@ -546,7 +547,7 @@ class MonthlyReportMapper {
                     .COMPLETED,
 
             generatedAt:
-                new Date(),
+                appClock.now(),
         };
     }
 }

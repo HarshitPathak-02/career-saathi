@@ -6,12 +6,13 @@ import {
     AIRequest,
     AIResponse,
 } from "./ai.types.js";
+import { createAIProvider } from "./ai.provider.factory.js";
 
 class AIService {
 
     constructor(
         private readonly provider: AIProvider
-    ) {}
+    ) { }
 
     async generate(
         request: AIRequest
@@ -27,5 +28,5 @@ class AIService {
 
 export const aiService =
     new AIService(
-        new GeminiProvider()
+        new createAIProvider()
     );

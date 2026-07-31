@@ -26,6 +26,7 @@ import {
     endOfDay,
     startOfDay,
 } from "../../shared/utils/date.util.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 class MonthlyReportCycleService {
@@ -147,7 +148,7 @@ class MonthlyReportCycleService {
             Date,
 
         currentDate:
-            Date = new Date()
+            Date = appClock.now()
     ): number {
 
         const elapsedDays =
@@ -195,7 +196,7 @@ class MonthlyReportCycleService {
             Types.ObjectId,
 
         currentDate:
-            Date = new Date(),
+            Date = appClock.now(),
 
         session?:
             ClientSession

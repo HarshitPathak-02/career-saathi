@@ -115,6 +115,20 @@ class WeeklyReportRepository {
 
     }
 
+    async getByMissionId(
+        missionId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<WeeklyReportDocument | null> {
+
+        return WeeklyReportModel
+            .findOne({
+                missionId,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
 }
 
 export const weeklyReportRepository =

@@ -49,83 +49,11 @@ import {
 import {
     WorkspaceMapper,
 } from "./workspace.mapper.js";
+import { DEFAULT_DURATION_DAYS } from "../mission/mission.constants.js";
+import { missionService } from "../mission/index.js";
 
 
 export class WorkspaceService {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Mission Day
-    |--------------------------------------------------------------------------
-    */
-
-    private calculateMissionDay(
-        startDate: Date,
-        totalDays: number
-    ) {
-
-        const today =
-            new Date();
-
-        today.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-
-        const missionStart =
-            new Date(
-                startDate
-            );
-
-        missionStart.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-
-        const differenceInDays =
-            Math.floor(
-                (
-                    today.getTime() -
-                    missionStart.getTime()
-                ) /
-                (
-                    1000 *
-                    60 *
-                    60 *
-                    24
-                )
-            );
-
-
-        const dayNumber =
-            Math.min(
-                Math.max(
-                    differenceInDays + 1,
-                    1
-                ),
-                totalDays
-            );
-
-
-        return {
-
-            dayNumber,
-
-            remainingDays:
-                totalDays -
-                dayNumber,
-
-        };
-
-    }
-
-
     /*
     |--------------------------------------------------------------------------
     | Get Workspace
@@ -222,9 +150,9 @@ export class WorkspaceService {
                     }),
 
                 roadmapRepository
-                    .findByCareerJourneyId(
+                    .findLatestByCareerJourneyId(
                         careerJourney._id
-                    ),
+                    )
 
             ]);
 
@@ -322,40 +250,31 @@ export class WorkspaceService {
 
         if (activeMission) {
 
-            const millisecondsPerDay =
-                1000 *
-                60 *
-                60 *
-                24;
+            const currentMissionDay =
+                await missionService
+                    .getCurrentMissionDay(
+                        activeMission._id
+                    );
 
+            today = {
 
-            const missionDuration =
-                Math.floor(
-                    (
-                        activeMission
-                            .endDate
-                            .getTime() -
+                dayNumber:
+                    currentMissionDay,
 
-                        activeMission
-                            .startDate
-                            .getTime()
-                    ) /
-                    millisecondsPerDay
-                ) + 1;
+                remainingDays:
+                    Math.max(
+                        DEFAULT_DURATION_DAYS -
+                        currentMissionDay,
+                        0
+                    ),
 
-
-            today =
-                this.calculateMissionDay(
-                    activeMission.startDate,
-                    missionDuration
-                );
-
+            };
 
             todayTask =
                 await dailyTaskService
                     .getTaskByMissionAndDay(
                         activeMission._id,
-                        today.dayNumber
+                        currentMissionDay
                     );
 
         }

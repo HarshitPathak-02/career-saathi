@@ -4,6 +4,7 @@ import {
     UpdateQuery,
 } from "mongoose";
 import { AssessmentDocument, AssessmentModel, AssessmentStatus, AssessmentType } from "./index.js";
+import { appClock } from "../../shared/time/app-clock.js";
 
 
 
@@ -210,7 +211,7 @@ class AssessmentRepository {
                         AssessmentStatus.COMPLETED
                         && {
                             completedAt:
-                                new Date(),
+                                appClock.now(),
                         }
                     ),
                 },
@@ -383,6 +384,9 @@ class AssessmentRepository {
         return AssessmentModel
             .find({
                 careerJourneyId,
+
+                type:
+                    AssessmentType.WEEKLY,
 
                 status:
                     AssessmentStatus.COMPLETED,

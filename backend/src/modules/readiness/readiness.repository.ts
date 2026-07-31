@@ -295,6 +295,9 @@ class ReadinessRepository {
         careerJourneyId:
             Types.ObjectId,
 
+        roadmapId:
+            Types.ObjectId,
+
         evidenceKey:
             string,
 
@@ -308,6 +311,7 @@ class ReadinessRepository {
             ReadinessEvaluationModel
                 .findOne({
                     careerJourneyId,
+                    roadmapId,
                     evidenceKey,
                 });
 

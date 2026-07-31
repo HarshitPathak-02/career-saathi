@@ -56,6 +56,8 @@ export interface CreateMockInterviewInput {
     careerJourneyId:
     Types.ObjectId;
 
+    roadmapId: Types.ObjectId;
+
     interviewNumber:
     number;
 
