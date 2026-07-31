@@ -33,7 +33,6 @@ const RegisterForm = () => {
     registerState,
   } = useAuth();
 
-  const navigate = useNavigate();
 
   const {
 
@@ -74,7 +73,6 @@ const RegisterForm = () => {
       data.password
     );
 
-    navigate("/login");
 
   };
 

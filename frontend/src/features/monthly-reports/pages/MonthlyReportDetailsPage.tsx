@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import {
-    useNavigate,
     useParams,
 } from "react-router-dom";
 
@@ -91,10 +90,6 @@ const formatPercentage = (
 */
 
 export default function MonthlyReportDetailsPage() {
-
-    const navigate =
-        useNavigate();
-
 
     /*
     |--------------------------------------------------------------------------

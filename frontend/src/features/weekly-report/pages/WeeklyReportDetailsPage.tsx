@@ -1,5 +1,4 @@
 import {
-    ArrowLeft,
     Brain,
     CheckCircle2,
     Clock3,
@@ -14,7 +13,6 @@ import {
 } from "lucide-react";
 
 import {
-    useNavigate,
     useParams,
 } from "react-router-dom";
 
@@ -23,9 +21,6 @@ import {
 } from "../api/weeklyReportApi";
 
 export default function WeeklyReportDetailsPage() {
-
-    const navigate =
-        useNavigate();
 
     const {
         reportId,

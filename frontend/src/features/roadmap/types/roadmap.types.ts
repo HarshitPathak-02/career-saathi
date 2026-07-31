@@ -7,12 +7,7 @@ export type RoadmapStatus =
 export type RoadmapItemType =
     | "TOPIC"
     | "PROJECT"
-    | "REVISION"
-    | "MOCK_INTERVIEW"
-    | "RESUME"
     | "PORTFOLIO"
-    | "JOB_APPLICATION"
-    | "ASSESSMENT";
 
 export type RoadmapItemStatus =
     | "PENDING"

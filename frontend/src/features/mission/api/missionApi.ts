@@ -122,7 +122,7 @@ export const missionApi =
 
             getMission:
                 builder.query<
-                    MissionDetails,
+                    ApiResponse<MissionDetails>,
                     string
                 >({
                     query: (

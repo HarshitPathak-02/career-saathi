@@ -31,7 +31,7 @@ export interface StartInitialAssessmentRequest {
 }
 
 export interface Assessment {
-    _id: string;
+    id: string;
 
     careerJourneyId: string;
 

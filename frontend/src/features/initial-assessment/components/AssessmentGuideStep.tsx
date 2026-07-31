@@ -113,7 +113,7 @@ const AssessmentGuideStep = ({
 
             dispatch(
                 setAssessmentId(
-                    response.data._id
+                    response.data.id
                 )
             );
 

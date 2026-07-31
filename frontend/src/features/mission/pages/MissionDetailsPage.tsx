@@ -1,5 +1,4 @@
 import {
-    ArrowLeft,
     AlertCircle,
     RefreshCw,
 } from "lucide-react";
@@ -60,7 +59,7 @@ const MissionDetailsPage = () => {
     */
 
     const {
-        data: mission,
+        data: missionResponse,
         isLoading: missionLoading,
         isError: missionError,
         refetch: refetchMission,
@@ -71,6 +70,9 @@ const MissionDetailsPage = () => {
                 skip: !missionId,
             }
         );
+
+    const mission =
+        missionResponse?.data;
 
     const {
         data: dailyTasks,
@@ -341,6 +343,7 @@ const MissionDetailsPage = () => {
     | UI
     |----------------------------------------------------------------------
     */
+
 
     return (
         <div className="min-h-screen bg-slate-50">

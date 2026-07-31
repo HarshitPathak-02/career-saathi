@@ -54,7 +54,7 @@ export const useAuth = () => {
 
       showSuccess(response.message);
 
-      navigate("/", {
+      navigate("/app", {
         replace: true,
       });
     } catch (error) {
@@ -93,7 +93,7 @@ export const useAuth = () => {
 
       showSuccess(response.message);
 
-      navigate("/", {
+      navigate("/app", {
         replace: true,
       });
     } catch (error) {

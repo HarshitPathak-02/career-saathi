@@ -20,6 +20,7 @@ import StageRenderer
 import {
   useGetWorkspaceQuery,
 } from "../api/workspaceApi";
+import MonthlyReportDueCard from "../components/MonthlyReportDueCard";
 
 const WorkspacePage = () => {
 
@@ -255,6 +256,14 @@ const WorkspacePage = () => {
             <WorkspaceOverview
               overview={
                 workspace.overview
+              }
+            />
+
+            <MonthlyReportDueCard
+              careerJourneyId={
+                workspace
+                  .careerJourney
+                  .id
               }
             />
 
