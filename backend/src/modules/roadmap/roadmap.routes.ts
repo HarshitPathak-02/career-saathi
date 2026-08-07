@@ -26,9 +26,6 @@ const router =
 
 router.use(authenticate);
 
-/*
- * Generate personalized roadmap
- */
 router.post(
     "/generate",
 
@@ -40,10 +37,6 @@ router.post(
     roadmapController.generateRoadmap
 );
 
-
-/*
- * Get roadmap for career journey
- */
 router.get(
     "/career-journey/:careerJourneyId",
 
@@ -55,10 +48,6 @@ router.get(
     roadmapController.getRoadmap
 );
 
-
-/*
- * Get all roadmap items
- */
 router.get(
     "/:roadmapId/items",
 
@@ -68,24 +57,6 @@ router.get(
     }),
 
     roadmapController.getRoadmapItems
-);
-
-
-/*
- * Get next pending roadmap items
- */
-router.get(
-    "/:roadmapId/next-items",
-
-    validateRequest({
-        params:
-            roadmapIdParamSchema,
-
-        query:
-            nextPendingItemsQuerySchema,
-    }),
-
-    roadmapController.getNextPendingItems
 );
 
 router.post(
@@ -98,6 +69,5 @@ router.post(
     roadmapController
         .generateAdaptiveRoadmap
 );
-
 
 export default router;

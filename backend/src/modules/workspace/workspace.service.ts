@@ -51,14 +51,10 @@ import {
 } from "./workspace.mapper.js";
 import { DEFAULT_DURATION_DAYS } from "../mission/mission.constants.js";
 import { missionService } from "../mission/index.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 
 export class WorkspaceService {
-    /*
-    |--------------------------------------------------------------------------
-    | Get Workspace
-    |--------------------------------------------------------------------------
-    */
 
     async getWorkspace(
         userId: string
@@ -68,7 +64,6 @@ export class WorkspaceService {
             new Types.ObjectId(
                 userId
             );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -86,7 +81,7 @@ export class WorkspaceService {
         if (!user) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "User not found."
             );
 
@@ -118,7 +113,7 @@ export class WorkspaceService {
         if (!careerJourney) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Active career journey not found."
             );
 

@@ -1,5 +1,3 @@
-// shared/types/request.types.ts
-
 import { Request } from "express";
 
 export type TypedRequest<

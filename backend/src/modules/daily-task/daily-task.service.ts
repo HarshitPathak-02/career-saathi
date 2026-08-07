@@ -30,6 +30,9 @@ import {
 } from "../roadmap/roadmap-item-progress.service.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
+import { DailyTaskDocument } from "./daily-task.model.js";
+import { DailyTaskMessages } from "./daily-task.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class DailyTaskService {
 
@@ -37,7 +40,7 @@ class DailyTaskService {
         missionId: Types.ObjectId,
         tasks: DailyTaskGenerationOutput,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         const dailyTasks =
             tasks.map(task => ({
@@ -98,7 +101,7 @@ class DailyTaskService {
     async getTask(
         taskId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return dailyTaskRepository
             .findById(
@@ -111,7 +114,7 @@ class DailyTaskService {
     async getTasksByMission(
         missionId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         return dailyTaskRepository
             .findByMissionId(
@@ -125,7 +128,7 @@ class DailyTaskService {
         missionId: Types.ObjectId,
         dayNumber: number,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return dailyTaskRepository
             .findByMissionAndDay(
@@ -144,7 +147,7 @@ class DailyTaskService {
 
     async markCompleted(
         taskId: Types.ObjectId
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return executeTransaction(
             async (session) => {
@@ -159,7 +162,7 @@ class DailyTaskService {
                 if (!task) {
 
                     throw new AppError(
-                        404,
+                        HTTP_STATUS.NOT_FOUND,
                         "Daily task not found."
                     );
 
@@ -168,7 +171,7 @@ class DailyTaskService {
                 if (task.dayNumber === 7) {
 
                     throw new AppError(
-                        409,
+                        HTTP_STATUS.CONFLICT,
                         "Day 7 can only be completed through the weekly review."
                     );
 
@@ -187,7 +190,7 @@ class DailyTaskService {
                 ) {
 
                     throw new AppError(
-                        409,
+                        HTTP_STATUS.CONFLICT,
                         "Future daily tasks cannot be completed."
                     );
 
@@ -203,7 +206,7 @@ class DailyTaskService {
                 if (!updatedTask) {
 
                     throw new AppError(
-                        404,
+                        HTTP_STATUS.NOT_FOUND,
                         "Daily task not found."
                     );
 
@@ -239,7 +242,7 @@ class DailyTaskService {
     async completeWeeklyReviewTask(
         missionId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument> {
 
         const task =
             await dailyTaskRepository
@@ -252,7 +255,7 @@ class DailyTaskService {
         if (!task) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Weekly review task not found."
             );
 
@@ -268,7 +271,7 @@ class DailyTaskService {
         if (currentMissionDay < 7) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly review is not available yet."
             );
 
@@ -293,7 +296,7 @@ class DailyTaskService {
 
     async markPending(
         taskId: Types.ObjectId
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return executeTransaction(
             async (session) => {
@@ -314,7 +317,7 @@ class DailyTaskService {
                 if (!updatedTask) {
 
                     throw new AppError(
-                        404,
+                        HTTP_STATUS.NOT_FOUND,
                         "Daily task not found."
                     );
 
@@ -343,7 +346,7 @@ class DailyTaskService {
 
     async markSkipped(
         taskId: Types.ObjectId
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return executeTransaction(
             async (session) => {
@@ -364,7 +367,7 @@ class DailyTaskService {
                 if (!updatedTask) {
 
                     throw new AppError(
-                        404,
+                        HTTP_STATUS.NOT_FOUND,
                         "Daily task not found."
                     );
 
@@ -435,7 +438,7 @@ class DailyTaskService {
         taskId: Types.ObjectId,
         status: DailyTaskStatus,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument> {
 
         return dailyTaskRepository
             .updateById(
@@ -457,7 +460,7 @@ class DailyTaskService {
     private async ensureNormalDailyTask(
         taskId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument> {
 
         const task =
             await dailyTaskRepository
@@ -469,8 +472,8 @@ class DailyTaskService {
         if (!task) {
 
             throw new AppError(
-                404,
-                "Daily task not found."
+                HTTP_STATUS.NOT_FOUND,
+                DailyTaskMessages.NOT_FOUND
             );
 
         }
@@ -478,7 +481,7 @@ class DailyTaskService {
         if (task.dayNumber === 7) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly review task cannot be modified directly."
             );
 

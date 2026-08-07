@@ -115,7 +115,6 @@ class AIValidator {
             );
         }
 
-        // Validate skillId
         if (
             item.type === RoadmapItemType.TOPIC
         ) {
@@ -221,10 +220,6 @@ class AIValidator {
         const tasks =
             response as DailyTaskGenerationOutput;
 
-        /*
-         * Allowed IDs
-         */
-
         const allowedRoadmapIds =
             new Set<string>(
                 allowedRoadmapItemIds
@@ -235,10 +230,6 @@ class AIValidator {
                 allowedRevisionSkillIds
             );
 
-        /*
-         * Validate each daily task
-         */
-
         tasks.forEach(
             (task, index) =>
                 this.validateDailyTask(
@@ -248,10 +239,6 @@ class AIValidator {
                     allowedRevisionIds
                 )
         );
-
-        /*
-         * Validate days 1-6
-         */
 
         const dayNumbers =
             tasks.map(
@@ -293,11 +280,6 @@ class AIValidator {
 
             }
         );
-
-        /*
-         * Every NEW roadmap item must
-         * appear somewhere in the plan.
-         */
 
         const assignedRoadmapItemIds =
             new Set<string>(

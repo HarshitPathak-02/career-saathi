@@ -57,6 +57,7 @@ import {
 import {
     WEEKLY_REPORT_CONSTANTS,
 } from "./weekly-report.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 
 class WeeklyReportWorkflow {
@@ -91,7 +92,7 @@ class WeeklyReportWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Assessment does not belong to this mission."
             );
 
@@ -103,7 +104,7 @@ class WeeklyReportWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Reflection does not belong to this mission."
             );
 
@@ -115,7 +116,7 @@ class WeeklyReportWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Reflection does not belong to this assessment."
             );
 

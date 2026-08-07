@@ -1,3 +1,5 @@
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { AppError } from "../../core/errors/app-error.js";
 import { CareerRoleModel } from "../career-role/career-role.schema.js";
 import { SkillCatalogModel } from "../skill-catalog/skill-catalog.schema.js";
 import { SkillPriority } from "./career-role-skill.enums.js";
@@ -279,7 +281,7 @@ export const seedCareerRoleSkills = async (): Promise<void> => {
     });
 
     if (!role) {
-      throw new Error(`Career Role '${item.roleSlug}' not found.`);
+      throw new AppError(HTTP_STATUS.NOT_FOUND, `Career Role '${item.roleSlug}' not found.`);
     }
 
     const skill = await SkillCatalogModel.findOne({
@@ -288,7 +290,7 @@ export const seedCareerRoleSkills = async (): Promise<void> => {
     });
 
     if (!skill) {
-      throw new Error(`Skill '${item.skillSlug}' not found.`);
+      throw new AppError(404, `Skill '${item.skillSlug}' not found.`);
     }
 
     const { roleSlug, skillSlug, ...seedData } = item;

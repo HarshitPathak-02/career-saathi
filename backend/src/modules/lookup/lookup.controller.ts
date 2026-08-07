@@ -9,6 +9,7 @@ import {
 
 import { asyncHandler } from "../../core/middleware/async-handler.js";
 import { LOOKUP_MESSAGES } from "./lookup.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 export class LookupController {
 
@@ -18,7 +19,7 @@ export class LookupController {
             const domains =
                 await lookupService.getCareerDomains();
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: LOOKUP_MESSAGES.CAREER_DOMAINS_FETCHED,
                 data: domains,
@@ -39,7 +40,7 @@ export class LookupController {
                     domainId
                 );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: LOOKUP_MESSAGES.CAREER_ROLES_FETCHED,
                 data: roles,
@@ -60,7 +61,7 @@ export class LookupController {
                     roleId
                 );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: LOOKUP_MESSAGES.CAREER_ROLE_SKILLS_FETCHED,
                 data: skills,

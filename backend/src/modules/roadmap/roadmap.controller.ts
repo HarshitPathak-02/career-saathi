@@ -37,12 +37,6 @@ import { roadmapAdaptiveWorkflowService } from "./roadmap-adaptive-workflow.serv
 
 class RoadmapController {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Generate Roadmap
-    |--------------------------------------------------------------------------
-    */
-
     generateRoadmap =
         asyncHandler(
             async (
@@ -82,12 +76,6 @@ class RoadmapController {
             }
         );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get Roadmap
-    |--------------------------------------------------------------------------
-    */
-
     getRoadmap =
         asyncHandler(
             async (
@@ -103,12 +91,10 @@ class RoadmapController {
                         );
 
                 if (!roadmap) {
-
                     throw new AppError(
-                        404,
+                        HTTP_STATUS.NOT_FOUND,
                         "Roadmap not found."
                     );
-
                 }
 
                 const data =
@@ -130,12 +116,6 @@ class RoadmapController {
 
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Roadmap Items
-    |--------------------------------------------------------------------------
-    */
 
     getRoadmapItems =
         asyncHandler(
@@ -170,60 +150,6 @@ class RoadmapController {
 
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Next Pending Items
-    |--------------------------------------------------------------------------
-    */
-
-    getNextPendingItems =
-        asyncHandler(
-            async (
-                req: Request,
-                res: Response
-            ) => {
-
-                const limit =
-                    Number(
-                        req.query.limit
-                    ) || 5;
-
-                const roadmapItems =
-                    await roadmapService
-                        .getNextPendingItems(
-                            new Types.ObjectId(
-                                req.params
-                                    .roadmapId as string
-                            ),
-                            limit
-                        );
-
-                const data =
-                    roadmapResponseMapper
-                        .toRoadmapItemsResponse(
-                            roadmapItems
-                        );
-
-                return successResponse({
-                    res,
-
-                    statusCode: 200,
-
-                    message:
-                        "Next pending roadmap items fetched successfully.",
-
-                    data,
-                });
-
-            }
-        );
-
-    /*
-|--------------------------------------------------------------------------
-| Generate Adaptive Roadmap
-|--------------------------------------------------------------------------
-*/
 
     generateAdaptiveRoadmap =
         asyncHandler(

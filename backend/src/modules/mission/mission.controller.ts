@@ -71,7 +71,6 @@ class MissionController {
             const mission =
                 await missionWorkflowService
                     .createInitialMission(
-                        user.userId,
                         new Types.ObjectId(
                             careerJourneyId
                         )

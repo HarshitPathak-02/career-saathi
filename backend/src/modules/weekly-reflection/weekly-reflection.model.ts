@@ -13,6 +13,7 @@ import {
     ReflectionReason,
 } from "./weekly-reflection.enums.js";
 import { LearningReflection, MentorCheckIn } from "./weekly-reflection.types.js";
+import { WeeklyReflectionConstants } from "./weekly-reflection.constants.js";
 
 const LearningReflectionSchema = new Schema({
 
@@ -153,6 +154,6 @@ export type WeeklyReflectionDocument =
 
 export const WeeklyReflectionModel =
     model<WeeklyReflection>(
-        "WeeklyReflection",
+        WeeklyReflectionConstants.WEEKLY_REFLECTION_MODEL,
         WeeklyReflectionSchema
     );

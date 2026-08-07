@@ -9,10 +9,8 @@ import { errorMiddleware } from './core/middleware/error.middleware.js';
 
 const app = express();
 
-// Security
 app.use(helmet());
 
-// CORS
 app.use(
   cors({
     origin: true,
@@ -20,21 +18,17 @@ app.use(
   })
 );
 
-// Compression
 app.use(compression());
 
-// Body Parser
 app.use(express.json());
 
-// URL Encoded
 app.use(express.urlencoded({ extended: true }));
 
-// Cookies
 app.use(cookieParser());
 
 
-// Routes
 app.use('/api/v1', router);
+
 
 app.use(errorMiddleware);
 

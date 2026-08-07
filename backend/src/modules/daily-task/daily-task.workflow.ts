@@ -33,6 +33,8 @@ import {
 import {
     MissionRevisionPlan,
 } from "../mission/mission.types.js";
+import { aiParser } from "../../shared/ai/ai.parser.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 interface PrepareDailyTasksInput {
 
@@ -49,28 +51,9 @@ interface PrepareDailyTasksInput {
 
 class DailyTaskWorkflow {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Prepare Daily Tasks
-    |--------------------------------------------------------------------------
-    |
-    | Generates and validates the complete
-    | daily-task plan.
-    |
-    | IMPORTANT:
-    | This method performs NO database writes.
-    |
-    */
-
     async prepareDailyTasks(
         input: PrepareDailyTasksInput
     ): Promise<DailyTaskGenerationOutput> {
-
-        /*
-        |----------------------------------------------------------------------
-        | Planned Roadmap Items
-        |----------------------------------------------------------------------
-        */
 
         const roadmapItems =
             await roadmapItemRepository
@@ -82,29 +65,17 @@ class DailyTaskWorkflow {
                     },
                 });
 
-        /*
-        |----------------------------------------------------------------------
-        | Validate Roadmap Items
-        |----------------------------------------------------------------------
-        */
-
         if (
             roadmapItems.length !==
             input.plannedRoadmapItemIds.length
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Some planned roadmap items could not be found."
             );
 
         }
-
-        /*
-        |----------------------------------------------------------------------
-        | Prompt
-        |----------------------------------------------------------------------
-        */
 
         const prompt =
             buildDailyTaskPrompt({
@@ -118,98 +89,6 @@ class DailyTaskWorkflow {
                     input.dailyStudyHours,
 
             });
-
-        /*
-        |----------------------------------------------------------------------
-        | AI Generation
-        |----------------------------------------------------------------------
-        */
-
-        const response =
-            await aiService.generate({
-
-                prompt,
-
-                systemInstruction: `
-You are an expert software engineering mentor generating CareerSaathi daily study tasks.
-
-Create a practical 6-day study schedule using only the roadmap items and revision requirements explicitly supplied in the user prompt.
-
-IMPORTANT DATABASE ID RULE:
-
-roadmapItemIds and revisionSkillIds contain database identifiers.
-
-Every ID must be copied EXACTLY from the corresponding allowed-ID list supplied in the user prompt.
-
-Never invent, modify, shorten, transform, or replace an ID.
-
-Never use:
-- roadmap order numbers as IDs
-- roadmap titles as IDs
-- skill names as IDs
-- placeholder IDs
-
-CRITICAL DAILY WORK RULE:
-
-Every generated day must reference actual mission work.
-
-For every day, at least one of these arrays must be non-empty:
-- roadmapItemIds
-- revisionSkillIds
-
-Never generate a generic review, recap, practice, preparation,
-reinforcement, or continuation day with both arrays empty.
-
-If a day reviews, practices, reinforces, prepares for, or continues
-a roadmap item, include that exact roadmapItemId.
-
-If only one roadmap item is available and no revision skills are available,
-the same roadmapItemId may be used across multiple days.
-
-Return ONLY the final valid JSON array.
-
-Do not use markdown.
-Do not include code fences.
-Do not include reasoning.
-Do not include explanations.
-Do not include commentary.
-
-Generate exactly 6 study days.
-Each day must contain exactly 3 short topics.
-Each description must be exactly one short sentence.
-`,
-
-            });
-
-        /*
-        |----------------------------------------------------------------------
-        | Parse AI Response
-        |----------------------------------------------------------------------
-        */
-
-        let parsed: unknown;
-
-        try {
-
-            parsed =
-                JSON.parse(
-                    response.text
-                );
-
-        } catch {
-
-            throw new AppError(
-                500,
-                "AI returned an invalid or incomplete daily task response."
-            );
-
-        }
-
-        /*
-        |----------------------------------------------------------------------
-        | Allowed References
-        |----------------------------------------------------------------------
-        */
 
         const allowedRoadmapItemIds =
             roadmapItems.map(
@@ -230,37 +109,6 @@ Each description must be exactly one short sentence.
         | Validate AI Output
         |----------------------------------------------------------------------
         */
-
-        console.log(
-            "PLANNED ROADMAP ITEM IDS:",
-            input.plannedRoadmapItemIds.map(
-                id => id.toString()
-            )
-        );
-
-        console.log(
-            "FETCHED ROADMAP ITEMS:",
-            roadmapItems.map(
-                item => ({
-                    id: item._id.toString(),
-                    title: item.title,
-                    estimatedHours: item.estimatedHours,
-                    status: item.status,
-                })
-            )
-        );
-
-        console.log(
-            "ALLOWED ROADMAP ITEM IDS:",
-            allowedRoadmapItemIds
-        );
-
-        console.dir(
-            parsed,
-            {
-                depth: null,
-            }
-        );
 
         const tasks =
             await this.generateAndValidateTasks(
@@ -354,7 +202,7 @@ Each description must be exactly one short sentence.
             try {
 
                 parsed =
-                    JSON.parse(
+                    aiParser.parse<DailyTaskGenerationOutput>(
                         response.text
                     );
 
@@ -378,10 +226,8 @@ Each description must be exactly one short sentence.
                     );
 
             } catch (error) {
-
-                lastError =
-                    error;
-
+                lastError = error;
+                continue;
             }
 
         }
@@ -392,9 +238,8 @@ Each description must be exactly one short sentence.
             lastError
         );
 
-
         throw new AppError(
-            500,
+            HTTP_STATUS.INTERNAL_SERVER_ERROR,
             "AI could not generate a valid daily task plan."
         );
 

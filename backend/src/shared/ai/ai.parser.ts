@@ -1,3 +1,6 @@
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { AppError } from "../../core/errors/app-error.js";
+
 class AIParser {
 
     parse<T>(
@@ -8,9 +11,7 @@ class AIParser {
             return JSON.parse(response);
         } catch {
 
-            throw new Error(
-                "Failed to parse AI response."
-            );
+            throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, "Failed to parse AI response.");
 
         }
 

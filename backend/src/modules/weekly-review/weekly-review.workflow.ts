@@ -60,6 +60,7 @@ import type {
     WeeklyReviewPreparationDTO,
     WeeklyReviewSkillDTO,
 } from "./weekly-review.types.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 
 class WeeklyReviewWorkflow {
@@ -83,7 +84,7 @@ class WeeklyReviewWorkflow {
         if (!careerJourney) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Active career journey not found."
             );
 
@@ -98,7 +99,7 @@ class WeeklyReviewWorkflow {
         if (!mission) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Active mission not found."
             );
 
@@ -113,7 +114,7 @@ class WeeklyReviewWorkflow {
         if (currentMissionDay < 7) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly review is not available yet."
             );
 
@@ -136,7 +137,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "No assessable skills found for this mission."
             );
 
@@ -154,7 +155,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "No user skills found for this weekly assessment."
             );
 
@@ -328,7 +329,7 @@ class WeeklyReviewWorkflow {
         if (!careerJourney) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Active career journey not found."
             );
 
@@ -350,7 +351,7 @@ class WeeklyReviewWorkflow {
         if (!mission) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Active mission not found."
             );
 
@@ -373,7 +374,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly review is not available yet."
             );
 
@@ -400,7 +401,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Assessment does not belong to the current weekly review."
             );
 
@@ -435,7 +436,7 @@ class WeeklyReviewWorkflow {
         if (!daySevenTask) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Weekly review task not found."
             );
 
@@ -447,7 +448,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly review has already been completed."
             );
 
@@ -673,7 +674,7 @@ class WeeklyReviewWorkflow {
                     ) {
 
                         throw new AppError(
-                            500,
+                            HTTP_STATUS.INTERNAL_SERVER_ERROR,
                             "Weekly report could not be created."
                         );
 
@@ -843,7 +844,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "No assessable skills found for this mission."
             );
 
@@ -889,7 +890,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Duplicate skills are not allowed in weekly assessment."
             );
 
@@ -916,7 +917,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Assessment contains a skill that does not belong to the current weekly review."
             );
 
@@ -934,7 +935,7 @@ class WeeklyReviewWorkflow {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Assessment scores must be submitted for every skill in the current weekly review."
             );
 

@@ -324,12 +324,6 @@ class AssessmentWorkflowService {
         session?: ClientSession
     ) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Join Existing Transaction
-        |--------------------------------------------------------------------------
-        */
-
         if (session) {
 
             return this
@@ -339,12 +333,6 @@ class AssessmentWorkflowService {
                 );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Start Transaction
-        |--------------------------------------------------------------------------
-        */
 
         return executeTransaction(
             async (transactionSession) => {

@@ -19,6 +19,8 @@ export const ROADMAP_MESSAGES = {
 
     ROADMAP_NOT_FOUND:
         "Roadmap not found.",
+    PREVIOUS_ROADMAP_NOT_FOUND:
+        "Previous roadmap not found.",
 
     ROADMAP_FETCHED_SUCCESSFULLY:
         "Roadmap fetched successfully.",

@@ -19,16 +19,6 @@ class MissionPlanningEngine {
                 input.workloadMultiplier
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Carry Forward
-        |--------------------------------------------------------------------------
-        |
-        | Incomplete items from the previous mission
-        | always receive priority.
-        |
-        */
-
         const plannedRoadmapItemIds:
             Types.ObjectId[] = [
                 ...input.carryForwardRoadmapItemIds,
@@ -62,16 +52,6 @@ class MissionPlanningEngine {
                 revisionCapacityCost,
                 0
             );
-
-        /*
-        |--------------------------------------------------------------------------
-        | New Roadmap Items
-        |--------------------------------------------------------------------------
-        |
-        | Add new items only after carry-forward
-        | and revision workload have been considered.
-        |
-        */
 
         const newItems =
             input.newRoadmapItems

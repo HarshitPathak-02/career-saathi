@@ -9,17 +9,11 @@ import { UserSkillDocument } from "../user-skill/user-skill.model.js";
 import { RoadmapItemStatus, RoadmapItemType, RoadmapStatus, RoadmapType } from "./roadmap.enums.js";
 import { RoadmapDocument } from "./roadmap.model.js";
 
-/* -------------------------------------------------------------------------- */
-/*                           AI INPUT (Backend -> AI)                         */
-/* -------------------------------------------------------------------------- */
-
 export interface AvailableSkill {
     skillId: string;
     title: string;
     description: string;
-
     category: string;
-
     difficulty: SkillDifficulty;
 }
 
@@ -27,7 +21,6 @@ export interface RoadmapGenerationInput {
     target: TargetContext;
     currentSkills: CurrentSkillContext[];
     requiredSkills: RequiredSkillContext[];
-
     availableSkills: AvailableSkill[];
 }
 
@@ -49,15 +42,10 @@ export interface RequiredSkillContext {
 
 export interface CurrentSkillContext {
     skillId: string;
-
     skillName: string;
-
     currentScore: number;
-
     currentLevel: SkillLevel;
-
     selectedByUser: boolean;
-
     lastAssessmentAt?: Date | null;
 }
 
@@ -68,30 +56,6 @@ export interface CareerJourneyContext {
     studyHoursPerDay: number;
 }
 
-export interface AssessmentContext {
-    skills: SkillAssessmentContext[];
-}
-
-export interface SkillAssessmentContext {
-    skillId: string;
-    skillName: string;
-    score: number;
-    level: string;
-}
-
-export interface SkillCatalogContext {
-    skills: SkillCatalogItem[];
-}
-
-export interface SkillCatalogItem {
-    skillId: string;
-    skillName: string;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                           AI OUTPUT (AI -> Backend)                        */
-/* -------------------------------------------------------------------------- */
-
 export interface RoadmapGenerationOutput {
     title: string;
     roadmapItems: RoadmapItemOutput[];
@@ -99,22 +63,13 @@ export interface RoadmapGenerationOutput {
 
 export interface RoadmapItemOutput {
     order: number;
-
     type: RoadmapItemType;
-
     skillId?: string;
-
-
     title: string;
-
     description: string;
-
     estimatedHours: number;
-
     aiReason: string;
-
     skillName?: string;
-
     metadata?: Record<string, unknown>;
 }
 
@@ -127,159 +82,97 @@ export interface RoadmapWorkflowContext {
 }
 
 export interface RoadmapResponse {
-
     id: string;
-
     version: number;
-
     type: RoadmapType;
-
     previousRoadmapId?: string | null;
-
     title: string;
-
     targetRole: string;
-
     targetDomain: string;
-
     targetDurationMonths: number;
-
     estimatedWeeks: number;
-
     totalItems: number;
-
     completedItems: number;
-
     status: RoadmapStatus;
-
     generatedAt?: Date | null;
-
     completedAt?: Date | null;
-
 }
 
 export interface RoadmapItemResponse {
-
     id: string;
-
     order: number;
-
     type: RoadmapItemType;
-
     title: string;
-
     description: string;
-
     estimatedHours: number;
-
     aiReason: string;
-
     status: RoadmapItemStatus;
-
     completedAt?: Date;
-
 }
 
 export interface GenerateRoadmapResponse {
-
     roadmapId: string;
-
     message: string;
-
 }
 
-/* -------------------------------------------------------------------------- */
-/*                       ADAPTIVE ROADMAP GENERATION                           */
-/* -------------------------------------------------------------------------- */
 
 export interface AdaptiveRoadmapGenerationInput {
-
     target:
     TargetContext;
-
     previousRoadmap: {
         roadmapId: string;
-
         version: number;
-
         title: string;
     };
-
     currentSkills:
     AdaptiveSkillContext[];
-
     recentMockInterviews:
     AdaptiveMockInterviewContext[];
-
     readiness: {
         readinessScore: number;
-
         skillScore: number;
-
         technicalInterviewScore: number;
-
         problemSolvingScore: number;
-
         communicationScore: number;
-
         weakAreas: string[];
     };
 }
 
 
 export interface AdaptiveSkillContext {
-
     skillId: string;
-
     skillName: string;
-
     currentScore: number;
-
     currentLevel:
     SkillLevel;
 }
 
 
 export interface AdaptiveMockInterviewContext {
-
     interviewNumber: number;
-
     interviewType: string;
-
     overallScore: number;
-
     technicalScore: number;
-
     problemSolvingScore: number;
-
     communicationScore: number;
-
     feedback: string;
 }
 
 export interface AdaptiveRoadmapWorkflowContext {
-
     careerJourney:
     CareerJourneyDocument;
-
     role:
     CareerRoleDocument;
-
     domain:
     CareerDomainDocument;
-
     previousRoadmap:
     RoadmapDocument;
-
     userSkills:
     UserSkillDocument[];
-
     skillCatalog:
     SkillCatalogDocument[];
-
     mockInterviews:
     MockInterviewDocument[];
-
     readiness:
     ReadinessEvaluation;
 }

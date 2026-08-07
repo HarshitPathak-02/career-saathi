@@ -20,21 +20,9 @@ import { assessmentIdParamSchema, careerJourneyIdParamSchema, startInitialAssess
 const assessmentRouter =
     Router();
 
-/*
-|--------------------------------------------------------------------------
-| Authentication
-|--------------------------------------------------------------------------
-*/
-
 assessmentRouter.use(
     authenticate
 );
-
-/*
-|--------------------------------------------------------------------------
-| Initial Assessment
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.post(
     "/initial/start",
@@ -60,11 +48,6 @@ assessmentRouter.post(
         .submitInitialAssessment
 );
 
-/*
-|--------------------------------------------------------------------------
-| Weekly Assessment
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.post(
     "/weekly/start",
@@ -90,11 +73,6 @@ assessmentRouter.post(
         .submitWeeklyAssessment
 );
 
-/*
-|--------------------------------------------------------------------------
-| Assessment History
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.get(
     "/career-journey/:careerJourneyId",
@@ -108,11 +86,6 @@ assessmentRouter.get(
         .getAssessmentHistory
 );
 
-/*
-|--------------------------------------------------------------------------
-| Assessment Details
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.get(
     "/:assessmentId/details",
@@ -126,11 +99,6 @@ assessmentRouter.get(
         .getAssessmentDetails
 );
 
-/*
-|--------------------------------------------------------------------------
-| Weekly Assessment Plan
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.get(
     "/:assessmentId/weekly-plan",
@@ -144,11 +112,6 @@ assessmentRouter.get(
         .getWeeklyAssessmentPlan
 );
 
-/*
-|--------------------------------------------------------------------------
-| Assessment
-|--------------------------------------------------------------------------
-*/
 
 assessmentRouter.get(
     "/:assessmentId",

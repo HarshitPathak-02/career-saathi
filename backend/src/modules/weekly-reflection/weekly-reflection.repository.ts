@@ -12,13 +12,15 @@ import {
     CreateWeeklyReflectionDTO,
     WeeklyReflectionQuery,
 } from "./weekly-reflection.types.js";
+import { AppError } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class WeeklyReflectionRepository {
 
     async create(
         data: CreateWeeklyReflectionDTO,
         session?: ClientSession,
-    ) {
+    ): Promise<WeeklyReflectionDocument> {
 
         const [reflection] =
             await WeeklyReflectionModel.create(
@@ -35,26 +37,44 @@ class WeeklyReflectionRepository {
     async findById(
         id: string | Types.ObjectId,
         session?: ClientSession,
-    ) {
+    ): Promise<WeeklyReflectionDocument> {
 
-        return WeeklyReflectionModel
+        const reflection = await WeeklyReflectionModel
             .findById(id)
             .session(
                 session ?? null
             );
+
+        if (!reflection) {
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Weekly Reflection not found"
+            );
+        }
+
+        return reflection;
 
     }
 
     async findOne(
         query: WeeklyReflectionQuery,
         session?: ClientSession,
-    ) {
+    ): Promise<WeeklyReflectionDocument> {
 
-        return WeeklyReflectionModel
+        const weeklyReflection = await WeeklyReflectionModel
             .findOne(query)
             .session(
                 session ?? null
             );
+
+        if (!weeklyReflection) {
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Weekly Reflection not found"
+            );
+        }
+
+        return weeklyReflection;
 
     }
 

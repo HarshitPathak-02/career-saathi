@@ -19,12 +19,6 @@ import { appClock } from "../../shared/time/app-clock.js";
 
 class RoadmapResponseMapper {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Roadmap
-    |--------------------------------------------------------------------------
-    */
-
     toRoadmapResponse(
         roadmap: RoadmapDocument
     ): RoadmapResponse {
@@ -78,12 +72,6 @@ class RoadmapResponseMapper {
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Roadmap Item
-    |--------------------------------------------------------------------------
-    */
-
     toRoadmapItemResponse(
         roadmapItem: RoadmapItemDocument
     ): RoadmapItemResponse {
@@ -118,12 +106,6 @@ class RoadmapResponseMapper {
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Roadmap Items
-    |--------------------------------------------------------------------------
-    */
-
     toRoadmapItemsResponse(
         roadmapItems: RoadmapItemDocument[]
     ): RoadmapItemResponse[] {
@@ -136,12 +118,6 @@ class RoadmapResponseMapper {
         );
 
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Generate Roadmap
-    |--------------------------------------------------------------------------
-    */
 
     toGenerateRoadmapResponse(
         roadmap: RoadmapDocument

@@ -4,6 +4,7 @@ import { lookupRepository } from "./lookup.repository.js";
 import * as LookupMapper from "./lookup.mapper.js";
 
 import { AppError } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 export class LookupService {
 
@@ -35,7 +36,7 @@ export class LookupService {
 
         if (!domainExists) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Career domain not found."
             );
         }
@@ -62,17 +63,9 @@ export class LookupService {
                 roleObjectId as never
             );
 
-        /**
-         * We only want to know whether
-         * the role exists.
-         *
-         * We'll improve this after adding
-         * findRoleById() to repository.
-         */
-
         if (!role) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Career role not found."
             );
         }

@@ -576,7 +576,6 @@ class ReadinessService {
 
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Mock Interview Evidence
@@ -589,12 +588,10 @@ class ReadinessService {
                     interview._id
             );
 
-
         const evidenceKey =
             this.buildEvidenceKey(
                 mockInterviewIds
             );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -615,15 +612,12 @@ class ReadinessService {
                     session
                 );
 
-
         if (existingEvaluation) {
 
             return this.toEvaluation(
                 existingEvaluation
             );
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -928,7 +922,6 @@ class ReadinessService {
                         session
                     );
 
-
             if (!updatedCareerJourney) {
 
                 throw new AppError(
@@ -953,7 +946,6 @@ class ReadinessService {
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Build Evidence Key
@@ -974,7 +966,6 @@ class ReadinessService {
             .join(":");
 
     }
-
 
     /*
     |--------------------------------------------------------------------------

@@ -20,6 +20,7 @@ import {
     CreateWeeklyReportDTO,
 } from "./weekly-report.types.js";
 import { WEEKLY_REPORT_MESSAGES } from "./weekly-report.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class WeeklyReportService {
 
@@ -63,7 +64,7 @@ class WeeklyReportService {
         if (!weeklyReport) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 WEEKLY_REPORT_MESSAGES
                     .WEEKLY_REPORT_NOT_FOUND
             );
@@ -89,7 +90,7 @@ class WeeklyReportService {
         if (!weeklyReport) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 WEEKLY_REPORT_MESSAGES
                     .WEEKLY_REPORT_NOT_FOUND
             );
@@ -153,7 +154,7 @@ class WeeklyReportService {
         if (!weeklyReport) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 WEEKLY_REPORT_MESSAGES
                     .WEEKLY_REPORT_NOT_FOUND
             );

@@ -15,23 +15,13 @@ import {
     roadmapItemRepository,
 } from "./roadmap-item.repository.js";
 
-import {
-    roadmapRepository,
-} from "./roadmap.repository.js";
 
 import {
     RoadmapItemStatus,
 } from "./roadmap.enums.js";
-import { roadmapService } from "./roadmap.service.js";
 import { roadmapCompletionService } from "./roadmap-completion.service.js";
 
 class RoadmapItemProgressService {
-
-    /*
-    |-------------------------------------------------------------------------- 
-    | Sync Roadmap Items For Task
-    |--------------------------------------------------------------------------
-    */
 
     async syncRoadmapItemsForTask(
         missionId: Types.ObjectId,
@@ -52,12 +42,6 @@ class RoadmapItemProgressService {
 
         }
     }
-
-    /*
-    |-------------------------------------------------------------------------- 
-    | Sync Roadmap Item
-    |--------------------------------------------------------------------------
-    */
 
     private async syncRoadmapItem(
         missionId: Types.ObjectId,
@@ -127,30 +111,18 @@ class RoadmapItemProgressService {
          * Update Roadmap Item
          */
 
-        await roadmapItemRepository
+        const roadmapItem = await roadmapItemRepository
             .updateStatus(
                 roadmapItemId,
                 status,
                 session
             );
 
-        /*
-         * Fetch Roadmap Item
-         */
-
-        const roadmapItem =
-            await roadmapItemRepository.findById(
-                roadmapItemId,
-                session
-            );
 
         if (!roadmapItem) {
             return;
         }
 
-        /*
-         * Count Completed Roadmap Items
-         */
 
         await roadmapCompletionService
             .syncRoadmapCompletion(

@@ -26,12 +26,6 @@ import { assessmentResponseMapper } from "./assessment.mapper.js";
 
 class AssessmentController {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Start Initial Assessment
-    |--------------------------------------------------------------------------
-    */
-
     startInitialAssessment =
         asyncHandler(
             async (
@@ -65,11 +59,6 @@ class AssessmentController {
             }
         );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Start Weekly Assessment
-    |--------------------------------------------------------------------------
-    */
 
     startWeeklyAssessment =
         asyncHandler(
@@ -103,12 +92,6 @@ class AssessmentController {
                 });
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Submit Initial Assessment
-    |--------------------------------------------------------------------------
-    */
 
     submitInitialAssessment =
         asyncHandler(
@@ -145,11 +128,6 @@ class AssessmentController {
             }
         );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Submit Weekly Assessment
-    |--------------------------------------------------------------------------
-    */
 
     submitWeeklyAssessment =
         asyncHandler(
@@ -182,12 +160,6 @@ class AssessmentController {
                 });
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Assessment History
-    |--------------------------------------------------------------------------
-    */
 
     getAssessmentHistory =
         asyncHandler(
@@ -228,12 +200,6 @@ class AssessmentController {
             }
         );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Assessment Details
-    |--------------------------------------------------------------------------
-    */
-
     getAssessmentDetails =
         asyncHandler(
             async (
@@ -270,12 +236,6 @@ class AssessmentController {
                 });
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Assessment By Id
-    |--------------------------------------------------------------------------
-    */
 
     getAssessmentById =
         asyncHandler(
@@ -316,12 +276,6 @@ class AssessmentController {
                 });
             }
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Weekly Assessment Plan
-    |--------------------------------------------------------------------------
-    */
 
     getWeeklyAssessmentPlan =
         asyncHandler(

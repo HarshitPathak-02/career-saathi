@@ -31,11 +31,13 @@ import { executeTransaction } from "../../shared/utils/transaction.util.js";
 import { dailyTaskService } from "../daily-task/daily-task.service.js";
 import { addDays, startOfDay } from "../../shared/utils/date.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { CAREER_JOURNEY_MESSAGES } from "../career-journey/index.js";
+import { ROADMAP_MESSAGES } from "../roadmap/roadmap.constants.js";
 
 export class MissionWorkflow {
 
     async createInitialMission(
-        userId: string,
         careerJourneyId: Types.ObjectId
     ): Promise<MissionDocument> {
 
@@ -127,8 +129,8 @@ export class MissionWorkflow {
         if (!careerJourney) {
 
             throw new AppError(
-                404,
-                "Career journey not found."
+                HTTP_STATUS.NOT_FOUND,
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
             );
         }
 
@@ -147,8 +149,8 @@ export class MissionWorkflow {
         if (!roadmap) {
 
             throw new AppError(
-                404,
-                "Roadmap not found."
+                HTTP_STATUS.NOT_FOUND,
+                ROADMAP_MESSAGES.ROADMAP_NOT_FOUND
             );
         }
 
@@ -167,7 +169,7 @@ export class MissionWorkflow {
         if (existingRoadmapMission) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "A mission already exists for the current roadmap."
             );
         }
@@ -209,7 +211,7 @@ export class MissionWorkflow {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "No pending roadmap items found."
             );
         }
@@ -248,17 +250,8 @@ export class MissionWorkflow {
             newRoadmapItems:
                 context.roadmapItems,
 
-            /*
-             * Initial mission has no previous
-             * mission to carry forward.
-             */
             carryForwardRoadmapItemIds: [],
 
-            /*
-             * Initial mission has no previous
-             * weekly assessment/report from which
-             * revision work can be generated.
-             */
             revisionPlans: [],
 
             workloadMultiplier:

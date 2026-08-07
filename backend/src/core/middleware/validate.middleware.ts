@@ -1,11 +1,23 @@
 import { NextFunction, Request, Response } from "express";
-import { ObjectSchema } from "joi";
+import { ObjectSchema, ValidationError } from "joi";
+import { HTTP_STATUS } from "../constants/http-status.constants.js";
 
 interface ValidateRequestOptions {
     body?: ObjectSchema;
     params?: ObjectSchema;
     query?: ObjectSchema;
 }
+
+const validationErrorResponse = (res: Response, error: ValidationError) => {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: "Validation failed.",
+        errors: error.details.map(detail => ({
+            field: detail.path.join("."),
+            message: detail.message,
+        })),
+    });
+};
 
 export const validateRequest = ({
     body,
@@ -25,14 +37,7 @@ export const validateRequest = ({
                 });
 
                 if (error) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Validation failed.",
-                        errors: error.details.map((detail) => ({
-                            field: detail.path.join("."),
-                            message: detail.message,
-                        })),
-                    });
+                    return validationErrorResponse(res, error);
                 }
 
                 req.body = value;
@@ -45,14 +50,7 @@ export const validateRequest = ({
                 });
 
                 if (error) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Validation failed.",
-                        errors: error.details.map((detail) => ({
-                            field: detail.path.join("."),
-                            message: detail.message,
-                        })),
-                    });
+                    return validationErrorResponse(res, error);
                 }
 
                 Object.assign(req.params, value);
@@ -65,14 +63,7 @@ export const validateRequest = ({
                 });
 
                 if (error) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Validation failed.",
-                        errors: error.details.map((detail) => ({
-                            field: detail.path.join("."),
-                            message: detail.message,
-                        })),
-                    });
+                    return validationErrorResponse(res, error);
                 }
 
                 req.query = value;

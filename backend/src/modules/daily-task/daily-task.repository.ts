@@ -12,13 +12,16 @@ import {
 import {
     DailyTaskStatus,
 } from "./daily-task.enums.js";
+import { AppError } from "../../core/errors/app-error.js";
+import { DailyTaskMessages } from "./daily-task.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class DailyTaskRepository {
 
     async createMany(
         data: Partial<DailyTaskDocument>[],
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         return DailyTaskModel.insertMany(
             data,
@@ -32,7 +35,7 @@ class DailyTaskRepository {
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return this.findOne(
             {
@@ -46,7 +49,7 @@ class DailyTaskRepository {
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return DailyTaskModel
             .findOne(filter)
@@ -59,7 +62,7 @@ class DailyTaskRepository {
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         return DailyTaskModel
             .find(filter)
@@ -75,7 +78,7 @@ class DailyTaskRepository {
     async findByMissionId(
         missionId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         return this.findMany(
             {
@@ -90,7 +93,7 @@ class DailyTaskRepository {
         missionId: Types.ObjectId,
         dayNumber: number,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument | null> {
 
         return this.findOne(
             {
@@ -106,7 +109,7 @@ class DailyTaskRepository {
         missionId: Types.ObjectId,
         roadmapItemId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<DailyTaskDocument[]> {
 
         return this.findMany(
             {
@@ -120,29 +123,12 @@ class DailyTaskRepository {
 
     }
 
-    async exists(
-        filter: Record<string, unknown>,
-        session?: ClientSession
-    ): Promise<boolean> {
-
-        const exists =
-            await DailyTaskModel
-                .exists(filter)
-                .session(
-                    session ?? null
-                );
-
-        return Boolean(exists);
-
-    }
-
     async updateById(
         id: Types.ObjectId,
         update: UpdateQuery<DailyTaskDocument>,
         session?: ClientSession
-    ) {
-
-        return DailyTaskModel
+    ): Promise<DailyTaskDocument> {
+        const updatedTask = await DailyTaskModel
             .findByIdAndUpdate(
                 id,
                 update,
@@ -153,38 +139,13 @@ class DailyTaskRepository {
                 }
             );
 
-    }
-
-    async updateStatus(
-        id: Types.ObjectId,
-        status: DailyTaskStatus,
-        session?: ClientSession
-    ) {
-
-        return this.updateById(
-            id,
-            {
-                status,
-            },
-            session
-        );
-
-    }
-
-    async deleteByMissionId(
-        missionId: Types.ObjectId,
-        session?: ClientSession
-    ) {
-
-        return DailyTaskModel
-            .deleteMany(
-                {
-                    missionId,
-                },
-                {
-                    session,
-                }
+        if (!updatedTask) {
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                DailyTaskMessages.NOT_FOUND
             );
+        }
+        return updatedTask;
 
     }
 

@@ -1,4 +1,5 @@
 import {
+    ClientSession,
     Types,
 } from "mongoose";
 
@@ -75,6 +76,7 @@ import {
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
 import { addDays, startOfDay } from "../../shared/utils/date.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 export class NextMissionWorkflow {
 
@@ -83,44 +85,20 @@ export class NextMissionWorkflow {
         careerJourneyId: Types.ObjectId
     ): Promise<MissionDocument> {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Career Journey
-        |--------------------------------------------------------------------------
-        */
-
         const careerJourney =
             await this.validateCareerJourney(
                 userId,
                 careerJourneyId
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Load Workflow Context
-        |--------------------------------------------------------------------------
-        */
-
         const context =
             await this.loadWorkflowContext(
                 careerJourneyId
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Previous Mission
-        |--------------------------------------------------------------------------
-        */
-
         this.validatePreviousMission(
             context.previousMission
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Prepare Mission Plan
-        |--------------------------------------------------------------------------
-        */
 
         const planningInput =
             this.prepareMissionPlan(
@@ -216,7 +194,7 @@ export class NextMissionWorkflow {
         if (!careerJourney) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Career journey not found."
             );
 
@@ -228,7 +206,7 @@ export class NextMissionWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Career journey must be active before generating the next mission."
             );
 
@@ -262,7 +240,7 @@ export class NextMissionWorkflow {
         if (!roadmap) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Roadmap not found."
             );
 
@@ -277,7 +255,7 @@ export class NextMissionWorkflow {
         if (!previousMission) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Previous mission not found."
             );
 
@@ -298,19 +276,11 @@ export class NextMissionWorkflow {
         if (!weeklyReport) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly report must be completed before generating the next mission."
             );
 
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Roadmap
-        |--------------------------------------------------------------------------
-        */
-
-
 
         /*
         |--------------------------------------------------------------------------
@@ -354,12 +324,6 @@ export class NextMissionWorkflow {
         };
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Validate Previous Mission
-    |--------------------------------------------------------------------------
-    */
-
     private validatePreviousMission(
         previousMission: MissionDocument
     ): void {
@@ -370,18 +334,12 @@ export class NextMissionWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Previous mission must be completed before generating the next mission."
             );
 
         }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Prepare Mission Plan
-    |--------------------------------------------------------------------------
-    */
 
     private prepareMissionPlan(
         context: NextMissionWorkflowContext
@@ -541,7 +499,7 @@ export class NextMissionWorkflow {
         if (!recommendation) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Weekly report recommendation not found."
             );
 
@@ -607,7 +565,7 @@ export class NextMissionWorkflow {
     private async saveMission(
         context: NextMissionWorkflowContext,
         planningResult: MissionPlanningResult,
-        session: import("mongoose").ClientSession
+        session: ClientSession
     ): Promise<MissionDocument> {
 
         return missionService

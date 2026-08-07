@@ -19,7 +19,7 @@ class RoadmapItemRepository {
     async createMany(
         data: Partial<RoadmapItemDocument>[],
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument[]> {
         return RoadmapItemModel.insertMany(
             data,
             {
@@ -31,7 +31,7 @@ class RoadmapItemRepository {
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument | null> {
         return this.findOne(
             {
                 _id: id,
@@ -43,7 +43,7 @@ class RoadmapItemRepository {
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument | null> {
         return RoadmapItemModel
             .findOne(filter)
             .session(session ?? null);
@@ -52,7 +52,7 @@ class RoadmapItemRepository {
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument[]> {
         return RoadmapItemModel
             .find(filter)
             .sort({
@@ -64,40 +64,12 @@ class RoadmapItemRepository {
     async findByRoadmapId(
         roadmapId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument[]> {
         return this.findMany(
             {
                 roadmapId,
             },
             session
-        );
-    }
-
-    async exists(
-        filter: Record<string, unknown>,
-        session?: ClientSession
-    ) {
-        const exists =
-            await RoadmapItemModel
-                .exists(filter)
-                .session(session ?? null);
-
-        return Boolean(exists);
-    }
-
-    async updateById(
-        id: Types.ObjectId,
-        update: UpdateQuery<RoadmapItemDocument>,
-        session?: ClientSession
-    ) {
-        return RoadmapItemModel.findByIdAndUpdate(
-            id,
-            update,
-            {
-                new: true,
-                runValidators: true,
-                session,
-            }
         );
     }
 
@@ -110,7 +82,7 @@ class RoadmapItemRepository {
 
         session?:
             ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument | null> {
 
         return RoadmapItemModel
             .findByIdAndUpdate(
@@ -141,7 +113,7 @@ class RoadmapItemRepository {
         roadmapId: Types.ObjectId,
         limit: number,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument[]> {
         return RoadmapItemModel
             .find({
                 roadmapId,
@@ -159,7 +131,7 @@ class RoadmapItemRepository {
     async countCompleted(
         roadmapId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<number> {
         return RoadmapItemModel
             .countDocuments({
                 roadmapId,
@@ -170,24 +142,10 @@ class RoadmapItemRepository {
             .session(session ?? null);
     }
 
-    async deleteByRoadmapId(
-        roadmapId: Types.ObjectId,
-        session?: ClientSession
-    ) {
-        return RoadmapItemModel.deleteMany(
-            {
-                roadmapId,
-            },
-            {
-                session,
-            }
-        );
-    }
-
     async findByIds(
         ids: Types.ObjectId[],
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapItemDocument[]> {
         return RoadmapItemModel
             .find({
                 _id: {
@@ -237,32 +195,6 @@ class RoadmapItemRepository {
             );
     }
 
-    async findIncompleteItems(
-        roadmapId: Types.ObjectId,
-        session?: ClientSession
-    ): Promise<RoadmapItemDocument[]> {
-
-        return RoadmapItemModel
-            .find({
-                roadmapId,
-
-                status: {
-                    $ne:
-                        RoadmapItemStatus.COMPLETED,
-                },
-            })
-            .sort({
-                order: 1,
-            })
-            .session(
-                session ?? null
-            );
-    }
-    /*
-|--------------------------------------------------------------------------
-| Find Completed In Period
-|--------------------------------------------------------------------------
-*/
 
     async findCompletedInPeriod(
         roadmapIds:
@@ -305,12 +237,6 @@ class RoadmapItemRepository {
                 session ?? null
             );
     }
-
-    /*
-|--------------------------------------------------------------------------
-| Find By Roadmap Ids
-|--------------------------------------------------------------------------
-*/
 
     async findByRoadmapIds(
         roadmapIds:

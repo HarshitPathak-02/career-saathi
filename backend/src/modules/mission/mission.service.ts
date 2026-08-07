@@ -25,6 +25,7 @@ import {
 import { DEFAULT_DURATION_DAYS } from "./index.js";
 import { differenceInCalendarDays } from "../../shared/utils/date.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class MissionService {
 
@@ -125,23 +126,6 @@ class MissionService {
             );
     }
 
-    async markAsActive(
-        missionId: string,
-        session?: ClientSession
-    ): Promise<MissionDocument | null> {
-
-        const missionObjectId =
-            new Types.ObjectId(
-                missionId
-            );
-
-        return missionRepository.updateStatus(
-            missionObjectId,
-            MissionStatus.ACTIVE,
-            session
-        );
-    }
-
     async markAsCompleted(
         missionId: string,
         session?: ClientSession
@@ -159,23 +143,6 @@ class MissionService {
         );
     }
 
-    async markAsSkipped(
-        missionId: string,
-        session?: ClientSession
-    ): Promise<MissionDocument | null> {
-
-        const missionObjectId =
-            new Types.ObjectId(
-                missionId
-            );
-
-        return missionRepository.updateStatus(
-            missionObjectId,
-            MissionStatus.SKIPPED,
-            session
-        );
-    }
-
     async getCurrentMissionDay(
         missionId: Types.ObjectId,
         session?: ClientSession
@@ -189,7 +156,7 @@ class MissionService {
 
         if (!mission) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Mission not found."
             );
         }
@@ -209,13 +176,7 @@ class MissionService {
                 missionStartDate
             );
 
-        return Math.min(
-            Math.max(
-                daysPassed + 1,
-                1
-            ),
-            DEFAULT_DURATION_DAYS
-        );
+        return Math.min(Math.max(daysPassed + 1, 1), DEFAULT_DURATION_DAYS);
     }
 
     async getLatestMissionByRoadmap(

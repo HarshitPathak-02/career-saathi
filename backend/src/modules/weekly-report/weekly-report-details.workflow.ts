@@ -25,6 +25,7 @@ import {
 import type {
     WeeklyReportDetailsDTO,
 } from "./weekly-report-details.types.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class WeeklyReportDetailsWorkflow {
 
@@ -45,7 +46,7 @@ class WeeklyReportDetailsWorkflow {
         ) {
 
             throw new AppError(
-                400,
+                HTTP_STATUS.BAD_REQUEST,
                 "Invalid weekly report id.",
             );
 
@@ -110,7 +111,7 @@ class WeeklyReportDetailsWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Assessment does not belong to this weekly report.",
             );
 
@@ -124,7 +125,7 @@ class WeeklyReportDetailsWorkflow {
         ) {
 
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Reflection does not belong to this weekly report.",
             );
 

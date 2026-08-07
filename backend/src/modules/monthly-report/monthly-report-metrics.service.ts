@@ -222,7 +222,6 @@ class MonthlyReportMetricsService {
                                 .toString()
                         );
 
-
                     if (!mission) {
                         return false;
                     }

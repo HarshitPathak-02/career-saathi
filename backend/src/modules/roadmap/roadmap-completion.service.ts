@@ -12,6 +12,7 @@ import {
 } from "../../core/constants/http-status.constants.js";
 
 import {
+    CAREER_JOURNEY_MESSAGES,
     careerJourneyRepository,
     CareerJourneyStatus,
 } from "../career-journey/index.js";
@@ -27,6 +28,7 @@ import {
 import {
     RoadmapStatus,
 } from "./roadmap.enums.js";
+import { ROADMAP_MESSAGES } from "./roadmap.constants.js";
 
 
 class RoadmapCompletionService {
@@ -36,11 +38,6 @@ class RoadmapCompletionService {
         session?: ClientSession
     ): Promise<void> {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fetch Roadmap
-        |--------------------------------------------------------------------------
-        */
 
         const roadmap =
             await roadmapRepository
@@ -53,7 +50,7 @@ class RoadmapCompletionService {
 
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,
-                "Roadmap not found."
+                ROADMAP_MESSAGES.ROADMAP_NOT_FOUND
             );
         }
 
@@ -128,7 +125,7 @@ class RoadmapCompletionService {
 
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,
-                "Roadmap not found."
+                ROADMAP_MESSAGES.ROADMAP_NOT_FOUND
             );
         }
 
@@ -150,7 +147,7 @@ class RoadmapCompletionService {
 
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,
-                "Career journey not found."
+                CAREER_JOURNEY_MESSAGES.NOT_FOUND
             );
         }
     }

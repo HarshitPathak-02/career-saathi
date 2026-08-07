@@ -120,7 +120,6 @@ class MonthlyReportWorkflowService {
                 careerJourneyObjectId
             );
 
-
         if (
             !dueResult.due ||
             dueResult.reportNumber ===
@@ -246,7 +245,7 @@ class MonthlyReportWorkflowService {
 
         /*
          * Build Persistence Input
-         */
+        */
 
         const mapperInput =
             this.buildMapperInput(
@@ -817,7 +816,6 @@ class MonthlyReportWorkflowService {
                     null,
             };
         }
-
 
         /*
          * Matured 28-Day Cycles

@@ -21,6 +21,7 @@ import {
     WeeklyReflectionDocument,
 } from "./weekly-reflection.model.js";
 import { WeeklyReflectionMessages } from "./weekly-reflection.constants.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class WeeklyReflectionService {
 
@@ -50,7 +51,7 @@ class WeeklyReflectionService {
         if (!reflection) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 WeeklyReflectionMessages.NOT_FOUND
             );
 
@@ -103,7 +104,7 @@ class WeeklyReflectionService {
         if (!reflection) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 WeeklyReflectionMessages.NOT_FOUND
             );
 

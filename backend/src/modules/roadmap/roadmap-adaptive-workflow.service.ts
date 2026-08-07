@@ -35,15 +35,10 @@ import { roadmapMapper } from "./roadmap.mapper.js";
 import { roadmapItemRepository } from "./roadmap-item.repository.js";
 import { roadmapResponseMapper } from "./roadmap-response.mapper.js";
 import { CareerJourneyStatus } from "../career-journey/index.js";
+import { ROADMAP_MESSAGES } from "./roadmap.constants.js";
 
 
 class RoadmapAdaptiveWorkflowService {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Generate Adaptive Roadmap
-    |--------------------------------------------------------------------------
-    */
 
     async generateAdaptiveRoadmap(
         userId: string,
@@ -145,7 +140,7 @@ class RoadmapAdaptiveWorkflowService {
 
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,
-                "Previous roadmap not found."
+                ROADMAP_MESSAGES.PREVIOUS_ROADMAP_NOT_FOUND
             );
         }
 
@@ -607,20 +602,12 @@ class RoadmapAdaptiveWorkflowService {
                     output.roadmapItems
                 );
 
-
-        /*
-         * Create Roadmap Items
-         */
-
         await roadmapItemRepository
             .createMany(
                 roadmapItems,
                 session
             );
 
-        /*
-* Move Career Journey Back To Active
-*/
 
         const updatedCareerJourney =
             await careerJourneyRepository

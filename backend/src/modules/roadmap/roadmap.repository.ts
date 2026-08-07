@@ -19,7 +19,7 @@ class RoadmapRepository {
     async create(
         data: Partial<RoadmapDocument>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument> {
         const [roadmap] =
             await RoadmapModel.create(
                 [data],
@@ -34,7 +34,7 @@ class RoadmapRepository {
     async findById(
         id: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return this.findOne(
             {
                 _id: id,
@@ -46,7 +46,7 @@ class RoadmapRepository {
     async findByCareerJourneyId(
         careerJourneyId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return this.findOne(
             {
                 careerJourneyId,
@@ -58,7 +58,7 @@ class RoadmapRepository {
     async findLatestByCareerJourneyId(
         careerJourneyId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return RoadmapModel
             .findOne({
                 careerJourneyId,
@@ -75,7 +75,7 @@ class RoadmapRepository {
         careerJourneyId: Types.ObjectId,
         version: number,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
 
         return RoadmapModel
             .findOne({
@@ -90,7 +90,7 @@ class RoadmapRepository {
     async findAllByCareerJourneyId(
         careerJourneyId: Types.ObjectId,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument[]> {
 
         return RoadmapModel
             .find({
@@ -107,7 +107,7 @@ class RoadmapRepository {
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return RoadmapModel
             .findOne(filter)
             .session(session ?? null);
@@ -116,7 +116,7 @@ class RoadmapRepository {
     async findMany(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument[]> {
         return RoadmapModel
             .find(filter)
             .session(session ?? null);
@@ -125,7 +125,7 @@ class RoadmapRepository {
     async exists(
         filter: Record<string, unknown>,
         session?: ClientSession
-    ) {
+    ): Promise<boolean> {
         const exists =
             await RoadmapModel
                 .exists(filter)
@@ -138,7 +138,7 @@ class RoadmapRepository {
         id: Types.ObjectId,
         update: UpdateQuery<RoadmapDocument>,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return RoadmapModel.findByIdAndUpdate(
             id,
             update,
@@ -154,7 +154,7 @@ class RoadmapRepository {
         id: Types.ObjectId,
         status: RoadmapStatus,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
 
         return RoadmapModel.findByIdAndUpdate(
             id,
@@ -181,7 +181,7 @@ class RoadmapRepository {
         roadmapId: Types.ObjectId,
         completedItems: number,
         session?: ClientSession
-    ) {
+    ): Promise<RoadmapDocument | null> {
         return RoadmapModel.findByIdAndUpdate(
             roadmapId,
             {
@@ -194,12 +194,6 @@ class RoadmapRepository {
             }
         );
     }
-
-    /*
-|--------------------------------------------------------------------------
-| Find Roadmaps Overlapping Period
-|--------------------------------------------------------------------------
-*/
 
     async findByCareerJourneyAndPeriod(
         careerJourneyId:

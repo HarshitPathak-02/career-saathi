@@ -17,12 +17,6 @@ import { skillProgressService } from "../skill-progress/index.js";
 
 class AssessmentService {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Create Assessment
-    |--------------------------------------------------------------------------
-    */
-
     async createAssessment(
         data:
             CreateAssessmentDTO,
@@ -41,12 +35,6 @@ class AssessmentService {
                 session
             );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Submit Assessment
-    |--------------------------------------------------------------------------
-    */
 
     async submitAssessment(
         assessmentId:
@@ -97,11 +85,6 @@ class AssessmentService {
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get Assessment By Id
-    |--------------------------------------------------------------------------
-    */
 
     async getAssessmentById(
         assessmentId:
@@ -133,11 +116,7 @@ class AssessmentService {
         return assessment;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Assessment History
-    |--------------------------------------------------------------------------
-    */
+
 
     async getAssessmentHistory(
         careerJourneyId:
@@ -187,11 +166,6 @@ class AssessmentService {
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Assessment Details
-    |--------------------------------------------------------------------------
-    */
 
     async getAssessmentDetails(
         assessmentId:
@@ -211,6 +185,8 @@ class AssessmentService {
                 .getSkillProgressByAssessment(
                     assessmentId
                 );
+
+        console.log(progress, "progress");
 
         const skills =
             progress.map(
@@ -331,11 +307,6 @@ class AssessmentService {
         };
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Delete Assessment
-    |--------------------------------------------------------------------------
-    */
 
     async deleteAssessment(
         assessmentId:
@@ -366,11 +337,6 @@ class AssessmentService {
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get Weekly Assessment
-    |--------------------------------------------------------------------------
-    */
 
     async getWeeklyAssessment(
         careerJourneyId:

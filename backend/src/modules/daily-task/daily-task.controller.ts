@@ -22,6 +22,7 @@ import {
 import {
     AppError,
 } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class DailyTaskController {
 
@@ -42,13 +43,13 @@ class DailyTaskController {
             if (!task) {
 
                 throw new AppError(
-                    404,
+                    HTTP_STATUS.NOT_FOUND,
                     "Daily task not found."
                 );
 
             }
 
-            res.status(200).json(
+            res.status(HTTP_STATUS.OK).json(
                 dailyTaskResponseMapper
                     .toTaskResponse(
                         task
@@ -72,7 +73,7 @@ class DailyTaskController {
                         )
                     );
 
-            res.status(200).json(
+            res.status(HTTP_STATUS.OK).json(
                 dailyTaskResponseMapper
                     .toTasksResponse(
                         tasks
@@ -99,13 +100,13 @@ class DailyTaskController {
             if (!task) {
 
                 throw new AppError(
-                    404,
+                    HTTP_STATUS.NOT_FOUND,
                     "Daily task not found."
                 );
 
             }
 
-            res.status(200).json(
+            res.status(HTTP_STATUS.OK).json(
                 dailyTaskResponseMapper
                     .toTaskResponse(
                         task
@@ -132,13 +133,13 @@ class DailyTaskController {
             if (!task) {
 
                 throw new AppError(
-                    404,
+                    HTTP_STATUS.NOT_FOUND,
                     "Daily task not found."
                 );
 
             }
 
-            res.status(200).json(
+            res.status(HTTP_STATUS.OK).json(
                 dailyTaskResponseMapper
                     .toTaskResponse(
                         task
@@ -165,13 +166,13 @@ class DailyTaskController {
             if (!task) {
 
                 throw new AppError(
-                    404,
+                    HTTP_STATUS.NOT_FOUND,
                     "Daily task not found."
                 );
 
             }
 
-            res.status(200).json(
+            res.status(HTTP_STATUS.OK).json(
                 dailyTaskResponseMapper
                     .toTaskResponse(
                         task

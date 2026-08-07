@@ -15,6 +15,7 @@ import {
 } from "../../shared/storage/index.js";
 
 import { AppError } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 export class ResumeService {
 
@@ -38,7 +39,7 @@ export class ResumeService {
 
         if (!careerJourney) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Career journey not found."
             );
         }
@@ -123,7 +124,7 @@ export class ResumeService {
 
         if (!resume) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Resume not found."
             );
         }
@@ -150,7 +151,7 @@ export class ResumeService {
 
         if (!resume) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Resume not found."
             );
         }
@@ -189,7 +190,7 @@ export class ResumeService {
 
         if (!resume) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Resume not found."
             );
         }

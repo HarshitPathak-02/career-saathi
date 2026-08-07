@@ -27,6 +27,8 @@ import {
     startOfDay,
 } from "../../shared/utils/date.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
+import { AppError } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 
 class MonthlyReportCycleService {
@@ -79,9 +81,7 @@ class MonthlyReportCycleService {
         if (
             reportNumber < 1
         ) {
-            throw new Error(
-                "Report number must be at least 1."
-            );
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, "Report number must be at least 1.");
         }
 
         /*
@@ -146,7 +146,6 @@ class MonthlyReportCycleService {
     calculateCompletedCycleCount(
         anchorDate:
             Date,
-
         currentDate:
             Date = appClock.now()
     ): number {
@@ -156,7 +155,6 @@ class MonthlyReportCycleService {
                 currentDate,
                 anchorDate
             );
-
 
         if (
             elapsedDays < 0
@@ -183,7 +181,6 @@ class MonthlyReportCycleService {
             MONTHLY_REPORT_CYCLE_DAYS
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------

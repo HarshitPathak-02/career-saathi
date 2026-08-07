@@ -4,12 +4,12 @@ import { resumeService } from "./resume.service.js";
 
 import {
     CreateResumeDto,
-    ResumeIdParamDto,
-    CareerJourneyResumeParamDto,
 } from "./resume.types.js";
 
 import { asyncHandler } from "../../core/middleware/async-handler.js";
 import { getAuthUser } from "../../shared/utils/get-auth-user.js";
+import { AppError } from "../../core/errors/app-error.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 export class ResumeController {
 
@@ -22,7 +22,7 @@ export class ResumeController {
                 req.body as CreateResumeDto;
 
             if (!req.file) {
-                throw new Error("Resume file is required.");
+                throw new AppError(HTTP_STATUS.BAD_REQUEST, "Resume file is required.");
             }
 
             const resume =
@@ -32,7 +32,7 @@ export class ResumeController {
                     req.file
                 );
 
-            return res.status(201).json({
+            return res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: "Resume uploaded successfully.",
                 data: resume,
@@ -56,7 +56,7 @@ export class ResumeController {
                     resumeId
                 );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 data: resume,
             });
@@ -79,7 +79,7 @@ export class ResumeController {
                     careerJourneyId
                 );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 data: resume,
             });
@@ -96,7 +96,7 @@ export class ResumeController {
                     user.userId
                 );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 data: resumes,
             });
@@ -118,7 +118,7 @@ export class ResumeController {
                 resumeId
             );
 
-            return res.status(200).json({
+            return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Resume deleted successfully.",
             });

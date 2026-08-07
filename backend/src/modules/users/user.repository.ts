@@ -26,7 +26,7 @@ class UserRepository {
     id: string,
     session?: ClientSession
   ): Promise<UserDocument | null> {
-    const query = UserModel.findById(id);
+    const query = UserModel.findById({ _id: id, deletedAt: null });
 
     if (session) {
       query.session(session);
@@ -41,6 +41,7 @@ class UserRepository {
   ): Promise<UserDocument | null> {
     const query = UserModel.findOne({
       email,
+      deletedAt: null,
     });
 
     if (session) {

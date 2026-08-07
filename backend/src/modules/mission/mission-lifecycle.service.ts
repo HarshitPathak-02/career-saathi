@@ -41,6 +41,7 @@ import {
 import { addDays, startOfDay } from "../../shared/utils/date.util.js";
 import { appClock } from "../../shared/time/app-clock.js";
 import { RoadmapStatus } from "../roadmap/roadmap.enums.js";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
 
 class MissionLifecycleService {
 
@@ -69,7 +70,7 @@ class MissionLifecycleService {
 
         if (!careerJourney) {
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Career journey not found."
             );
         }
@@ -89,7 +90,7 @@ class MissionLifecycleService {
             CareerJourneyStatus.ACTIVE
         ) {
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Career journey must be active before resolving missions."
             );
         }
@@ -104,7 +105,7 @@ class MissionLifecycleService {
         if (!roadmap) {
 
             throw new AppError(
-                404,
+                HTTP_STATUS.NOT_FOUND,
                 "Roadmap not found."
             );
         }
@@ -176,7 +177,7 @@ class MissionLifecycleService {
             MissionStatus.COMPLETED
         ) {
             throw new AppError(
-                409,
+                HTTP_STATUS.CONFLICT,
                 "Latest mission is not in a valid state for next mission generation."
             );
         }
@@ -186,12 +187,6 @@ class MissionLifecycleService {
         | Check Remaining Roadmap Work
         |--------------------------------------------------------------------------
         */
-
-        const pendingRoadmapItems =
-            await roadmapItemRepository
-                .findPendingItems(
-                    roadmap._id
-                );
 
         if (
             roadmap.status ===

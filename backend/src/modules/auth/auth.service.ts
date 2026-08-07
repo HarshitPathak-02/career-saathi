@@ -48,6 +48,7 @@ class AuthService {
       email: data.email,
       password: hashedPassword,
     });
+
     const payload = createJwtPayload(user);
 
     const accessToken = generateAccessToken(payload);
@@ -113,6 +114,7 @@ class AuthService {
       await userRepository.updateLastLogin(
         user.id
       );
+
     const payload = createJwtPayload(user);
 
     const accessToken =
