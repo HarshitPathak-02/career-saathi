@@ -1,5 +1,3 @@
-// components/layout/CareerSetupLayout.tsx
-
 import {
   type ReactNode,
 } from "react";

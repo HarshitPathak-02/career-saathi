@@ -74,12 +74,13 @@ const AssessmentSkillResultCard = ({
                             text-xs
                             font-semibold
                             uppercase
-                            tracking-[0.1em]
+                            tracking-widest
                             text-slate-400
                         "
                     >
                         Skill
                     </p>
+
 
                     <h3
                         className="

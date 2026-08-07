@@ -66,7 +66,7 @@ const AssessmentsPage = () => {
                     className="
                         mx-auto
                         flex
-                        min-h-[600px]
+                        min-h-150
                         max-w-6xl
                         items-center
                         justify-center

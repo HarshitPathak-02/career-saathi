@@ -7,6 +7,7 @@ import {
     type AuthResponse,
     type User,
     type UpdateProfileDto,
+    type RefreshResponse,
 } from "../types/auth.types";
 
 export const authApi = baseApi.injectEndpoints({
@@ -28,7 +29,7 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
-        refresh: builder.mutation<ApiResponse<AuthResponse>, void>({
+        refresh: builder.mutation<ApiResponse<RefreshResponse>, void>({
             query: () => ({
                 url: "/auth/refresh",
                 method: "POST",
@@ -40,16 +41,6 @@ export const authApi = baseApi.injectEndpoints({
                 url: "/auth/logout",
                 method: "POST",
             }),
-
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    await queryFulfilled;
-
-                    dispatch(baseApi.util.resetApiState());
-                } catch {
-                    // ignore
-                }
-            },
         }),
 
         me: builder.query<ApiResponse<User>, void>({

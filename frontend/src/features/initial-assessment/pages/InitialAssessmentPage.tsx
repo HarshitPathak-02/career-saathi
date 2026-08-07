@@ -1,11 +1,6 @@
 import {
     Navigate,
-    useNavigate,
 } from "react-router-dom";
-
-import {
-    ArrowLeft,
-} from "lucide-react";
 
 import {
     useAppSelector,
@@ -21,7 +16,6 @@ import AssessmentGuideStep from "../components/AssessmentGuideStep";
 import AssessmentScoreStep from "../components/AssessmentScoreStep";
 
 const InitialAssessmentPage = () => {
-    const navigate = useNavigate();
 
     const currentStep =
         useAppSelector(

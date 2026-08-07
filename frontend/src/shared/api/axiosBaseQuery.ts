@@ -1,7 +1,18 @@
-import type { BaseQueryFn } from "@reduxjs/toolkit/query";
-import type { AxiosError, AxiosRequestConfig } from "axios";
+import type {
+  BaseQueryFn,
+} from "@reduxjs/toolkit/query";
+
+import type {
+  AxiosError,
+  AxiosRequestConfig,
+} from "axios";
 
 import { api } from "./api";
+
+import type {
+  ApiBaseResponse,
+  ApiError,
+} from "../types/api.types";
 
 type AxiosBaseQueryArgs = {
   url: string;
@@ -14,15 +25,15 @@ export const axiosBaseQuery =
   (): BaseQueryFn<
     AxiosBaseQueryArgs,
     unknown,
-    { status?: number; data: unknown }
+    ApiError
   > =>
-    async ({ url, method = "GET", data, params }) => {
+    async ({
+      url,
+      method = "GET",
+      data,
+      params,
+    }) => {
       try {
-        console.log({
-          url,
-          method,
-          data
-        })
         const result = await api({
           url,
           method,
@@ -34,12 +45,15 @@ export const axiosBaseQuery =
           data: result.data,
         };
       } catch (axiosError) {
-        const error = axiosError as AxiosError;
+        const error =
+          axiosError as AxiosError<ApiBaseResponse>;
 
         return {
           error: {
-            status: error.response?.status,
-            data: error.response?.data,
+            status:
+              error.response?.status,
+            data:
+              error.response?.data,
           },
         };
       }

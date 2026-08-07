@@ -28,7 +28,7 @@ const WorkspaceLoading = () => {
 
                 <div
                     className="
-                        h-[72px]
+                        h-18
                         border-b
                         border-slate-200
                         p-5

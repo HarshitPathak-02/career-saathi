@@ -1,15 +1,21 @@
-import { AxiosError } from "axios";
-
-interface ErrorResponse {
-  message?: string;
-}
+import type {
+  ApiError,
+} from "../types/api.types";
 
 export const getApiErrorMessage = (
   error: unknown
 ): string => {
-  if (error instanceof AxiosError) {
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "data" in error
+  ) {
+    const apiError =
+      error as ApiError;
+
     return (
-      error.response?.data?.message ??
+      apiError.data?.message ??
       "Something went wrong."
     );
   }

@@ -63,6 +63,7 @@ const AuthInitializer = ({
                 console.log("User stored");
                 console.log("Initialized");
             } catch {
+                console.log("Inside the catch of initilaizer");
                 dispatch(clearCredentials());
             } finally {
                 dispatch(setInitialized(true));

@@ -15,12 +15,6 @@ export const assessmentApi =
     baseApi.injectEndpoints({
         endpoints: (builder) => ({
 
-            /*
-            |--------------------------------------------------------------------------
-            | Assessment History
-            |--------------------------------------------------------------------------
-            */
-
             getAssessmentHistory:
                 builder.query<
                     ApiResponse<
@@ -41,12 +35,6 @@ export const assessmentApi =
                         "Assessment",
                     ],
                 }),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Assessment Details
-            |--------------------------------------------------------------------------
-            */
 
             getAssessmentDetails:
                 builder.query<

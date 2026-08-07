@@ -6,6 +6,7 @@ function App() {
   return (
     <>
       {/* <BrandIntro/> */}
+      <BrandIntro />
       <RouterProvider router={router} />;
     </>
   )

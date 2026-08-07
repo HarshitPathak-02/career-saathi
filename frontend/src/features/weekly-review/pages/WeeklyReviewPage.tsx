@@ -1,8 +1,4 @@
 import {
-    ArrowLeft,
-} from "lucide-react";
-
-import {
     useState,
 } from "react";
 
@@ -32,12 +28,6 @@ export default function WeeklyReviewPage() {
 
     const navigate =
         useNavigate();
-
-    /*
-    |--------------------------------------------------------------------------
-    | State
-    |--------------------------------------------------------------------------
-    */
 
     const [
         currentStep,
@@ -72,12 +62,6 @@ export default function WeeklyReviewPage() {
             additionalComments: "",
 
         });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Queries
-    |--------------------------------------------------------------------------
-    */
 
     const {
 

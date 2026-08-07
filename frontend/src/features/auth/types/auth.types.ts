@@ -9,7 +9,6 @@ export interface User {
 
 export interface AuthResponse {
   user: User;
-
   accessToken: string;
 }
 
@@ -17,20 +16,24 @@ export interface RefreshResponse {
   accessToken: string;
 }
 
-
-export interface RegisterRequest {
-  fullName: string;
+interface Credentials {
   email: string;
   password: string;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
+export interface LoginRequest
+  extends Credentials { }
+
+export interface RegisterRequest
+  extends Credentials {
+
+  fullName: string;
 }
 
-export interface UpdateProfileDto {
-  fullName: string;
-  email: string;
-  phoneNumber?: string | null;
-}
+export type UpdateProfileDto =
+  Pick<
+    User,
+    "fullName" |
+    "email" |
+    "phoneNumber"
+  >;

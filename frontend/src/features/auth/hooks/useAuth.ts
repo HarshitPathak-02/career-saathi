@@ -2,11 +2,15 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "../../../app/hooks";
 
-import { setCredentials } from "../slice/authSlice";
+import {
+  setCredentials,
+  clearCredentials,
+} from "../slice/authSlice";
 
 import {
   useLoginMutation,
   useRegisterMutation,
+  useLogoutMutation,
 } from "../api/authApi";
 
 import { baseApi } from "../../../shared/api/baseApi";
@@ -29,6 +33,9 @@ export const useAuth = () => {
   const [register, registerState] =
     useRegisterMutation();
 
+  const [logout, logoutState] =
+    useLogoutMutation();
+
   const loginUser = async (
     email: string,
     password: string
@@ -41,9 +48,7 @@ export const useAuth = () => {
 
       dispatch(
         setCredentials({
-          accessToken:
-            response.data.accessToken,
-
+          accessToken: response.data.accessToken,
           user: response.data.user,
         })
       );
@@ -80,9 +85,7 @@ export const useAuth = () => {
 
       dispatch(
         setCredentials({
-          accessToken:
-            response.data.accessToken,
-
+          accessToken: response.data.accessToken,
           user: response.data.user,
         })
       );
@@ -105,11 +108,35 @@ export const useAuth = () => {
     }
   };
 
+  const logoutUser = async () => {
+    try {
+      await logout().unwrap();
+
+      dispatch(clearCredentials());
+
+      dispatch(
+        baseApi.util.resetApiState()
+      );
+
+      showSuccess("Logged out successfully.");
+
+
+    } catch (error) {
+      showError(
+        getApiErrorMessage(error)
+      );
+
+      throw error;
+    }
+  };
+
   return {
     loginUser,
     registerUser,
+    logoutUser,
 
     loginState,
     registerState,
+    logoutState,
   };
 };

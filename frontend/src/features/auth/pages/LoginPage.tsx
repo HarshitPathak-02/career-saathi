@@ -37,8 +37,6 @@ const journeyPoints = [
 
 const LoginPage = () => {
 
-  console.log("login page arrived")
-
   return (
     <main
       className="

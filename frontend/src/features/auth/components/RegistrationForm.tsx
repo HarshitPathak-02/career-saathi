@@ -8,7 +8,6 @@ import {
 
 import {
   Link,
-  useNavigate,
 } from "react-router-dom";
 
 import FormField
@@ -56,12 +55,6 @@ const RegisterForm = () => {
 
   });
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Submit
-  |--------------------------------------------------------------------------
-  */
 
   const onSubmit = async (
     data: RegisterFormValues

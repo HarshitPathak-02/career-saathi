@@ -20,6 +20,7 @@ import LogoutModal from "../../settings/components/LogoutConfirmationModal";
 import { logout as logoutAction } from '../../auth/slice/authSlice'
 import { useDispatch } from "react-redux";
 import logo from '../../../assets/logo.png'
+import { useAuth } from "../../auth/hooks/useAuth";
 
 interface WorkspaceSidebarProps {
 
@@ -121,6 +122,8 @@ const WorkspaceSidebar = ({
         },
     ] = useLogoutMutation();
 
+    const { logoutUser } = useAuth();
+
 
     const settingsRef =
         useRef<HTMLDivElement>(null);
@@ -147,7 +150,7 @@ const WorkspaceSidebar = ({
 
     const handleLogout = async () => {
         try {
-            await logout().unwrap();
+            await logoutUser()
 
             console.log("Logout API completed");
 

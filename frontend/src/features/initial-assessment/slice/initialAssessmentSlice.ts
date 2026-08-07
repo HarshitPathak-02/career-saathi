@@ -5,17 +5,13 @@ import {
 
 interface InitialAssessmentState {
     currentStep: 1 | 2 | 3;
-
     selectedSkillCatalogIds: string[];
-
     assessmentId: string | null;
 }
 
 const initialState: InitialAssessmentState = {
     currentStep: 1,
-
     selectedSkillCatalogIds: [],
-
     assessmentId: null,
 };
 

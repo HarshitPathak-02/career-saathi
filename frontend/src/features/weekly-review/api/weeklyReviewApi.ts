@@ -12,12 +12,6 @@ export const weeklyReviewApi =
 
         endpoints: (builder) => ({
 
-            /*
-            |--------------------------------------------------------------------------
-            | Current Weekly Review
-            |--------------------------------------------------------------------------
-            */
-
             getCurrentWeeklyReview:
                 builder.query<
                     WeeklyReviewPreparationResponse,
@@ -39,12 +33,6 @@ export const weeklyReviewApi =
                     ],
 
                 }),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Submit Weekly Review
-            |--------------------------------------------------------------------------
-            */
 
             submitWeeklyReview:
                 builder.mutation<

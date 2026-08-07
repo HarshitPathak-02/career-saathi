@@ -1,11 +1,9 @@
 import {
-    ArrowLeft,
     BarChart3,
     ClipboardCheck,
 } from "lucide-react";
 
 import {
-    useNavigate,
     useParams,
 } from "react-router-dom";
 
@@ -16,9 +14,6 @@ import {
 import AssessmentSkillResultCard from "../components/AssessmentSkillResultCard";
 
 const AssessmentDetailPage = () => {
-
-    const navigate =
-        useNavigate();
 
     const {
         assessmentId,
@@ -59,7 +54,7 @@ const AssessmentDetailPage = () => {
                 <div
                     className="
                         flex
-                        min-h-[600px]
+                        min-h-150
                         items-center
                         justify-center
                         px-4
