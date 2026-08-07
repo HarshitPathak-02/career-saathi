@@ -255,7 +255,7 @@ export default function WeeklyReviewPage() {
             );
 
             navigate(
-                "/missions"
+                "/workspace"
             );
 
         } catch (err) {

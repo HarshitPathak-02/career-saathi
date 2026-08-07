@@ -36,6 +36,7 @@ export const missionApi =
                     invalidatesTags: [
                         "CareerJourney",
                         "Mission",
+                        "Workspace"
                     ],
                 }),
 
@@ -61,6 +62,7 @@ export const missionApi =
 
                     providesTags: [
                         "Mission",
+                        "Workspace"
                     ],
                 }),
 
@@ -86,6 +88,7 @@ export const missionApi =
 
                     providesTags: [
                         "Mission",
+                        "Workspace"
                     ],
                 }),
 

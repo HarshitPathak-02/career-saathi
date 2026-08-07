@@ -17,12 +17,6 @@ export const roadmapApi =
     baseApi.injectEndpoints({
         endpoints: (builder) => ({
 
-            /*
-            |--------------------------------------------------------------------------
-            | Generate Roadmap
-            |--------------------------------------------------------------------------
-            */
-
             generateRoadmap:
                 builder.mutation<
                     ApiResponse<Roadmap>,
@@ -44,15 +38,10 @@ export const roadmapApi =
                     invalidatesTags: [
                         "CareerJourney",
                         "Roadmap",
+                        "Workspace"
                     ],
 
                 }),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get Roadmap By Career Journey
-            |--------------------------------------------------------------------------
-            */
 
             getRoadmapByCareerJourney:
                 builder.query<
@@ -77,12 +66,6 @@ export const roadmapApi =
                     ],
 
                 }),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Get Roadmap Items
-            |--------------------------------------------------------------------------
-            */
 
             getRoadmapItems:
                 builder.query<

@@ -425,7 +425,7 @@ export default function AssessmentScoresStep({
 
                                             value={
                                                 score?.obtainedMarks ??
-                                                0
+                                                ""
                                             }
 
                                             onChange={e =>
