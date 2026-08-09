@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 
 import router from './routes/index.js';
 import { errorMiddleware } from './core/middleware/error.middleware.js';
+import { env } from './config/env.js';
 
 const app = express();
 
@@ -13,7 +14,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: true,
+    origin: env.CLIENT_URL,
     credentials: true,
   })
 );
