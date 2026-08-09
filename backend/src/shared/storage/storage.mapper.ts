@@ -7,7 +7,6 @@ export class StorageMapper {
     ): UploadFileInput {
         return {
             buffer: file.buffer,
-            folder,
             fileName: file.originalname,
             mimeType: file.mimetype,
         };

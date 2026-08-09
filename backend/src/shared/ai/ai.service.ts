@@ -28,5 +28,5 @@ class AIService {
 
 export const aiService =
     new AIService(
-        new createAIProvider()
+        createAIProvider()
     );
