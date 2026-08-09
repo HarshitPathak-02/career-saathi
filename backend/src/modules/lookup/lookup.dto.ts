@@ -1,9 +1,9 @@
 import {
     SkillCategory,
     SkillDifficulty,
-} from "../../skill-catalog/skill-catalog.enums.js";
+} from "../../master-data/skill-catalog/skill-catalog.enums.js";
 
-import { SkillPriority } from "../../career-role-skill/career-role-skill.enums.js";
+import { SkillPriority } from "../../master-data/career-role-skill/career-role-skill.enums.js";
 
 export interface CareerDomainResponseDto {
     id: string;
