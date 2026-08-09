@@ -15,7 +15,6 @@ import {
     useNavigate,
 } from "react-router-dom";
 import SettingsPopover from "../../settings/components/SettingsPopover";
-import { useLogoutMutation } from "../../auth/api/authApi";
 import LogoutModal from "../../settings/components/LogoutConfirmationModal";
 import { logout as logoutAction } from '../../auth/slice/authSlice'
 import { useDispatch } from "react-redux";
@@ -115,12 +114,9 @@ const WorkspaceSidebar = ({
     const [showLogoutModal, setShowLogoutModal] =
         useState(false);
 
-    const [
-        logout,
-        {
-            isLoading: isLoggingOut,
-        },
-    ] = useLogoutMutation();
+
+    const [isLoggingOut, setIsLoggingOut] =
+        useState(false);
 
     const { logoutUser } = useAuth();
 
@@ -150,6 +146,7 @@ const WorkspaceSidebar = ({
 
     const handleLogout = async () => {
         try {
+            setIsLoggingOut(true);
             await logoutUser()
 
             console.log("Logout API completed");
@@ -164,6 +161,8 @@ const WorkspaceSidebar = ({
 
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoggingOut(false);
         }
     };
 
