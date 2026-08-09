@@ -52,7 +52,6 @@ class MonthlyReportService {
                 userId
             );
 
-
         /*
          * Verify Career Journey Ownership
          */
