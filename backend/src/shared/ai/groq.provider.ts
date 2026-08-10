@@ -77,8 +77,7 @@ export class GroqProvider
                             .DEFAULT_TEMPERATURE,
 
                     max_completion_tokens:
-                        request.maxOutputTokens ??
-                        AI_CONSTANTS.DEFAULT_MAX_OUTPUT_TOKENS,
+                        1000,
 
                     response_format: {
                         type:
