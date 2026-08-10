@@ -8,23 +8,47 @@ class RoadmapPromptBuilder {
     input: RoadmapGenerationInput
   ): string {
 
-    const currentSkills = input.currentSkills.map(skill => ({
-      skillId: skill.skillId,
-      skillName: skill.skillName,
-      currentLevel: skill.currentLevel,
-    }));
+    const currentSkills =
+      input.currentSkills.map(
+        skill => ({
+          skillId:
+            skill.skillId,
 
-    const requiredSkills = input.requiredSkills.map(skill => ({
-      skillId: skill.skillId,
-      skillName: skill.skillName,
-    }));
+          skillName:
+            skill.skillName,
 
-    const availableSkills = input.availableSkills.map(skill => ({
-      skillId: skill.skillId,
-      title: skill.title,
-      category: skill.category,
-      difficulty: skill.difficulty,
-    }));
+          currentLevel:
+            skill.currentLevel,
+        })
+      );
+
+    const requiredSkills =
+      input.requiredSkills.map(
+        skill => ({
+          skillId:
+            skill.skillId,
+
+          skillName:
+            skill.skillName,
+        })
+      );
+
+    const availableSkills =
+      input.availableSkills.map(
+        skill => ({
+          skillId:
+            skill.skillId,
+
+          title:
+            skill.title,
+
+          category:
+            skill.category,
+
+          difficulty:
+            skill.difficulty,
+        })
+      );
 
     return `
 You are an expert software engineering career mentor.
@@ -32,106 +56,156 @@ You are an expert software engineering career mentor.
 Generate a personalized technical learning roadmap for the student's target role.
 
 The roadmap is responsible ONLY for:
+
 - learning technical skills
 - building practical projects
 - improving the technical portfolio
 
 Other CareerSaathi workflows handle missions, revision, assessments, interviews, resume work, readiness evaluation, and job applications.
 
-Return ONLY valid JSON. No markdown or explanations.
+Return ONLY valid JSON.
+Do not use markdown.
+Do not provide explanations outside the JSON.
 
 ==================================================
 STUDENT
 ==================================================
 
 Target:
+
 ${JSON.stringify({
-      role: input.target.role,
-      domain: input.target.domain,
-      durationMonths: input.target.durationMonths,
-      dailyStudyHours: input.target.dailyStudyHours,
+      role:
+        input.target.role,
+
+      domain:
+        input.target.domain,
+
+      durationMonths:
+        input.target.durationMonths,
+
+      dailyStudyHours:
+        input.target.dailyStudyHours,
     })}
 
 Current Skills:
+
 ${JSON.stringify(currentSkills)}
 
 Required Skills:
+
 ${JSON.stringify(requiredSkills)}
 
 Available Skill Catalog:
+
 ${JSON.stringify(availableSkills)}
 
 ==================================================
-SKILL CATALOG RULE
+SKILL CATALOG
 ==================================================
 
 The Available Skill Catalog contains HIGH-LEVEL technical skills.
 
 It is NOT a detailed curriculum.
 
+The catalog is the source of truth for skill identity.
+
 For example, the catalog may contain:
 
 {
-  "skillId": "nodejs-id",
-  "title": "Node.js"
+    "skillId": "nodejs-id",
+    "title": "Node.js"
 }
 
-The roadmap may decompose that skill into multiple learning topics such as:
+The roadmap may decompose this high-level skill into multiple meaningful TOPICs, such as:
 
 - Node.js Runtime Fundamentals
 - Node.js Asynchronous Programming
 - Node.js Event Loop and Concurrency
-- Node.js Streams and Buffers
+- Node.js Error Handling
+- Node.js Streams
 
-All such topics MUST use:
+All of these TOPICs must use:
 
 "skillId": "nodejs-id"
 
-Therefore:
+Rules:
 
-- skillId MUST come from the Available Skill Catalog.
+- Every TOPIC skillId MUST come from the Available Skill Catalog.
 - Never invent a skillId.
-- A single catalog skill may produce multiple TOPIC items.
-- TOPIC titles may be more specific than the catalog title.
-- Do not create new catalog skills.
-- Do not require every learning concept to exist in the catalog.
+- Never create a new catalog skill.
+- A single catalog skill MAY produce multiple TOPICs.
+- TOPIC titles MAY be more specific than the catalog title.
+- The catalog does not need to contain every individual learning concept.
 
 ==================================================
-ADAPTIVE ROADMAP
+PERSONALIZATION
 ==================================================
 
-Use Current Skills, Required Skills, assessment level, target role, duration, and daily study hours to determine the roadmap.
+Use:
 
-For every required skill:
+- Current Skills
+- Required Skills
+- Current skill levels
+- Target role
+- Target domain
+- Target duration
+- Daily study hours
+
+to determine the roadmap.
+
+For each relevant required skill:
 
 1. Determine the student's current level.
-2. Determine the required level for the target role.
-3. Identify the competency gap.
-4. Decompose the gap into meaningful technical TOPICs.
+2. Determine the level needed for the target role.
+3. Identify the important competency gaps.
+4. Decompose those gaps into meaningful TOPICs.
 5. Order topics according to prerequisites.
 6. Stop when the required competency has been reasonably covered.
 
-Strong existing knowledge should reduce unnecessary fundamentals.
+If the student already has strong knowledge of a skill:
 
-Weak knowledge should receive sufficient foundational, intermediate, and advanced coverage.
+- avoid unnecessary fundamentals
+- focus on missing or advanced competencies
 
-Do NOT compress an entire technology into one broad TOPIC.
+If the student has weak knowledge:
 
-Do NOT create artificial topics merely to increase item count.
+- include the necessary foundational concepts
+- progress through intermediate concepts
+- include advanced concepts when required
 
-The number of roadmap items should emerge from the student's actual skill gaps.
+Do not unnecessarily reteach skills the student already knows.
+
+Do not compress a substantial skill gap into one overly broad TOPIC.
+
+Do not create artificial TOPICs merely to increase the number of roadmap items.
+
+The number of roadmap items should naturally result from the student's actual skill gaps.
 
 ==================================================
-ALLOWED TYPES
+ROADMAP STRUCTURE
 ==================================================
 
-Only these types are allowed:
+Allowed types are ONLY:
 
-TOPIC
-PROJECT
-PORTFOLIO
+- TOPIC
+- PROJECT
+- PORTFOLIO
 
 Return one flat ordered roadmap.
+
+Do NOT generate:
+
+- weeks
+- phases
+- sections
+- daily missions
+- weekly missions
+- revision
+- assessments
+- mock interviews
+- resume tasks
+- job applications
+- readiness evaluations
 
 Orders must start at 1 and be sequential.
 
@@ -139,7 +213,7 @@ Orders must start at 1 and be sequential.
 TOPIC
 ==================================================
 
-TOPIC represents ONE meaningful technical learning unit.
+A TOPIC represents ONE meaningful technical learning competency.
 
 Every TOPIC MUST contain:
 
@@ -150,41 +224,45 @@ Every TOPIC MUST contain:
 - aiReason
 - metadata
 
-skillId MUST exactly match a skillId from the Available Skill Catalog.
+The skillId MUST exactly match a skillId from the Available Skill Catalog.
 
-The title represents the specific competency being learned within that high-level skill.
+The title represents the specific competency being learned within that catalog skill.
 
-Example:
+For example, if the catalog contains:
 
-Catalog skill:
 Node.js
 
-Possible topics:
+the roadmap may contain:
 
 - Node.js Runtime Fundamentals
-- Node.js Modules and Package Management
 - Node.js Asynchronous Programming
 - Node.js Event Loop and Concurrency
 - Node.js Error Handling
+- Node.js Streams
 
-All use the same Node.js skillId.
+All of these must use the same Node.js skillId.
 
-Do not combine unrelated concepts into one TOPIC.
+Do not combine unrelated technical concepts into one TOPIC.
 
 ==================================================
 PROJECT
 ==================================================
 
-PROJECT represents ONE coherent practical implementation milestone.
+A PROJECT represents ONE coherent practical implementation milestone.
 
-A project may use:
+A PROJECT may use:
 
-- Current Skills
+- skills already present in Current Skills
 - skills introduced by earlier TOPICs
 
-A project must appear only after sufficient prerequisites have been introduced.
+A PROJECT must appear only after its important prerequisites are available.
 
-Projects should be relevant to the target role and strengthen practical ability.
+Projects must:
+
+- be relevant to the target role
+- apply previously learned skills
+- provide meaningful practical experience
+- represent one coherent technical outcome
 
 PROJECT MUST NOT contain skillId.
 
@@ -192,7 +270,7 @@ PROJECT MUST NOT contain skillId.
 PORTFOLIO
 ==================================================
 
-PORTFOLIO represents professional presentation of completed technical work.
+A PORTFOLIO represents professional presentation of completed technical work.
 
 It may include:
 
@@ -201,7 +279,7 @@ It may include:
 - technical decisions
 - API documentation
 - deployment documentation
-- professional project presentation
+- project presentation
 
 Generate PORTFOLIO only after meaningful project work exists.
 
@@ -214,66 +292,71 @@ ESTIMATED HOURS
 Use realistic estimates.
 
 TOPIC:
+
 - simple: 4-8 hours
 - intermediate: 8-16 hours
 - advanced: 16-30 hours
 
 PROJECT:
+
 - small: 20-40 hours
 - medium: 40-70 hours
 - large: 70-120 hours
 
 PORTFOLIO:
+
 - normally 4-8 hours
 
-Keep the total effort reasonably compatible with the student's duration and daily study hours.
+Use the student's current level, topic complexity, target role, target duration, and daily study hours when estimating effort.
+
+Keep the overall roadmap reasonably compatible with the student's available study time.
 
 ==================================================
 OUTPUT
 ==================================================
 
-Return exactly:
+Return exactly this structure:
 
 {
-  "version": 1,
-  "title": "Roadmap title",
-  "roadmapItems": [
-    {
-      "order": 1,
-      "type": "TOPIC",
-      "skillId": "exact-catalog-skill-id",
-      "title": "Specific Learning Topic",
-      "description": "One concise sentence.",
-      "estimatedHours": 10,
-      "aiReason": "One concise sentence.",
-      "metadata": {}
-    },
-    {
-      "order": 2,
-      "type": "PROJECT",
-      "title": "Project Title",
-      "description": "One concise sentence.",
-      "estimatedHours": 30,
-      "aiReason": "One concise sentence.",
-      "metadata": {}
-    },
-    {
-      "order": 3,
-      "type": "PORTFOLIO",
-      "title": "Portfolio Documentation",
-      "description": "One concise sentence.",
-      "estimatedHours": 5,
-      "aiReason": "One concise sentence.",
-      "metadata": {}
-    }
-  ]
+    "version": 1,
+    "title": "Roadmap title",
+    "roadmapItems": [
+        {
+            "order": 1,
+            "type": "TOPIC",
+            "skillId": "exact-catalog-skill-id",
+            "title": "Specific Learning Topic",
+            "description": "One concise sentence.",
+            "estimatedHours": 10,
+            "aiReason": "One concise sentence.",
+            "metadata": {}
+        },
+        {
+            "order": 2,
+            "type": "PROJECT",
+            "title": "Project Title",
+            "description": "One concise sentence.",
+            "estimatedHours": 30,
+            "aiReason": "One concise sentence.",
+            "metadata": {}
+        },
+        {
+            "order": 3,
+            "type": "PORTFOLIO",
+            "title": "Portfolio Documentation",
+            "description": "One concise sentence.",
+            "estimatedHours": 5,
+            "aiReason": "One concise sentence.",
+            "metadata": {}
+        }
+    ]
 }
 
 ==================================================
-FINAL VALIDATION
+FINAL RULES
 ==================================================
 
-Every item MUST contain:
+Every roadmap item MUST contain:
 
 - order
 - type
@@ -287,22 +370,21 @@ TOPIC additionally MUST contain skillId.
 
 PROJECT and PORTFOLIO MUST NOT contain skillId.
 
-Allowed types:
-TOPIC, PROJECT, PORTFOLIO.
-
 Every TOPIC skillId MUST exist in the Available Skill Catalog.
 
-PROJECTs must depend only on Current Skills or skills introduced by earlier TOPICs.
+PROJECTs may depend only on Current Skills or skills introduced by earlier TOPICs.
 
 PORTFOLIO must follow meaningful project work.
 
-Orders must be sequential starting from 1.
+Orders must start at 1 and remain sequential.
 
 estimatedHours must be positive.
 
 metadata MUST always be {}.
 
-description and aiReason must each be exactly one concise sentence.
+description must be exactly one concise sentence.
+
+aiReason must be exactly one concise sentence.
 
 Return ONLY the final JSON object.
 `;
