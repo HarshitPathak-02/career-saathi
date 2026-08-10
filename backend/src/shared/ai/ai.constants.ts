@@ -21,7 +21,7 @@ export const AI_CONSTANTS = {
 
     GROQ: {
         MODEL:
-            "openai/gpt-oss-120b",
+            "llama-3.1-8b-instant",
     },
 
 } as const;
