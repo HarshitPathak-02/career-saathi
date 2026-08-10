@@ -7,11 +7,11 @@ const BrandLogo = () => {
         <img src={logo} alt="CareerSaathi Logo" />
       </div>
 
-      <h1 className="text-7xl font-bold tracking-tight text-white">
+      <h1 className="lg:text-7xl md:text-7xl text-5xl font-bold tracking-tight text-white">
         CareerSaathi
       </h1>
 
-      <p className="mt-3 text-lg text-slate-400">
+      <p className="mt-3 text-600 md:text-xl lg:text-2xl text-slate-400">
         Unburden Your Future. Get Your Direction.
       </p>
     </div>
