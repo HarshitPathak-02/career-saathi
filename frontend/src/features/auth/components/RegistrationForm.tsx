@@ -193,57 +193,6 @@ const RegisterForm = () => {
           )}
         />
 
-
-        {/* Terms */}
-
-        <p
-          className="
-                        text-xs
-                        leading-5
-                        text-slate-500
-                    "
-        >
-
-          By creating an account, you agree to
-          CareerSaathi's{" "}
-
-          <Link
-            to="/terms"
-            className="
-                            font-medium
-                            text-slate-700
-                            underline
-                            underline-offset-2
-                            hover:text-indigo-600
-                        "
-          >
-
-            Terms of Service
-
-          </Link>
-
-          {" "}and{" "}
-
-          <Link
-            to="/privacy"
-            className="
-                            font-medium
-                            text-slate-700
-                            underline
-                            underline-offset-2
-                            hover:text-indigo-600
-                        "
-          >
-
-            Privacy Policy
-
-          </Link>
-
-          .
-
-        </p>
-
-
         {/* Submit */}
 
         <Button
