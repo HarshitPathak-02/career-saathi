@@ -69,7 +69,6 @@ class MonthlyReportAIService {
                     aiResponse.text
                 );
 
-
         /*
          * Validate AI Response
          */
