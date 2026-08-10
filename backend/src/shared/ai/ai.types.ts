@@ -8,6 +8,7 @@ export interface AIRequest {
     maxOutputTokens?: number;
 }
 
+
 export interface AIResponse {
     text: string;
 
