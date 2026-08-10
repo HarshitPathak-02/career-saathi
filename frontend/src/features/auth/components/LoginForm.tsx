@@ -159,36 +159,9 @@ const LoginForm = () => {
           )}
         />
 
-
         {/* Password */}
 
         <div>
-
-          <div
-            className="
-                            mb-2
-                            flex
-                            items-center
-                            justify-between
-                        "
-          >
-            <span />
-
-            <Link
-              to="/forgot-password"
-              className="
-                                text-sm
-                                font-medium
-                                text-indigo-600
-                                transition
-                                hover:text-indigo-700
-                            "
-            >
-              Forgot password?
-            </Link>
-
-          </div>
-
           <FormField
             id="password"
             label="Password"
