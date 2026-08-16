@@ -77,12 +77,14 @@ export class GroqProvider
                             .DEFAULT_TEMPERATURE,
 
                     max_completion_tokens:
-                        1000,
+                        2000,
 
                     response_format: {
                         type:
                             "json_object",
                     },
+
+                    include_reasoning: false,
 
                 });
 
