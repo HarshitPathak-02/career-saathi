@@ -1,18 +1,27 @@
 import { Types } from "mongoose";
 
-import {
+import type {
     CreateResumeDto,
 } from "./resume.types.js";
 
 import { ResumeMapper } from "./resume.mapper.js";
 import { resumeRepository } from "./resume.repository.js";
+import { extractResumeText } from "./resume-text.extractor.js";
 
 import { careerJourneyRepository } from "../career-journey/career-journey.repository.js";
 
 import {
     storageService,
+} from "../../shared/storage/index.js";
+
+import type {
     UploadFileInput,
 } from "../../shared/storage/index.js";
+
+import { appClock } from "../../shared/time/app-clock.js";
+import { executeTransaction } from "../../shared/utils/transaction.util.js";
+
+import logger from "../../config/logger.js";
 
 import { AppError } from "../../core/errors/app-error.js";
 import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
@@ -50,6 +59,12 @@ export class ResumeService {
                 careerJourneyObjectId
             );
 
+        const extractedText =
+            await extractResumeText(
+                file.buffer,
+                file.mimetype
+            );
+
         const uploadInput: UploadFileInput = {
             buffer: file.buffer,
             fileName: file.originalname,
@@ -72,23 +87,55 @@ export class ResumeService {
                     userObjectId,
                     data,
                     file,
-                    uploadResult
+                    uploadResult,
+                    extractedText,
+                    appClock.now()
                 );
 
-            const resume =
-                await resumeRepository.create(
-                    createInput
-                );
+            const resume = await executeTransaction(
+                async (session) => {
+
+                    const createdResume =
+                        await resumeRepository.create(
+                            createInput,
+                            session
+                        );
+
+                    if (existingResume) {
+
+                        const deletedResume =
+                            await resumeRepository.softDelete(
+                                existingResume._id,
+                                session
+                            );
+
+                        if (!deletedResume) {
+                            throw new AppError(
+                                HTTP_STATUS.CONFLICT,
+                                "Resume was updated by another request. Please try again."
+                            );
+                        }
+                    }
+
+                    return createdResume;
+                }
+            );
 
             if (existingResume) {
-
-                await resumeRepository.softDelete(
-                    existingResume._id
-                );
-
-                await storageService.deleteFile(
-                    existingResume.cloudinaryPublicId
-                );
+                try {
+                    await storageService.deleteFile(
+                        existingResume.cloudinaryPublicId
+                    );
+                } catch (error) {
+                    logger.warn(
+                        {
+                            error,
+                            resumeId:
+                                existingResume._id.toString(),
+                        },
+                        "Failed to delete replaced resume file."
+                    );
+                }
             }
 
             return resume;

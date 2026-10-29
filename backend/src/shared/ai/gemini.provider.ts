@@ -51,6 +51,15 @@ export class GeminiProvider
                     responseMimeType:
                         "application/json",
 
+                    ...(request.thinkingBudget !== undefined
+                        ? {
+                            thinkingConfig: {
+                                thinkingBudget:
+                                    request.thinkingBudget,
+                            },
+                        }
+                        : {}),
+
                 },
 
             });

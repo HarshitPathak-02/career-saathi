@@ -9,6 +9,7 @@ import { DailyTaskGenerationOutput, DailyTaskOutput } from "../../modules/daily-
 import { MentorFeedbackOutput, MissionRecommendationOutput, WeeklyReportGenerationOutput, WeeklySummaryOutput } from "../../modules/weekly-report/weekly-report.types.js";
 import { MissionDifficulty } from "../../modules/mission/mission.enums.js";
 import { MonthlyReportAIOutput } from "../../modules/monthly-report/monthly-report-ai.types.js";
+import type { ResumeSkillExtractionOutput } from "../../modules/resume/resume.types.js";
 
 class AIValidator {
 
@@ -1056,6 +1057,93 @@ class AIValidator {
 
 
         return validatedItems;
+    }
+
+    validateResumeSkillExtraction(
+        data: unknown
+    ): ResumeSkillExtractionOutput {
+        if (
+            !data ||
+            typeof data !== "object" ||
+            Array.isArray(data)
+        ) {
+            throw new Error(
+                "Resume skill extraction response must be an object."
+            );
+        }
+
+        const response =
+            data as Record<string, unknown>;
+
+        if (!Array.isArray(response.skills)) {
+            throw new Error(
+                "Resume skill extraction response must contain a skills array."
+            );
+        }
+
+        if (response.skills.length > 50) {
+            throw new Error(
+                "Resume skill extraction returned too many skills."
+            );
+        }
+
+        const skills = response.skills.map(
+            (skill, index) => {
+                if (
+                    !skill ||
+                    typeof skill !== "object" ||
+                    Array.isArray(skill)
+                ) {
+                    throw new Error(
+                        `Resume skill ${index} must be an object.`
+                    );
+                }
+
+                const candidate =
+                    skill as Record<string, unknown>;
+
+                if (
+                    typeof candidate.name !== "string" ||
+                    candidate.name.trim().length === 0 ||
+                    candidate.name.trim().length > 120
+                ) {
+                    throw new Error(
+                        `Resume skill ${index} has an invalid name.`
+                    );
+                }
+
+                if (
+                    typeof candidate.evidence !== "string" ||
+                    candidate.evidence.trim().length === 0 ||
+                    candidate.evidence.trim().length > 500
+                ) {
+                    throw new Error(
+                        `Resume skill ${index} has invalid evidence.`
+                    );
+                }
+
+                if (
+                    typeof candidate.confidence !== "number" ||
+                    !Number.isFinite(candidate.confidence) ||
+                    candidate.confidence < 0 ||
+                    candidate.confidence > 1
+                ) {
+                    throw new Error(
+                        `Resume skill ${index} has invalid confidence.`
+                    );
+                }
+
+                return {
+                    name: candidate.name.trim(),
+                    evidence: candidate.evidence.trim(),
+                    confidence: candidate.confidence,
+                };
+            }
+        );
+
+        return {
+            skills,
+        };
     }
 }
 

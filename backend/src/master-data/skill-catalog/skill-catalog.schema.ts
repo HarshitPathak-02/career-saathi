@@ -1,8 +1,11 @@
 import {
-  HydratedDocument,
-  InferSchemaType,
   Schema,
   model,
+} from "mongoose";
+
+import type {
+  HydratedDocument,
+  InferSchemaType,
 } from "mongoose";
 
 import {
@@ -46,6 +49,11 @@ const SkillCatalogSchema = new Schema(
       type: String,
       default: "",
       trim: true,
+    },
+
+    aliases: {
+      type: [String],
+      default: [],
     },
 
     isActive: {

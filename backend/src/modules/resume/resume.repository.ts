@@ -1,4 +1,4 @@
-import {
+import type {
     ClientSession,
     Types,
     UpdateQuery,
@@ -6,8 +6,14 @@ import {
 
 import { ResumeModel } from "./resume.model.js";
 
-import {
+import type { Resume } from "./resume.model.js";
+
+import { ResumeStatus } from "./resume.enums.js";
+
+import type {
     CreateResumeInput,
+    ResumeConfirmation,
+    UpdateResumeAnalysisInput,
     UpdateResumeInput,
 } from "./resume.types.js";
 
@@ -51,6 +57,138 @@ export class ResumeRepository {
         }).session(session ?? null);
     }
 
+    async findByIdAndUserIdWithText(
+        userId: Types.ObjectId,
+        resumeId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        return ResumeModel.findOne({
+            _id: resumeId,
+            userId,
+            isDeleted: false,
+        })
+            .select("+extractedText")
+            .session(session ?? null);
+    }
+
+    async startAnalysis(
+        resumeId: Types.ObjectId,
+        userId: Types.ObjectId,
+        session?: ClientSession
+    ) {
+
+        return ResumeModel.findOneAndUpdate(
+            {
+                _id: resumeId,
+                userId,
+                isDeleted: false,
+
+                status: {
+                    $ne: ResumeStatus.ANALYZING,
+                },
+            },
+            {
+                $set: {
+                    status: ResumeStatus.ANALYZING,
+                    analysis: null,
+                    analysisError: null,
+                    confirmation: null,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
+    async recoverStaleAnalysis(
+        resumeId: Types.ObjectId,
+        userId: Types.ObjectId,
+        staleBefore: Date,
+        analysisError: string,
+        session?: ClientSession
+    ) {
+
+        return ResumeModel.findOneAndUpdate(
+            {
+                _id: resumeId,
+                userId,
+                isDeleted: false,
+                status: ResumeStatus.ANALYZING,
+
+                updatedAt: {
+                    $lt: staleBefore,
+                },
+            },
+            {
+                $set: {
+                    status: ResumeStatus.ANALYSIS_FAILED,
+                    analysis: null,
+                    analysisError,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
+    async updateConfirmation(
+        resumeId: Types.ObjectId,
+        userId: Types.ObjectId,
+        confirmation: ResumeConfirmation | null,
+        session?: ClientSession
+    ) {
+
+        return ResumeModel.findOneAndUpdate(
+            {
+                _id: resumeId,
+                userId,
+                isDeleted: false,
+            },
+            {
+                $set: {
+                    confirmation,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
+    async updateAnalysis(
+        resumeId: Types.ObjectId,
+        userId: Types.ObjectId,
+        update: UpdateResumeAnalysisInput,
+        session?: ClientSession
+    ) {
+
+        return ResumeModel.findOneAndUpdate(
+            {
+                _id: resumeId,
+                userId,
+                isDeleted: false,
+            },
+            {
+                $set:
+                    update as UpdateQuery<Resume>,
+            },
+            {
+                new: true,
+                runValidators: true,
+                session,
+            }
+        );
+    }
+
     async findOne(
         filter: Record<string, unknown>,
         session?: ClientSession
@@ -88,7 +226,7 @@ export class ResumeRepository {
                 _id: resumeId,
                 isDeleted: false,
             },
-            update as UpdateQuery<any>,
+            update as UpdateQuery<Resume>,
             {
                 new: true,
                 runValidators: true,

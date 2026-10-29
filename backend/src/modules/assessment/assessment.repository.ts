@@ -316,6 +316,73 @@ class AssessmentRepository {
 
     /*
     |--------------------------------------------------------------------------
+    | Latest Resume Assessment
+    |--------------------------------------------------------------------------
+    */
+
+    async findLatestResumeAssessment(
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOne({
+                careerJourneyId,
+
+                type:
+                    AssessmentType.RESUME,
+
+                isDeleted: false,
+            })
+            .sort({
+                weekNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Latest Completed Resume Assessment
+    |--------------------------------------------------------------------------
+    */
+
+    async findLatestCompletedResumeAssessment(
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOne({
+                careerJourneyId,
+
+                type:
+                    AssessmentType.RESUME,
+
+                status:
+                    AssessmentStatus.COMPLETED,
+
+                isDeleted: false,
+            })
+            .sort({
+                weekNumber: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Weekly Assessment
     |--------------------------------------------------------------------------
     */

@@ -6,6 +6,8 @@ export interface AIRequest {
     temperature?: number;
 
     maxOutputTokens?: number;
+
+    thinkingBudget?: number;
 }
 
 

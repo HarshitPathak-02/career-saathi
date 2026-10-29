@@ -16,6 +16,15 @@ export const createResumeSchema = Joi.object({
 export const resumeIdParamSchema = Joi.object({
     resumeId: objectIdSchema.required(),
 });
+
 export const careerJourneyResumeParamSchema = Joi.object({
     careerJourneyId: objectIdSchema.required(),
+});
+
+export const confirmResumeSkillsSchema = Joi.object({
+    skillCatalogIds: Joi.array()
+        .items(objectIdSchema.required())
+        .unique()
+        .max(50)
+        .required(),
 });

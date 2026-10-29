@@ -1,5 +1,7 @@
 import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
+import { HTTP_STATUS } from "../constants/http-status.constants.js";
+import { AppError } from "../errors/app-error.js";
 
 interface UploadMiddlewareOptions {
     allowedMimeTypes: string[];
@@ -24,7 +26,8 @@ export const createUploadMiddleware = ({
         ) => {
             if (!allowedMimeTypes.includes(file.mimetype)) {
                 return cb(
-                    new Error(
+                    new AppError(
+                        HTTP_STATUS.BAD_REQUEST,
                         `Invalid file type. Allowed types: ${allowedMimeTypes.join(
                             ", "
                         )}`

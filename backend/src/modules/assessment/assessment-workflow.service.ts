@@ -200,6 +200,130 @@ class AssessmentWorkflowService {
             );
     }
 
+    async startResumeAssessment(
+        userId: string,
+        careerJourneyId: string,
+        skillCatalogIds: Types.ObjectId[],
+        session?: ClientSession
+    ) {
+
+        const userObjectId =
+            new Types.ObjectId(
+                userId
+            );
+
+        const careerJourneyObjectId =
+            new Types.ObjectId(
+                careerJourneyId
+            );
+
+        const careerJourney =
+            await careerJourneyRepository
+                .findByIdAndUserId(
+                    careerJourneyObjectId,
+                    userObjectId,
+                    session
+                );
+
+        if (!careerJourney) {
+
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Career journey not found."
+            );
+        }
+
+        if (
+            careerJourney.status !==
+            CareerJourneyStatus.ACTIVE
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.CONFLICT,
+                ASSESSMENT_MESSAGES
+                    .INVALID_STATUS
+            );
+        }
+
+        const uniqueSkillCatalogIds =
+            Array.from(
+                new Map(
+                    skillCatalogIds.map(
+                        (skillCatalogId) => [
+                            skillCatalogId
+                                .toString(),
+                            skillCatalogId,
+                        ]
+                    )
+                ).values()
+            );
+
+        if (
+            uniqueSkillCatalogIds.length === 0
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                "Select at least one skill to assess."
+            );
+        }
+
+        const userSkills =
+            await userSkillService
+                .getUserSkillsByCatalogIds(
+                    careerJourneyObjectId,
+                    uniqueSkillCatalogIds,
+                    session
+                );
+
+        if (
+            userSkills.length !==
+            uniqueSkillCatalogIds.length
+        ) {
+
+            throw new AppError(
+                HTTP_STATUS.CONFLICT,
+                "Some assessment skills are not initialized for this career journey."
+            );
+        }
+
+        const latestAssessment =
+            await assessmentRepository
+                .findLatestResumeAssessment(
+                    careerJourneyObjectId,
+                    session
+                );
+
+        const weekNumber =
+            latestAssessment
+                ? latestAssessment
+                    .weekNumber + 1
+                : 1;
+
+        return assessmentService
+            .createAssessment(
+                {
+                    careerJourneyId:
+                        careerJourneyObjectId,
+
+                    type:
+                        AssessmentType.RESUME,
+
+                    weekNumber,
+
+                    title:
+                        `Resume Skills Assessment ${weekNumber}`,
+
+                    description:
+                        "Assessment of skills newly identified from the resume.",
+
+                    skillCatalogIds:
+                        uniqueSkillCatalogIds,
+                },
+                session
+            );
+    }
+
     async completeInitialAssessment(
         userId: string,
         data: SubmitAssessmentDTO
@@ -318,6 +442,174 @@ class AssessmentWorkflowService {
         );
     }
 
+
+    async completeResumeAssessment(
+        userId: string,
+        data: SubmitAssessmentDTO
+    ) {
+
+        return executeTransaction(
+            async (session) => {
+
+                const assessment =
+                    await assessmentService
+                        .getAssessmentById(
+                            data.assessmentId,
+                            session
+                        );
+
+                if (
+                    assessment.type !==
+                    AssessmentType.RESUME
+                ) {
+
+                    throw new AppError(
+                        HTTP_STATUS.CONFLICT,
+                        ASSESSMENT_MESSAGES
+                            .NOT_RESUME_ASSESSMENT
+                    );
+                }
+
+                if (
+                    assessment.status ===
+                    AssessmentStatus.COMPLETED
+                ) {
+
+                    throw new AppError(
+                        HTTP_STATUS.CONFLICT,
+                        ASSESSMENT_MESSAGES
+                            .ALREADY_COMPLETED
+                    );
+                }
+
+                const careerJourney =
+                    await careerJourneyRepository
+                        .findByIdAndUserId(
+                            assessment
+                                .careerJourneyId,
+
+                            new Types.ObjectId(
+                                userId
+                            ),
+
+                            session
+                        );
+
+                if (!careerJourney) {
+
+                    throw new AppError(
+                        HTTP_STATUS.NOT_FOUND,
+                        "Career journey not found."
+                    );
+                }
+
+                const expectedUserSkills =
+                    await userSkillService
+                        .getUserSkillsByCatalogIds(
+                            assessment
+                                .careerJourneyId,
+
+                            assessment
+                                .skillCatalogIds,
+
+                            session
+                        );
+
+                const expectedUserSkillIds =
+                    new Set(
+                        expectedUserSkills.map(
+                            (userSkill) =>
+                                userSkill._id
+                                    .toString()
+                        )
+                    );
+
+                const submittedUserSkillIds =
+                    data.skills.map(
+                        (skill) =>
+                            skill.userSkillId
+                                .toString()
+                    );
+
+                const uniqueSubmittedUserSkillIds =
+                    new Set(
+                        submittedUserSkillIds
+                    );
+
+                if (
+                    uniqueSubmittedUserSkillIds.size !==
+                    submittedUserSkillIds.length ||
+                    uniqueSubmittedUserSkillIds.size !==
+                    expectedUserSkillIds.size ||
+                    submittedUserSkillIds.some(
+                        (userSkillId) =>
+                            !expectedUserSkillIds.has(
+                                userSkillId
+                            )
+                    )
+                ) {
+
+                    throw new AppError(
+                        HTTP_STATUS.BAD_REQUEST,
+                        "Assessment submission does not match the skills selected for this assessment."
+                    );
+                }
+
+                const skillProgress =
+                    await skillProgressService
+                        .createManySkillProgress(
+                            data.skills.map(
+                                (skill) => ({
+                                    ...skill,
+
+                                    assessmentId:
+                                        assessment._id,
+
+                                    careerJourneyId:
+                                        assessment
+                                            .careerJourneyId,
+
+                                    assessmentMethod:
+                                        AssessmentMethod
+                                            .PLATFORM,
+                                })
+                            ),
+                            session
+                        );
+
+                await userSkillService
+                    .updateManySkills(
+                        skillProgress.map(
+                            (progress) => ({
+                                userSkillId:
+                                    progress.userSkillId,
+
+                                currentScore:
+                                    progress.percentage,
+
+                                lastAssessmentAt:
+                                    progress.createdAt,
+                            })
+                        ),
+                        session
+                    );
+
+                await assessmentService
+                    .submitAssessment(
+                        assessment._id
+                            .toString(),
+                        session
+                    );
+
+                return assessmentService
+                    .getAssessmentById(
+                        assessment._id
+                            .toString(),
+                        session
+                    );
+            }
+        );
+    }
 
     async completeWeeklyAssessment(
         data: SubmitAssessmentDTO,
