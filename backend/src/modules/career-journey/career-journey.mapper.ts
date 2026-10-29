@@ -1,8 +1,6 @@
 import { Types } from "mongoose";
 import { CareerJourneyDocument, CareerJourneyResponse, CareerJourneyStatus, CreateCareerJourneyDto, CreateCareerJourneyInput, UpdateCareerJourneyDto, UpdateCareerJourneyInput } from "./index.js";
 
-
-
 export class CareerJourneyMapper {
   static toCreateInput(
     userId: Types.ObjectId,

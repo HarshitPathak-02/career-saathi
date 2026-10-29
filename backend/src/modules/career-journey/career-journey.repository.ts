@@ -4,9 +4,6 @@ import {
 } from "mongoose";
 import { CareerJourneyDocument, CareerJourneyModel, CareerJourneyStatus, CreateCareerJourneyInput, PopulatedCareerJourneyDocument, UpdateCareerJourneyInput } from "./index.js";
 
-
-
-
 export class CareerJourneyRepository {
 
     async create(

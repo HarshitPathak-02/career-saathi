@@ -290,7 +290,7 @@ export const seedCareerRoleSkills = async (): Promise<void> => {
     });
 
     if (!skill) {
-      throw new AppError(404, `Skill '${item.skillSlug}' not found.`);
+      throw new AppError(HTTP_STATUS.NOT_FOUND, `Skill '${item.skillSlug}' not found.`);
     }
 
     const { roleSlug, skillSlug, ...seedData } = item;
