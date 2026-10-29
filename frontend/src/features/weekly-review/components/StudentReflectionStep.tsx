@@ -89,11 +89,11 @@ export default function StudentReflectionStep({
 
         if (completed) {
 
-            const {
-                reason: _reason,
-                ...learningReflection
-            } =
-                value.learningReflection;
+            const learningReflection = {
+                ...value.learningReflection,
+
+                reason: undefined,
+            };
 
             onChange({
 

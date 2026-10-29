@@ -2,8 +2,8 @@ import {
   type LabelHTMLAttributes,
 } from "react";
 
-interface FormLabelProps
-  extends LabelHTMLAttributes<HTMLLabelElement> { }
+type FormLabelProps =
+  LabelHTMLAttributes<HTMLLabelElement>;
 
 const FormLabel = ({
 

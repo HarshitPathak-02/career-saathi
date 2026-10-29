@@ -395,7 +395,7 @@ const StageRenderer = ({
                                 type="button"
                                 onClick={() =>
                                     navigate(
-                                        "/jobs"
+                                        "/readiness"
                                     )
                                 }
                                 className="
@@ -410,7 +410,7 @@ const StageRenderer = ({
                                     hover:bg-green-700
                                 "
                             >
-                                Start Applying
+                                View Readiness Report
                             </button>
 
                         </div>

@@ -53,10 +53,7 @@ export default function SettingsPopover({
             <div className="p-2">
                 <button
                     type="button"
-                    onClick={() => {
-                        console.log("Logout button clicked");
-                        onLogout();
-                    }}
+                    onClick={onLogout}
                     className="
                         mt-1
                         flex
