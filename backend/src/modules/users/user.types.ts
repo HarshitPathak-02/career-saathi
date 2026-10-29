@@ -20,6 +20,13 @@ export interface IUser {
 
   activeCareerJourneyId?: Types.ObjectId | null;
 
+  /*
+   * SHA-256 hashes of active refresh tokens.
+   * Used to revoke sessions on logout and to
+   * detect refresh-token reuse.
+   */
+  refreshTokenHashes?: string[];
+
   lastLogin?: Date | null;
 
   deletedAt?: Date | null;
@@ -47,6 +54,8 @@ export interface UpdateUserInput {
   lastLogin?: Date;
 
   activeCareerJourneyId?: Types.ObjectId | null;
+
+  refreshTokenHashes?: string[];
 
   emailVerified?: boolean;
 

@@ -186,8 +186,6 @@ class AssessmentService {
                     assessmentId
                 );
 
-        console.log(progress, "progress");
-
         const skills =
             progress.map(
                 (item) => ({

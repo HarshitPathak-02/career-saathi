@@ -1,5 +1,4 @@
 import {
-    useEffect,
     useMemo,
     useState,
 } from "react";
@@ -159,37 +158,48 @@ const AssessmentScoreStep = ({
             ]
         );
 
-    const [
-        scores,
-        setScores,
-    ] = useState<
-        ScoreState[]
-    >([]);
+    type ScoreInput = Pick<
+        ScoreState,
+        "obtainedMarks" | "totalMarks"
+    >;
 
-    useEffect(() => {
-        if (
-            selectedSkills.length >
-            0 &&
-            scores.length === 0
-        ) {
-            setScores(
+    const [
+        scoreInputs,
+        setScoreInputs,
+    ] = useState<
+        Record<string, ScoreInput>
+    >({});
+
+    const scores:
+        ScoreState[] =
+        useMemo(
+            () =>
                 selectedSkills.map(
                     (skill) => ({
                         ...skill,
 
                         obtainedMarks:
+                            scoreInputs[
+                                skill
+                                    .userSkillId
+                            ]
+                                ?.obtainedMarks ??
                             "",
 
                         totalMarks:
+                            scoreInputs[
+                                skill
+                                    .userSkillId
+                            ]
+                                ?.totalMarks ??
                             "",
                     })
-                )
-            );
-        }
-    }, [
-        selectedSkills,
-        scores.length,
-    ]);
+                ),
+            [
+                selectedSkills,
+                scoreInputs,
+            ]
+        );
 
     const updateScore = (
         userSkillId: string,
@@ -198,20 +208,28 @@ const AssessmentScoreStep = ({
             | "totalMarks",
         value: number | ""
     ) => {
-        setScores(
-            (current) =>
-                current.map(
-                    (score) =>
-                        score.userSkillId ===
-                            userSkillId
-                            ? {
-                                ...score,
+        setScoreInputs(
+            (current) => ({
+                ...current,
 
-                                [field]:
-                                    value,
-                            }
-                            : score
-                )
+                [userSkillId]: {
+                    obtainedMarks:
+                        current[
+                            userSkillId
+                        ]
+                            ?.obtainedMarks ??
+                        "",
+
+                    totalMarks:
+                        current[
+                            userSkillId
+                        ]
+                            ?.totalMarks ??
+                        "",
+
+                    [field]: value,
+                },
+            })
         );
     };
 

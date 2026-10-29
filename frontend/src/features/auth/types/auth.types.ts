@@ -21,8 +21,7 @@ interface Credentials {
   password: string;
 }
 
-export interface LoginRequest
-  extends Credentials { }
+export type LoginRequest = Credentials;
 
 export interface RegisterRequest
   extends Credentials {

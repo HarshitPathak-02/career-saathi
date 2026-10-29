@@ -10,6 +10,8 @@ import {
     aiService,
 } from "../../shared/ai/ai.service.js";
 
+import logger from "../../config/logger.js";
+
 import {
     aiValidator,
 } from "../../shared/ai/ai.validator.js";
@@ -233,9 +235,9 @@ Each description must be exactly one short sentence.
         }
 
 
-        console.error(
-            "Daily task AI generation failed after retries:",
-            lastError
+        logger.error(
+            { error: lastError },
+            "Daily task AI generation failed after retries."
         );
 
         throw new AppError(

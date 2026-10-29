@@ -23,6 +23,10 @@ import {
 } from '../../shared/utils/jwt.utlil.js';
 import { AccountStatus } from '../users/user.enums.js';
 import { UserResponse } from '../users/user.types.js';
+import {
+  hashToken,
+  tokenHashesMatch,
+} from '../../shared/utils/token-hash.util.js';
 
 class AuthService {
   async register(
@@ -54,6 +58,11 @@ class AuthService {
     const accessToken = generateAccessToken(payload);
 
     const refreshToken = generateRefreshToken(payload);
+
+    await userRepository.addRefreshTokenHash(
+      user.id,
+      hashToken(refreshToken)
+    );
 
     return {
       user: toUserResponse(user),
@@ -123,9 +132,17 @@ class AuthService {
     const refreshToken =
       generateRefreshToken(payload);
 
+    const authenticatedUser =
+      updatedUser ?? user;
+
+    await userRepository.addRefreshTokenHash(
+      authenticatedUser.id,
+      hashToken(refreshToken)
+    );
+
     return {
       user: toUserResponse(
-        updatedUser ?? user
+        authenticatedUser
       ),
       accessToken,
       refreshToken,
@@ -135,8 +152,17 @@ class AuthService {
   async refresh(
     refreshToken: string
   ): Promise<RefreshResponse> {
-    const payload =
-      verifyRefreshToken(refreshToken);
+    let payload: JwtPayload;
+
+    try {
+      payload =
+        verifyRefreshToken(refreshToken);
+    } catch {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        AUTH_MESSAGES.REFRESH_TOKEN_REVOKED
+      );
+    }
 
     const user =
       await userRepository.findById(
@@ -147,6 +173,29 @@ class AuthService {
       throw new AppError(
         HTTP_STATUS.UNAUTHORIZED,
         AUTH_MESSAGES.INVALID_CREDENTIALS
+      );
+    }
+
+    /*
+     * Reject tokens that were already rotated or
+     * revoked (logout, logout-all, token reuse).
+     */
+    const currentTokenHash =
+      hashToken(refreshToken);
+
+    const isKnownRefreshToken =
+      (user.refreshTokenHashes ?? []).some(
+        (storedHash) =>
+          tokenHashesMatch(
+            storedHash,
+            currentTokenHash
+          )
+      );
+
+    if (!isKnownRefreshToken) {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        AUTH_MESSAGES.REFRESH_TOKEN_REVOKED
       );
     }
 
@@ -179,10 +228,66 @@ class AuthService {
     const newRefreshToken =
       generateRefreshToken(jwtPayload);
 
+    /*
+     * Atomic rotation: only succeeds if the presented
+     * token hash is still the stored one. Concurrent
+     * refreshes therefore cannot both succeed.
+     */
+    const rotatedUser =
+      await userRepository
+        .replaceRefreshTokenHash(
+          user.id,
+          currentTokenHash,
+          hashToken(newRefreshToken)
+        );
+
+    if (!rotatedUser) {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        AUTH_MESSAGES.REFRESH_TOKEN_REVOKED
+      );
+    }
+
     return {
       accessToken,
       refreshToken: newRefreshToken,
     };
+  }
+
+  async logout(
+    refreshToken?: string
+  ): Promise<void> {
+    if (!refreshToken) {
+      return;
+    }
+
+    /*
+     * Resolve the user from the refresh token itself so
+     * logout still works after the access token expires.
+     */
+    let userId: string;
+
+    try {
+      userId =
+        verifyRefreshToken(
+          refreshToken
+        ).userId;
+    } catch {
+      return;
+    }
+
+    await userRepository.removeRefreshTokenHash(
+      userId,
+      hashToken(refreshToken)
+    );
+  }
+
+  async logoutAll(
+    userId: string
+  ): Promise<void> {
+    await userRepository.clearRefreshTokenHashes(
+      userId
+    );
   }
 
   async me(

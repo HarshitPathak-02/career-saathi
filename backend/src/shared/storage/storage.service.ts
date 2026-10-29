@@ -28,7 +28,6 @@ class StorageService {
     public async deleteFile(
         publicId: string
     ): Promise<DeleteFileResult> {
-        console.log("Delete File called!!!");
         await cloudinary.uploader.destroy(publicId, {
             resource_type: "raw",
         });

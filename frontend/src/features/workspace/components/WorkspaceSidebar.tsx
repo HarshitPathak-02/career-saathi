@@ -149,15 +149,9 @@ const WorkspaceSidebar = ({
             setIsLoggingOut(true);
             await logoutUser()
 
-            console.log("Logout API completed");
-
             dispatch(logoutAction());
 
-            console.log("After logout action");
-
             navigate("/login", { replace: true });
-
-            console.log("Navigate called");
 
         } catch (error) {
             console.error(error);
@@ -456,8 +450,6 @@ const WorkspaceSidebar = ({
                     <SettingsPopover
 
                         onLogout={() => {
-
-                            console.log("Logout clicked");
 
                             setShowSettings(false);
 

@@ -93,9 +93,18 @@ class AuthController {
             }
 
             const result =
-                await authService.refresh(
-                    refreshToken
-                );
+                await authService
+                    .refresh(refreshToken)
+                    .catch((error) => {
+                        /*
+                         * A revoked or expired refresh
+                         * token must not stay in the
+                         * browser.
+                         */
+                        clearRefreshTokenCookie(res);
+
+                        throw error;
+                    });
 
             setRefreshTokenCookie(
                 res,
@@ -115,12 +124,40 @@ class AuthController {
     );
 
     logout = asyncHandler(
-        async (_req, res) => {
+        async (req: Request, res: Response) => {
+            const refreshToken =
+                req.cookies[
+                REFRESH_TOKEN_COOKIE_NAME
+                ] as string | undefined;
+
+            await authService.logout(
+                refreshToken
+            );
+
             clearRefreshTokenCookie(res);
 
             return successResponse({
                 res,
                 message: AUTH_MESSAGES.LOGOUT_SUCCESS,
+            });
+        }
+    );
+
+    logoutAll = asyncHandler(
+        async (req: Request, res: Response) => {
+            const authUser =
+                getAuthUser(req);
+
+            await authService.logoutAll(
+                authUser.userId
+            );
+
+            clearRefreshTokenCookie(res);
+
+            return successResponse({
+                res,
+                message:
+                    AUTH_MESSAGES.ALL_SESSIONS_REVOKED,
             });
         }
     );

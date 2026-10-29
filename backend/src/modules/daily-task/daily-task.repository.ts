@@ -149,6 +149,40 @@ class DailyTaskRepository {
 
     }
 
+    async findCompletedDatesByMissionIds(
+        missionIds: Types.ObjectId[],
+        session?: ClientSession
+    ): Promise<Date[]> {
+
+        if (missionIds.length === 0) {
+            return [];
+        }
+
+        const completedDates =
+            await DailyTaskModel.distinct(
+                'completedAt',
+                {
+                    missionId: {
+                        $in: missionIds,
+                    },
+
+                    status:
+                        DailyTaskStatus.COMPLETED,
+
+                    completedAt: {
+                        $ne: null,
+                    },
+                }
+            ).session(
+                session ?? null
+            );
+
+        return completedDates.filter(
+            (date): date is Date =>
+                date instanceof Date
+        );
+    }
+
     async findByMissionIds(
         missionIds:
             Types.ObjectId[],
