@@ -19,5 +19,11 @@ export const env = {
 
   CLIENT_URL: process.env.CLIENT_URL!,
 
+  /*
+   * Optional comma-separated allowlist for additional
+   * frontend origins (e.g. Vercel preview deployments).
+   */
+  CORS_ORIGINS: process.env.CORS_ORIGINS ?? '',
+
   TEST_APP_DATE: process.env.TEST_APP_DATE!
 };

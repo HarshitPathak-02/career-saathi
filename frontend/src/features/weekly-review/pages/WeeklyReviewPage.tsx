@@ -226,8 +226,7 @@ export default function WeeklyReviewPage() {
 
         try {
 
-            const result =
-                await submitWeeklyReview({
+            await submitWeeklyReview({
 
                     assessment: {
 
@@ -248,11 +247,6 @@ export default function WeeklyReviewPage() {
                     },
 
                 }).unwrap();
-
-            console.log(
-                "Weekly review completed:",
-                result
-            );
 
             navigate(
                 "/workspace"

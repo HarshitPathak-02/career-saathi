@@ -1,7 +1,7 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import authRoutes from '../modules/auth/auth.routes.js';
 import careerJourneyRoutes from '../modules/career-journey/career-journey.routes.js';
-import { HTTP_STATUS } from '../core/constants/http-status.constants.js';
 import { resumeRoutes } from '../modules/resume/index.js';
 import { userSkillsRoutes } from '../modules/user-skill/index.js';
 import assessmentRoutes from '../modules/assessment/assessment.routes.js'
@@ -19,9 +19,30 @@ import monthlyReportRoutes from '../modules/monthly-report/monthly-report.routes
 const router = Router();
 
 router.get('/health', (_req, res) => {
-    res.status(HTTP_STATUS.CREATED).json({
+    res.status(200).json({
         success: true,
         message: 'CareerSaathi Backend is running successfully.',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+    });
+});
+
+router.get('/health/ready', (_req, res) => {
+    const databaseReady =
+        mongoose.connection.readyState === 1;
+
+    const statusCode =
+        databaseReady ? 200 : 503;
+
+    res.status(statusCode).json({
+        success: databaseReady,
+        message: databaseReady
+            ? 'CareerSaathi Backend is ready.'
+            : 'CareerSaathi Backend is not ready.',
+        database: databaseReady
+            ? 'connected'
+            : 'disconnected',
+        timestamp: new Date().toISOString(),
     });
 });
 

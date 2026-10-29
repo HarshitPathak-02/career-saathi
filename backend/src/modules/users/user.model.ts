@@ -50,6 +50,11 @@ const userSchema = new Schema<IUser>(
       default: null,
     },
 
+    refreshTokenHashes: {
+      type: [String],
+      default: [],
+    },
+
     lastLogin: {
       type: Date,
     },

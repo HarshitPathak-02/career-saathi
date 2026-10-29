@@ -192,6 +192,28 @@ class MissionRepository {
             );
     }
 
+    async findMissionIdsByCareerJourney(
+        careerJourneyId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<Types.ObjectId[]> {
+
+        const missions =
+            await MissionModel
+                .find({
+                    careerJourneyId,
+                })
+                .select({
+                    _id: 1,
+                })
+                .session(
+                    session ?? null
+                );
+
+        return missions.map(
+            (mission) => mission._id
+        );
+    }
+
     async findFirstMission(
         careerJourneyId:
             Types.ObjectId,

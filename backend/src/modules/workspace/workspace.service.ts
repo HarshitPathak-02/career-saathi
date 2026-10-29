@@ -51,7 +51,13 @@ import {
 } from "./workspace.mapper.js";
 import { DEFAULT_DURATION_DAYS } from "../mission/mission.constants.js";
 import { missionService } from "../mission/index.js";
+import { missionRepository } from "../mission/mission.repository.js";
 import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { appClock } from "../../shared/time/app-clock.js";
+import {
+    addDays,
+    startOfDay,
+} from "../../shared/utils/date.util.js";
 
 
 export class WorkspaceService {
@@ -295,6 +301,18 @@ export class WorkspaceService {
 
         /*
         |--------------------------------------------------------------------------
+        | Consecutive Day Streak
+        |--------------------------------------------------------------------------
+        */
+
+        const streak =
+            await this.calculateStreak(
+                careerJourney._id
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Workspace Response
         |--------------------------------------------------------------------------
         */
@@ -326,8 +344,73 @@ export class WorkspaceService {
 
                 nextMissionAvailableAt,
 
+                streak,
+
             });
 
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Streak
+    |--------------------------------------------------------------------------
+    |
+    | Number of consecutive calendar days (ending today or
+    | yesterday) on which at least one mission task was
+    | completed.
+    |
+    */
+
+    private async calculateStreak(
+        careerJourneyId: Types.ObjectId
+    ): Promise<number> {
+
+        const missionIds =
+            await missionRepository
+                .findMissionIdsByCareerJourney(
+                    careerJourneyId
+                );
+
+        const completedDates =
+            await dailyTaskRepository
+                .findCompletedDatesByMissionIds(
+                    missionIds
+                );
+
+        if (completedDates.length === 0) {
+            return 0;
+        }
+
+        const completedDays =
+            new Set(
+                completedDates.map(
+                    (date) =>
+                        startOfDay(date)
+                            .getTime()
+                )
+            );
+
+        let cursor =
+            startOfDay(
+                appClock.now()
+            );
+
+        /*
+         * Today may not be completed yet, so fall
+         * back to yesterday before counting.
+         */
+        if (!completedDays.has(cursor.getTime())) {
+            cursor = addDays(cursor, -1);
+        }
+
+        let streak = 0;
+
+        while (completedDays.has(cursor.getTime())) {
+            streak += 1;
+            cursor = addDays(cursor, -1);
+        }
+
+        return streak;
     }
 
 }

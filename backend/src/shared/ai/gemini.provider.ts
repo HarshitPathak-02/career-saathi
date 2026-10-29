@@ -13,6 +13,8 @@ import {
     AIProvider,
 } from "./ai-provider.interface.js";
 
+import logger from "../../config/logger.js";
+
 export class GeminiProvider
     implements AIProvider {
 
@@ -53,7 +55,13 @@ export class GeminiProvider
 
             });
 
-        console.dir(response, { depth: null });
+        logger.debug(
+            {
+                model:
+                    AI_CONSTANTS.GEMINI.MODEL,
+            },
+            "Gemini generation completed."
+        );
 
         return {
 

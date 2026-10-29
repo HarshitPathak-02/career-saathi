@@ -1,16 +1,22 @@
 import app from './app.js';
 import { connectDatabase } from './config/database.js';
 import { env } from './config/env.js';
+import logger from './config/logger.js';
 
 const startServer = async (): Promise<void> => {
   try {
     await connectDatabase();
 
     app.listen(env.PORT, () => {
-      console.log(`Server running on port ${env.PORT}`);
+      logger.info(
+        `Server running on port ${env.PORT}`
+      );
     });
   } catch (error) {
-    console.error(error, 'Unable to start server.');
+    logger.error(
+      { error },
+      'Unable to start server.'
+    );
   }
 };
 

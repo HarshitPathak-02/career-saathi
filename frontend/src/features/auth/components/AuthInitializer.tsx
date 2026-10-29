@@ -33,8 +33,6 @@ const AuthInitializer = ({
                 const refreshResponse =
                     await refresh().unwrap();
 
-                console.log("Refresh:", refreshResponse);
-
                 dispatch(
                     setCredentials({
                         accessToken:
@@ -42,13 +40,9 @@ const AuthInitializer = ({
                     })
                 );
 
-                console.log("Token stored");
-
                 // Fetch user
                 const meResponse =
                     await getMe().unwrap();
-
-                console.log("Me:", meResponse);
 
                 dispatch(
                     setCredentials({
@@ -60,10 +54,7 @@ const AuthInitializer = ({
                 );
 
 
-                console.log("User stored");
-                console.log("Initialized");
             } catch {
-                console.log("Inside the catch of initilaizer");
                 dispatch(clearCredentials());
             } finally {
                 dispatch(setInitialized(true));

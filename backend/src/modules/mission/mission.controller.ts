@@ -24,10 +24,6 @@ import {
 } from "../daily-task/daily-task.service.js";
 
 import {
-    getAuthUser,
-} from "../../shared/utils/get-auth-user.js";
-
-import {
     asyncHandler,
 } from "../../core/middleware/async-handler.js";
 
@@ -42,6 +38,7 @@ import {
 import {
     AppError,
 } from "../../core/errors/app-error.js";
+import logger from "../../config/logger.js";
 import { MissionMessages } from "./index.js";
 
 
@@ -58,9 +55,6 @@ class MissionController {
             req: Request,
             res: Response
         ) => {
-
-            const user =
-                getAuthUser(req);
 
             const {
                 careerJourneyId,
@@ -296,8 +290,6 @@ class MissionController {
             res: Response
         ) => {
 
-            console.log("Mission hit");
-
             const {
                 careerJourneyId,
             } = req.params as {
@@ -309,6 +301,14 @@ class MissionController {
                     .getMissionHistory(
                         careerJourneyId
                     );
+
+            logger.debug(
+                {
+                    careerJourneyId,
+                    missionCount: missions.length,
+                },
+                "Mission history requested."
+            );
 
             const data =
                 await Promise.all(
@@ -329,8 +329,6 @@ class MissionController {
                         }
                     )
                 );
-
-            console.log("Mission data:", data);
 
             return successResponse({
                 res,
