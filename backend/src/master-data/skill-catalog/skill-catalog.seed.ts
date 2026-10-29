@@ -211,13 +211,112 @@ export const SKILL_CATALOG_SEED = [
 
 ];
 
+export const SKILL_ALIASES: Record<string, string[]> = {
+  javascript: ["js", "ecmascript", "es6", "es2015"],
+
+  typescript: ["ts"],
+
+  nodejs: ["node", "node.js", "node js"],
+
+  expressjs: ["express", "express.js", "express js"],
+
+  "rest-api": ["rest", "rest api", "restful api", "restful apis", "rest apis"],
+
+  "jwt-authentication": [
+    "jwt",
+    "json web token",
+    "json web tokens",
+    "jwt auth",
+  ],
+
+  "error-handling": ["exception handling", "error management"],
+
+  mongodb: ["mongo", "mongo db", "mongodb atlas"],
+
+  mongoose: ["mongoose.js", "mongoose js"],
+
+  git: ["github", "gitlab", "version control", "git version control"],
+
+  docker: ["containerization", "containers", "docker containers"],
+
+  redis: ["redis cache", "redis caching"],
+
+  postman: ["api testing", "postman api testing"],
+
+  deployment: ["deploy", "deployment pipeline", "ci cd", "ci/cd"],
+
+  "api-security": [
+    "api security",
+    "web security",
+    "secure apis",
+    "authentication security",
+  ],
+
+  "data-structures": [
+    "dsa",
+    "data structure",
+    "data structures and algorithms",
+  ],
+
+  algorithms: [
+    "algorithm",
+    "algorithms and data structures",
+    "algorithmic problem solving",
+  ],
+
+  "object-oriented-programming": [
+    "oop",
+    "oops",
+    "object oriented programming",
+    "object oriented design",
+  ],
+
+  dbms: [
+    "database management system",
+    "database management systems",
+    "database concepts",
+  ],
+
+  "operating-systems": [
+    "operating system",
+    "os",
+    "os concepts",
+  ],
+
+  "computer-networks": [
+    "computer network",
+    "networking",
+    "networking concepts",
+    "computer networking",
+  ],
+
+  "quantitative-aptitude": ["aptitude", "quantitative aptitude", "quant"],
+
+  "logical-reasoning": ["reasoning", "logical reasoning", "logic"],
+
+  "verbal-ability": ["verbal", "verbal ability", "verbal reasoning"],
+
+  "english-communication": [
+    "english",
+    "english communication",
+    "english proficiency",
+    "communication skills",
+    "spoken english",
+  ],
+};
+
 export const seedSkillCatalog = async (): Promise<void> => {
-  console.log("🌱 Seeding Skill Catalog...");
+  console.log("Seeding Skill Catalog...");
 
   for (const skill of SKILL_CATALOG_SEED) {
     await SkillCatalogModel.updateOne(
       { slug: skill.slug },
-      { $set: skill },
+      {
+        $set: {
+          ...skill,
+          aliases: SKILL_ALIASES[skill.slug] ?? [],
+        },
+      },
       { upsert: true }
     );
   }

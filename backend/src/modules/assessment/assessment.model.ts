@@ -44,6 +44,16 @@ const AssessmentSchema = new Schema(
             default: "",
         },
 
+        skillCatalogIds: {
+            type: [
+                {
+                    type: Types.ObjectId,
+                    ref: "SkillCatalog",
+                },
+            ],
+            default: [],
+        },
+
         status: {
             type: String,
             enum: Object.values(

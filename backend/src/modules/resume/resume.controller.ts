@@ -1,12 +1,22 @@
-import { Request, Response } from "express";
+import type {
+    Request,
+    Response,
+} from "express";
+
+import { Types } from "mongoose";
 
 import { resumeService } from "./resume.service.js";
+import { resumeAnalysisService } from "./resume-analysis.service.js";
+import { resumeConfirmationService } from "./resume-confirmation.service.js";
+import { ResumeMapper } from "./resume.mapper.js";
 
-import {
+import type {
+    ConfirmResumeSkillsDto,
     CreateResumeDto,
 } from "./resume.types.js";
 
 import { asyncHandler } from "../../core/middleware/async-handler.js";
+import { successResponse } from "../../core/responses/successResponse.js";
 import { getAuthUser } from "../../shared/utils/get-auth-user.js";
 import { AppError } from "../../core/errors/app-error.js";
 import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
@@ -32,10 +42,93 @@ export class ResumeController {
                     req.file
                 );
 
-            return res.status(HTTP_STATUS.CREATED).json({
-                success: true,
-                message: "Resume uploaded successfully.",
-                data: resume,
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.CREATED,
+
+                message:
+                    "Resume uploaded successfully.",
+
+                data:
+                    ResumeMapper.toResponse(
+                        resume
+                    ),
+            });
+        }
+    );
+
+    analyzeResume = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const user = getAuthUser(req);
+
+            const { resumeId } =
+                req.params as {
+                    resumeId: string
+                };
+
+            const resume =
+                await resumeAnalysisService
+                    .analyzeResume(
+                        user.userId,
+                        resumeId
+                    );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resume analyzed successfully.",
+
+                data:
+                    resume,
+            });
+        }
+    );
+
+    confirmSkills = asyncHandler(
+        async (req: Request, res: Response) => {
+
+            const user = getAuthUser(req);
+
+            const { resumeId } =
+                req.params as {
+                    resumeId: string
+                };
+
+            const { skillCatalogIds } =
+                req.body as ConfirmResumeSkillsDto;
+
+            const resume =
+                await resumeConfirmationService
+                    .confirmSkills(
+                        user.userId,
+                        resumeId,
+
+                        skillCatalogIds.map(
+                            (skillCatalogId) =>
+                                new Types.ObjectId(
+                                    skillCatalogId
+                                )
+                        )
+                    );
+
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resume skills confirmed successfully.",
+
+                data:
+                    resume,
             });
         }
     );
@@ -48,7 +141,7 @@ export class ResumeController {
             const { resumeId } =
                 req.params as {
                     resumeId: string
-                }
+                };
 
             const resume =
                 await resumeService.getResumeById(
@@ -56,9 +149,19 @@ export class ResumeController {
                     resumeId
                 );
 
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                data: resume,
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resume fetched successfully.",
+
+                data:
+                    ResumeMapper.toResponse(
+                        resume
+                    ),
             });
         }
     );
@@ -79,9 +182,19 @@ export class ResumeController {
                     careerJourneyId
                 );
 
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                data: resume,
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resume fetched successfully.",
+
+                data:
+                    ResumeMapper.toResponse(
+                        resume
+                    ),
             });
         }
     );
@@ -96,9 +209,19 @@ export class ResumeController {
                     user.userId
                 );
 
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                data: resumes,
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resumes fetched successfully.",
+
+                data:
+                    ResumeMapper.toResponseList(
+                        resumes
+                    ),
             });
         }
     );
@@ -118,9 +241,14 @@ export class ResumeController {
                 resumeId
             );
 
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                message: "Resume deleted successfully.",
+            return successResponse({
+                res,
+
+                statusCode:
+                    HTTP_STATUS.OK,
+
+                message:
+                    "Resume deleted successfully.",
             });
         }
     );

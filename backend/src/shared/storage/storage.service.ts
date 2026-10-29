@@ -1,6 +1,8 @@
 import cloudinary from "./storage.config.js";
 import { UploadApiResponse } from "cloudinary";
 import streamifier from "streamifier";
+import { randomUUID } from "node:crypto";
+import path from "node:path";
 
 import {
     DeleteFileResult,
@@ -37,6 +39,16 @@ class StorageService {
         };
     }
 
+    private buildPublicId(
+        fileName?: string
+    ): string {
+        const extension = fileName
+            ? path.extname(fileName).toLowerCase()
+            : "";
+
+        return `${randomUUID()}${extension}`;
+    }
+
     private upload(
         file: UploadFileInput,
         options: StorageUploadOptions
@@ -46,7 +58,7 @@ class StorageService {
                 {
                     folder: options.folder,
                     resource_type: options.resourceType ?? "auto",
-                    public_id: file.fileName,
+                    public_id: this.buildPublicId(file.fileName),
                 },
                 (error, result) => {
                     if (error) {

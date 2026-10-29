@@ -1,6 +1,7 @@
 export enum AssessmentType {
     INITIAL = "INITIAL",
     WEEKLY = "WEEKLY",
+    RESUME = "RESUME",
 }
 
 export enum AssessmentStatus {

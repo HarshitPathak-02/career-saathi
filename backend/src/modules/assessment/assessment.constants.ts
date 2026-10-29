@@ -26,6 +26,15 @@ export const ASSESSMENT_MESSAGES = {
     NOT_WEEKLY_ASSESSMENT:
         "This is not a weekly assessment.",
 
+    NOT_RESUME_ASSESSMENT:
+        "This is not a resume skills assessment.",
+
+    RESUME_CREATED:
+        "Resume skills assessment created successfully.",
+
+    RESUME_SUBMITTED:
+        "Resume skills assessment submitted successfully.",
+
     INITIAL_CREATED:
         "Initial assessment created successfully.",
 

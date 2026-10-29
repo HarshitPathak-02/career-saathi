@@ -13,7 +13,7 @@ import {
 import {
     validateRequest,
 } from "../../core/middleware/validate.middleware.js";
-import { assessmentIdParamSchema, careerJourneyIdParamSchema, startInitialAssessmentSchema, startWeeklyAssessmentSchema, submitAssessmentSchema } from "./index.js";
+import { assessmentIdParamSchema, careerJourneyIdParamSchema, startInitialAssessmentSchema, startResumeAssessmentSchema, startWeeklyAssessmentSchema, submitAssessmentSchema } from "./index.js";
 
 
 
@@ -46,6 +46,31 @@ assessmentRouter.post(
 
     assessmentController
         .submitInitialAssessment
+);
+
+
+assessmentRouter.post(
+    "/resume/start",
+
+    validateRequest({
+        body:
+            startResumeAssessmentSchema,
+    }),
+
+    assessmentController
+        .startResumeAssessment
+);
+
+assessmentRouter.post(
+    "/resume/submit",
+
+    validateRequest({
+        body:
+            submitAssessmentSchema,
+    }),
+
+    assessmentController
+        .submitResumeAssessment
 );
 
 
