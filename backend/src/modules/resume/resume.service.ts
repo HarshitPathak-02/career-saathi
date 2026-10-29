@@ -86,8 +86,6 @@ export class ResumeService {
                     existingResume._id
                 );
 
-                console.log("After soft delete from db");
-
                 await storageService.deleteFile(
                     existingResume.cloudinaryPublicId
                 );

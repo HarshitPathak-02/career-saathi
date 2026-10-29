@@ -83,6 +83,8 @@ interface WorkspaceMapperInput {
     nextMissionAvailableAt:
     Date | null;
 
+    streak: number;
+
 }
 
 
@@ -111,6 +113,7 @@ export class WorkspaceMapper {
             targetDomain,
             lifecycleState,
             nextMissionAvailableAt,
+            streak,
         } = input;
 
 
@@ -275,10 +278,7 @@ export class WorkspaceMapper {
 
                 progressPercentage,
 
-                // TODO:
-                // Implement streak calculation.
-                streak:
-                    0,
+                streak,
 
             },
 

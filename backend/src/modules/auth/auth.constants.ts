@@ -23,6 +23,15 @@ export const AUTH_MESSAGES = {
   REFRESH_TOKEN_REQUIRED:
     "Refresh token is required.",
 
+  REFRESH_TOKEN_REVOKED:
+    "Refresh token has been revoked. Please sign in again.",
+
+  SESSION_REVOKED:
+    "Session revoked successfully.",
+
+  ALL_SESSIONS_REVOKED:
+    "All sessions have been signed out.",
+
   USER_NOT_FOUND:
     "User not found.",
 
