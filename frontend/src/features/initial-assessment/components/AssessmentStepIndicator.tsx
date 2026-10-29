@@ -1,10 +1,18 @@
 import { Check } from "lucide-react";
 
+import type {
+    InitialAssessmentStep,
+} from "../slice/initialAssessmentSlice";
+
 interface AssessmentStepIndicatorProps {
-    currentStep: 1 | 2 | 3;
+    currentStep: InitialAssessmentStep;
 }
 
 const steps = [
+    {
+        step: 0,
+        label: "Resume",
+    },
     {
         step: 1,
         label: "Select Skills",
@@ -62,7 +70,7 @@ const AssessmentStepIndicator = ({
                                         {completed ? (
                                             <Check size={17} />
                                         ) : (
-                                            step
+                                            index + 1
                                         )}
                                     </div>
 

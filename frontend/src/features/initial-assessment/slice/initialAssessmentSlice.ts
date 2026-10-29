@@ -3,14 +3,17 @@ import {
     type PayloadAction,
 } from "@reduxjs/toolkit";
 
+export type InitialAssessmentStep =
+    0 | 1 | 2 | 3;
+
 interface InitialAssessmentState {
-    currentStep: 1 | 2 | 3;
+    currentStep: InitialAssessmentStep;
     selectedSkillCatalogIds: string[];
     assessmentId: string | null;
 }
 
 const initialState: InitialAssessmentState = {
-    currentStep: 1,
+    currentStep: 0,
     selectedSkillCatalogIds: [],
     assessmentId: null,
 };
@@ -24,7 +27,7 @@ const initialAssessmentSlice =
         reducers: {
             setAssessmentStep(
                 state,
-                action: PayloadAction<1 | 2 | 3>
+                action: PayloadAction<InitialAssessmentStep>
             ) {
                 state.currentStep = action.payload;
             },
