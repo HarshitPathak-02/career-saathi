@@ -115,6 +115,20 @@ class UserSkillService {
         session?: ClientSession
     ) {
 
+        await this.ensureUserSkills(
+            careerJourneyId,
+            selectedSkillCatalogIds,
+            session
+        );
+    }
+
+    async ensureUserSkills(
+        careerJourneyId: string,
+        selectedSkillCatalogIds:
+            Types.ObjectId[],
+        session?: ClientSession
+    ) {
+
         const careerJourneyObjectId =
             new Types.ObjectId(
                 careerJourneyId
@@ -134,25 +148,6 @@ class UserSkillService {
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,
                 "Career Journey not found."
-            );
-        }
-
-        const alreadyInitialized =
-            await userSkillRepository
-                .exists(
-                    {
-                        careerJourneyId:
-                            careerJourneyObjectId,
-
-                        isActive: true,
-                    },
-                    session
-                );
-
-        if (alreadyInitialized) {
-            throw new AppError(
-                HTTP_STATUS.CONFLICT,
-                "User skills have already been initialized."
             );
         }
 
@@ -197,37 +192,54 @@ class UserSkillService {
         const skills =
             await skillsQuery;
 
-        const documents =
+        if (skills.length === 0) {
+            return;
+        }
+
+        const selectedSkillIdSet =
+            new Set(
+                selectedSkillCatalogIds.map(
+                    (skillCatalogId) =>
+                        skillCatalogId.toString()
+                )
+            );
+
+        await userSkillRepository.bulkWrite(
             skills.map(
-                skill => ({
-                    careerJourneyId:
-                        careerJourneyObjectId,
+                (skill) => ({
+                    updateOne: {
+                        filter: {
+                            careerJourneyId:
+                                careerJourneyObjectId,
 
-                    skillCatalogId:
-                        skill._id,
+                            skillCatalogId:
+                                skill._id,
+                        },
 
-                    selectedByUser:
-                        selectedSkillCatalogIds
-                            .some(
-                                id =>
-                                    id.toString() ===
-                                    skill._id.toString()
-                            ),
+                        update: {
+                            $set: {
+                                selectedByUser:
+                                    selectedSkillIdSet.has(
+                                        skill._id.toString()
+                                    ),
 
-                    currentScore: 0,
+                                isActive: true,
+                            },
 
-                    currentLevel:
-                        SkillLevel.NOT_STARTED,
+                            $setOnInsert: {
+                                currentScore: 0,
 
-                    isActive: true,
+                                currentLevel:
+                                    SkillLevel.NOT_STARTED,
+                            },
+                        },
+
+                        upsert: true,
+                    },
                 })
-            );
-
-        await userSkillRepository
-            .createMany(
-                documents,
-                session
-            );
+            ),
+            session
+        );
     }
 
     async getUserSkills(
@@ -250,6 +262,37 @@ class UserSkillService {
                 },
                 undefined,
                 undefined,
+                session
+            );
+    }
+
+    async selectSkills(
+        careerJourneyId: Types.ObjectId,
+        skillCatalogIds: Types.ObjectId[],
+        session?: ClientSession
+    ) {
+
+        if (skillCatalogIds.length === 0) {
+            return;
+        }
+
+        await userSkillRepository
+            .updateMany(
+                {
+                    careerJourneyId,
+
+                    skillCatalogId: {
+                        $in: skillCatalogIds,
+                    },
+
+                    isActive: true,
+                },
+                {
+                    $set: {
+                        selectedByUser:
+                            true,
+                    },
+                },
                 session
             );
     }

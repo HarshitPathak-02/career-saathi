@@ -48,7 +48,7 @@ Module layout:
 | `weekly-review` | Weekly reflection submission |
 | `weekly-report` / `monthly-report` | AI-generated progress reports |
 | `readiness` | Readiness scoring and mock interviews |
-| `resume` | Resume upload and retrieval |
+| `resume` | Resume upload, text extraction, skill analysis, and retrieval |
 | `workspace` | Aggregated dashboard payload |
 
 ## Career Journey State Machine
@@ -89,7 +89,7 @@ sequenceDiagram
     API->>DB: Persist report and next mission state
 ```
 
-Weekly reviews produce an AI report. Significant gaps can trigger an adaptive roadmap update before the next mission.
+Weekly reviews produce an AI report. Significant gaps can trigger an adaptive roadmap update before the next mission. A completed `RESUME` assessment from the previous mission also contributes skills scoring below 60% to the next mission's revision plans.
 
 ### Monthly Cycle
 
@@ -142,6 +142,22 @@ Application and validation errors are never retried.
 
 Provider selection and keys are configured with `AI_PROVIDER`, `GEMINI_API_KEY`, and `GROQ_API_KEY`.
 
+## Resume Analysis
+
+1. Upload parses PDF or DOCX text with `unpdf` or `mammoth`; legacy `.doc` files are rejected.
+2. Replacing a resume creates the new record and soft-deletes the previous one in a transaction; the previous stored file is removed only after commit.
+3. Extracted text is stored in a private, non-queryable field and never returned by the API.
+4. `POST /resume/:resumeId/analyze` sends truncated resume text to the configured AI provider with a prompt-injection-resistant system instruction.
+5. `aiValidator` rejects malformed extraction output before anything is persisted.
+6. Skill names are matched against `SkillCatalog.name`, `SkillCatalog.slug`, and `SkillCatalog.aliases`; AI output never supplies database ids.
+7. Evidence, confidence, and catalog matches are stored on the resume. Unknown skills are retained as unmatched suggestions.
+8. Analysis never writes to `UserSkill.currentScore`.
+9. Confirmation replaces the resume's accepted skill-id set. During `DRAFT` onboarding it idempotently creates/synchronizes the journey's `UserSkill` records so the confirmed resume skills become the exact selected set; once the journey is `ACTIVE`, confirmation is additive and reports newly selected ids in `newSkillCatalogIds`. It never changes scores or clears existing active selections.
+10. Re-analysis clears the prior confirmation so stale accepted skills cannot be merged.
+11. An `ANALYZING` resume older than ten minutes is reset to `ANALYSIS_FAILED` on the next analysis request so interrupted work cannot lock the resume permanently.
+
+Upload and analysis endpoints are rate-limited per user. Resume status follows `UPLOADED -> ANALYZING -> ANALYZED | ANALYSIS_FAILED`.
+
 ## Observability and Errors
 
 - `pino` is the logger; `pino-http` attaches a request id and logs every request.
@@ -152,6 +168,7 @@ Provider selection and keys are configured with `AI_PROVIDER`, `GEMINI_API_KEY`,
 
 - `app/` wires the Redux store, router, providers, and the `AuthInitializer`.
 - `features/*` contains feature slices, RTK Query endpoints, components, hooks, and pages.
+- `features/resume` owns resume upload, analysis, skill-confirmation, and resume-skill assessment API types. Its card is rendered during onboarding and from the profile page; after profile confirmation it surfaces unassessed confirmed skills.
 - `shared/api` owns the axios instance, the RTK Query base query, and auth header injection.
 - `features/auth/slice/authSlice.ts` stores the access token and current user; the refresh token never reaches JavaScript.
 - Route guards (`OnboardingGuard`, `WorkspaceGuard`, `AppEntry`) derive navigation from authentication and journey state.

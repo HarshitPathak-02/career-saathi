@@ -18,6 +18,20 @@ export const startWeeklyAssessmentSchema = Joi.object({
     careerJourneyId: objectIdSchema.required(),
 });
 
+export const startResumeAssessmentSchema = Joi.object({
+    careerJourneyId: objectIdSchema.required(),
+
+    skillCatalogIds:
+        Joi.array()
+            .items(
+                objectIdSchema.required()
+            )
+            .unique()
+            .min(1)
+            .max(50)
+            .required(),
+});
+
 export const submittedSkillSchema = Joi.object({
     userSkillId: objectIdSchema.required(),
 

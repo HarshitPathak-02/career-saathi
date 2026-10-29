@@ -8,6 +8,7 @@ import type {
     Assessment,
     InitializeUserSkillsRequest,
     StartInitialAssessmentRequest,
+    StartResumeAssessmentRequest,
     SubmitInitialAssessmentRequest,
     UserSkill,
 } from "../types/initialAssessment.types";
@@ -32,6 +33,8 @@ export const initialAssessmentApi =
                         selectedSkillCatalogIds,
                     },
                 }),
+
+                invalidatesTags: ["UserSkill"],
             }),
 
             /*
@@ -48,6 +51,8 @@ export const initialAssessmentApi =
 
                     method: "GET",
                 }),
+
+                providesTags: ["UserSkill"],
             }),
 
             /*
@@ -85,6 +90,41 @@ export const initialAssessmentApi =
 
                 invalidatesTags: [
                     "CareerJourney",
+                    "UserSkill",
+                    "Workspace"
+                ],
+            }),
+
+            startResumeAssessment: builder.mutation<
+                ApiResponse<Assessment>,
+                StartResumeAssessmentRequest
+            >({
+                query: (data) => ({
+                    url:
+                        "/assessments/resume/start",
+
+                    method: "POST",
+
+                    data,
+                }),
+            }),
+
+            submitResumeAssessment: builder.mutation<
+                ApiResponse<Assessment>,
+                SubmitInitialAssessmentRequest
+            >({
+                query: (data) => ({
+                    url:
+                        "/assessments/resume/submit",
+
+                    method: "POST",
+
+                    data,
+                }),
+
+                invalidatesTags: [
+                    "Assessment",
+                    "UserSkill",
                     "Workspace"
                 ],
             }),
@@ -96,4 +136,6 @@ export const {
     useGetUserSkillsQuery,
     useStartInitialAssessmentMutation,
     useSubmitInitialAssessmentMutation,
+    useStartResumeAssessmentMutation,
+    useSubmitResumeAssessmentMutation,
 } = initialAssessmentApi;

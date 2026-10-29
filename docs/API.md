@@ -75,6 +75,8 @@ The refresh token is an httpOnly cookie named `refreshToken` and is managed by t
 | POST | `/assessments/initial/submit` | Yes | Submit initial assessment scores |
 | POST | `/assessments/weekly/start` | Yes | Start a weekly assessment |
 | POST | `/assessments/weekly/submit` | Yes | Submit a weekly assessment |
+| POST | `/assessments/resume/start` | Yes | Start an assessment for confirmed resume skills |
+| POST | `/assessments/resume/submit` | Yes | Submit resume skill scores |
 | GET | `/assessments/career-journey/:careerJourneyId` | Yes | List assessments for a journey |
 | GET | `/assessments/:assessmentId` | Yes | Return an assessment |
 | GET | `/assessments/:assessmentId/details` | Yes | Return an assessment with scores |
@@ -148,11 +150,91 @@ The refresh token is an httpOnly cookie named `refreshToken` and is managed by t
 
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| POST | `/resume` | Yes | Upload a resume (`multipart/form-data`) |
+| POST | `/resume` | Yes | Upload a PDF/DOCX resume (`multipart/form-data`) and extract its text |
 | GET | `/resume` | Yes | List the user's resumes |
-| GET | `/resume/:resumeId` | Yes | Return a resume |
-| GET | `/resume/career-journey/:careerJourneyId` | Yes | Return resumes for a journey |
+| GET | `/resume/:resumeId` | Yes | Return a resume and its latest analysis |
+| GET | `/resume/career-journey/:careerJourneyId` | Yes | Return the resume for a journey |
+| POST | `/resume/:resumeId/analyze` | Yes | Extract skills from the stored resume text |
+| POST | `/resume/:resumeId/skills/confirm` | Yes | Confirm analyzed skills and select matching user skills |
 | DELETE | `/resume/:resumeId` | Yes | Soft-delete a resume |
+
+Upload accepts `application/pdf` and DOCX only, up to 5 MB. Invalid file types return `400`; oversized files return `413`. Text extraction rejects scanned or unreadable resumes with `422`. File storage identifiers and the extracted resume text are never returned.
+
+`POST /resume/:resumeId/skills/confirm` accepts the final set of accepted skills:
+
+```json
+{
+  "skillCatalogIds": ["..."]
+}
+```
+
+Confirmation requires an analyzed resume. Selected ids must be matched skills from that resume; an empty array records a confirmation with no accepted skills. Existing scores, levels, and assessment dates are never changed.
+
+While the journey is `DRAFT`, confirmation initializes the journey's `UserSkill` records and makes the confirmed resume skills the exact selected set, so onboarding can skip manual selection. While the journey is `ACTIVE`, confirmation is additive: newly selected skills become `selectedByUser: true`, existing selections remain selected, and `confirmation.newSkillCatalogIds` lists only the skills added by this confirmation. Re-analyzing the resume clears the previous confirmation.
+
+`POST /assessments/resume/start` accepts a journey and confirmed skill catalog ids:
+
+```json
+{
+  "careerJourneyId": "...",
+  "skillCatalogIds": ["..."]
+}
+```
+
+It creates a `RESUME` assessment only for an `ACTIVE` journey whose `UserSkill` records are already initialized.
+
+`POST /assessments/resume/submit` accepts the assessment id and platform scores:
+
+```json
+{
+  "assessmentId": "...",
+  "skills": [
+    {
+      "userSkillId": "...",
+      "obtainedMarks": 70,
+      "totalMarks": 100,
+      "assessmentMethod": "PLATFORM"
+    }
+  ]
+}
+```
+
+Resume assessments use their own `weekNumber` sequence. Submit them through `/assessments/resume/submit`; the initial assessment uses `/assessments/initial/submit`.
+
+`POST /resume/:resumeId/analyze` moves the resume through `ANALYZING` to `ANALYZED` or `ANALYSIS_FAILED`. An analysis stuck in `ANALYZING` for more than ten minutes is treated as interrupted and can be retried. The response contains normalized skill matches and evidence:
+
+```json
+{
+  "success": true,
+  "message": "Resume analyzed successfully.",
+  "data": {
+    "id": "...",
+    "status": "ANALYZED",
+    "analysis": {
+      "provider": "GEMINI",
+      "model": "gemini-2.5-flash",
+      "analyzedAt": "2026-10-29T00:00:00.000Z",
+      "textLength": 4200,
+      "skills": [
+        {
+          "skillCatalogId": "...",
+          "name": "JavaScript",
+          "slug": "javascript",
+          "evidence": "Built REST APIs with JavaScript and Node.js",
+          "confidence": 0.94,
+          "matched": true
+        }
+      ]
+    },
+    "analysisError": null,
+    "confirmation": {
+      "skillCatalogIds": ["..."],
+      "newSkillCatalogIds": ["..."],
+      "confirmedAt": "2026-10-29T00:05:00.000Z"
+    }
+  }
+}
+```
 
 ## Workspace
 

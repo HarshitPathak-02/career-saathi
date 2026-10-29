@@ -32,6 +32,9 @@ export interface NextMissionWorkflowContext {
     skillProgress:
     SkillProgressPlanningData[];
 
+    resumeSkillProgress:
+    SkillProgressPlanningData[];
+
     pendingRoadmapItems:
     RoadmapItemDocument[];
 

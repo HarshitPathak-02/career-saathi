@@ -20,6 +20,9 @@ export interface CreateAssessmentDTO {
 
     description?:
     string;
+
+    skillCatalogIds?:
+    Types.ObjectId[];
 }
 
 export interface UpdateAssessmentStatusDTO {
@@ -197,6 +200,8 @@ export interface AssessmentResponse {
     title: string;
 
     description: string | null;
+
+    skillCatalogIds: string[];
 
     status: AssessmentStatus;
 

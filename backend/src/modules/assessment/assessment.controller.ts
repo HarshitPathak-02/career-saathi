@@ -129,6 +129,90 @@ class AssessmentController {
         );
 
 
+    startResumeAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const user = getAuthUser(req);
+
+                const assessment =
+                    await assessmentWorkflowService
+                        .startResumeAssessment(
+                            user.userId,
+
+                            req.body
+                                .careerJourneyId,
+
+                            req.body
+                                .skillCatalogIds
+                                .map(
+                                    (
+                                        skillCatalogId:
+                                            string
+                                    ) =>
+                                        new Types.ObjectId(
+                                            skillCatalogId
+                                        )
+                                )
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.CREATED,
+
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .RESUME_CREATED,
+
+                    data:
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
+                });
+            }
+        );
+
+    submitResumeAssessment =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const user = getAuthUser(req);
+
+                const assessment =
+                    await assessmentWorkflowService
+                        .completeResumeAssessment(
+                            user.userId,
+                            req.body
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        ASSESSMENT_MESSAGES
+                            .RESUME_SUBMITTED,
+
+                    data:
+                        assessmentResponseMapper
+                            .toAssessmentResponse(
+                                assessment
+                            ),
+                });
+            }
+        );
+
     submitWeeklyAssessment =
         asyncHandler(
             async (

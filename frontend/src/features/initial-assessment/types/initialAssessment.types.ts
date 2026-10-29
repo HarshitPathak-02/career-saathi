@@ -30,12 +30,20 @@ export interface StartInitialAssessmentRequest {
     careerJourneyId: string;
 }
 
+export interface StartResumeAssessmentRequest {
+    careerJourneyId: string;
+
+    skillCatalogIds: string[];
+}
+
 export interface Assessment {
     id: string;
 
     careerJourneyId: string;
 
-    type: "INITIAL" | "WEEKLY";
+    type: "INITIAL" | "WEEKLY" | "RESUME";
+
+    skillCatalogIds: string[];
 
     weekNumber: number;
 

@@ -42,6 +42,12 @@ class AssessmentResponseMapper {
                 assessment.description ??
                 null,
 
+            skillCatalogIds:
+                assessment.skillCatalogIds.map(
+                    (skillCatalogId) =>
+                        skillCatalogId.toString()
+                ),
+
             status:
                 assessment.status,
 

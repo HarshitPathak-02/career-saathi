@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import multer from 'multer';
 
 import { AppError } from '../errors/app-error.js';
 import { HTTP_STATUS } from '../constants/http-status.constants.js';
@@ -15,6 +16,24 @@ export const errorMiddleware = (
       success: false,
       message: error.message,
     });
+  }
+
+  if (error instanceof multer.MulterError) {
+    const isFileTooLarge =
+      error.code === 'LIMIT_FILE_SIZE';
+
+    return res
+      .status(
+        isFileTooLarge
+          ? HTTP_STATUS.PAYLOAD_TOO_LARGE
+          : HTTP_STATUS.BAD_REQUEST
+      )
+      .json({
+        success: false,
+        message: isFileTooLarge
+          ? 'Uploaded file is too large.'
+          : 'File upload failed.',
+      });
   }
 
   logger.error(

@@ -36,6 +36,10 @@ import {
 } from "../skill-progress/skill-progress.service.js";
 
 import {
+    assessmentRepository,
+} from "../assessment/index.js";
+
+import {
     dailyTaskWorkflow,
 } from "../daily-task/daily-task.workflow.js";
 
@@ -298,6 +302,37 @@ export class NextMissionWorkflow {
 
         /*
         |--------------------------------------------------------------------------
+        | Resume Skill Progress
+        |--------------------------------------------------------------------------
+        |
+        | A resume assessment completed during the
+        | previous mission can surface weak new
+        | skills that should influence the next
+        | mission even when the weekly report did
+        | not request revision.
+        |
+        */
+
+        const latestResumeAssessment =
+            await assessmentRepository
+                .findLatestCompletedResumeAssessment(
+                    careerJourneyId
+                );
+
+        const resumeSkillProgress =
+            latestResumeAssessment &&
+            latestResumeAssessment.completedAt &&
+            latestResumeAssessment.completedAt >=
+                previousMission.startDate
+                ? await skillProgressService
+                    .getSkillPlanningData(
+                        latestResumeAssessment._id
+                            .toString()
+                    )
+                : [];
+
+        /*
+        |--------------------------------------------------------------------------
         | Pending Roadmap Items
         |--------------------------------------------------------------------------
         */
@@ -319,6 +354,7 @@ export class NextMissionWorkflow {
             weeklyReport,
             roadmap,
             skillProgress,
+            resumeSkillProgress,
             pendingRoadmapItems,
             inProgressRoadmapItems
         };
@@ -422,35 +458,86 @@ export class NextMissionWorkflow {
             context.weeklyReport
                 .recommendation;
 
+        const revisionPlans:
+            MissionRevisionPlan[] = [];
+
         if (
-            !recommendation ||
-            !recommendation.prioritizeRevision
+            recommendation &&
+            recommendation.prioritizeRevision
         ) {
 
-            return [];
+            const weakSkillNames =
+                new Set(
+                    recommendation
+                        .weakSkills
+                        .map(
+                            skill =>
+                                skill
+                                    .trim()
+                                    .toLowerCase()
+                        )
+                );
 
+            const weakSkillProgress =
+                context.skillProgress
+                    .filter(
+                        skill =>
+                            weakSkillNames.has(
+                                skill.skillName
+                                    .trim()
+                                    .toLowerCase()
+                            )
+                    )
+                    .sort(
+                        (a, b) =>
+                            a.percentage -
+                            b.percentage
+                    );
+
+            revisionPlans.push(
+                ...weakSkillProgress.map(
+                    skill => ({
+
+                        skillCatalogId:
+                            skill.skillCatalogId,
+
+                        skillName:
+                            skill.skillName,
+
+                        percentage:
+                            skill.percentage,
+
+                        revisionTopics:
+                            this.getRevisionTopicsForSkill(
+                                skill.skillName,
+                                recommendation
+                                    .revisionTopics
+                            ),
+
+                    })
+                )
+            );
         }
 
-        const weakSkillNames =
+        const plannedSkillIds =
             new Set(
-                recommendation
-                    .weakSkills
-                    .map(
-                        skill =>
-                            skill
-                                .trim()
-                                .toLowerCase()
-                    )
+                revisionPlans.map(
+                    revision =>
+                        revision
+                            .skillCatalogId
+                            .toString()
+                )
             );
 
-        const weakSkillProgress =
-            context.skillProgress
+        const resumeWeakSkills =
+            context.resumeSkillProgress
                 .filter(
                     skill =>
-                        weakSkillNames.has(
-                            skill.skillName
-                                .trim()
-                                .toLowerCase()
+                        skill.percentage < 60 &&
+                        !plannedSkillIds.has(
+                            skill
+                                .skillCatalogId
+                                .toString()
                         )
                 )
                 .sort(
@@ -459,27 +546,30 @@ export class NextMissionWorkflow {
                         b.percentage
                 );
 
-        return weakSkillProgress.map(
-            skill => ({
+        revisionPlans.push(
+            ...resumeWeakSkills.map(
+                skill => ({
 
-                skillCatalogId:
-                    skill.skillCatalogId,
+                    skillCatalogId:
+                        skill.skillCatalogId,
 
-                skillName:
-                    skill.skillName,
-
-                percentage:
-                    skill.percentage,
-
-                revisionTopics:
-                    this.getRevisionTopicsForSkill(
+                    skillName:
                         skill.skillName,
-                        recommendation
-                            .revisionTopics
-                    ),
 
-            })
+                    percentage:
+                        skill.percentage,
+
+                    revisionTopics: [
+                        "Review core concepts",
+                        "Practice weak areas",
+                        "Complete focused exercises",
+                    ],
+
+                })
+            )
         );
+
+        return revisionPlans;
     }
 
     /*

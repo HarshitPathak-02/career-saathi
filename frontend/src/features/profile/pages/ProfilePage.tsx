@@ -3,6 +3,12 @@ import {
     useUpdateProfileMutation,
 } from "../../auth/api/authApi";
 
+import { ResumeSkillsCard } from "../../resume";
+
+import {
+    useGetWorkspaceQuery,
+} from "../../workspace/api/workspaceApi";
+
 import ProfileHero from "../components/ProfileHero";
 import ProfileAvatar from "../components/ProfileAvatar";
 import UpdateProfileForm from "../form/UpdateProfileForm";
@@ -23,6 +29,13 @@ export default function ProfilePage() {
             isLoading: isUpdating,
         },
     ] = useUpdateProfileMutation();
+
+    const {
+        data: workspaceData,
+    } = useGetWorkspaceQuery();
+
+    const careerJourneyId =
+        workspaceData?.data.careerJourney.id;
 
     if (isLoading) {
         return (
@@ -71,6 +84,14 @@ export default function ProfilePage() {
                 <AccountInformationCard
                     user={user}
                 />
+
+                {careerJourneyId && (
+                    <ResumeSkillsCard
+                        careerJourneyId={
+                            careerJourneyId
+                        }
+                    />
+                )}
 
             </div>
 
