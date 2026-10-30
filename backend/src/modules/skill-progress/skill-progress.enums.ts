@@ -1,4 +1,5 @@
 export enum AssessmentMethod {
+    INTERNAL = "INTERNAL",
     PLATFORM = "PLATFORM",
     MANUAL = "MANUAL",
 }

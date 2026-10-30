@@ -15,6 +15,12 @@ export interface CreateSkillProgressDTO {
     assessmentId:
     Types.ObjectId;
 
+    assessmentSectionId?:
+    Types.ObjectId;
+
+    assessmentAttemptId?:
+    Types.ObjectId;
+
     userSkillId:
     Types.ObjectId;
 

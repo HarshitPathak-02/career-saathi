@@ -5,6 +5,8 @@ import careerJourneyRoutes from '../modules/career-journey/career-journey.routes
 import { resumeRoutes } from '../modules/resume/index.js';
 import { userSkillsRoutes } from '../modules/user-skill/index.js';
 import assessmentRoutes from '../modules/assessment/assessment.routes.js'
+import assessmentSectionRoutes from '../modules/assessment/assessment-section.routes.js'
+import assessmentAttemptRoutes from '../modules/assessment/assessment-attempt.routes.js'
 import discoveryRoutes from '../modules/discovery/discovery.routes.js';
 import roadmapRoutes from '../modules/roadmap/roadmap.routes.js';
 import missionsRoutes from '../modules/mission/mission.routes.js';
@@ -67,6 +69,16 @@ router.use(
 router.use(
     '/assessments',
     assessmentRoutes
+);
+
+router.use(
+    '/assessment-sections',
+    assessmentSectionRoutes
+);
+
+router.use(
+    '/assessment-attempts',
+    assessmentAttemptRoutes
 );
 
 router.use(

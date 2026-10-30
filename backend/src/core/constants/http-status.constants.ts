@@ -13,6 +13,8 @@ export const HTTP_STATUS = {
 
   NOT_FOUND: 404,
 
+  GONE: 410,
+
   CONFLICT: 409,
 
   PAYLOAD_TOO_LARGE: 413,

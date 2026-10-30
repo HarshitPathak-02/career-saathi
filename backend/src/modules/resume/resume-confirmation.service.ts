@@ -144,34 +144,6 @@ export class ResumeConfirmationService {
                     )
             );
 
-        if (!isOnboarding) {
-            const existingSkillIdSet =
-                new Set(
-                    existingUserSkills.map(
-                        (userSkill) =>
-                            userSkill
-                                .skillCatalogId
-                                .toString()
-                    )
-                );
-
-            const hasUninitializedSkill =
-                skillCatalogIds.some(
-                    (skillCatalogId) =>
-                        !existingSkillIdSet.has(
-                            skillCatalogId
-                                .toString()
-                        )
-                );
-
-            if (hasUninitializedSkill) {
-                throw new AppError(
-                    HTTP_STATUS.CONFLICT,
-                    "Initialize your skills before confirming resume skills."
-                );
-            }
-        }
-
         const newSkillCatalogIds =
             skillCatalogIds.filter(
                 (skillCatalogId) =>
@@ -188,15 +160,6 @@ export class ResumeConfirmationService {
                         .ensureUserSkills(
                             resume.careerJourneyId
                                 .toString(),
-                            skillCatalogIds,
-                            session
-                        );
-                } else if (
-                    skillCatalogIds.length > 0
-                ) {
-                    await userSkillService
-                        .selectSkills(
-                            resume.careerJourneyId,
                             skillCatalogIds,
                             session
                         );

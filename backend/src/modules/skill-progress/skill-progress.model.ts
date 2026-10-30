@@ -24,6 +24,18 @@ const SkillProgressSchema = new Schema(
             index: true,
         },
 
+        assessmentSectionId: {
+            type: Types.ObjectId,
+            ref: "AssessmentSection",
+            default: null,
+        },
+
+        assessmentAttemptId: {
+            type: Types.ObjectId,
+            ref: "AssessmentAttempt",
+            default: null,
+        },
+
         userSkillId: {
             type: Types.ObjectId,
             ref: "UserSkill",
@@ -89,6 +101,22 @@ SkillProgressSchema.index({
     userSkillId: 1,
     createdAt: -1,
 });
+
+SkillProgressSchema.index(
+    {
+        assessmentAttemptId: 1,
+        userSkillId: 1,
+    },
+    {
+        unique: true,
+
+        partialFilterExpression: {
+            assessmentAttemptId: {
+                $type: "objectId",
+            },
+        },
+    }
+);
 
 export type SkillProgress =
     InferSchemaType<

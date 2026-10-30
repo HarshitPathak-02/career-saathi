@@ -2,6 +2,7 @@ import {
     Types,
 } from "mongoose";
 import { AssessmentSkillSource, AssessmentStatus, AssessmentType } from "./index.js";
+import { AssessmentDeliveryMode } from "./assessment-engine.enums.js";
 import { AssessmentMethod, CreateSkillProgressDTO } from "../skill-progress/index.js";
 
 export interface CreateAssessmentDTO {
@@ -203,7 +204,15 @@ export interface AssessmentResponse {
 
     skillCatalogIds: string[];
 
+    deliveryMode: AssessmentDeliveryMode;
+
     status: AssessmentStatus;
+
+    sectionCount: number;
+
+    completedSectionCount: number;
+
+    startedAt: Date | null;
 
     completedAt: Date | null;
 

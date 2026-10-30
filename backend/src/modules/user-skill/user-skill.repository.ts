@@ -223,6 +223,30 @@ class UserSkillRepository {
     );
   }
 
+  async findSelectedByCareerJourney(
+    careerJourneyId: Types.ObjectId,
+    session?: ClientSession
+  ) {
+    return UserSkillModel
+      .find({
+        careerJourneyId,
+        selectedByUser: true,
+        isActive: true,
+      })
+      .populate<{
+        skillCatalogId:
+        SkillCatalogDocument;
+      }>(
+        "skillCatalogId"
+      )
+      .sort({
+        skillCatalogId: 1,
+      })
+      .session(
+        session ?? null
+      );
+  }
+
   async findByCareerJourneyAndSkillCatalogIds(
     careerJourneyId: Types.ObjectId,
     skillCatalogIds: Types.ObjectId[],
