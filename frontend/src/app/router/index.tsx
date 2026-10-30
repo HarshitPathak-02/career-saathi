@@ -17,6 +17,7 @@ import CareerRolePage from "../../features/career-setup/pages/CareerRolePage";
 import CareerJourneyPage from "../../features/career-setup/pages/CareerJourneyPage";
 
 import WorkspacePage from "../../features/workspace/pages/WorkspacePage";
+import CareerDiscoveryPage from "../../features/discovery/pages/CareerDiscoveryPage";
 import InitialAssessmentPage from "../../features/initial-assessment/pages/InitialAssessmentPage";
 import RoadmapPage from "../../features/roadmap/pages/RoadmapPage";
 import AssessmentsPage from "../../features/assessment/pages/AssessmentsPage";
@@ -81,6 +82,11 @@ export const router = createBrowserRouter([
       },
 
       {
+        path: "/discovery",
+        element: <CareerDiscoveryPage />,
+      },
+
+      {
         element: <WorkspaceGuard />,
         children: [
           {
@@ -93,7 +99,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "/roadmap",
-            element: <RoadmapPage />
+            element: <RoadmapPage />,
           },
           {
             path: "/assessments",
@@ -114,12 +120,11 @@ export const router = createBrowserRouter([
           },
           {
             path: "/weekly-review",
-            element: < WeeklyReviewPage />
+            element: <WeeklyReviewPage />,
           },
           {
             path: "/weekly-reports",
-            element:
-              <WeeklyReportsPage />
+            element: <WeeklyReportsPage />,
           },
           {
             path: "/weekly-reports/:reportId",
@@ -127,22 +132,20 @@ export const router = createBrowserRouter([
           },
           {
             path: "/monthly-reports",
-            element: <MonthlyReportsPage />
+            element: <MonthlyReportsPage />,
           },
           {
             path: "/monthly-reports/:reportNumber",
-            element: <MonthlyReportDetailsPage />
+            element: <MonthlyReportDetailsPage />,
           },
           {
             path: "/readiness",
-            element:
-              <ReadinessPage />
-
+            element: <ReadinessPage />,
           },
           {
             path: "/profile",
-            element: <ProfilePage />
-          }
+            element: <ProfilePage />,
+          },
         ],
       },
     ],

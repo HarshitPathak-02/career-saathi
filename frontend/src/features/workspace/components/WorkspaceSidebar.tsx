@@ -1,6 +1,7 @@
 import {
     BarChart3,
     ClipboardCheck,
+    Compass,
     FileBarChart,
     LayoutDashboard,
     Map,
@@ -54,6 +55,12 @@ const sidebarItems:
             label: "Workspace",
             icon: LayoutDashboard,
             path: "/workspace",
+        },
+
+        {
+            label: "Career Discovery",
+            icon: Compass,
+            path: "/discovery",
         },
 
         {
