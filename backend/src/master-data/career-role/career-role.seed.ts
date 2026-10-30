@@ -12,13 +12,41 @@ export const CAREER_ROLE_SEED = [
         name: CareerRoleName.NODE_JS_BACKEND_DEVELOPER,
         slug: CareerRoleSlug.NODE_JS_BACKEND_DEVELOPER,
         description:
-            "Node.js Backend Developer Career Path",
+            "Build APIs, services, and data-driven systems with Node.js.",
 
         /**
          * This will be replaced by the Backend
          * Domain ObjectId during the seed process.
          */
         domainSlug: "backend-development",
+    },
+    {
+        name: CareerRoleName.REACT_FRONTEND_DEVELOPER,
+        slug: CareerRoleSlug.REACT_FRONTEND_DEVELOPER,
+        description:
+            "Build accessible, responsive web experiences with React and TypeScript.",
+        domainSlug: "frontend-development",
+    },
+    {
+        name: CareerRoleName.DATA_ANALYST,
+        slug: CareerRoleSlug.DATA_ANALYST,
+        description:
+            "Turn data into decisions using SQL, Python, statistics, and visualization.",
+        domainSlug: "data-and-ai",
+    },
+    {
+        name: CareerRoleName.UI_UX_DESIGNER,
+        slug: CareerRoleSlug.UI_UX_DESIGNER,
+        description:
+            "Research user needs and design clear, usable digital products.",
+        domainSlug: "design",
+    },
+    {
+        name: CareerRoleName.DIGITAL_MARKETING_SPECIALIST,
+        slug: CareerRoleSlug.DIGITAL_MARKETING_SPECIALIST,
+        description:
+            "Grow audiences and campaigns through content, search, social, and analytics.",
+        domainSlug: "digital-marketing",
     },
 ];
 

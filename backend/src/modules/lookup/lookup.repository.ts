@@ -39,6 +39,20 @@ export class LookupRepository {
 
     }
 
+    async getCareerRoles(
+        session?: ClientSession
+    ): Promise<CareerRoleDocument[]> {
+
+        return CareerRoleModel.find({
+            isActive: true,
+        })
+            .sort({
+                name: 1,
+            })
+            .session(session ?? null);
+
+    }
+
     async getCareerRolesByDomain(
         domainId: Types.ObjectId,
         session?: ClientSession,

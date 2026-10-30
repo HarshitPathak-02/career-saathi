@@ -10,6 +10,26 @@ export const CAREER_DOMAIN_SEED = [
     slug: CareerDomainSlug.BACKEND,
     description: "Backend Development Career Path",
   },
+  {
+    name: CareerDomainName.FRONTEND,
+    slug: CareerDomainSlug.FRONTEND,
+    description: "Frontend Development Career Path",
+  },
+  {
+    name: CareerDomainName.DATA,
+    slug: CareerDomainSlug.DATA,
+    description: "Data and AI Career Path",
+  },
+  {
+    name: CareerDomainName.DESIGN,
+    slug: CareerDomainSlug.DESIGN,
+    description: "Product and UX Design Career Path",
+  },
+  {
+    name: CareerDomainName.MARKETING,
+    slug: CareerDomainSlug.MARKETING,
+    description: "Digital Marketing Career Path",
+  },
 ];
 
 export const seedCareerDomains = async () => {

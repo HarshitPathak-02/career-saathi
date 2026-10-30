@@ -10,6 +10,11 @@ import { MentorFeedbackOutput, MissionRecommendationOutput, WeeklyReportGenerati
 import { MissionDifficulty } from "../../modules/mission/mission.enums.js";
 import { MonthlyReportAIOutput } from "../../modules/monthly-report/monthly-report-ai.types.js";
 import type { ResumeSkillExtractionOutput } from "../../modules/resume/resume.types.js";
+import type {
+    DiscoveryAssistantMessageOutput,
+    DiscoveryCandidateGenerationOutput,
+    DiscoveryCounselorOutput,
+} from "../../modules/discovery/discovery.types.js";
 
 class AIValidator {
 
@@ -1058,6 +1063,124 @@ class AIValidator {
 
         return validatedItems;
     }
+
+  validateDiscoveryAssistantMessage(data: unknown): DiscoveryAssistantMessageOutput {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error('Discovery assistant response must be an object.');
+    }
+
+    const response = data as Record<string, unknown>;
+
+    if (typeof response.message !== 'string' || response.message.trim().length === 0) {
+      throw new Error('Discovery assistant message is required.');
+    }
+
+    const message = response.message.trim();
+
+    if (message.length > 1200) {
+      throw new Error('Discovery assistant message is too long.');
+    }
+
+    return {
+      message,
+    };
+  }
+
+  validateDiscoveryCounselorResponse(data: unknown): DiscoveryCounselorOutput {
+    const { message } = this.validateDiscoveryAssistantMessage(data);
+
+    const response = data as Record<string, unknown>;
+    const rawTopics = response.coveredTopics;
+    const coveredTopics = Array.isArray(rawTopics)
+      ? Array.from(
+          new Set(
+            rawTopics
+              .filter((topic): topic is string => typeof topic === 'string')
+              .map((topic) => topic.trim().toLowerCase())
+              .filter((topic) => topic.length > 0 && topic.length <= 60)
+          )
+        ).slice(0, 10)
+      : [];
+
+    return {
+      message,
+      isReadyForRecommendations: response.isReadyForRecommendations === true,
+      coveredTopics,
+    };
+  }
+
+  validateDiscoveryCandidateGeneration(data: unknown): DiscoveryCandidateGenerationOutput {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error('Discovery candidate response must be an object.');
+    }
+
+    const response = data as Record<string, unknown>;
+
+    if (
+      !Array.isArray(response.candidates) ||
+      response.candidates.length === 0 ||
+      response.candidates.length > 3
+    ) {
+      throw new Error('Discovery must return between one and three candidates.');
+    }
+
+    const candidates = response.candidates.map((candidate, index) => {
+      if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+        throw new Error(`Discovery candidate ${index} must be an object.`);
+      }
+
+      const item = candidate as Record<string, unknown>;
+
+      if (
+        typeof item.roleSlug !== 'string' ||
+        item.roleSlug.trim().length === 0 ||
+        item.roleSlug.trim().length > 150
+      ) {
+        throw new Error(`Discovery candidate ${index} has an invalid role slug.`);
+      }
+
+      if (
+        typeof item.rationale !== 'string' ||
+        item.rationale.trim().length === 0 ||
+        item.rationale.trim().length > 800
+      ) {
+        throw new Error(`Discovery candidate ${index} has an invalid rationale.`);
+      }
+
+      if (
+        typeof item.rank !== 'number' ||
+        !Number.isInteger(item.rank) ||
+        item.rank < 1 ||
+        item.rank > 3
+      ) {
+        throw new Error(`Discovery candidate ${index} has an invalid rank.`);
+      }
+
+      return {
+        roleSlug: item.roleSlug.trim().toLowerCase(),
+        rationale: item.rationale.trim(),
+        rank: item.rank,
+      };
+    });
+
+    const roleSlugs = new Set(candidates.map((candidate) => candidate.roleSlug));
+
+    if (roleSlugs.size !== candidates.length) {
+      throw new Error('Discovery candidates must have unique role slugs.');
+    }
+
+    const ranks = candidates.map((candidate) => candidate.rank).sort((a, b) => a - b);
+
+    ranks.forEach((rank, index) => {
+      if (rank !== index + 1) {
+        throw new Error('Discovery candidate ranks must be sequential from 1.');
+      }
+    });
+
+    return {
+      candidates,
+    };
+  }
 
     validateResumeSkillExtraction(
         data: unknown

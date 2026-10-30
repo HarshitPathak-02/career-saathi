@@ -1,46 +1,25 @@
-import {
-    AIProvider as AIProviderInterface,
-} from "./ai-provider.interface.js";
+import { AIProvider as AIProviderInterface } from './ai-provider.interface.js';
 
-import {
-    AIProvider,
-} from "./ai.enums.js";
+import { AIProvider } from './ai.enums.js';
 
-import {
-    GeminiProvider,
-} from "./gemini.provider.js";
+import { GeminiProvider } from './gemini.provider.js';
 
-import {
-    GroqProvider,
-} from "./groq.provider.js";
+import { GroqProvider } from './groq.provider.js';
 
+export function createAIProvider(requestedProvider?: AIProvider): AIProviderInterface {
+  const provider =
+    requestedProvider ??
+    (process.env.AI_PROVIDER?.toUpperCase() as AIProvider | undefined) ??
+    AIProvider.GEMINI;
 
-export function createAIProvider():
-    AIProviderInterface {
+  switch (provider) {
+    case AIProvider.GEMINI:
+      return new GeminiProvider();
 
-    const provider =
-        process.env.AI_PROVIDER ??
-        AIProvider.GEMINI;
+    case AIProvider.GROQ:
+      return new GroqProvider();
 
-
-    switch (provider) {
-
-        case AIProvider.GEMINI:
-
-            return new GeminiProvider();
-
-
-        case AIProvider.GROQ:
-
-            return new GroqProvider();
-
-
-        default:
-
-            throw new Error(
-                `Unsupported AI provider: ${provider}`
-            );
-
-    }
-
+    default:
+      throw new Error(`Unsupported AI provider: ${provider}`);
+  }
 }

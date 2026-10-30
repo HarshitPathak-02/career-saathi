@@ -209,6 +209,264 @@ export const SKILL_CATALOG_SEED = [
     difficulty: SkillDifficulty.BEGINNER,
   },
 
+  // ==========================
+  // Frontend
+  // ==========================
+
+  {
+    name: "HTML",
+    slug: "html",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "CSS",
+    slug: "css",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "React",
+    slug: "react",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Tailwind CSS",
+    slug: "tailwind-css",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Responsive Web Design",
+    slug: "responsive-web-design",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Web Accessibility",
+    slug: "web-accessibility",
+    category: SkillCategory.FRONTEND,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Frontend Testing",
+    slug: "frontend-testing",
+    category: SkillCategory.TESTING,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  // ==========================
+  // Data
+  // ==========================
+
+  {
+    name: "Python",
+    slug: "python",
+    category: SkillCategory.PROGRAMMING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "SQL",
+    slug: "sql",
+    category: SkillCategory.DATABASE,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Excel",
+    slug: "excel",
+    category: SkillCategory.ANALYTICS,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Pandas",
+    slug: "pandas",
+    category: SkillCategory.DATA_SCIENCE,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "NumPy",
+    slug: "numpy",
+    category: SkillCategory.DATA_SCIENCE,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Statistics",
+    slug: "statistics",
+    category: SkillCategory.DATA_SCIENCE,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Data Visualization",
+    slug: "data-visualization",
+    category: SkillCategory.DATA_VISUALIZATION,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Machine Learning",
+    slug: "machine-learning",
+    category: SkillCategory.DATA_SCIENCE,
+    difficulty: SkillDifficulty.ADVANCED,
+  },
+
+  {
+    name: "Jupyter Notebook",
+    slug: "jupyter-notebook",
+    category: SkillCategory.DATA_SCIENCE,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  // ==========================
+  // Design
+  // ==========================
+
+  {
+    name: "Figma",
+    slug: "figma",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "UI Design",
+    slug: "ui-design",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "UX Research",
+    slug: "ux-research",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Wireframing",
+    slug: "wireframing",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Prototyping",
+    slug: "prototyping",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Interaction Design",
+    slug: "interaction-design",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  {
+    name: "Design Systems",
+    slug: "design-systems",
+    category: SkillCategory.DESIGN,
+    difficulty: SkillDifficulty.ADVANCED,
+  },
+
+  // ==========================
+  // Marketing
+  // ==========================
+
+  {
+    name: "SEO",
+    slug: "seo",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Content Marketing",
+    slug: "content-marketing",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Google Analytics",
+    slug: "google-analytics",
+    category: SkillCategory.ANALYTICS,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Social Media Marketing",
+    slug: "social-media-marketing",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Email Marketing",
+    slug: "email-marketing",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Copywriting",
+    slug: "copywriting",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Digital Advertising",
+    slug: "digital-advertising",
+    category: SkillCategory.MARKETING,
+    difficulty: SkillDifficulty.INTERMEDIATE,
+  },
+
+  // ==========================
+  // Professional Skills
+  // ==========================
+
+  {
+    name: "HR Interview Skills",
+    slug: "hr-interview-skills",
+    category: SkillCategory.HR_INTERVIEW,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "Resume Writing",
+    slug: "resume-writing",
+    category: SkillCategory.PROFESSIONAL,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "LinkedIn Profile",
+    slug: "linkedin-profile",
+    category: SkillCategory.PROFESSIONAL,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
+  {
+    name: "GitHub Profile",
+    slug: "github-profile",
+    category: SkillCategory.PROFESSIONAL,
+    difficulty: SkillDifficulty.BEGINNER,
+  },
+
 ];
 
 export const SKILL_ALIASES: Record<string, string[]> = {
@@ -302,6 +560,115 @@ export const SKILL_ALIASES: Record<string, string[]> = {
     "english proficiency",
     "communication skills",
     "spoken english",
+  ],
+
+  html: ["html5", "hypertext markup language"],
+
+  css: ["css3", "cascading style sheets"],
+
+  react: ["react.js", "reactjs", "react js"],
+
+  "tailwind-css": ["tailwind", "tailwindcss", "tailwind css"],
+
+  "responsive-web-design": [
+    "responsive design",
+    "responsive web development",
+    "mobile responsive design",
+  ],
+
+  "web-accessibility": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "accessible web design",
+  ],
+
+  "frontend-testing": [
+    "front end testing",
+    "react testing",
+    "jest",
+    "vitest",
+  ],
+
+  python: ["python3", "python 3"],
+
+  sql: ["mysql", "postgresql", "postgres", "structured query language"],
+
+  excel: ["microsoft excel", "ms excel", "spreadsheets"],
+
+  pandas: ["python pandas"],
+
+  numpy: ["python numpy"],
+
+  statistics: ["statistical analysis", "stats", "probability and statistics"],
+
+  "data-visualization": [
+    "data visualisation",
+    "data viz",
+    "dashboards",
+    "charts",
+  ],
+
+  "machine-learning": ["ml", "machine learning basics", "predictive modeling"],
+
+  "jupyter-notebook": ["jupyter", "jupyter notebooks", "notebooks"],
+
+  figma: ["figma design"],
+
+  "ui-design": ["ui", "user interface design", "visual design"],
+
+  "ux-research": ["ux", "user research", "user experience research"],
+
+  wireframing: ["wireframes", "wireframe"],
+
+  prototyping: ["prototype", "interactive prototypes"],
+
+  "interaction-design": ["ixd", "interaction designer"],
+
+  "design-systems": ["design system", "component libraries"],
+
+  seo: ["search engine optimization", "search engine optimisation"],
+
+  "content-marketing": ["content strategy", "content creation"],
+
+  "google-analytics": ["ga4", "google analytics 4", "web analytics"],
+
+  "social-media-marketing": [
+    "social media",
+    "social media marketing",
+    "smm",
+  ],
+
+  "email-marketing": ["email campaigns", "newsletter marketing"],
+
+  copywriting: ["copy writing", "ad copy", "content writing"],
+
+  "digital-advertising": [
+    "digital ads",
+    "paid advertising",
+    "google ads",
+    "meta ads",
+  ],
+
+  "hr-interview-skills": [
+    "hr interview",
+    "hr round",
+    "behavioral interview",
+    "interview preparation",
+  ],
+
+  "resume-writing": ["resume", "cv", "cv writing", "resume building"],
+
+  "linkedin-profile": [
+    "linkedin",
+    "linkedin optimization",
+    "linkedin profile optimization",
+  ],
+
+  "github-profile": [
+    "github portfolio",
+    "github profile optimization",
+    "developer portfolio",
   ],
 };
 

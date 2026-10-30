@@ -14,10 +14,10 @@ const seedDatabase = async () => {
 
         console.log("Database connected.");
 
-        // await seedCareerDomains();
-        // await seedCareerRoles();
-        // await seedCareerRoleSkills();
+        await seedCareerDomains();
+        await seedCareerRoles();
         await seedSkillCatalog();
+        await seedCareerRoleSkills();
         console.log("Database seeded successfully.");
 
         process.exit(0);

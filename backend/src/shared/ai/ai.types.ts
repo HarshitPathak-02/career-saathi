@@ -1,26 +1,29 @@
+import type { AIProvider } from './ai.enums.js';
+
 export interface AIRequest {
-    prompt: string;
+  prompt: string;
 
-    systemInstruction?: string;
+  systemInstruction?: string;
 
-    temperature?: number;
+  temperature?: number;
 
-    maxOutputTokens?: number;
+  maxOutputTokens?: number;
 
-    thinkingBudget?: number;
+  thinkingBudget?: number;
+
+  provider?: AIProvider;
 }
 
-
 export interface AIResponse {
-    text: string;
+  text: string;
 
-    metadata: AIResponseMetadata;
+  metadata: AIResponseMetadata;
 }
 
 export interface AIResponseMetadata {
-    provider: string;
+  provider: string;
 
-    model: string;
+  model: string;
 
-    generatedAt: Date;
+  generatedAt: Date;
 }
