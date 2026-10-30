@@ -12,19 +12,33 @@ import {
 } from "../../core/middleware/async-handler.js";
 
 import {
+    AppError,
+} from "../../core/errors/app-error.js";
+
+import {
     successResponse,
 } from "../../core/responses/successResponse.js";
 
 import {
     HTTP_STATUS,
 } from "../../core/constants/http-status.constants.js";
-import { assessmentWorkflowService, ASSESSMENT_MESSAGES, assessmentService } from "./index.js";
+import { assessmentWorkflowService, ASSESSMENT_MESSAGES, assessmentService, assessmentRuntimeService } from "./index.js";
 import { getAuthUser } from "../../shared/utils/get-auth-user.js";
 import { assessmentResponseMapper } from "./assessment.mapper.js";
 
 
 
 class AssessmentController {
+
+    deprecatedManualEndpoint =
+        asyncHandler(
+            async () => {
+                throw new AppError(
+                    HTTP_STATUS.GONE,
+                    "This manual assessment endpoint has been retired. Use the section-based assessment engine."
+                );
+            }
+        );
 
     startInitialAssessment =
         asyncHandler(
@@ -33,9 +47,12 @@ class AssessmentController {
                 res: Response
             ) => {
 
-                const assessment =
-                    await assessmentWorkflowService
-                        .startInitialAssessment(
+                const user = getAuthUser(req);
+
+                const campaign =
+                    await assessmentRuntimeService
+                        .startInitialCampaign(
+                            user.userId,
                             req.body
                                 .careerJourneyId
                         );
@@ -50,11 +67,7 @@ class AssessmentController {
                         ASSESSMENT_MESSAGES
                             .INITIAL_CREATED,
 
-                    data:
-                        assessmentResponseMapper
-                            .toAssessmentResponse(
-                                assessment
-                            ),
+                    data: campaign,
                 });
             }
         );
@@ -280,6 +293,37 @@ class AssessmentController {
 
                     data:
                         assessments,
+                });
+            }
+        );
+
+    getAssessmentSections =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+
+                const user = getAuthUser(req);
+
+                const sections =
+                    await assessmentRuntimeService
+                        .getAssessmentSections(
+                            user.userId,
+                            req.params
+                                .assessmentId as string
+                        );
+
+                return successResponse({
+                    res,
+
+                    statusCode:
+                        HTTP_STATUS.OK,
+
+                    message:
+                        "Assessment sections fetched successfully.",
+
+                    data: sections,
                 });
             }
         );

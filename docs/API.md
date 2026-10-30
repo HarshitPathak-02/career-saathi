@@ -111,16 +111,44 @@ Candidate responses include `careerDomainName` and `careerRoleName` alongside th
 
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| POST | `/assessments/initial/start` | Yes | Start the initial assessment |
-| POST | `/assessments/initial/submit` | Yes | Submit initial assessment scores |
-| POST | `/assessments/weekly/start` | Yes | Start a weekly assessment |
-| POST | `/assessments/weekly/submit` | Yes | Submit a weekly assessment |
-| POST | `/assessments/resume/start` | Yes | Start an assessment for confirmed resume skills |
-| POST | `/assessments/resume/submit` | Yes | Submit resume skill scores |
+| POST | `/assessments/initial/start` | Yes | Create the initial assessment campaign and its skill sections |
+| GET | `/assessments/:assessmentId/sections` | Yes | List campaign sections with status and scores |
+| POST | `/assessment-sections/:sectionId/attempts` | Yes | Start or resume a section attempt |
+| GET | `/assessment-attempts/:attemptId` | Yes | Return attempt state, questions, and saved answers |
+| PATCH | `/assessment-attempts/:attemptId/answers` | Yes | Autosave answers for an attempt |
+| POST | `/assessment-attempts/:attemptId/submit` | Yes | Submit an attempt and receive the computed result |
+| POST | `/assessments/weekly/start` | Yes | Start a legacy weekly assessment |
+| POST | `/assessments/weekly/submit` | Yes | Submit legacy weekly scores (deprecated; use the engine for new flows) |
 | GET | `/assessments/career-journey/:careerJourneyId` | Yes | List assessments for a journey |
 | GET | `/assessments/:assessmentId` | Yes | Return an assessment |
 | GET | `/assessments/:assessmentId/details` | Yes | Return an assessment with scores |
 | GET | `/assessments/:assessmentId/weekly-plan` | Yes | Return the weekly plan for an assessment |
+| POST | `/assessments/initial/submit` | Yes | Retired manual endpoint; returns `410` |
+| POST | `/assessments/resume/start` | Yes | Retired manual endpoint; returns `410` |
+| POST | `/assessments/resume/submit` | Yes | Retired manual endpoint; returns `410` |
+
+`POST /assessments/initial/start` accepts only `{ "careerJourneyId": "..." }` and requires a `DRAFT` journey. It creates one section per skill selected by the user. If a draft campaign already exists, the existing campaign is returned so onboarding can resume after a reload. The request never accepts marks or scores, and the response returns `assessmentId`, `sectionCount`, `firstSectionId`, and the section summaries.
+
+Starting an attempt returns the section questions without answer keys or explanations and includes any answers already autosaved for that attempt, plus the attempt `startedAt` and `expiresAt` timestamps used by the section timer. An in-progress attempt is resumed until it expires; after expiry, a new attempt number is created. A completed section can be retaken, which creates the next attempt.
+
+Autosave and submit accept answers in this shape:
+
+```json
+{
+  "answers": [
+    {
+      "assessmentQuestionId": "...",
+      "selectedOptionKeys": ["A"],
+      "numericValue": null,
+      "matchingPairs": [{ "leftKey": "L1", "rightKey": "R1" }]
+    }
+  ]
+}
+```
+
+Single-choice and multi-select use `selectedOptionKeys`, numeric questions use `numericValue`, and matching questions use `matchingPairs`. Multi-select and matching are graded by exact match with no partial credit. The server computes all scores; submit returns per-question correctness and explanations plus topic mastery and weak-topic signals. The initial journey activates only after every section is complete.
+
+The engine serves `AI_VALIDATED` and `ADMIN_APPROVED` questions. Answer keys and explanations are never returned before submission.
 
 ## Roadmaps
 
@@ -210,36 +238,9 @@ Upload accepts `application/pdf` and DOCX only, up to 5 MB. Invalid file types r
 
 Confirmation requires an analyzed resume. Selected ids must be matched skills from that resume; an empty array records a confirmation with no accepted skills. Existing scores, levels, and assessment dates are never changed.
 
-While the journey is `DRAFT`, confirmation initializes the journey's `UserSkill` records and makes the confirmed resume skills the exact selected set, so onboarding can skip manual selection. While the journey is `ACTIVE`, confirmation is additive: newly selected skills become `selectedByUser: true`, existing selections remain selected, and `confirmation.newSkillCatalogIds` lists only the skills added by this confirmation. Re-analyzing the resume clears the previous confirmation.
+While the journey is `DRAFT`, confirmation initializes the journey's `UserSkill` records and makes the confirmed resume skills the exact selected set, so onboarding can skip manual selection. For an active journey, confirmation only records resume evidence and does not create or remove `UserSkill` records, change scores or assessment dates, create assessments, or alter the roadmap. The profile card is reference-only and displays the current journey unchanged.
 
-`POST /assessments/resume/start` accepts a journey and confirmed skill catalog ids:
-
-```json
-{
-  "careerJourneyId": "...",
-  "skillCatalogIds": ["..."]
-}
-```
-
-It creates a `RESUME` assessment only for an `ACTIVE` journey whose `UserSkill` records are already initialized.
-
-`POST /assessments/resume/submit` accepts the assessment id and platform scores:
-
-```json
-{
-  "assessmentId": "...",
-  "skills": [
-    {
-      "userSkillId": "...",
-      "obtainedMarks": 70,
-      "totalMarks": 100,
-      "assessmentMethod": "PLATFORM"
-    }
-  ]
-}
-```
-
-Resume assessments use their own `weekNumber` sequence. Submit them through `/assessments/resume/submit`; the initial assessment uses `/assessments/initial/submit`.
+`RESUME` assessments are legacy-only. `POST /assessments/resume/start` and `POST /assessments/resume/submit` are retired and return `410`. New skill verification happens through the section-based assessment engine.
 
 `POST /resume/:resumeId/analyze` moves the resume through `ANALYZING` to `ANALYZED` or `ANALYSIS_FAILED`. An analysis stuck in `ANALYZING` for more than ten minutes is treated as interrupted and can be retried. The response contains normalized skill matches and evidence:
 

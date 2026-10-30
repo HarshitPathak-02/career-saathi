@@ -40,7 +40,7 @@ Module layout:
 | --- | --- |
 | `auth` | Registration, login, refresh rotation, logout, sessions |
 | `career-journey` | Target role, journey state, setup data |
-| `assessment` | Initial, weekly, and monthly assessments |
+| `assessment` | Question bank, assessment campaigns, sections, attempts, grading, and legacy assessment history |
 | `user-skill` | Selected skills and proficiency |
 | `roadmap` | AI roadmap generation and adaptive updates |
 | `mission` | Seven-day mission lifecycle |
@@ -50,6 +50,16 @@ Module layout:
 | `readiness` | Readiness scoring and mock interviews |
 | `resume` | Resume upload, text extraction, skill analysis, and retrieval |
 | `workspace` | Aggregated dashboard payload |
+
+## Assessment Engine
+
+Initial assessments are question-based campaigns. One `AssessmentSection` is created for every skill the user selected during onboarding. Each section owns up to five five-question attempts, and the same attempt/grading engine will back weekly assessments.
+
+The question bank stores `Question` documents under the `AI_GENERATED -> AI_VALIDATED -> ADMIN_APPROVED` lifecycle. `AI_VALIDATED` and `ADMIN_APPROVED` questions may be served; answer keys never leave the server before submission. Generated questions map to a seeded `SkillTopic` taxonomy and are deduplicated by content hash.
+
+Attempts snapshot each served question (`AssessmentQuestion`) so later question edits cannot change historical results. `AssessmentAnswer` stores the user's selected options, numeric value, or matching pairs and timing. Submission grades the attempt server-side, creates `SkillProgress`, updates `UserSkill.currentScore`, records `SkillTopicProgress` and `SkillEvidence`, and activates a `DRAFT` journey only after every initial section is complete.
+
+Profile resume uploads and confirmations do not mutate an active journey. `RESUME` assessments remain legacy-only; the profile resume card presents evidence and confidence without applying scores.
 
 ## Career Journey State Machine
 
@@ -89,7 +99,7 @@ sequenceDiagram
     API->>DB: Persist report and next mission state
 ```
 
-Weekly reviews produce an AI report. Significant gaps can trigger an adaptive roadmap update before the next mission. A completed `RESUME` assessment from the previous mission also contributes skills scoring below 60% to the next mission's revision plans.
+Weekly reviews produce an AI report. Significant gaps can trigger an adaptive roadmap update before the next mission. Measured weak topics from the assessment engine are the preferred signal for the next mission's revision plans; legacy manual and resume assessments remain readable but do not create new scoring evidence.
 
 ### Monthly Cycle
 
@@ -181,7 +191,7 @@ Upload and analysis endpoints are rate-limited per user. Resume status follows `
 
 - `app/` wires the Redux store, router, providers, and the `AuthInitializer`.
 - `features/*` contains feature slices, RTK Query endpoints, components, hooks, and pages.
-- `features/resume` owns resume upload, analysis, skill-confirmation, and resume-skill assessment API types. Its card is rendered during onboarding and from the profile page; after profile confirmation it surfaces unassessed confirmed skills.
+- `features/resume` owns resume upload, analysis, and skill confirmation. Its card is rendered during onboarding and from the profile page; on the profile it is reference-only and does not offer a resume-skill assessment.
 - `shared/api` owns the axios instance, the RTK Query base query, and auth header injection.
 - `features/auth/slice/authSlice.ts` stores the access token and current user; the refresh token never reaches JavaScript.
 - Route guards (`OnboardingGuard`, `WorkspaceGuard`, `AppEntry`) derive navigation from authentication and journey state.

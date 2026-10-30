@@ -176,6 +176,20 @@ class SkillProgressRepository {
             .session(session ?? null);
     }
 
+    async findByAttemptAndUserSkill(
+        assessmentAttemptId: Types.ObjectId,
+        userSkillId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<SkillProgressDocument | null> {
+
+        return SkillProgressModel
+            .findOne({
+                assessmentAttemptId,
+                userSkillId,
+            })
+            .session(session ?? null);
+    }
+
     /*
 |--------------------------------------------------------------------------
 | Find By Assessment Ids

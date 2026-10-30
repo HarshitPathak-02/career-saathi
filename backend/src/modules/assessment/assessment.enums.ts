@@ -6,6 +6,7 @@ export enum AssessmentType {
 
 export enum AssessmentStatus {
     PENDING = "PENDING",
+    IN_PROGRESS = "IN_PROGRESS",
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",
 }

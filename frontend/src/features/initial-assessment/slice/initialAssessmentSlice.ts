@@ -3,6 +3,9 @@ import {
     type PayloadAction,
 } from "@reduxjs/toolkit";
 
+export const INITIAL_ASSESSMENT_STORAGE_KEY =
+    "careersaathi.initial-assessment";
+
 export type InitialAssessmentStep =
     0 | 1 | 2 | 3;
 

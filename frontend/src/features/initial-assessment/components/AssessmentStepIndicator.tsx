@@ -23,7 +23,7 @@ const steps = [
     },
     {
         step: 3,
-        label: "Submit Scores",
+        label: "Assessment",
     },
 ] as const;
 

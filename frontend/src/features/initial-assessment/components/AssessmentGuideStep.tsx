@@ -1,6 +1,5 @@
 import {
     ClipboardCheck,
-    ExternalLink,
 } from "lucide-react";
 
 import Button from "../../../components/ui/Button/Button";
@@ -10,6 +9,7 @@ import {
 } from "../../../app/hooks";
 
 import {
+    INITIAL_ASSESSMENT_STORAGE_KEY,
     setAssessmentId,
     setAssessmentStep,
 } from "../slice/initialAssessmentSlice";
@@ -111,9 +111,18 @@ const AssessmentGuideStep = ({
                     careerJourneyId,
                 }).unwrap();
 
+            window.sessionStorage.setItem(
+                INITIAL_ASSESSMENT_STORAGE_KEY,
+                JSON.stringify({
+                    careerJourneyId,
+                    assessmentId:
+                        response.data.assessmentId,
+                })
+            );
+
             dispatch(
                 setAssessmentId(
-                    response.data.id
+                    response.data.assessmentId
                 )
             );
 
@@ -177,25 +186,24 @@ const AssessmentGuideStep = ({
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-600">
-                            Complete an assessment for
-                            each skill before entering
-                            your scores.
+                            Each selected skill has its own
+                            short section. Your score is
+                            calculated automatically.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-                <h3 className="font-medium text-amber-950">
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+                <h3 className="font-medium text-blue-950">
                     How this works
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-amber-900">
-                    Take a genuine skill assessment on
-                    an appropriate testing platform.
-                    Keep your obtained marks and total
-                    marks ready. You'll enter them in
-                    the next step.
+                <p className="mt-2 text-sm leading-6 text-blue-900">
+                    Answer five questions for each skill.
+                    You can complete one skill at a time,
+                    and your progress is saved as you go.
+                    There are no marks to enter.
                 </p>
             </div>
 
@@ -231,19 +239,11 @@ const AssessmentGuideStep = ({
                                         </h3>
 
                                         <p className="mt-1 text-sm text-slate-500">
-                                            Complete a
-                                            skill-level
-                                            assessment and
-                                            record your
-                                            result.
+                                            Five questions, scored
+                                            automatically.
                                         </p>
                                     </div>
                                 </div>
-
-                                <ExternalLink
-                                    size={18}
-                                    className="shrink-0 text-slate-400"
-                                />
                             </div>
                         );
                     }
@@ -284,8 +284,7 @@ const AssessmentGuideStep = ({
                         handleContinue
                     }
                 >
-                    I Have Completed the
-                    Assessments
+                    Start Assessment
                 </Button>
             </div>
 

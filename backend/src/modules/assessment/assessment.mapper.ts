@@ -48,8 +48,21 @@ class AssessmentResponseMapper {
                         skillCatalogId.toString()
                 ),
 
+            deliveryMode:
+                assessment.deliveryMode,
+
             status:
                 assessment.status,
+
+            sectionCount:
+                assessment.sectionCount,
+
+            completedSectionCount:
+                assessment.completedSectionCount,
+
+            startedAt:
+                assessment.startedAt ??
+                null,
 
             completedAt:
                 assessment.completedAt ??

@@ -6,6 +6,7 @@ import {
     model,
 } from "mongoose";
 import { AssessmentStatus, AssessmentType } from "./assessment.enums.js";
+import { AssessmentDeliveryMode } from "./assessment-engine.enums.js";
 import { ASSESSMENT_COLLECTION, ASSESSMENT_MODEL } from "./assessment.constants.js";
 
 
@@ -54,6 +55,15 @@ const AssessmentSchema = new Schema(
             default: [],
         },
 
+        deliveryMode: {
+            type: String,
+            enum: Object.values(
+                AssessmentDeliveryMode
+            ),
+            default:
+                AssessmentDeliveryMode.INTERNAL,
+        },
+
         status: {
             type: String,
             enum: Object.values(
@@ -62,6 +72,23 @@ const AssessmentSchema = new Schema(
             default:
                 AssessmentStatus.PENDING,
             index: true,
+        },
+
+        sectionCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        completedSectionCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        startedAt: {
+            type: Date,
+            default: null,
         },
 
         completedAt: {

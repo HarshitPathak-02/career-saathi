@@ -73,3 +73,83 @@ export const careerJourneyIdParamSchema =
         careerJourneyId:
             objectIdSchema.required(),
     });
+
+export const sectionIdParamSchema = Joi.object({
+    sectionId: objectIdSchema.required(),
+});
+
+export const attemptIdParamSchema = Joi.object({
+    attemptId: objectIdSchema.required(),
+});
+
+export const autosaveAnswerSchema = Joi.object({
+    assessmentQuestionId:
+        objectIdSchema.required(),
+
+    selectedOptionKeys:
+        Joi.array()
+            .items(
+                Joi.string()
+                    .trim()
+                    .min(1)
+                    .max(20)
+            )
+            .unique()
+            .max(8)
+            .optional(),
+
+    numericValue:
+        Joi.number()
+            .allow(null)
+            .optional(),
+
+    matchingPairs:
+        Joi.array()
+            .items(
+                Joi.object({
+                    leftKey:
+                        Joi.string()
+                            .trim()
+                            .min(1)
+                            .max(20)
+                            .required(),
+
+                    rightKey:
+                        Joi.string()
+                            .trim()
+                            .min(1)
+                            .max(20)
+                            .required(),
+                })
+            )
+            .unique(
+                (a, b) =>
+                    a.leftKey === b.leftKey &&
+                    a.rightKey === b.rightKey
+            )
+            .max(10)
+            .optional(),
+
+    timeSpentSeconds:
+        Joi.number()
+            .integer()
+            .min(0)
+            .max(600)
+            .optional(),
+});
+
+export const autosaveAnswersSchema = Joi.object({
+    answers: Joi.array()
+        .items(autosaveAnswerSchema)
+        .min(1)
+        .max(20)
+        .required(),
+});
+
+export const submitAttemptAnswersSchema =
+    Joi.object({
+        answers: Joi.array()
+            .items(autosaveAnswerSchema)
+            .max(20)
+            .optional(),
+    });
