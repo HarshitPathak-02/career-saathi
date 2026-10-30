@@ -1,4 +1,8 @@
 import {
+    useEffect,
+} from "react";
+
+import {
     Navigate,
 } from "react-router-dom";
 
@@ -10,6 +14,8 @@ import {
 } from "../../../app/hooks";
 
 import {
+    INITIAL_ASSESSMENT_STORAGE_KEY,
+    setAssessmentId,
     setAssessmentStep,
 } from "../slice/initialAssessmentSlice";
 
@@ -21,7 +27,7 @@ import AssessmentStepIndicator from "../components/AssessmentStepIndicator";
 import ResumeOnboardingStep from "../components/ResumeOnboardingStep";
 import SkillSelectionStep from "../components/SkillSelectionStep";
 import AssessmentGuideStep from "../components/AssessmentGuideStep";
-import AssessmentScoreStep from "../components/AssessmentScoreStep";
+import AssessmentRunnerStep from "../components/AssessmentRunnerStep";
 
 const InitialAssessmentPage = () => {
 
@@ -46,6 +52,53 @@ const InitialAssessmentPage = () => {
         isError,
         refetch,
     } = useGetWorkspaceQuery();
+
+    useEffect(() => {
+        const workspace = data?.data;
+
+        if (
+            !workspace ||
+            workspace.workspaceState !==
+                "initial_assessment" ||
+            currentStep !== 0
+        ) {
+            return;
+        }
+
+        const stored =
+            window.sessionStorage.getItem(
+                INITIAL_ASSESSMENT_STORAGE_KEY
+            );
+
+        if (!stored) {
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(stored) as {
+                careerJourneyId?: string;
+                assessmentId?: string;
+            };
+
+            if (
+                parsed.careerJourneyId !==
+                    workspace.careerJourney.id ||
+                !parsed.assessmentId
+            ) {
+                return;
+            }
+
+            dispatch(
+                setAssessmentId(parsed.assessmentId)
+            );
+
+            dispatch(setAssessmentStep(3));
+        } catch {
+            window.sessionStorage.removeItem(
+                INITIAL_ASSESSMENT_STORAGE_KEY
+            );
+        }
+    }, [currentStep, data, dispatch]);
 
     if (isLoading) {
         return (
@@ -134,7 +187,7 @@ const InitialAssessmentPage = () => {
                             </p>
                         </div>
 
-                        {currentStep > 0 && (
+                        {currentStep > 0 && currentStep < 3 && (
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -178,10 +231,7 @@ const InitialAssessmentPage = () => {
                     )}
 
                     {currentStep === 3 && (
-                        <AssessmentScoreStep
-                            careerJourneyId={careerJourneyId}
-                            roleId={roleId}
-                        />
+                        <AssessmentRunnerStep />
                     )}
                 </div>
             </div>

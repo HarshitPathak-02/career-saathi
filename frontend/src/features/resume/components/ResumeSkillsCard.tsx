@@ -18,17 +18,11 @@ import Button from "../../../components/ui/Button/Button";
 import { getApiErrorMessage } from "../../../shared/lib/getApiErrorMessage";
 
 import {
-  useGetUserSkillsQuery,
-} from "../../initial-assessment/api/initialAssessmentApi";
-
-import {
   useAnalyzeResumeMutation,
   useConfirmResumeSkillsMutation,
   useGetResumeByCareerJourneyQuery,
   useUploadResumeMutation,
 } from "../api/resumeApi";
-
-import ResumeSkillAssessmentPanel from "./ResumeSkillAssessmentPanel";
 
 import type {
   Resume,
@@ -126,12 +120,6 @@ export default function ResumeSkillsCard({
     },
   ] = useConfirmResumeSkillsMutation();
 
-  const {
-    data: userSkillsResponse,
-  } = useGetUserSkillsQuery(
-    careerJourneyId
-  );
-
   const resume = data?.data;
 
   const isBusy =
@@ -162,29 +150,6 @@ export default function ResumeSkillsCard({
         !skill.matched ||
         !skill.skillCatalogId
     ) ?? [];
-
-  const userSkills =
-    userSkillsResponse?.data ?? [];
-
-  const unassessedConfirmedSkillIds =
-    mode === "profile" &&
-    resume?.confirmation
-      ? resume.confirmation
-        .skillCatalogIds
-        .filter((skillCatalogId) => {
-          const userSkill =
-            userSkills.find(
-              (skill) =>
-                skill.skillCatalogId ===
-                skillCatalogId
-            );
-
-          return (
-            userSkill &&
-            !userSkill.lastAssessmentAt
-          );
-        })
-      : [];
 
   const defaultSelectedSkillCatalogIds =
     resume?.confirmation
@@ -524,8 +489,9 @@ export default function ResumeSkillsCard({
                 </div>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Only confirmed skills are added to
-                  your selected profile skills.
+                  {mode === "profile"
+                    ? "Reference only. Your current journey, scores, and roadmap are unchanged."
+                    : "Only confirmed skills are added to your selected profile skills."}
                 </p>
 
                 {matchedSkills.length === 0 ? (
@@ -668,7 +634,7 @@ export default function ResumeSkillsCard({
                     <Check size={16} />
                     {mode === "onboarding"
                       ? "Confirm skills and continue"
-                      : "Save confirmed skills"}
+                      : "Save resume evidence"}
                   </span>
                 </Button>
               </div>
@@ -687,20 +653,6 @@ export default function ResumeSkillsCard({
         </div>
       )}
 
-      {unassessedConfirmedSkillIds.length >
-        0 && (
-        <div className="mt-6">
-          <ResumeSkillAssessmentPanel
-            careerJourneyId={
-              careerJourneyId
-            }
-            skillCatalogIds={
-              unassessedConfirmedSkillIds
-            }
-            skills={matchedSkills}
-          />
-        </div>
-      )}
     </section>
   );
 }

@@ -1,8 +1,10 @@
 # Assessment Engine Technical Specification
 
-Status: Proposed  
-Scope: Initial, weekly, and resume assessment replacement  
-Implementation: Not started
+Status: In progress
+
+Scope: Initial, weekly, and resume assessment replacement
+
+Implementation: Initial assessment MVP implemented; weekly engine, admin review, and hardening pending
 
 ## 1. Purpose
 
@@ -702,7 +704,7 @@ Response includes:
 - sections with skill id, skill name, order, status, question count, and time limit
 - first section id
 
-No scores are accepted.
+No scores are accepted. If a draft campaign already exists, the existing campaign is returned so onboarding can resume after a reload.
 
 ### 13.3 Start or resume an attempt
 

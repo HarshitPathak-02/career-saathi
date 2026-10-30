@@ -5,11 +5,14 @@ import type {
 } from "../../../shared/types/api.types";
 
 import type {
-    Assessment,
+    AssessmentSectionView,
+    AutosaveAttemptRequest,
     InitializeUserSkillsRequest,
     StartInitialAssessmentRequest,
-    StartResumeAssessmentRequest,
-    SubmitInitialAssessmentRequest,
+    StartInitialAssessmentResponse,
+    StartSectionAttemptResponse,
+    SubmitAttemptRequest,
+    SubmitAttemptResponse,
     UserSkill,
 } from "../types/initialAssessment.types";
 
@@ -56,10 +59,11 @@ export const initialAssessmentApi =
             }),
 
             /*
-             * Create INITIAL assessment record.
+             * Create the INITIAL assessment campaign
+             * with one section per selected skill.
              */
             startInitialAssessment: builder.mutation<
-                ApiResponse<Assessment>,
+                ApiResponse<StartInitialAssessmentResponse>,
                 StartInitialAssessmentRequest
             >({
                 query: (data) => ({
@@ -70,62 +74,83 @@ export const initialAssessmentApi =
 
                     data,
                 }),
-            }),
-
-            /*
-             * Submit assessment scores.
-             */
-            submitInitialAssessment: builder.mutation<
-                ApiResponse<Assessment>,
-                SubmitInitialAssessmentRequest
-            >({
-                query: (data) => ({
-                    url:
-                        "/assessments/initial/submit",
-
-                    method: "POST",
-
-                    data,
-                }),
 
                 invalidatesTags: [
-                    "CareerJourney",
-                    "UserSkill",
-                    "Workspace"
+                    "Assessment",
+                    "Workspace",
                 ],
             }),
 
-            startResumeAssessment: builder.mutation<
-                ApiResponse<Assessment>,
-                StartResumeAssessmentRequest
+            getAssessmentSections: builder.query<
+                ApiResponse<AssessmentSectionView[]>,
+                string
             >({
-                query: (data) => ({
+                query: (assessmentId) => ({
                     url:
-                        "/assessments/resume/start",
+                        `/assessments/${assessmentId}/sections`,
+
+                    method: "GET",
+                }),
+
+                providesTags: ["Assessment"],
+            }),
+
+            startSectionAttempt: builder.mutation<
+                ApiResponse<StartSectionAttemptResponse>,
+                string
+            >({
+                query: (sectionId) => ({
+                    url:
+                        `/assessment-sections/${sectionId}/attempts`,
 
                     method: "POST",
+                }),
 
-                    data,
+                invalidatesTags: ["Assessment"],
+            }),
+
+            autosaveAttempt: builder.mutation<
+                ApiResponse<{ saved: number }>,
+                AutosaveAttemptRequest
+            >({
+                query: ({
+                    attemptId,
+                    answers,
+                }) => ({
+                    url:
+                        `/assessment-attempts/${attemptId}/answers`,
+
+                    method: "PATCH",
+
+                    data: {
+                        answers,
+                    },
                 }),
             }),
 
-            submitResumeAssessment: builder.mutation<
-                ApiResponse<Assessment>,
-                SubmitInitialAssessmentRequest
+            submitAssessmentAttempt: builder.mutation<
+                ApiResponse<SubmitAttemptResponse>,
+                SubmitAttemptRequest
             >({
-                query: (data) => ({
+                query: ({
+                    attemptId,
+                    answers,
+                }) => ({
                     url:
-                        "/assessments/resume/submit",
+                        `/assessment-attempts/${attemptId}/submit`,
 
                     method: "POST",
 
-                    data,
+                    data: {
+                        answers,
+                    },
                 }),
 
                 invalidatesTags: [
                     "Assessment",
+                    "CareerJourney",
                     "UserSkill",
-                    "Workspace"
+                    "Workspace",
                 ],
             }),
         }),
@@ -135,7 +160,8 @@ export const {
     useInitializeUserSkillsMutation,
     useGetUserSkillsQuery,
     useStartInitialAssessmentMutation,
-    useSubmitInitialAssessmentMutation,
-    useStartResumeAssessmentMutation,
-    useSubmitResumeAssessmentMutation,
+    useGetAssessmentSectionsQuery,
+    useStartSectionAttemptMutation,
+    useAutosaveAttemptMutation,
+    useSubmitAssessmentAttemptMutation,
 } = initialAssessmentApi;
