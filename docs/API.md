@@ -67,6 +67,46 @@ The refresh token is an httpOnly cookie named `refreshToken` and is managed by t
 | POST | `/user-skills/career-journeys/:careerJourneyId` | Yes | Select skills for a journey |
 | PATCH | `/user-skills/career-journeys/:careerJourneyId` | Yes | Update selected skills or proficiency |
 
+## Career Discovery
+
+| Method | Path | Auth | Description |
+| --- | --- | --- | --- |
+| POST | `/discovery` | Yes | Start a discovery session |
+| GET | `/discovery/latest` | Yes | Return the current user's most recent discovery session |
+| GET | `/discovery/:discoveryId` | Yes | Return a discovery session |
+| POST | `/discovery/:discoveryId/answers` | Yes | Add an answer and receive the next assistant message |
+| POST | `/discovery/:discoveryId/generate` | Yes | Generate career candidates and complete discovery |
+| GET | `/discovery/:discoveryId/messages` | Yes | List the discovery conversation |
+| GET | `/discovery/:discoveryId/candidates` | Yes | List proposed career candidates |
+| POST | `/discovery/:discoveryId/candidates` | Yes | Add a career candidate |
+| PATCH | `/discovery/:discoveryId/candidates/:candidateId/select` | Yes | Choose a career direction and link it to the journey |
+
+`POST /discovery` accepts an optional `careerJourneyId`:
+
+```json
+{
+  "careerJourneyId": "..."
+}
+```
+
+`POST /discovery/:discoveryId/answers` accepts:
+
+```json
+{
+  "questionKey": "answer_1",
+  "answer": "I am studying computer science.",
+  "answerType": "free_text"
+}
+```
+
+Discovery always uses Groq, regardless of `AI_PROVIDER`; every other AI feature uses the app-wide configured provider. Discovery is an adaptive counseling conversation, not a fixed questionnaire: the assistant asks one question at a time, follows up on vague answers, covers background, interests, strengths, work style, values, constraints, and goals, and decides when it has enough signal. It must collect at least 6 answers before recommending careers and is forced to finish at 12. Assistant turns are requested as structured JSON with `message`, `isReadyForRecommendations`, and `coveredTopics`. Once ready, the session moves to `generating`; adding another answer returns `409` with `"Career discovery is already ready for recommendations."` If the provider fails, returns invalid output, or returns an empty message, the API stores a deterministic counseling question instead. Answering a completed session returns `409` with `"Career discovery is already completed."`
+
+`POST /discovery/:discoveryId/generate` is available once the session reaches `generating`, which happens after 6–12 answers or when the counselor decides it has enough context. It asks Groq to choose one to three roles from the active career-role catalog, validates the returned slugs and rationales, persists the candidates, and marks the session `completed`. If AI generation fails, the API falls back to catalog candidates. Calling it on an already completed session returns the existing session.
+
+Candidate responses include `careerDomainName` and `careerRoleName` alongside the domain and role ids. `GET /discovery/latest` returns the most recent session for the authenticated user, or `data: null` when none exists. Starting discovery, adding answers, and generating candidates are rate-limited to 30 requests per 15 minutes per user.
+
+`PATCH /discovery/:discoveryId/candidates/:candidateId/select` marks one candidate `selected`, marks the other candidates in that session `rejected`, updates the linked career journey's domain and role, and returns `candidate` plus `careerJourneyId`. If the user started discovery before creating a journey, selection creates a `DRAFT` journey with default preferences (`targetCompany: ""`, `targetDurationMonths: 6`, `dailyStudyHours: 2`, `preferredLanguage: "english"`) in the same transaction. Selection is idempotent. It returns `409` with `"Career direction is locked after the initial assessment starts."` once an initial assessment exists or the journey is no longer `DRAFT`. The seeded master-data catalog includes backend, frontend, data, design, and digital-marketing domains so discovery can recommend multiple role directions.
+
 ## Assessments
 
 | Method | Path | Auth | Description |

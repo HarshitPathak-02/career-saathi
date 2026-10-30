@@ -16,7 +16,7 @@ flowchart LR
 
 - The SPA authenticates with a Bearer access token and an httpOnly refresh cookie.
 - All state is persisted in MongoDB; the API is otherwise stateless.
-- AI calls go through `shared/ai/ai.provider.factory.ts`, which selects Gemini or Groq from `AI_PROVIDER`.
+- AI calls go through `shared/ai/ai.provider.factory.ts`. `AI_PROVIDER` selects the app-wide default, while a workflow can request a specific provider per call; discovery always requests Groq.
 - Resume files are uploaded to Cloudinary and referenced by public id.
 
 ## Backend Layering
@@ -135,12 +135,25 @@ Application and validation errors are never retried.
 ## AI Pipeline
 
 1. A workflow builds a prompt from the user's journey, skills, roadmap, and recent progress.
-2. `aiService` calls the configured provider.
+2. `aiService` calls the configured provider unless the workflow supplies a provider override.
 3. `aiValidator` schema-validates and normalises the response.
 4. Invalid responses trigger bounded retries.
 5. Only validated data is persisted.
 
-Provider selection and keys are configured with `AI_PROVIDER`, `GEMINI_API_KEY`, and `GROQ_API_KEY`.
+Provider selection and keys are configured with `AI_PROVIDER`, `GEMINI_API_KEY`, and `GROQ_API_KEY`. Discovery passes a per-call Groq override so the rest of the app keeps using `AI_PROVIDER`.
+
+## Career Discovery
+
+1. Discovery sessions track a stage, conversation messages, answers, and proposed career candidates.
+2. Discovery is an adaptive counseling conversation. New sessions start at `INTRO`; after the first answer the stage becomes `COUNSELING`, then `GENERATING` when the counselor decides it has enough signal, and finally `COMPLETED` after candidate generation. The counselor must collect at least 6 answers and is forced to finish at 12.
+3. Each assistant turn sends the session conversation and prior coverage topics to Groq, regardless of the app-wide provider, and requests structured JSON with `message`, `isReadyForRecommendations`, and `coveredTopics`.
+4. `aiValidator` rejects malformed or empty assistant messages and normalizes the readiness flag and coverage list; failed or invalid calls fall back to deterministic counseling questions and are logged.
+5. When the session reaches `GENERATING`, the SPA calls `POST /discovery/:discoveryId/generate`. That operation asks Groq to choose one to three active roles, validates role slugs and rationales, stores candidates in a transaction, and completes the session. Invalid or failed AI output falls back to catalog candidates.
+6. Candidate responses are enriched with domain and role names from the master-data catalog.
+7. The user selects one candidate through `PATCH /discovery/:discoveryId/candidates/:candidateId/select`. In a transaction, the selected candidate becomes `SELECTED`, the others become `REJECTED`, and the linked journey's domain and role are updated. If the user started discovery without a journey, selection creates a `DRAFT` journey with default preferences in the same transaction. Selection is blocked after the initial assessment starts, and the SPA resets its initial-assessment slice before continuing.
+8. Starting a session, adding answers, and generating candidates call the AI provider, so those endpoints are rate-limited per user.
+9. The SPA exposes `/discovery` under `ProtectedLayout` so onboarding users can start a session before creating a journey. It links from the workspace sidebar and from the career-direction onboarding option, and resumes the current user's latest session through `GET /discovery/latest`; no session id is stored in browser storage.
+10. The master-data seed populates backend, frontend, data, design, and digital-marketing domains, one role per domain, the full skill catalog, and each role's skill mappings.
 
 ## Resume Analysis
 
