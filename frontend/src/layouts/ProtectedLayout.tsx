@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
+import { ErrorBoundary } from "../components/ui/ErrorBoundary";
 
 const ProtectedLayout = () => {
   const {
@@ -26,7 +27,11 @@ const ProtectedLayout = () => {
     );
   }
 
-  return <Outlet />;
+  return (
+    <ErrorBoundary>
+      <Outlet />
+    </ErrorBoundary>
+  );
 };
 
 export default ProtectedLayout;
