@@ -17,6 +17,7 @@ import {
     authenticate,
 } from "../../core/middleware/authenticate.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
+import { interviewSessionStartLimiter } from "../../core/middleware/rate-limit.middleware.js";
 
 
 const router =
@@ -68,6 +69,7 @@ router.get(
 router.post(
     "/start-official",
     authenticate,
+    interviewSessionStartLimiter,
     validateRequest({
         body: startOfficialMockInterviewSchema,
     }),

@@ -23,6 +23,13 @@ class InterviewSessionRepository {
     return InterviewSessionModel.findById(id).session(session ?? null);
   }
 
+  async findOne(
+    filter: Record<string, unknown>,
+    session?: ClientSession
+  ): Promise<InterviewSessionDocument | null> {
+    return InterviewSessionModel.findOne(filter).session(session ?? null);
+  }
+
   async findActiveByUserId(
     userId: Types.ObjectId,
     session?: ClientSession

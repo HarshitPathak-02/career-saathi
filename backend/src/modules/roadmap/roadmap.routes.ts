@@ -18,6 +18,7 @@ import {
     roadmapIdParamSchema,
 } from "./roadmap.validation.js";
 import { authenticate } from "../../core/middleware/authenticate.middleware.js";
+import { roadmapGenerateLimiter } from "../../core/middleware/rate-limit.middleware.js";
 
 
 const router =
@@ -28,7 +29,7 @@ router.use(authenticate);
 
 router.post(
     "/generate",
-
+    roadmapGenerateLimiter,
     validateRequest({
         body:
             generateRoadmapSchema,

@@ -12,6 +12,10 @@ export interface AIRequest {
   thinkingBudget?: number;
 
   provider?: AIProvider;
+
+  userId?: string;
+
+  feature?: string;
 }
 
 export interface AIResponse {
@@ -26,4 +30,10 @@ export interface AIResponseMetadata {
   model: string;
 
   generatedAt: Date;
+
+  promptTokens?: number;
+
+  candidateTokens?: number;
+
+  totalTokens?: number;
 }
