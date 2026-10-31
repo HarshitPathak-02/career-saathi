@@ -2,7 +2,6 @@ import {
     BarChart3,
     ClipboardCheck,
     Code2,
-    Compass,
     FileBarChart,
     LayoutDashboard,
     Map,
