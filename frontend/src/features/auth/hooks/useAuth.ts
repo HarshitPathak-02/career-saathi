@@ -8,6 +8,11 @@ import {
 } from "../slice/authSlice";
 
 import {
+  resetInitialAssessment,
+  INITIAL_ASSESSMENT_STORAGE_KEY,
+} from "../../initial-assessment/slice/initialAssessmentSlice";
+
+import {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
@@ -53,6 +58,9 @@ export const useAuth = () => {
         })
       );
 
+      dispatch(resetInitialAssessment());
+      window.sessionStorage.removeItem(INITIAL_ASSESSMENT_STORAGE_KEY);
+
       dispatch(
         baseApi.util.resetApiState()
       );
@@ -90,6 +98,9 @@ export const useAuth = () => {
         })
       );
 
+      dispatch(resetInitialAssessment());
+      window.sessionStorage.removeItem(INITIAL_ASSESSMENT_STORAGE_KEY);
+
       dispatch(
         baseApi.util.resetApiState()
       );
@@ -113,6 +124,9 @@ export const useAuth = () => {
       await logout().unwrap();
 
       dispatch(clearCredentials());
+
+      dispatch(resetInitialAssessment());
+      window.sessionStorage.removeItem(INITIAL_ASSESSMENT_STORAGE_KEY);
 
       dispatch(
         baseApi.util.resetApiState()

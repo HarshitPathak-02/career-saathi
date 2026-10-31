@@ -185,6 +185,8 @@ export interface WorkspaceActions {
 export interface Workspace {
     workspaceState: WorkspaceState;
 
+    initialAssessmentId?: string | null;
+
     user: WorkspaceUser;
 
     careerJourney: WorkspaceCareerJourney;

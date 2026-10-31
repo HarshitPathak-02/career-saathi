@@ -1,6 +1,7 @@
 import {
     BarChart3,
     ClipboardCheck,
+    Code2,
     Compass,
     FileBarChart,
     LayoutDashboard,
@@ -81,6 +82,13 @@ const sidebarItems:
             icon: ClipboardCheck,
             disabled: false,
             path: "/assessments",
+        },
+
+        {
+            label: "Practice",
+            icon: Code2,
+            disabled: false,
+            path: "/practice",
         },
 
         {

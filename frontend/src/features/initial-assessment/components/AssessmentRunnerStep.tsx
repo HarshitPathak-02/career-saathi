@@ -720,13 +720,20 @@ const AssessmentRunnerStep = () => {
                     We couldn't load your assessment sections.
                 </p>
 
-                <Button
-                    className="mt-5"
-                    onClick={() => refetchSections()}
-                    loading={sectionsFetching}
-                >
-                    Retry
-                </Button>
+                <div className="mt-5 flex items-center justify-center gap-3">
+                    <Button
+                        onClick={() => refetchSections()}
+                        loading={sectionsFetching}
+                    >
+                        Retry
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={handleRestart}
+                    >
+                        Restart onboarding
+                    </Button>
+                </div>
             </div>
         );
     }
