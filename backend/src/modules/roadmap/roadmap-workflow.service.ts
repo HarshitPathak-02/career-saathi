@@ -1,4 +1,4 @@
-import mongoose, {
+import {
     ClientSession,
     Types,
 } from "mongoose";
@@ -69,8 +69,11 @@ import {
     AppError,
 } from "../../core/errors/app-error.js";
 import { executeTransaction } from "../../shared/utils/transaction.util.js";
-import { RoadmapType } from "./roadmap.enums.js";
+import { RoadmapItemStatus, RoadmapItemType, RoadmapType } from "./roadmap.enums.js";
 import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { missionRepository } from "../mission/mission.repository.js";
+import { SkillDifficulty } from "../../master-data/skill-catalog/skill-catalog.enums.js";
+import { SkillLevel } from "../user-skill/user-skill.enums.js";
 
 export class RoadmapWorkflowService {
 
@@ -476,6 +479,198 @@ export class RoadmapWorkflowService {
         );
 
         return roadmap;
+    }
+
+    async syncPendingRoadmapSkills(
+        careerJourneyId: Types.ObjectId | string,
+        skillCatalogIds: (Types.ObjectId | string)[],
+        sourceReason?: string,
+        session?: ClientSession
+    ): Promise<void> {
+        if (!skillCatalogIds || skillCatalogIds.length === 0) {
+            return;
+        }
+
+        const journeyObjectId =
+            typeof careerJourneyId === "string"
+                ? new Types.ObjectId(careerJourneyId)
+                : careerJourneyId;
+
+        const objectIdSkills = skillCatalogIds
+            .filter((id) => Boolean(id))
+            .map((id) => (typeof id === "string" ? new Types.ObjectId(id) : id));
+
+        if (session) {
+            await this.executeSyncPendingRoadmapSkills(
+                journeyObjectId,
+                objectIdSkills,
+                sourceReason,
+                session
+            );
+        } else {
+            await executeTransaction(async (s) => {
+                await this.executeSyncPendingRoadmapSkills(
+                    journeyObjectId,
+                    objectIdSkills,
+                    sourceReason,
+                    s
+                );
+            });
+        }
+    }
+
+    private async executeSyncPendingRoadmapSkills(
+        careerJourneyId: Types.ObjectId,
+        skillCatalogIds: Types.ObjectId[],
+        sourceReason?: string,
+        session?: ClientSession
+    ): Promise<void> {
+        // 1. If any mission exists for this journey, the active mission cycle has begun.
+        // Pre-mission roadmap item appending is not permitted; changes follow adaptive workflows.
+        const hasMissions = await missionRepository.exists(
+            { careerJourneyId },
+            session
+        );
+        if (hasMissions) {
+            return;
+        }
+
+        // 2. Journey must already have an initial roadmap. If not, roadmap generation will include UserSkills.
+        const roadmap = await roadmapRepository.findLatestByCareerJourneyId(
+            careerJourneyId,
+            session
+        );
+        if (!roadmap) {
+            return;
+        }
+
+        // 3. Check existing skills already assigned to this roadmap
+        const existingItems = await roadmapItemRepository.findByRoadmapId(
+            roadmap._id,
+            session
+        );
+        const existingSkillIdSet = new Set(
+            existingItems
+                .filter((item) => item.skillId)
+                .map((item) => item.skillId!.toString())
+        );
+
+        // 4. Identify delta skill IDs that are not yet in the roadmap
+        const missingSkillIds = [
+            ...new Set(skillCatalogIds.map((id) => id.toString())),
+        ]
+            .filter((idStr) => !existingSkillIdSet.has(idStr))
+            .map((idStr) => new Types.ObjectId(idStr));
+
+        if (missingSkillIds.length === 0) {
+            return;
+        }
+
+        // 5. Retrieve skill catalog details for the delta skills
+        const catalogSkills = await SkillCatalogModel.find({
+            _id: { $in: missingSkillIds },
+            isActive: true,
+        }).session(session ?? null);
+
+        if (catalogSkills.length === 0) {
+            return;
+        }
+
+        // 6. Ensure newly discovered/selected skills are upserted into UserSkill for this journey
+        await userSkillRepository.bulkWrite(
+            catalogSkills.map((skill) => ({
+                updateOne: {
+                    filter: {
+                        careerJourneyId,
+                        skillCatalogId: skill._id,
+                    },
+                    update: {
+                        $set: {
+                            selectedByUser: true,
+                            isActive: true,
+                        },
+                        $setOnInsert: {
+                            currentScore: 0,
+                            currentLevel: SkillLevel.NOT_STARTED,
+                        },
+                    },
+                    upsert: true,
+                },
+            })),
+            session
+        );
+
+        // 7. Calculate next order and build pending RoadmapItem records
+        let currentMaxOrder = existingItems.reduce(
+            (max, item) => Math.max(max, item.order ?? 0),
+            0
+        );
+
+        const newRoadmapItems = catalogSkills.map((skill) => {
+            currentMaxOrder += 1;
+            const estimatedHours =
+                skill.difficulty === SkillDifficulty.ADVANCED
+                    ? 16
+                    : skill.difficulty === SkillDifficulty.INTERMEDIATE
+                    ? 12
+                    : 8;
+
+            return {
+                roadmapId: roadmap._id,
+                order: currentMaxOrder,
+                type: RoadmapItemType.TOPIC,
+                skillId: skill._id,
+                title: skill.name,
+                description:
+                    skill.description && skill.description.trim().length > 0
+                        ? skill.description
+                        : `Master core concepts and practical implementation of ${skill.name}.`,
+                estimatedHours,
+                status: RoadmapItemStatus.PENDING,
+                aiReason:
+                    sourceReason ||
+                    "Added to pending roadmap prior to journey start",
+                metadata: {
+                    addedPreJourney: true,
+                    category: skill.category,
+                    difficulty: skill.difficulty,
+                },
+            };
+        });
+
+        await roadmapItemRepository.createMany(newRoadmapItems, session);
+
+        // 8. Recalculate roadmap totals (totalItems, estimatedWeeks)
+        const totalItems = existingItems.length + newRoadmapItems.length;
+        const totalEstimatedHours =
+            existingItems.reduce(
+                (sum, item) => sum + (item.estimatedHours || 0),
+                0
+            ) +
+            newRoadmapItems.reduce(
+                (sum, item) => sum + item.estimatedHours,
+                0
+            );
+
+        const journey = await careerJourneyRepository.findOne(
+            { _id: careerJourneyId },
+            session
+        );
+        const dailyStudyHours = journey?.dailyStudyHours || 2;
+        const availableHoursPerWeek = Math.max(1, dailyStudyHours * 7);
+        const estimatedWeeks = Math.max(
+            1,
+            Math.ceil(totalEstimatedHours / availableHoursPerWeek)
+        );
+
+        await roadmapRepository.updateById(
+            roadmap._id,
+            {
+                totalItems,
+                estimatedWeeks,
+            },
+            session
+        );
     }
 }
 

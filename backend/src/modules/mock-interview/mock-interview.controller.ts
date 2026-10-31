@@ -128,6 +128,41 @@ class MockInterviewController {
                 });
             }
         );
+
+    getReadinessBattery = asyncHandler(async (req: Request, res: Response) => {
+        const user = getAuthUser(req);
+        const careerJourneyId = req.query.careerJourneyId as string;
+
+        const data = await mockInterviewService.getReadinessBattery(
+            user.userId,
+            careerJourneyId
+        );
+
+        return successResponse({
+            res,
+            statusCode: HTTP_STATUS.OK,
+            message: "Readiness interview battery fetched successfully.",
+            data,
+        });
+    });
+
+    startOfficialMockInterview = asyncHandler(async (req: Request, res: Response) => {
+        const user = getAuthUser(req);
+        const { careerJourneyId, interviewNumber } = req.body;
+
+        const data = await mockInterviewService.startOfficialMockInterview(
+            user.userId,
+            careerJourneyId,
+            Number(interviewNumber)
+        );
+
+        return successResponse({
+            res,
+            statusCode: HTTP_STATUS.CREATED,
+            message: `Official Mock Interview ${interviewNumber} session started successfully.`,
+            data,
+        });
+    });
 }
 
 

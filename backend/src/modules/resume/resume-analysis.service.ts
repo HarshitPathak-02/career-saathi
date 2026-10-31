@@ -20,6 +20,7 @@ import { ResumeStatus } from "./resume.enums.js";
 import { ResumeMapper } from "./resume.mapper.js";
 import { resumeRepository } from "./resume.repository.js";
 import { resumeSkillMatcher } from "./resume-skill.matcher.js";
+import { roadmapWorkflowService } from "../roadmap/roadmap-workflow.service.js";
 
 import type {
     ResumeAnalysis,
@@ -206,6 +207,29 @@ export class ResumeAnalysisService {
                     HTTP_STATUS.NOT_FOUND,
                     "Resume not found."
                 );
+            }
+
+            const matchedCatalogIds = skills
+                .filter((s) => s.matched && s.skillCatalogId)
+                .map((s) => s.skillCatalogId as Types.ObjectId);
+
+            if (matchedCatalogIds.length > 0 && resume.careerJourneyId) {
+                try {
+                    await roadmapWorkflowService.syncPendingRoadmapSkills(
+                        resume.careerJourneyId,
+                        matchedCatalogIds,
+                        "Discovered from resume analysis prior to journey start"
+                    );
+                } catch (syncErr) {
+                    logger.warn(
+                        {
+                            error: syncErr,
+                            resumeId,
+                            careerJourneyId: resume.careerJourneyId,
+                        },
+                        "Pre-mission roadmap sync on resume analysis skipped or failed"
+                    );
+                }
             }
 
             return ResumeMapper.toResponse(

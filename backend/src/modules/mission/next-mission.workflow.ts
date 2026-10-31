@@ -48,6 +48,10 @@ import {
 } from "../practice/coding-challenge.repository.js";
 
 import {
+    interviewSessionRepository,
+} from "../practice/interview-session.repository.js";
+
+import {
     skillCatalogRepository,
 } from "../../master-data/skill-catalog/skill-catalog.repository.js";
 
@@ -369,6 +373,14 @@ export class NextMissionWorkflow {
                     previousMission.endDate ?? appClock.now()
                 );
 
+        const optedInInterviewSessions =
+            await interviewSessionRepository
+                .findOptedInByJourneyAndDateRange(
+                    careerJourneyId,
+                    previousMission.startDate,
+                    previousMission.endDate ?? appClock.now()
+                );
+
         return {
             previousMission,
             weeklyReport,
@@ -376,6 +388,7 @@ export class NextMissionWorkflow {
             skillProgress,
             resumeSkillProgress,
             optedInCodingAttempts,
+            optedInInterviewSessions,
             pendingRoadmapItems,
             inProgressRoadmapItems
         };
@@ -650,6 +663,37 @@ export class NextMissionWorkflow {
                         plannedSkillIds.add(skillIdStr);
                     }
                 }
+            }
+        }
+
+        if (context.optedInInterviewSessions && context.optedInInterviewSessions.length > 0) {
+            const lowScoreSessions = context.optedInInterviewSessions.filter(session => {
+                if (!session.evaluation) return false;
+                return session.evaluation.overallScore < 70;
+            });
+
+            for (const session of lowScoreSessions) {
+                if (!session.evaluation || !session.skillCatalogId) continue;
+                const skillCatalogId = session.skillCatalogId;
+                const skillIdStr = skillCatalogId.toString();
+                if (plannedSkillIds.has(skillIdStr)) continue;
+
+                const [skill] = await skillCatalogRepository.findActiveByIds([skillCatalogId]);
+                if (!skill) continue;
+
+                plannedSkillIds.add(skillIdStr);
+                revisionPlans.push({
+                    skillCatalogId,
+                    skillName: skill.name,
+                    percentage: session.evaluation.overallScore,
+                    revisionTopics:
+                        session.evaluation.observedGaps && session.evaluation.observedGaps.length > 0
+                            ? session.evaluation.observedGaps.slice(0, 3)
+                            : [
+                                  `Review core ${skill.name} engineering trade-offs`,
+                                  `Practice answering scenario questions for ${skill.name}`,
+                              ],
+                });
             }
         }
 

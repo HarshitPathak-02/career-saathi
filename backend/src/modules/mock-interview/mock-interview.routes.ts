@@ -9,6 +9,8 @@ import {
 import {
     createMockInterviewSchema,
     mockInterviewHistoryParamSchema,
+    getReadinessBatteryQuerySchema,
+    startOfficialMockInterviewSchema,
 } from "./mock-interview.validation.js";
 
 import {
@@ -54,5 +56,22 @@ router.get(
         .getMockInterviewHistory
 );
 
+router.get(
+    "/readiness-battery",
+    authenticate,
+    validateRequest({
+        query: getReadinessBatteryQuerySchema,
+    }),
+    mockInterviewController.getReadinessBattery
+);
+
+router.post(
+    "/start-official",
+    authenticate,
+    validateRequest({
+        body: startOfficialMockInterviewSchema,
+    }),
+    mockInterviewController.startOfficialMockInterview
+);
 
 export default router;

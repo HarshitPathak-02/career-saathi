@@ -40,3 +40,21 @@ export const evaluateChallengeSchema = Joi.object({
 export const optInJourneySchema = Joi.object({
   optIn: Joi.boolean().required(),
 });
+
+export const startInterviewSchema = Joi.object({
+  careerJourneyId: objectIdSchema.required(),
+  skillCatalogId: objectIdSchema.required(),
+});
+
+export const sessionIdParamSchema = Joi.object({
+  sessionId: objectIdSchema.required(),
+});
+
+export const submitInterviewAnswerSchema = Joi.object({
+  careerJourneyId: objectIdSchema.required(),
+  candidateAnswer: Joi.string().trim().min(2).max(10000).required(),
+});
+
+export const getInterviewSessionQuerySchema = Joi.object({
+  careerJourneyId: objectIdSchema.required(),
+});
