@@ -59,12 +59,6 @@ const sidebarItems:
         },
 
         {
-            label: "Career Discovery",
-            icon: Compass,
-            path: "/discovery",
-        },
-
-        {
             label: "Missions",
             icon: Target,
             path: "/missions",
