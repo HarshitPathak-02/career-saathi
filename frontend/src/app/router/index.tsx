@@ -28,6 +28,7 @@ import WeeklyReviewPage from "../../features/weekly-review/pages/WeeklyReviewPag
 import WeeklyReportsPage from "../../features/weekly-report/pages/WeeklyReportsPage";
 import WeeklyReportDetailsPage from "../../features/weekly-report/pages/WeeklyReportDetailsPage";
 import ProfilePage from "../../features/profile/pages/ProfilePage";
+import SettingsPage from "../../features/settings/pages/SettingsPage";
 import MonthlyReportsPage from "../../features/monthly-reports/pages/MonthlyReportsPage";
 import MonthlyReportDetailsPage from "../../features/monthly-reports/pages/MonthlyReportDetailsPage";
 import ReadinessPage from "../../features/readiness/pages/ReadinessPage";
@@ -160,6 +161,10 @@ export const router = createBrowserRouter([
           {
             path: "/profile",
             element: <ProfilePage />,
+          },
+          {
+            path: "/settings",
+            element: <SettingsPage />,
           },
         ],
       },

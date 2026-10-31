@@ -4,7 +4,11 @@ export interface User {
   email: string;
   role: "USER" | "ADMIN";
   emailVerified: boolean;
-  phoneNumber?: string
+  phoneNumber?: string;
+  headline?: string;
+  bio?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
 }
 
 export interface AuthResponse {
@@ -29,10 +33,15 @@ export interface RegisterRequest
   fullName: string;
 }
 
-export type UpdateProfileDto =
+export type UpdateProfileDto = Partial<
   Pick<
     User,
     "fullName" |
     "email" |
-    "phoneNumber"
-  >;
+    "phoneNumber" |
+    "headline" |
+    "bio" |
+    "githubUrl" |
+    "linkedinUrl"
+  >
+>;

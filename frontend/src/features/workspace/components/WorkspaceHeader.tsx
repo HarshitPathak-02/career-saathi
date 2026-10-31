@@ -7,6 +7,8 @@ import {
     Target,
 } from "lucide-react";
 
+import NotificationBell from "./NotificationBell";
+
 import type {
     WorkspaceCareerJourney,
     WorkspaceUser,
@@ -89,31 +91,32 @@ const WorkspaceHeader = ({
 
                 </div>
 
-                <button
-                    type="button"
-                    aria-label="Open navigation"
-                    onClick={
-                        onOpenMenu
-                    }
-                    className="
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        text-slate-600
-                        transition
-                        hover:bg-slate-50
-                    "
-                >
-
-                    <Menu size={21} />
-
-                </button>
+                <div className="flex items-center gap-2">
+                    <NotificationBell />
+                    <button
+                        type="button"
+                        aria-label="Open navigation"
+                        onClick={
+                            onOpenMenu
+                        }
+                        className="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-slate-200
+                            bg-white
+                            text-slate-600
+                            transition
+                            hover:bg-slate-50
+                        "
+                    >
+                        <Menu size={21} />
+                    </button>
+                </div>
 
             </div>
 
@@ -148,49 +151,59 @@ const WorkspaceHeader = ({
                 <div
                     className="
                         relative
-                        max-w-3xl
+                        flex
+                        flex-col
+                        justify-between
+                        gap-4
+                        md:flex-row
+                        md:items-start
                     "
                 >
+                    <div className="max-w-3xl">
+                        <p
+                            className="
+                                text-sm
+                                font-semibold
+                                text-blue-600
+                            "
+                        >
+                            Your Career Workspace
+                        </p>
 
-                    <p
-                        className="
-                            text-sm
-                            font-semibold
-                            text-blue-600
-                        "
-                    >
-                        Your Career Workspace
-                    </p>
+                        <h1
+                            className="
+                                mt-2
+                                text-2xl
+                                font-bold
+                                tracking-tight
+                                text-slate-900
+                                sm:text-3xl
+                            "
+                        >
+                            Welcome back, {user.fullName}
+                        </h1>
 
-                    <h1
-                        className="
-                            mt-2
-                            text-2xl
-                            font-bold
-                            tracking-tight
-                            text-slate-900
-                            sm:text-3xl
-                        "
-                    >
-                        Welcome back, {user.fullName}
-                    </h1>
+                        <p
+                            className="
+                                mt-3
+                                max-w-2xl
+                                text-sm
+                                leading-6
+                                text-slate-600
+                                sm:text-base
+                                sm:leading-7
+                            "
+                        >
+                            Stay focused on your goal.
+                            CareerSaathi will guide you
+                            through the next most important
+                            step in your journey.
+                        </p>
+                    </div>
 
-                    <p
-                        className="
-                            mt-3
-                            max-w-2xl
-                            text-sm
-                            leading-6
-                            text-slate-600
-                            sm:text-base
-                            sm:leading-7
-                        "
-                    >
-                        Stay focused on your goal.
-                        CareerSaathi will guide you
-                        through the next most important
-                        step in your journey.
-                    </p>
+                    <div className="hidden lg:block shrink-0 pt-1">
+                        <NotificationBell />
+                    </div>
 
                 </div>
 

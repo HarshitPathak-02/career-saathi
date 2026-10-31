@@ -23,7 +23,8 @@ export const baseApi = createApi({
     "MockInterview",
     "Resume",
     "Discovery",
-    "Practice"
+    "Practice",
+    "Notification"
   ],
 
   endpoints: () => ({}),
