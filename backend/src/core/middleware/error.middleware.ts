@@ -38,7 +38,7 @@ export const errorMiddleware = (
 
   logger.error(
     {
-      error,
+      err: error,
       method: req.method,
       path: req.originalUrl,
     },

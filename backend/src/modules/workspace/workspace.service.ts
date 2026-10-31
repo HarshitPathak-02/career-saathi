@@ -35,10 +35,6 @@ import {
 } from "../daily-task/daily-task.service.js";
 
 import {
-    AssessmentType,
-} from "../assessment/assessment.enums.js";
-
-import {
     missionLifecycleService,
 } from "../mission/mission-lifecycle.service.js";
 
@@ -139,16 +135,9 @@ export class WorkspaceService {
             await Promise.all([
 
                 assessmentRepository
-                    .findOne({
-
-                        careerJourneyId:
-                            careerJourney._id,
-
-                        type:
-                            AssessmentType
-                                .INITIAL,
-
-                    }),
+                    .findInitialAssessment(
+                        careerJourney._id
+                    ),
 
                 roadmapRepository
                     .findLatestByCareerJourneyId(

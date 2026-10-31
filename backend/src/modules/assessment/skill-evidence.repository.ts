@@ -71,6 +71,25 @@ class SkillEvidenceRepository {
       })
       .session(session ?? null);
   }
+
+  async updateScoringEligibleBySource(
+    source: SkillEvidenceSource,
+    sourceId: Types.ObjectId,
+    scoringEligible: boolean,
+    session?: ClientSession
+  ): Promise<void> {
+    await SkillEvidenceModel.updateMany(
+      {
+        source,
+        sourceId,
+      },
+      {
+        $set: {
+          scoringEligible,
+        },
+      }
+    ).session(session ?? null);
+  }
 }
 
 export const skillEvidenceRepository =

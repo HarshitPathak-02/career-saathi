@@ -3,6 +3,10 @@ import {
 } from "../assessment/assessment.model.js";
 
 import {
+    AssessmentStatus,
+} from "../assessment/assessment.enums.js";
+
+import {
     DailyTaskDocument,
 } from "../daily-task/daily-task.model.js";
 
@@ -125,7 +129,9 @@ export class WorkspaceMapper {
 
         const hasInitialAssessment =
             Boolean(
-                assessment
+                assessment &&
+                assessment.status ===
+                    AssessmentStatus.COMPLETED
             );
 
         const hasRoadmap =
@@ -210,6 +216,11 @@ export class WorkspaceMapper {
         return {
 
             workspaceState,
+
+            initialAssessmentId:
+                assessment
+                    ? assessment._id.toString()
+                    : null,
 
             user: {
 

@@ -18,6 +18,10 @@ import {
     SkillProgressPlanningData,
 } from "../skill-progress/skill-progress.types.js";
 
+import {
+    CodingAttemptDocument,
+} from "../practice/coding-attempt.model.js";
+
 export interface NextMissionWorkflowContext {
 
     previousMission:
@@ -34,6 +38,9 @@ export interface NextMissionWorkflowContext {
 
     resumeSkillProgress:
     SkillProgressPlanningData[];
+
+    optedInCodingAttempts:
+    CodingAttemptDocument[];
 
     pendingRoadmapItems:
     RoadmapItemDocument[];

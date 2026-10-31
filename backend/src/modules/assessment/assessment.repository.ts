@@ -383,6 +383,38 @@ class AssessmentRepository {
 
     /*
     |--------------------------------------------------------------------------
+    | Initial Assessment
+    |--------------------------------------------------------------------------
+    */
+
+    async findInitialAssessment(
+        careerJourneyId:
+            Types.ObjectId,
+        session?:
+            ClientSession
+    ): Promise<
+        AssessmentDocument | null
+    > {
+
+        return AssessmentModel
+            .findOne({
+                careerJourneyId,
+
+                type:
+                    AssessmentType.INITIAL,
+
+                isDeleted: false,
+            })
+            .sort({
+                createdAt: -1,
+            })
+            .session(
+                session ?? null
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Weekly Assessment
     |--------------------------------------------------------------------------
     */
