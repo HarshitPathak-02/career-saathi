@@ -34,6 +34,7 @@ import {
 import {
     UpdateUserSkillProgressDTO,
 } from "./user-skill.types.js";
+import { roadmapWorkflowService } from "../roadmap/roadmap-workflow.service.js";
 
 class UserSkillService {
 
@@ -295,6 +296,13 @@ class UserSkillService {
                 },
                 session
             );
+
+        await roadmapWorkflowService.syncPendingRoadmapSkills(
+            careerJourneyId,
+            skillCatalogIds,
+            "Selected by user prior to journey start",
+            session
+        );
     }
 
     async updateSelectedSkills(
@@ -324,25 +332,37 @@ class UserSkillService {
                 session
             );
 
-        await userSkillRepository
-            .updateMany(
-                {
-                    careerJourneyId:
-                        careerJourneyObjectId,
-
-                    skillCatalogId: {
-                        $in:
-                            selectedSkillCatalogIds,
+        if (selectedSkillCatalogIds.length > 0) {
+            await userSkillRepository.bulkWrite(
+                selectedSkillCatalogIds.map((skillCatalogId) => ({
+                    updateOne: {
+                        filter: {
+                            careerJourneyId: careerJourneyObjectId,
+                            skillCatalogId,
+                        },
+                        update: {
+                            $set: {
+                                selectedByUser: true,
+                                isActive: true,
+                            },
+                            $setOnInsert: {
+                                currentScore: 0,
+                                currentLevel: SkillLevel.NOT_STARTED,
+                            },
+                        },
+                        upsert: true,
                     },
-                },
-                {
-                    $set: {
-                        selectedByUser:
-                            true,
-                    },
-                },
+                })),
                 session
             );
+        }
+
+        await roadmapWorkflowService.syncPendingRoadmapSkills(
+            careerJourneyObjectId,
+            selectedSkillCatalogIds,
+            "Selected by user prior to journey start",
+            session
+        );
 
         return this.getUserSkills(
             careerJourneyId,

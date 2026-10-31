@@ -19,3 +19,14 @@ export enum PracticeMode {
   CODING = "CODING",
   INTERVIEW = "INTERVIEW",
 }
+
+export enum InterviewSessionStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  ABANDONED = "ABANDONED",
+}
+
+export enum InterviewTurnType {
+  SCENARIO = "SCENARIO",
+  FOLLOW_UP = "FOLLOW_UP",
+}

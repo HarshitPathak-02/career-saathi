@@ -7,8 +7,12 @@ import {
   challengeSlugParamSchema,
   evaluateChallengeSchema,
   getChallengeQuerySchema,
+  getInterviewSessionQuerySchema,
   getPracticeHubQuerySchema,
   optInJourneySchema,
+  sessionIdParamSchema,
+  startInterviewSchema,
+  submitInterviewAnswerSchema,
 } from "./practice.validation.js";
 import { practiceController } from "./practice.controller.js";
 
@@ -49,6 +53,41 @@ practiceRouter.post(
     body: optInJourneySchema,
   }),
   practiceController.optInAttempt
+);
+
+practiceRouter.post(
+  "/interviews/start",
+  validateRequest({
+    body: startInterviewSchema,
+  }),
+  practiceController.startInterview
+);
+
+practiceRouter.get(
+  "/interviews/:sessionId",
+  validateRequest({
+    params: sessionIdParamSchema,
+    query: getInterviewSessionQuerySchema,
+  }),
+  practiceController.getInterview
+);
+
+practiceRouter.post(
+  "/interviews/:sessionId/answer",
+  validateRequest({
+    params: sessionIdParamSchema,
+    body: submitInterviewAnswerSchema,
+  }),
+  practiceController.submitInterviewAnswer
+);
+
+practiceRouter.post(
+  "/interviews/:sessionId/opt-in",
+  validateRequest({
+    params: sessionIdParamSchema,
+    body: optInJourneySchema,
+  }),
+  practiceController.optInInterview
 );
 
 export default practiceRouter;

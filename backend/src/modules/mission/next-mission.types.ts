@@ -19,8 +19,12 @@ import {
 } from "../skill-progress/skill-progress.types.js";
 
 import {
-    CodingAttemptDocument,
+  CodingAttemptDocument,
 } from "../practice/coding-attempt.model.js";
+
+import {
+  InterviewSessionDocument,
+} from "../practice/interview-session.model.js";
 
 export interface NextMissionWorkflowContext {
 
@@ -41,6 +45,9 @@ export interface NextMissionWorkflowContext {
 
     optedInCodingAttempts:
     CodingAttemptDocument[];
+
+    optedInInterviewSessions?:
+    InterviewSessionDocument[];
 
     pendingRoadmapItems:
     RoadmapItemDocument[];

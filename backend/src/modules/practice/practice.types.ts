@@ -33,3 +33,23 @@ export interface EvaluateChallengeInput {
 export interface OptInJourneyInput {
   optIn: boolean;
 }
+
+export interface InterviewEvaluation {
+  conceptualDepthScore: number;
+  communicationScore: number;
+  overallScore: number;
+  observedStrengths: string[];
+  observedGaps: string[];
+  antiPatterns: string[];
+  mentorFeedback: string;
+}
+
+export interface StartInterviewInput {
+  careerJourneyId: string;
+  skillCatalogId: string;
+}
+
+export interface SubmitAnswerInput {
+  careerJourneyId: string;
+  candidateAnswer: string;
+}

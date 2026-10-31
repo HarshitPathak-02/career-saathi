@@ -12,11 +12,8 @@ import {
     careerJourneyRepository,
 } from "../career-journey/career-journey.repository.js";
 
-import {
-    CareerJourneyStatus,
-} from "../career-journey/career-journey.enums.js";
-
 import { userSkillService } from "../user-skill/user-skill.service.js";
+import { roadmapWorkflowService } from "../roadmap/roadmap-workflow.service.js";
 
 import { ResumeStatus } from "./resume.enums.js";
 import { ResumeMapper } from "./resume.mapper.js";
@@ -117,10 +114,6 @@ export class ResumeConfirmationService {
             );
         }
 
-        const isOnboarding =
-            careerJourney.status ===
-            CareerJourneyStatus.DRAFT;
-
         const existingUserSkills =
             await userSkillService
                 .getUserSkills(
@@ -155,15 +148,20 @@ export class ResumeConfirmationService {
 
         return executeTransaction(
             async (session) => {
-                if (isOnboarding) {
-                    await userSkillService
-                        .ensureUserSkills(
-                            resume.careerJourneyId
-                                .toString(),
-                            skillCatalogIds,
-                            session
-                        );
-                }
+                await userSkillService
+                    .ensureUserSkills(
+                        resume.careerJourneyId
+                            .toString(),
+                        skillCatalogIds,
+                        session
+                    );
+
+                await roadmapWorkflowService.syncPendingRoadmapSkills(
+                    careerJourney._id,
+                    skillCatalogIds,
+                    "Confirmed from resume prior to journey start",
+                    session
+                );
 
                 const updatedResume =
                     await resumeRepository

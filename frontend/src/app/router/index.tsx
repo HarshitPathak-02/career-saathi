@@ -33,6 +33,7 @@ import MonthlyReportDetailsPage from "../../features/monthly-reports/pages/Month
 import ReadinessPage from "../../features/readiness/pages/ReadinessPage";
 import PracticeHubPage from "../../features/practice/pages/PracticeHubPage";
 import CodingWorkspacePage from "../../features/practice/pages/CodingWorkspacePage";
+import InterviewWorkspacePage from "../../features/practice/pages/InterviewWorkspacePage";
 
 export const router = createBrowserRouter([
   {
@@ -119,6 +120,10 @@ export const router = createBrowserRouter([
           {
             path: "/practice/coding/:slug",
             element: <CodingWorkspacePage />,
+          },
+          {
+            path: "/practice/interview/:sessionId",
+            element: <InterviewWorkspacePage />,
           },
           {
             path: "/missions",

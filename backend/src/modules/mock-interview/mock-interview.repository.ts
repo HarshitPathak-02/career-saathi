@@ -127,6 +127,17 @@ class MockInterviewRepository {
     }
 
 
+    async findByJourneyAndNumber(
+        careerJourneyId: Types.ObjectId,
+        interviewNumber: number,
+        session?: ClientSession
+    ): Promise<MockInterviewDocument | null> {
+        return MockInterviewModel.findOne({
+            careerJourneyId,
+            interviewNumber,
+        }).session(session ?? null);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Count

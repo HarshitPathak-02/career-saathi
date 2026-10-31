@@ -125,3 +125,38 @@ export interface MockInterviewsResponse {
     MockInterview[];
 
 }
+
+export type ReadinessBatterySlotStatus =
+    "LOCKED" |
+    "NOT_STARTED" |
+    "IN_PROGRESS" |
+    "COMPLETED";
+
+export interface ReadinessBatterySlot {
+    interviewNumber: number;
+    title: string;
+    description: string;
+    type: MockInterviewType;
+    status: ReadinessBatterySlotStatus;
+    overallScore: number | null;
+    technicalScore: number | null;
+    problemSolvingScore: number | null;
+    communicationScore: number | null;
+    feedback: string | null;
+    completedAt: string | null;
+    sessionId: string | null;
+}
+
+export interface ReadinessBatteryResponse {
+    careerJourneyId: string;
+    status: string;
+    slots: ReadinessBatterySlot[];
+    completedCount: number;
+    totalRequired: number;
+    canEvaluateReadiness: boolean;
+}
+
+export interface StartOfficialMockInterviewRequest {
+    careerJourneyId: string;
+    interviewNumber: number;
+}

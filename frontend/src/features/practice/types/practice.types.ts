@@ -73,11 +73,26 @@ export interface RecentAttemptSummary {
   evaluatedAt: string | null;
 }
 
+export interface RecentInterviewSummary {
+  id: string;
+  skillCatalogId: string;
+  skillName: string;
+  status: "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+  currentQuestionIndex: number;
+  optedInToJourney: boolean;
+  overallScore: number | null;
+  conceptualDepthScore: number | null;
+  communicationScore: number | null;
+  startedAt: string;
+  completedAt: string | null;
+}
+
 export interface PracticeHubResponse {
   skills: PracticeSkill[];
   recommendedTopics: RecommendedTopic[];
   challenges: ChallengeSummary[];
   recentAttempts: RecentAttemptSummary[];
+  recentInterviews?: RecentInterviewSummary[];
 }
 
 export interface ChallengeDetailResponse {
@@ -137,5 +152,65 @@ export interface OptInAttemptRequest {
 
 export interface OptInAttemptResponse {
   attemptId: string;
+  optedInToJourney: boolean;
+}
+
+export type InterviewTurnType = "SCENARIO" | "FOLLOW_UP";
+export type InterviewSessionStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+
+export interface InterviewTurn {
+  turnIndex: number;
+  questionIndex: number;
+  turnType: InterviewTurnType;
+  questionText: string;
+  candidateAnswer: string | null;
+  answeredAt: string | null;
+}
+
+export interface InterviewEvaluation {
+  conceptualDepthScore: number;
+  communicationScore: number;
+  overallScore: number;
+  observedStrengths: string[];
+  observedGaps: string[];
+  antiPatterns: string[];
+  mentorFeedback: string;
+}
+
+export interface InterviewSessionDto {
+  id: string;
+  skillCatalogId: string | null;
+  skillName: string;
+  isOfficialReadinessMock?: boolean;
+  mockInterviewNumber?: number | null;
+  mockInterviewType?: string | null;
+  roleTitle?: string | null;
+  status: InterviewSessionStatus;
+  currentQuestionIndex: number;
+  isAwaitingFollowUp: boolean;
+  turns: InterviewTurn[];
+  evaluation: InterviewEvaluation | null;
+  optedInToJourney: boolean;
+  startedAt: string;
+  completedAt: string | null;
+}
+
+export interface StartInterviewRequest {
+  careerJourneyId: string;
+  skillCatalogId: string;
+}
+
+export interface SubmitInterviewAnswerRequest {
+  careerJourneyId: string;
+  candidateAnswer: string;
+}
+
+export interface OptInInterviewRequest {
+  sessionId: string;
+  optIn: boolean;
+}
+
+export interface OptInInterviewResponse {
+  sessionId: string;
   optedInToJourney: boolean;
 }

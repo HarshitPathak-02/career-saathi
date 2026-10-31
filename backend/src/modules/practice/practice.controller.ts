@@ -88,6 +88,85 @@ class PracticeController {
       data,
     });
   });
+
+  startInterview = asyncHandler(async (req: Request, res: Response) => {
+    const user = getAuthUser(req);
+    const { careerJourneyId, skillCatalogId } = req.body;
+
+    const data = await practiceService.startInterviewSession(user.userId, {
+      careerJourneyId,
+      skillCatalogId,
+    });
+
+    return successResponse({
+      res,
+      statusCode: HTTP_STATUS.CREATED,
+      message: "Interview session started successfully.",
+      data,
+    });
+  });
+
+  getInterview = asyncHandler(async (req: Request, res: Response) => {
+    const user = getAuthUser(req);
+    const sessionId = req.params.sessionId as string;
+    const careerJourneyId = req.query.careerJourneyId as string;
+
+    const data = await practiceService.getInterviewSession(
+      user.userId,
+      careerJourneyId,
+      sessionId
+    );
+
+    return successResponse({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: "Interview session loaded successfully.",
+      data,
+    });
+  });
+
+  submitInterviewAnswer = asyncHandler(async (req: Request, res: Response) => {
+    const user = getAuthUser(req);
+    const sessionId = req.params.sessionId as string;
+    const { careerJourneyId, candidateAnswer } = req.body;
+
+    const data = await practiceService.submitInterviewAnswer(
+      user.userId,
+      sessionId,
+      {
+        careerJourneyId,
+        candidateAnswer,
+      }
+    );
+
+    return successResponse({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: "Answer submitted successfully.",
+      data,
+    });
+  });
+
+  optInInterview = asyncHandler(async (req: Request, res: Response) => {
+    const user = getAuthUser(req);
+    const sessionId = req.params.sessionId as string;
+    const { optIn } = req.body;
+
+    const data = await practiceService.setInterviewOptIn(
+      user.userId,
+      sessionId,
+      optIn
+    );
+
+    return successResponse({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: optIn
+        ? "Interview performance included in career journey."
+        : "Interview performance excluded from career journey.",
+      data,
+    });
+  });
 }
 
 export const practiceController = new PracticeController();

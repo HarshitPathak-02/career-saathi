@@ -143,3 +143,48 @@ export const mockInterviewIdParamSchema =
                         "Mock interview id must be a valid ObjectId.",
                 }),
     });
+
+export const getReadinessBatteryQuerySchema =
+    Joi.object({
+        careerJourneyId:
+            objectId
+                .required()
+                .messages({
+                    "any.required":
+                        "Career journey id is required.",
+
+                    "string.hex":
+                        "Career journey id must be a valid ObjectId.",
+
+                    "string.length":
+                        "Career journey id must be a valid ObjectId.",
+                }),
+    });
+
+export const startOfficialMockInterviewSchema =
+    Joi.object({
+        careerJourneyId:
+            objectId
+                .required()
+                .messages({
+                    "any.required":
+                        "Career journey id is required.",
+
+                    "string.hex":
+                        "Career journey id must be a valid ObjectId.",
+
+                    "string.length":
+                        "Career journey id must be a valid ObjectId.",
+                }),
+        interviewNumber:
+            Joi.number()
+                .valid(1, 2, 3)
+                .required()
+                .messages({
+                    "any.required":
+                        "Interview number is required.",
+
+                    "any.only":
+                        "Interview number must be 1, 2, or 3.",
+                }),
+    });
