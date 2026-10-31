@@ -802,6 +802,27 @@ class PracticeService {
     }).limit(6);
     const skillNames = skills.map((s) => s.name);
 
+    // Concurrency check: resume active session if one exists for this milestone
+    const existingActive = await interviewSessionRepository.findOne({
+      userId: new Types.ObjectId(userId),
+      careerJourneyId: journey._id,
+      status: InterviewSessionStatus.IN_PROGRESS,
+    });
+
+    if (existingActive) {
+      if (
+        existingActive.isOfficialReadinessMock &&
+        existingActive.mockInterviewNumber === interviewNumber
+      ) {
+        return this.formatSessionResponse(
+          existingActive,
+          `${roleTitle} - Interview ${interviewNumber}: ${title}`
+        );
+      }
+      existingActive.status = InterviewSessionStatus.ABANDONED;
+      await existingActive.save();
+    }
+
     const questionText = await this.generateOfficialScenarioQuestion(
       roleTitle,
       interviewNumber,
@@ -882,6 +903,25 @@ class PracticeService {
     const skill = await SkillCatalogModel.findById(skillCatalogObjectId);
     if (!skill) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, "Skill not found.");
+    }
+
+    // Concurrency check: resume active session if one already exists for this skill
+    const existingActive = await interviewSessionRepository.findOne({
+      userId: new Types.ObjectId(userId),
+      careerJourneyId: journey._id,
+      status: InterviewSessionStatus.IN_PROGRESS,
+    });
+
+    if (existingActive) {
+      if (
+        !existingActive.isOfficialReadinessMock &&
+        existingActive.skillCatalogId?.toString() ===
+          skillCatalogObjectId.toString()
+      ) {
+        return this.formatSessionResponse(existingActive, skill.name);
+      }
+      existingActive.status = InterviewSessionStatus.ABANDONED;
+      await existingActive.save();
     }
 
     const topics = await SkillTopicModel.find({

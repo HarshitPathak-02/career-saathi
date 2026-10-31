@@ -88,6 +88,15 @@ export class GeminiProvider
                 generatedAt:
                     new Date(),
 
+                promptTokens:
+                    response.usageMetadata?.promptTokenCount,
+
+                candidateTokens:
+                    response.usageMetadata?.candidatesTokenCount,
+
+                totalTokens:
+                    response.usageMetadata?.totalTokenCount,
+
             },
 
         };

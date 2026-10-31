@@ -3,6 +3,11 @@ import { Router } from "express";
 import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import {
+  codingEvaluationLimiter,
+  interviewAnswerLimiter,
+  interviewSessionStartLimiter,
+} from "../../core/middleware/rate-limit.middleware.js";
+import {
   attemptIdParamSchema,
   challengeSlugParamSchema,
   evaluateChallengeSchema,
@@ -39,6 +44,7 @@ practiceRouter.get(
 
 practiceRouter.post(
   "/challenges/:slug/evaluate",
+  codingEvaluationLimiter,
   validateRequest({
     params: challengeSlugParamSchema,
     body: evaluateChallengeSchema,
@@ -57,6 +63,7 @@ practiceRouter.post(
 
 practiceRouter.post(
   "/interviews/start",
+  interviewSessionStartLimiter,
   validateRequest({
     body: startInterviewSchema,
   }),
@@ -74,6 +81,7 @@ practiceRouter.get(
 
 practiceRouter.post(
   "/interviews/:sessionId/answer",
+  interviewAnswerLimiter,
   validateRequest({
     params: sessionIdParamSchema,
     body: submitInterviewAnswerSchema,
