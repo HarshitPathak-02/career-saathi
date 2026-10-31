@@ -283,4 +283,14 @@ While the journey is `DRAFT`, confirmation initializes the journey's `UserSkill`
 | --- | --- | --- | --- |
 | GET | `/workspace` | Yes | Aggregated dashboard: journey, roadmap, mission, tasks, progress, streak |
 
+## Practice
+
+| Method | Path | Auth | Description |
+| --- | --- | --- | --- |
+| GET | `/practice/hub?careerJourneyId=...` | Yes | Return journey skills, weak topic recommendations, challenges, and recent attempts |
+| GET | `/practice/challenges/:slug?careerJourneyId=...` | Yes | Return challenge details, public test cases, and latest attempt (solution hidden) |
+| POST | `/practice/challenges/:slug/evaluate` | Yes | Submit code + client test results for Staff Engineer AI code review and behavioral observation |
+| POST | `/practice/attempts/:attemptId/opt-in` | Yes | Toggle `optIn: boolean` to include/exclude practice results in current career journey |
+
+
 The workspace payload drives the UI state: target details, overview counters, available actions, active mission, today's task, and lifecycle information.

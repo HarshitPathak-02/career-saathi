@@ -18,6 +18,7 @@ import weeklyReviewsRoutes from '../modules/weekly-review/weekly-review.routes.j
 import mockInterviewsRoutes from '../modules/mock-interview/mock-interview.routes.js'
 import readinessRoutes from '../modules/readiness/readiness.routes.js'
 import monthlyReportRoutes from '../modules/monthly-report/monthly-report.routes.js'
+import practiceRoutes from '../modules/practice/practice.routes.js';
 
 const router = Router();
 
@@ -134,6 +135,11 @@ router.use(
 router.use(
     "/monthly-reports",
     monthlyReportRoutes
+);
+
+router.use(
+    "/practice",
+    practiceRoutes
 );
 
 

@@ -40,6 +40,18 @@ import {
 } from "../assessment/index.js";
 
 import {
+    codingAttemptRepository,
+} from "../practice/coding-attempt.repository.js";
+
+import {
+    codingChallengeRepository,
+} from "../practice/coding-challenge.repository.js";
+
+import {
+    skillCatalogRepository,
+} from "../../master-data/skill-catalog/skill-catalog.repository.js";
+
+import {
     dailyTaskWorkflow,
 } from "../daily-task/daily-task.workflow.js";
 
@@ -105,7 +117,7 @@ export class NextMissionWorkflow {
         );
 
         const planningInput =
-            this.prepareMissionPlan(
+            await this.prepareMissionPlan(
                 context
             );
 
@@ -349,12 +361,21 @@ export class NextMissionWorkflow {
                     roadmap._id
                 );
 
+        const optedInCodingAttempts =
+            await codingAttemptRepository
+                .findOptedInByJourneyAndDateRange(
+                    careerJourneyId,
+                    previousMission.startDate,
+                    previousMission.endDate ?? appClock.now()
+                );
+
         return {
             previousMission,
             weeklyReport,
             roadmap,
             skillProgress,
             resumeSkillProgress,
+            optedInCodingAttempts,
             pendingRoadmapItems,
             inProgressRoadmapItems
         };
@@ -377,9 +398,9 @@ export class NextMissionWorkflow {
         }
     }
 
-    private prepareMissionPlan(
+    private async prepareMissionPlan(
         context: NextMissionWorkflowContext
-    ): MissionPlanningInput {
+    ): Promise<MissionPlanningInput> {
 
         const startDate =
             startOfDay(
@@ -407,7 +428,7 @@ export class NextMissionWorkflow {
                 ),
 
             revisionPlans:
-                this.getRevisionPlans(
+                await this.getRevisionPlans(
                     context
                 ),
 
@@ -450,9 +471,9 @@ export class NextMissionWorkflow {
     |--------------------------------------------------------------------------
     */
 
-    private getRevisionPlans(
+    private async getRevisionPlans(
         context: NextMissionWorkflowContext
-    ): MissionRevisionPlan[] {
+    ): Promise<MissionRevisionPlan[]> {
 
         const recommendation =
             context.weeklyReport
@@ -568,6 +589,69 @@ export class NextMissionWorkflow {
                 })
             )
         );
+
+        for (const plan of revisionPlans) {
+            plannedSkillIds.add(plan.skillCatalogId.toString());
+        }
+
+        if (context.optedInCodingAttempts && context.optedInCodingAttempts.length > 0) {
+            const lowScoreAttempts = context.optedInCodingAttempts.filter(attempt => {
+                if (!attempt.evaluation) return false;
+                const avgScore = (attempt.evaluation.correctnessScore + attempt.evaluation.codeQualityScore) / 2;
+                return avgScore < 70;
+            });
+
+            if (lowScoreAttempts.length > 0) {
+                const challengeIds = [...new Set(lowScoreAttempts.map(a => a.challengeId))];
+                const challenges = await codingChallengeRepository.findByIds(challengeIds);
+                const challengeMap = new Map(challenges.map(c => [c._id.toString(), c]));
+
+                const skillIdsToFetch = [
+                    ...new Set(
+                        challenges
+                            .map(c => c.skillCatalogId)
+                            .filter(id => !plannedSkillIds.has(id.toString()))
+                    ),
+                ];
+
+                if (skillIdsToFetch.length > 0) {
+                    const skills = await skillCatalogRepository.findActiveByIds(skillIdsToFetch);
+                    const skillMap = new Map(skills.map(s => [s._id.toString(), s]));
+
+                    for (const attempt of lowScoreAttempts) {
+                        if (!attempt.evaluation) continue;
+                        const challenge = challengeMap.get(attempt.challengeId.toString());
+                        if (!challenge) continue;
+
+                        const skillIdStr = challenge.skillCatalogId.toString();
+                        if (plannedSkillIds.has(skillIdStr)) continue;
+
+                        const skill = skillMap.get(skillIdStr);
+                        if (!skill) continue;
+
+                        const avgScore = Math.round(
+                            (attempt.evaluation.correctnessScore + attempt.evaluation.codeQualityScore) / 2
+                        );
+
+                        const revisionTopics = [
+                            `Review coding implementation for ${challenge.title}`,
+                            ...(attempt.evaluation.observedStruggles && attempt.evaluation.observedStruggles.length > 0
+                                ? attempt.evaluation.observedStruggles.slice(0, 2)
+                                : ["Practice code structure and edge cases"]),
+                        ];
+
+                        revisionPlans.push({
+                            skillCatalogId: skill._id,
+                            skillName: skill.name,
+                            percentage: avgScore,
+                            revisionTopics,
+                        });
+
+                        plannedSkillIds.add(skillIdStr);
+                    }
+                }
+            }
+        }
 
         return revisionPlans;
     }

@@ -6,6 +6,7 @@ import { seedCareerRoles } from "./career-role/career-role.seed.js";
 import { seedCareerRoleSkills } from "./career-role-skill/career-role-skill.seed.js";
 import { seedSkillCatalog } from "./skill-catalog/skill-catalog.seed.js";
 import { seedSkillTopics } from "./skill-topic/skill-topic.seed.js";
+import { seedCodingChallenges } from "../modules/practice/practice.seed.js";
 
 config();
 
@@ -20,6 +21,7 @@ const seedDatabase = async () => {
         await seedSkillCatalog();
         await seedSkillTopics();
         await seedCareerRoleSkills();
+        await seedCodingChallenges();
         console.log("Database seeded successfully.");
 
         process.exit(0);

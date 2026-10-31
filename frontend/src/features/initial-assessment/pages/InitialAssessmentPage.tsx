@@ -15,6 +15,7 @@ import {
 
 import {
     INITIAL_ASSESSMENT_STORAGE_KEY,
+    resetInitialAssessment,
     setAssessmentId,
     setAssessmentStep,
 } from "../slice/initialAssessmentSlice";
@@ -35,6 +36,12 @@ const InitialAssessmentPage = () => {
         useAppSelector(
             (state) =>
                 state.initialAssessment.currentStep
+        );
+
+    const assessmentId =
+        useAppSelector(
+            (state) =>
+                state.initialAssessment.assessmentId
         );
 
     const dispatch =
@@ -59,46 +66,41 @@ const InitialAssessmentPage = () => {
         if (
             !workspace ||
             workspace.workspaceState !==
-                "initial_assessment" ||
-            currentStep !== 0
+                "initial_assessment"
         ) {
             return;
         }
 
-        const stored =
-            window.sessionStorage.getItem(
-                INITIAL_ASSESSMENT_STORAGE_KEY
-            );
+        const serverAssessmentId = workspace.initialAssessmentId;
 
-        if (!stored) {
+        // If no initial assessment exists yet on the server for this journey:
+        if (!serverAssessmentId) {
+            // Reset any stale state remaining from another user/journey in this browser
+            if (currentStep === 3 || assessmentId) {
+                window.sessionStorage.removeItem(
+                    INITIAL_ASSESSMENT_STORAGE_KEY
+                );
+                dispatch(resetInitialAssessment());
+            }
             return;
         }
 
-        try {
-            const parsed = JSON.parse(stored) as {
-                careerJourneyId?: string;
-                assessmentId?: string;
-            };
-
-            if (
-                parsed.careerJourneyId !==
-                    workspace.careerJourney.id ||
-                !parsed.assessmentId
-            ) {
-                return;
-            }
-
-            dispatch(
-                setAssessmentId(parsed.assessmentId)
+        // If an assessment DOES exist on the server for this journey:
+        if (
+            assessmentId !== serverAssessmentId ||
+            currentStep !== 3
+        ) {
+            window.sessionStorage.setItem(
+                INITIAL_ASSESSMENT_STORAGE_KEY,
+                JSON.stringify({
+                    careerJourneyId: workspace.careerJourney.id,
+                    assessmentId: serverAssessmentId,
+                })
             );
-
+            dispatch(setAssessmentId(serverAssessmentId));
             dispatch(setAssessmentStep(3));
-        } catch {
-            window.sessionStorage.removeItem(
-                INITIAL_ASSESSMENT_STORAGE_KEY
-            );
         }
-    }, [currentStep, data, dispatch]);
+    }, [assessmentId, currentStep, data, dispatch]);
 
     if (isLoading) {
         return (

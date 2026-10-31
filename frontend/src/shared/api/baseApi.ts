@@ -22,7 +22,8 @@ export const baseApi = createApi({
     "Readiness",
     "MockInterview",
     "Resume",
-    "Discovery"
+    "Discovery",
+    "Practice"
   ],
 
   endpoints: () => ({}),

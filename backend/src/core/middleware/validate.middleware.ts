@@ -66,7 +66,10 @@ export const validateRequest = ({
                     return validationErrorResponse(res, error);
                 }
 
-                req.query = value;
+                for (const key of Object.keys(req.query)) {
+                    delete (req.query as Record<string, unknown>)[key];
+                }
+                Object.assign(req.query, value);
             }
 
             next();

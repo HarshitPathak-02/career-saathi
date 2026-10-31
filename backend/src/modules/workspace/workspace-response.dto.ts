@@ -113,6 +113,8 @@ export interface WorkspaceResponseDto {
 
     workspaceState: WorkspaceState;
 
+    initialAssessmentId?: string | null;
+
     user: WorkspaceUserDto;
 
     careerJourney: WorkspaceCareerJourneyDto;

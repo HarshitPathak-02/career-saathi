@@ -2,7 +2,12 @@ import { Router } from "express";
 
 import { authenticate } from "../../core/middleware/authenticate.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
-import { careerJourneyController, careerJourneyIdParamSchema, createCareerJourneySchema, updateCareerJourneySchema } from "./index.js";
+import { careerJourneyController } from "./career-journey.controller.js";
+import {
+    careerJourneyIdParamSchema,
+    createCareerJourneySchema,
+    updateCareerJourneySchema,
+} from "./career-journey.validation.js";
 
 
 const router = Router();
