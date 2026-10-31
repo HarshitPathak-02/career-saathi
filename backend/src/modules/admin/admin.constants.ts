@@ -1,0 +1,16 @@
+export const ADMIN_MESSAGES = {
+  LOGIN_SUCCESS: "Admin authenticated successfully.",
+  INVALID_CREDENTIALS: "Invalid admin email or password.",
+  ACCESS_DENIED: "Access forbidden. User does not possess administrative privileges.",
+  PROFILE_RETRIEVED: "Admin profile retrieved successfully.",
+  ANALYTICS_RETRIEVED: "Platform analytics retrieved successfully.",
+  USERS_RETRIEVED: "Learner directory retrieved successfully.",
+  DOSSIER_RETRIEVED: "Student 360° dossier retrieved successfully.",
+  STATUS_UPDATED: "Account status updated successfully.",
+  QUOTA_RESET: "Learner session limits and daily quotas successfully reset.",
+  IMPERSONATE_SUCCESS: "Impersonation session established.",
+  CURRICULUM_RETRIEVED: "Curriculum master data retrieved successfully.",
+  CHALLENGES_RETRIEVED: "Challenges retrieved successfully.",
+  AI_GENERATIONS_RETRIEVED: "AI telemetry logs retrieved successfully.",
+  BROADCAST_SENT: "Broadcast announcement dispatched successfully.",
+};

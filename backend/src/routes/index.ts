@@ -19,6 +19,7 @@ import mockInterviewsRoutes from '../modules/mock-interview/mock-interview.route
 import readinessRoutes from '../modules/readiness/readiness.routes.js'
 import monthlyReportRoutes from '../modules/monthly-report/monthly-report.routes.js'
 import practiceRoutes from '../modules/practice/practice.routes.js';
+import { adminRoutes } from '../modules/admin/index.js';
 
 const router = Router();
 
@@ -142,5 +143,9 @@ router.use(
     practiceRoutes
 );
 
+router.use(
+    "/admin",
+    adminRoutes
+);
 
 export default router;

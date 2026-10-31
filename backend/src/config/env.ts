@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 
 dotenv.config();
+if (!process.env.MONGODB_URI) {
+  dotenv.config({ path: 'C:/careersaathi/backend/.env' });
+}
 
 export const env = {
   PORT: Number(process.env.PORT) || 5000,
