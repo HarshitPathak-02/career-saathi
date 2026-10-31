@@ -18,6 +18,12 @@ router.get("/roles", adminCurriculumController.getRoles);
 router.post("/roles", adminCurriculumController.createRole);
 router.delete("/roles/:id", adminCurriculumController.deleteRole);
 
+// Role Skills Mapping (Track Builder)
+router.get("/roles/:roleId/skills", adminCurriculumController.getRoleSkills);
+router.post("/roles/:roleId/skills", adminCurriculumController.addSkillToRole);
+router.delete("/roles/:roleId/skills/:skillId", adminCurriculumController.removeSkillFromRole);
+router.patch("/roles/:roleId/skills/:skillId", adminCurriculumController.updateRoleSkill);
+
 // Skills
 router.get("/skills", adminCurriculumController.getSkills);
 router.post("/skills", adminCurriculumController.createSkill);

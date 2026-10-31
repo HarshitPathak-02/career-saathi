@@ -7,6 +7,8 @@ import { CareerDomainModel } from "../../../master-data/career-domain/career-dom
 import { CareerRoleModel } from "../../../master-data/career-role/career-role.schema.js";
 import { SkillCatalogModel } from "../../../master-data/skill-catalog/skill-catalog.schema.js";
 import { SkillTopicModel } from "../../../master-data/skill-topic/skill-topic.schema.js";
+import { CareerRoleSkillModel } from "../../../master-data/career-role-skill/career-role-skill.schema.js";
+import { SkillPriority } from "../../../master-data/career-role-skill/career-role-skill.enums.js";
 import { ADMIN_MESSAGES } from "../admin.constants.js";
 
 class AdminCurriculumController {
@@ -256,6 +258,167 @@ class AdminCurriculumController {
         documentationUrl: documentationUrl || "",
         summary: topic.description,
       },
+    });
+  });
+
+  // ROLE SKILL MAPPINGS (Track Builder)
+  getRoleSkills = asyncHandler(async (req: Request, res: Response) => {
+    const { roleId } = req.params;
+
+    const roleSkills = await CareerRoleSkillModel.find({ roleId })
+      .populate("skillId")
+      .sort({ displayOrder: 1 })
+      .lean();
+
+    const skillIds = roleSkills.map((rs: any) => rs.skillId?._id).filter(Boolean);
+
+    // Find other roles that share each skill
+    const otherMappings = await CareerRoleSkillModel.find({
+      skillId: { $in: skillIds },
+      roleId: { $ne: roleId },
+    })
+      .populate("roleId", "name slug")
+      .lean();
+
+    const sharedMap = new Map<string, string[]>();
+    for (const m of otherMappings) {
+      const sId = m.skillId.toString();
+      const roleName = (m.roleId as any)?.name;
+      if (roleName) {
+        const list = sharedMap.get(sId) || [];
+        list.push(roleName);
+        sharedMap.set(sId, list);
+      }
+    }
+
+    const formatted = roleSkills.map((rs: any) => {
+      const skill = rs.skillId;
+      const sId = skill?._id?.toString() || "";
+      const sharedWith = sharedMap.get(sId) || [];
+
+      return {
+        id: rs._id.toString(),
+        roleId: rs.roleId.toString(),
+        skillId: sId,
+        skillName: skill?.name || "Skill",
+        slug: skill?.slug || "",
+        category: skill?.category || "TECHNICAL",
+        difficulty: skill?.difficulty || "INTERMEDIATE",
+        description: skill?.description || "",
+        priority: rs.priority === SkillPriority.HIGH ? "CORE" : "SECONDARY",
+        isMandatory: rs.isMandatory ?? true,
+        displayOrder: rs.displayOrder || 1,
+        sharedRolesCount: sharedWith.length,
+        sharedRoleNames: sharedWith,
+        isExclusive: sharedWith.length === 0,
+      };
+    });
+
+    return successResponse({
+      res,
+      message: "Role skills retrieved successfully.",
+      data: formatted,
+    });
+  });
+
+  addSkillToRole = asyncHandler(async (req: Request, res: Response) => {
+    const { roleId } = req.params;
+    const {
+      skillId,
+      name,
+      category,
+      difficulty,
+      description,
+      priority = "CORE",
+      isMandatory = true,
+    } = req.body;
+
+    let targetSkillId = skillId;
+
+    // Case 1: Create brand new role-exclusive skill
+    if (!targetSkillId && name) {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+      let skill = await SkillCatalogModel.findOne({ slug });
+      if (!skill) {
+        skill = await SkillCatalogModel.create({
+          name,
+          slug,
+          category: category || "TECHNICAL",
+          difficulty: difficulty || "INTERMEDIATE",
+          description: description || "",
+        });
+      }
+      targetSkillId = skill._id.toString();
+    }
+
+    if (!targetSkillId) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Skill ID or new skill name is required.");
+    }
+
+    const count = await CareerRoleSkillModel.countDocuments({ roleId });
+    const enumPriority = priority === "CORE" ? SkillPriority.HIGH : SkillPriority.MEDIUM;
+
+    // Upsert mapping in CareerRoleSkill
+    const roleSkill = await CareerRoleSkillModel.findOneAndUpdate(
+      { roleId, skillId: targetSkillId },
+      {
+        roleId,
+        skillId: targetSkillId,
+        priority: enumPriority,
+        isMandatory: Boolean(isMandatory),
+        displayOrder: count + 1,
+      },
+      { upsert: true, new: true }
+    ).populate("skillId");
+
+    return successResponse({
+      res,
+      statusCode: HTTP_STATUS.CREATED,
+      message: "Skill successfully assigned to role track.",
+      data: {
+        id: (roleSkill as any)._id.toString(),
+        roleId: (roleSkill as any).roleId.toString(),
+        skillId: targetSkillId,
+        skillName: ((roleSkill as any).skillId as any)?.name || name,
+        priority,
+        isMandatory,
+      },
+    });
+  });
+
+  removeSkillFromRole = asyncHandler(async (req: Request, res: Response) => {
+    const { roleId, skillId } = req.params;
+    await CareerRoleSkillModel.findOneAndDelete({ roleId, skillId });
+
+    return successResponse({
+      res,
+      message: "Skill unlinked from role track.",
+      data: { roleId, skillId },
+    });
+  });
+
+  updateRoleSkill = asyncHandler(async (req: Request, res: Response) => {
+    const { roleId, skillId } = req.params;
+    const { priority, isMandatory } = req.body;
+
+    const updateData: any = {};
+    if (priority) {
+      updateData.priority = priority === "CORE" ? SkillPriority.HIGH : SkillPriority.MEDIUM;
+    }
+    if (typeof isMandatory === "boolean") {
+      updateData.isMandatory = isMandatory;
+    }
+
+    const updated = await CareerRoleSkillModel.findOneAndUpdate(
+      { roleId, skillId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    return successResponse({
+      res,
+      message: "Role skill priority updated.",
+      data: updated,
     });
   });
 }
