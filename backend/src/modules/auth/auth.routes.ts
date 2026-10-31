@@ -2,7 +2,10 @@ import { Router } from 'express';
 
 import { authController } from './auth.controller.js';
 import {
-    registerSchema, loginSchema
+    registerSchema,
+    loginSchema,
+    updateProfileSchema,
+    changePasswordSchema,
 } from './auth.validation.js';
 
 import { validateRequest } from '../../core/middleware/validate.middleware.js';
@@ -26,6 +29,20 @@ router.get(
     '/me',
     authenticate,
     authController.me
+);
+
+router.patch(
+    '/me',
+    authenticate,
+    validateRequest({ body: updateProfileSchema }),
+    authController.updateProfile
+);
+
+router.post(
+    '/change-password',
+    authenticate,
+    validateRequest({ body: changePasswordSchema }),
+    authController.changePassword
 );
 
 router.post(

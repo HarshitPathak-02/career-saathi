@@ -20,6 +20,16 @@ export interface IUser {
 
   activeCareerJourneyId?: Types.ObjectId | null;
 
+  phoneNumber?: string | null;
+
+  headline?: string | null;
+
+  bio?: string | null;
+
+  githubUrl?: string | null;
+
+  linkedinUrl?: string | null;
+
   /*
    * SHA-256 hashes of active refresh tokens.
    * Used to revoke sessions on logout and to
@@ -51,6 +61,16 @@ export interface UpdateUserInput {
 
   password?: string;
 
+  phoneNumber?: string | null;
+
+  headline?: string | null;
+
+  bio?: string | null;
+
+  githubUrl?: string | null;
+
+  linkedinUrl?: string | null;
+
   lastLogin?: Date;
 
   activeCareerJourneyId?: Types.ObjectId | null;
@@ -72,4 +92,14 @@ export interface UserResponse {
   role: UserRole;
 
   emailVerified: boolean;
+
+  phoneNumber?: string | null;
+
+  headline?: string | null;
+
+  bio?: string | null;
+
+  githubUrl?: string | null;
+
+  linkedinUrl?: string | null;
 }

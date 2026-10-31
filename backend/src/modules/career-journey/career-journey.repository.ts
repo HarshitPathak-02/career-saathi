@@ -113,6 +113,27 @@ export class CareerJourneyRepository {
         >;
     }
 
+    async findAllByUserId(
+        userId: Types.ObjectId,
+        session?: ClientSession
+    ): Promise<PopulatedCareerJourneyDocument[]> {
+        const query = CareerJourneyModel.find({
+            userId,
+            isDeleted: false,
+        })
+            .populate("roleId")
+            .populate("domainId")
+            .sort({ updatedAt: -1 });
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query as unknown as Promise<
+            PopulatedCareerJourneyDocument[]
+        >;
+    }
+
     async updateByIdAndUserId(
         id: Types.ObjectId,
         userId: Types.ObjectId,

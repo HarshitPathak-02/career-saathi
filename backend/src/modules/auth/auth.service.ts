@@ -305,6 +305,70 @@ class AuthService {
 
     return toUserResponse(user);
   }
+
+  async updateProfile(
+    userId: string,
+    data: {
+      fullName?: string;
+      phoneNumber?: string | null;
+      headline?: string | null;
+      bio?: string | null;
+      githubUrl?: string | null;
+      linkedinUrl?: string | null;
+    }
+  ): Promise<UserResponse> {
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        AUTH_MESSAGES.USER_NOT_FOUND
+      );
+    }
+
+    const updatedUser = await userRepository.updateById(userId, data);
+
+    if (!updatedUser) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        AUTH_MESSAGES.USER_NOT_FOUND
+      );
+    }
+
+    return toUserResponse(updatedUser);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        AUTH_MESSAGES.USER_NOT_FOUND
+      );
+    }
+
+    const isMatch = await comparePassword(currentPassword, user.password);
+
+    if (!isMatch) {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Current password does not match."
+      );
+    }
+
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    await userRepository.updateById(userId, {
+      password: hashedNewPassword,
+    });
+
+    await userRepository.clearRefreshTokenHashes(userId);
+  }
 }
 
 export const authService = new AuthService();

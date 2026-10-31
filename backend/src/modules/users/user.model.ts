@@ -50,6 +50,36 @@ const userSchema = new Schema<IUser>(
       default: null,
     },
 
+    phoneNumber: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    headline: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    bio: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    githubUrl: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    linkedinUrl: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     refreshTokenHashes: {
       type: [String],
       default: [],

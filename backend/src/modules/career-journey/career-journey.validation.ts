@@ -1,7 +1,6 @@
 import Joi from "joi";
 
 import {
-    CareerJourneyStatus,
     PreferredLanguage,
 } from "./career-journey.enums.js";
 

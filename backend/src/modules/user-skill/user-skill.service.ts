@@ -23,6 +23,8 @@ import {
     SkillCatalogModel,
 } from "../../master-data/skill-catalog/skill-catalog.schema.js";
 
+import { SkillEvidenceModel } from "../assessment/skill-evidence.model.js";
+
 import {
     AppError,
 } from "../../core/errors/app-error.js";
@@ -448,6 +450,139 @@ class UserSkillService {
                 skillCatalogIds,
                 session
             );
+    }
+
+    async getCompetencyPassport(careerJourneyId: string) {
+        const journeyObjectId = new Types.ObjectId(careerJourneyId);
+
+        const journey = await careerJourneyRepository.findOne({
+            _id: journeyObjectId,
+        });
+
+        if (!journey) {
+            throw new AppError(
+                HTTP_STATUS.NOT_FOUND,
+                "Career journey not found."
+            );
+        }
+
+        const userSkills = await userSkillRepository.findMany({
+            careerJourneyId: journeyObjectId,
+            isActive: true,
+        });
+
+        if (userSkills.length === 0) {
+            return {
+                summary: {
+                    totalSkills: 0,
+                    masteredCount: 0,
+                    inProgressCount: 0,
+                    notStartedCount: 0,
+                    averageScore: 0,
+                },
+                categories: [],
+                skills: [],
+                topStrengths: [],
+                areasForGrowth: [],
+            };
+        }
+
+        const skillCatalogIds = userSkills.map((us) => us.skillCatalogId);
+        const catalogSkills = await SkillCatalogModel.find({
+            _id: { $in: skillCatalogIds },
+        }).lean();
+
+        const catalogMap = new Map(
+            catalogSkills.map((cs) => [cs._id.toString(), cs])
+        );
+
+        const evidenceAgg = await SkillEvidenceModel.aggregate([
+            {
+                $match: {
+                    careerJourneyId: journeyObjectId,
+                    skillCatalogId: { $in: skillCatalogIds },
+                },
+            },
+            {
+                $group: {
+                    _id: "$skillCatalogId",
+                    evidenceCount: { $sum: 1 },
+                    sources: { $addToSet: "$source" },
+                },
+            },
+        ]);
+
+        const evidenceMap = new Map(
+            evidenceAgg.map((e) => [e._id.toString(), e])
+        );
+
+        const passportSkills = userSkills.map((userSkill) => {
+            const catalog = catalogMap.get(userSkill.skillCatalogId.toString());
+            const evidence = evidenceMap.get(userSkill.skillCatalogId.toString());
+
+            return {
+                skillCatalogId: userSkill.skillCatalogId.toString(),
+                name: catalog?.name || "Skill",
+                slug: catalog?.slug || "",
+                category: catalog?.category || "GENERAL",
+                difficulty: catalog?.difficulty || "beginner",
+                description: catalog?.description || "",
+                currentScore: userSkill.currentScore || 0,
+                currentLevel: userSkill.currentLevel || SkillLevel.NOT_STARTED,
+                selectedByUser: userSkill.selectedByUser ?? false,
+                evidenceCount: evidence?.evidenceCount || 0,
+                evidenceSources: evidence?.sources || [],
+                lastAssessmentAt: userSkill.lastAssessmentAt || null,
+            };
+        });
+
+        const totalSkills = passportSkills.length;
+        const masteredCount = passportSkills.filter(
+            (s) => s.currentScore >= 70
+        ).length;
+        const inProgressCount = passportSkills.filter(
+            (s) => s.currentScore > 0 && s.currentScore < 70
+        ).length;
+        const notStartedCount = passportSkills.filter(
+            (s) => s.currentScore === 0
+        ).length;
+        const totalScore = passportSkills.reduce(
+            (sum, s) => sum + s.currentScore,
+            0
+        );
+        const averageScore =
+            totalSkills > 0 ? Math.round(totalScore / totalSkills) : 0;
+
+        const uniqueCategories = [
+            ...new Set(passportSkills.map((s) => s.category)),
+        ].sort();
+
+        const sortedByScoreDesc = [...passportSkills].sort(
+            (a, b) => b.currentScore - a.currentScore
+        );
+
+        const topStrengths = sortedByScoreDesc
+            .filter((s) => s.currentScore > 0)
+            .slice(0, 3);
+
+        const areasForGrowth = sortedByScoreDesc
+            .filter((s) => s.currentScore < 60)
+            .reverse()
+            .slice(0, 3);
+
+        return {
+            summary: {
+                totalSkills,
+                masteredCount,
+                inProgressCount,
+                notStartedCount,
+                averageScore,
+            },
+            categories: uniqueCategories,
+            skills: passportSkills,
+            topStrengths,
+            areasForGrowth,
+        };
     }
 }
 

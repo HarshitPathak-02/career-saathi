@@ -161,6 +161,39 @@ class AuthController {
             });
         }
     );
+
+    updateProfile = asyncHandler(
+        async (req: Request, res: Response) => {
+            const authUser = getAuthUser(req);
+            const user = await authService.updateProfile(authUser.userId, req.body);
+
+            return successResponse({
+                res,
+                statusCode: HTTP_STATUS.OK,
+                message: "Profile updated successfully.",
+                data: user,
+            });
+        }
+    );
+
+    changePassword = asyncHandler(
+        async (req: Request, res: Response) => {
+            const authUser = getAuthUser(req);
+            await authService.changePassword(
+                authUser.userId,
+                req.body.currentPassword,
+                req.body.newPassword
+            );
+
+            clearRefreshTokenCookie(res);
+
+            return successResponse({
+                res,
+                statusCode: HTTP_STATUS.OK,
+                message: "Password changed successfully. Please log in again.",
+            });
+        }
+    );
 }
 
 export const authController =

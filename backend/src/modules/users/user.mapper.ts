@@ -14,5 +14,15 @@ export const toUserResponse = (
     role: user.role,
 
     emailVerified: user.emailVerified,
+
+    phoneNumber: user.phoneNumber ?? null,
+
+    headline: user.headline ?? null,
+
+    bio: user.bio ?? null,
+
+    githubUrl: user.githubUrl ?? null,
+
+    linkedinUrl: user.linkedinUrl ?? null,
   };
 };

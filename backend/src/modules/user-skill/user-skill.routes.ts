@@ -63,6 +63,18 @@ router.get(
         .getUserSkills
 );
 
+router.get(
+    "/career-journeys/:careerJourneyId/passport",
+
+    validateRequest({
+        params:
+            careerJourneyIdParamsValidator,
+    }),
+
+    userSkillController
+        .getCompetencyPassport
+);
+
 router.patch(
     "/career-journeys/:careerJourneyId",
 

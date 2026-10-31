@@ -121,6 +121,31 @@ class UserSkillController {
             }
         );
 
+    getCompetencyPassport =
+        asyncHandler(
+            async (
+                req: Request,
+                res: Response
+            ) => {
+                const {
+                    careerJourneyId,
+                } = req.params as unknown as CareerJourneyIdParamDto;
+
+                const passport =
+                    await userSkillService
+                        .getCompetencyPassport(
+                            careerJourneyId
+                        );
+
+                return successResponse({
+                    res,
+                    statusCode: HTTP_STATUS.OK,
+                    message: "Competency passport fetched successfully.",
+                    data: passport,
+                });
+            }
+        );
+
     updateSelectedSkills =
         asyncHandler(
             async (

@@ -184,6 +184,42 @@ export class CareerJourneyController {
             });
         }
     );
+
+    getAllCareerJourneys = asyncHandler(
+        async (req: Request, res: Response) => {
+            const user = getAuthUser(req);
+            const journeys = await careerJourneyService.getAllCareerJourneys(
+                user.userId
+            );
+
+            return successResponse({
+                res,
+                statusCode: HTTP_STATUS.OK,
+                message: "Career journeys fetched successfully.",
+                data: journeys,
+            });
+        }
+    );
+
+    switchActiveCareerJourney = asyncHandler(
+        async (req: Request, res: Response) => {
+            const user = getAuthUser(req);
+            const { careerJourneyId } =
+                req.params as unknown as CareerJourneyIdParamDto;
+
+            const journey = await careerJourneyService.switchActiveCareerJourney(
+                user.userId,
+                careerJourneyId
+            );
+
+            return successResponse({
+                res,
+                statusCode: HTTP_STATUS.OK,
+                message: "Active career journey switched successfully.",
+                data: journey,
+            });
+        }
+    );
 }
 
 

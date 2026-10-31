@@ -14,6 +14,11 @@ const router = Router();
 
 router.use(authenticate);
 
+router.get(
+    "/",
+    careerJourneyController.getAllCareerJourneys
+);
+
 router.post(
     "/",
     validateRequest({
@@ -25,6 +30,14 @@ router.post(
 router.get(
     "/active",
     careerJourneyController.getActiveCareerJourney
+);
+
+router.post(
+    "/:careerJourneyId/switch-active",
+    validateRequest({
+        params: careerJourneyIdParamSchema,
+    }),
+    careerJourneyController.switchActiveCareerJourney
 );
 
 router.get(

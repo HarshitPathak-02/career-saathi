@@ -53,3 +53,22 @@ export const loginSchema = Joi.object({
             "any.required": "Password is required",
         }),
 });
+
+export const updateProfileSchema = Joi.object({
+    fullName: Joi.string().trim().min(2).max(100).optional(),
+    phoneNumber: Joi.string().allow("", null).optional(),
+    headline: Joi.string().allow("", null).max(150).optional(),
+    bio: Joi.string().allow("", null).max(500).optional(),
+    githubUrl: Joi.string().allow("", null).optional(),
+    linkedinUrl: Joi.string().allow("", null).optional(),
+});
+
+export const changePasswordSchema = Joi.object({
+    currentPassword: Joi.string().required().messages({
+        "any.required": "Current password is required",
+    }),
+    newPassword: Joi.string().min(8).max(100).required().messages({
+        "string.min": "New password must be at least 8 characters",
+        "any.required": "New password is required",
+    }),
+});
