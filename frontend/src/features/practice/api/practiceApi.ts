@@ -4,9 +4,14 @@ import type {
   ChallengeDetailResponse,
   EvaluateChallengeRequest,
   EvaluateChallengeResponse,
+  InterviewSessionDto,
   OptInAttemptRequest,
   OptInAttemptResponse,
+  OptInInterviewRequest,
+  OptInInterviewResponse,
   PracticeHubResponse,
+  StartInterviewRequest,
+  SubmitInterviewAnswerRequest,
 } from "../types/practice.types";
 
 export const practiceApi = baseApi.injectEndpoints({
@@ -53,6 +58,61 @@ export const practiceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Practice"],
     }),
+
+    startInterview: builder.mutation<
+      ApiResponse<InterviewSessionDto>,
+      StartInterviewRequest
+    >({
+      query: (body) => ({
+        url: "/practice/interviews/start",
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: ["Practice"],
+    }),
+
+    getInterview: builder.query<
+      ApiResponse<InterviewSessionDto>,
+      { sessionId: string; careerJourneyId: string }
+    >({
+      query: ({ sessionId, careerJourneyId }) => ({
+        url: `/practice/interviews/${sessionId}`,
+        params: { careerJourneyId },
+      }),
+      providesTags: (_res, _err, { sessionId }) => [
+        { type: "Practice", id: sessionId },
+      ],
+    }),
+
+    submitInterviewAnswer: builder.mutation<
+      ApiResponse<InterviewSessionDto>,
+      { sessionId: string; body: SubmitInterviewAnswerRequest }
+    >({
+      query: ({ sessionId, body }) => ({
+        url: `/practice/interviews/${sessionId}/answer`,
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: (_res, _err, { sessionId }) => [
+        { type: "Practice", id: sessionId },
+        "Practice",
+      ],
+    }),
+
+    optInInterview: builder.mutation<
+      ApiResponse<OptInInterviewResponse>,
+      OptInInterviewRequest
+    >({
+      query: ({ sessionId, optIn }) => ({
+        url: `/practice/interviews/${sessionId}/opt-in`,
+        method: "POST",
+        data: { optIn },
+      }),
+      invalidatesTags: (_res, _err, { sessionId }) => [
+        { type: "Practice", id: sessionId },
+        "Practice",
+      ],
+    }),
   }),
 });
 
@@ -61,4 +121,8 @@ export const {
   useGetChallengeQuery,
   useEvaluateChallengeMutation,
   useOptInAttemptMutation,
+  useStartInterviewMutation,
+  useGetInterviewQuery,
+  useSubmitInterviewAnswerMutation,
+  useOptInInterviewMutation,
 } = practiceApi;

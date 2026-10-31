@@ -15,6 +15,7 @@ import {
 
 import AddMockInterviewModal
     from "../components/AddMockInterviewModal";
+import { ReadinessInterviewBatteryCard } from "../components/ReadinessInterviewBatteryCard";
 
 import {
     useGetWorkspaceQuery,
@@ -513,24 +514,11 @@ export default function ReadinessPage() {
                             "insufficient_data"
                             && (
 
-                                <InsufficientDataState
-
-                                    available={
-                                        readiness
-                                            .availableMockInterviews
+                                <ReadinessInterviewBatteryCard
+                                    careerJourneyId={careerJourneyId}
+                                    onOpenManualModal={() =>
+                                        setIsMockInterviewModalOpen(true)
                                     }
-
-                                    required={
-                                        readiness
-                                            .minimumMockInterviewsRequired
-                                    }
-
-                                    onAddMock={() =>
-                                        setIsMockInterviewModalOpen(
-                                            true
-                                        )
-                                    }
-
                                 />
 
                             )
@@ -541,35 +529,42 @@ export default function ReadinessPage() {
                             "ready_to_evaluate"
                             && (
 
-                                <ReadyToEvaluateState
+                                <div className="space-y-8">
+                                    <ReadyToEvaluateState
 
-                                    available={
-                                        readiness
-                                            .availableMockInterviews
-                                    }
+                                        available={
+                                            readiness
+                                                .availableMockInterviews
+                                        }
 
-                                    required={
-                                        readiness
-                                            .minimumMockInterviewsRequired
-                                    }
+                                        required={
+                                            readiness
+                                                .minimumMockInterviewsRequired
+                                        }
 
-                                    isEvaluating={
-                                        isEvaluatingReadiness
-                                    }
+                                        isEvaluating={
+                                            isEvaluatingReadiness
+                                        }
 
-                                    onEvaluate={
-                                        handleEvaluateReadiness
-                                    }
+                                        onEvaluate={
+                                            handleEvaluateReadiness
+                                        }
 
-                                    onAddMock={() =>
-                                        setIsMockInterviewModalOpen(
-                                            true
-                                        )
-                                    }
+                                        onAddMock={() =>
+                                            setIsMockInterviewModalOpen(
+                                                true
+                                            )
+                                        }
 
-                                />
+                                    />
 
-
+                                    <ReadinessInterviewBatteryCard
+                                        careerJourneyId={careerJourneyId}
+                                        onOpenManualModal={() =>
+                                            setIsMockInterviewModalOpen(true)
+                                        }
+                                    />
+                                </div>
 
                             )
                         }
@@ -699,7 +694,7 @@ interface InsufficientDataStateProps {
 }
 
 
-function InsufficientDataState({
+export function InsufficientDataState({
 
     available,
     required,
