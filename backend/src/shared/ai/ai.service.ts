@@ -32,8 +32,8 @@ class AIService {
       void aiGenerationRepository.create({
         userId: request.userId ? new Types.ObjectId(request.userId) : null,
         feature: request.feature || "GENERAL",
-        provider: response.metadata.provider || "gemini",
-        model: response.metadata.model || "gemini-2.5-flash",
+        provider: response.metadata.provider || (process.env.AI_PROVIDER?.toLowerCase() ?? "groq"),
+        model: response.metadata.model || "openai/gpt-oss-120b",
         prompt: request.prompt,
         systemInstruction: request.systemInstruction,
         temperature: request.temperature,
@@ -55,7 +55,7 @@ class AIService {
       void aiGenerationRepository.create({
         userId: request.userId ? new Types.ObjectId(request.userId) : null,
         feature: request.feature || "GENERAL",
-        provider: request.provider || "gemini",
+        provider: request.provider || (process.env.AI_PROVIDER?.toLowerCase() ?? "groq"),
         model: "unknown",
         prompt: request.prompt,
         systemInstruction: request.systemInstruction,

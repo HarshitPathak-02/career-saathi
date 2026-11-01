@@ -6,7 +6,7 @@ import {
 export const AI_CONSTANTS = {
 
     DEFAULT_PROVIDER:
-        AIProvider.GEMINI,
+        AIProvider.GROQ,
 
     DEFAULT_TEMPERATURE:
         0.2,
@@ -21,7 +21,7 @@ export const AI_CONSTANTS = {
 
     GROQ: {
         MODEL:
-            "openai/gpt-oss-20b",
+            process.env.GROQ_MODEL || "openai/gpt-oss-120b",
     },
 
 } as const;

@@ -7,19 +7,17 @@ import { GeminiProvider } from './gemini.provider.js';
 import { GroqProvider } from './groq.provider.js';
 
 export function createAIProvider(requestedProvider?: AIProvider): AIProviderInterface {
-  const provider =
-    requestedProvider ??
-    (process.env.AI_PROVIDER?.toUpperCase() as AIProvider | undefined) ??
-    AIProvider.GEMINI;
+  const envProvider = process.env.AI_PROVIDER?.toUpperCase() as AIProvider | undefined;
+  const provider = envProvider ?? requestedProvider ?? AIProvider.GROQ;
 
   switch (provider) {
-    case AIProvider.GEMINI:
-      return new GeminiProvider();
-
     case AIProvider.GROQ:
       return new GroqProvider();
 
+    case AIProvider.GEMINI:
+      return new GeminiProvider();
+
     default:
-      throw new Error(`Unsupported AI provider: ${provider}`);
+      return new GroqProvider();
   }
 }
