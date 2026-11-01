@@ -129,8 +129,8 @@ export default function ResumeSkillsCard({
 
   const errorStatus =
     typeof error === "object" &&
-    error !== null &&
-    "status" in error
+      error !== null &&
+      "status" in error
       ? error.status
       : undefined;
 
@@ -333,10 +333,10 @@ export default function ResumeSkillsCard({
       />
 
       {actionError && (
-                <div
-                  role="alert"
-                  className="mt-5 flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700"
-                >
+        <div
+          role="alert"
+          className="mt-5 flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700"
+        >
           <AlertCircle
             size={18}
             className="mt-0.5 shrink-0"
@@ -439,18 +439,18 @@ export default function ResumeSkillsCard({
 
           {resume.status ===
             "ANALYSIS_FAILED" && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
-              <AlertCircle
-                size={18}
-                className="mt-0.5 shrink-0"
-              />
+              <div className="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
+                <AlertCircle
+                  size={18}
+                  className="mt-0.5 shrink-0"
+                />
 
-              <p>
-                {resume.analysisError ??
-                  "We could not analyze this resume. Try again or upload a different file."}
-              </p>
-            </div>
-          )}
+                <p>
+                  {resume.analysisError ??
+                    "We could not analyze this resume. Try again or upload a different file."}
+                </p>
+              </div>
+            )}
 
           {!resume.analysis ? (
             <div className="rounded-xl border border-slate-200 p-6 text-center">
@@ -529,10 +529,9 @@ export default function ResumeSkillsCard({
                               text-left
                               transition
 
-                              ${
-                                isSelected
-                                  ? "border-blue-300 bg-blue-50"
-                                  : "border-slate-200 bg-white hover:border-blue-200"
+                              ${isSelected
+                                ? "border-blue-300 bg-blue-50"
+                                : "border-slate-200 bg-white hover:border-blue-200"
                               }
                             `}
                           >
@@ -549,10 +548,9 @@ export default function ResumeSkillsCard({
                                   rounded-md
                                   border
 
-                                  ${
-                                    isSelected
-                                      ? "border-blue-600 bg-blue-600 text-white"
-                                      : "border-slate-300 bg-white"
+                                  ${isSelected
+                                    ? "border-blue-600 bg-blue-600 text-white"
+                                    : "border-slate-300 bg-white"
                                   }
                                 `}
                               >
@@ -596,7 +594,7 @@ export default function ResumeSkillsCard({
 
                 {unmatchedSkills.length > 0 && (
                   <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                       Not in catalog
                     </p>
 

@@ -159,7 +159,7 @@ const DiscoveryChatPanel = ({
 
       <div
         className="
-          max-h-[32rem]
+          max-h-128
           min-h-72
           overflow-y-auto
           bg-slate-50/70
