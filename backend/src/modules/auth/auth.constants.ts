@@ -14,6 +14,9 @@ export const AUTH_MESSAGES = {
   PROFILE_FETCH_SUCCESS:
     "Profile fetched successfully.",
 
+  PROFILE_UPDATE_SUCCESS:
+    "Profile updated successfully.",
+
   EMAIL_ALREADY_EXISTS:
     "Email already exists.",
 

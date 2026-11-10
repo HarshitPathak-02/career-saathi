@@ -13,7 +13,13 @@ import {
 import {
     validateRequest,
 } from "../../core/middleware/validate.middleware.js";
-import { assessmentIdParamSchema, careerJourneyIdParamSchema, startInitialAssessmentSchema, startWeeklyAssessmentSchema, submitAssessmentSchema } from "./index.js";
+import {
+    assessmentIdParamSchema,
+    careerJourneyIdParamSchema,
+    startInitialAssessmentSchema,
+    startWeeklyAssessmentSchema,
+    submitAssessmentSchema,
+} from "./assessment.validator.js";
 
 
 

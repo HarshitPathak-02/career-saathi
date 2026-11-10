@@ -37,44 +37,26 @@ class WeeklyReflectionRepository {
     async findById(
         id: string | Types.ObjectId,
         session?: ClientSession,
-    ): Promise<WeeklyReflectionDocument> {
+    ): Promise<WeeklyReflectionDocument | null> {
 
-        const reflection = await WeeklyReflectionModel
+        return WeeklyReflectionModel
             .findById(id)
             .session(
                 session ?? null
             );
-
-        if (!reflection) {
-            throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                "Weekly Reflection not found"
-            );
-        }
-
-        return reflection;
 
     }
 
     async findOne(
         query: WeeklyReflectionQuery,
         session?: ClientSession,
-    ): Promise<WeeklyReflectionDocument> {
+    ): Promise<WeeklyReflectionDocument | null> {
 
-        const weeklyReflection = await WeeklyReflectionModel
+        return WeeklyReflectionModel
             .findOne(query)
             .session(
                 session ?? null
             );
-
-        if (!weeklyReflection) {
-            throw new AppError(
-                HTTP_STATUS.NOT_FOUND,
-                "Weekly Reflection not found"
-            );
-        }
-
-        return weeklyReflection;
 
     }
 

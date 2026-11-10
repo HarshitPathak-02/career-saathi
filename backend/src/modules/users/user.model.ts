@@ -37,6 +37,12 @@ const userSchema = new Schema<IUser>(
       required: true,
     },
 
+    phoneNumber: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     accountStatus: {
       type: String,
       enum: Object.values(AccountStatus),

@@ -53,3 +53,28 @@ export const loginSchema = Joi.object({
             "any.required": "Password is required",
         }),
 });
+
+export const updateProfileSchema = Joi.object({
+    fullName: Joi.string()
+        .trim()
+        .min(3)
+        .max(100)
+        .optional()
+        .messages({
+            "string.min": "Full name must be at least 3 characters",
+        }),
+
+    email: Joi.string()
+        .trim()
+        .email()
+        .lowercase()
+        .optional()
+        .messages({
+            "string.email": "Invalid email address",
+        }),
+
+    phoneNumber: Joi.string()
+        .trim()
+        .allow("", null)
+        .optional(),
+});

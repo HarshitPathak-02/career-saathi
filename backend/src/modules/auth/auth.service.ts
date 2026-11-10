@@ -6,6 +6,7 @@ import {
   RefreshResponse,
   RegisterInput,
   RegisterResponse,
+  UpdateProfileInput,
 } from './auth.types.js';
 
 import { userRepository } from '../users/user.repository.js';
@@ -304,6 +305,45 @@ class AuthService {
     }
 
     return toUserResponse(user);
+  }
+
+  async updateProfile(
+    userId: string,
+    data: UpdateProfileInput
+  ): Promise<UserResponse> {
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        AUTH_MESSAGES.USER_NOT_FOUND
+      );
+    }
+
+    if (data.email && data.email.toLowerCase() !== user.email.toLowerCase()) {
+      const existingUser = await userRepository.findByEmail(data.email);
+      if (existingUser && existingUser.id !== userId) {
+        throw new AppError(
+          HTTP_STATUS.CONFLICT,
+          AUTH_MESSAGES.EMAIL_ALREADY_EXISTS
+        );
+      }
+    }
+
+    const updatedUser = await userRepository.updateById(userId, {
+      ...(data.fullName ? { fullName: data.fullName } : {}),
+      ...(data.email ? { email: data.email.toLowerCase() } : {}),
+      ...(data.phoneNumber !== undefined ? { phoneNumber: data.phoneNumber } : {}),
+    });
+
+    if (!updatedUser) {
+      throw new AppError(
+        HTTP_STATUS.NOT_FOUND,
+        AUTH_MESSAGES.USER_NOT_FOUND
+      );
+    }
+
+    return toUserResponse(updatedUser);
   }
 }
 

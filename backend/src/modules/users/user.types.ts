@@ -16,6 +16,8 @@ export interface IUser {
 
   emailVerified: boolean;
 
+  phoneNumber?: string | null;
+
   accountStatus: AccountStatus;
 
   activeCareerJourneyId?: Types.ObjectId | null;
@@ -59,6 +61,8 @@ export interface UpdateUserInput {
 
   emailVerified?: boolean;
 
+  phoneNumber?: string | null;
+
   accountStatus?: AccountStatus;
 }
 
@@ -72,4 +76,6 @@ export interface UserResponse {
   role: UserRole;
 
   emailVerified: boolean;
+
+  phoneNumber?: string | null;
 }

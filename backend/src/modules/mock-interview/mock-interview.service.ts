@@ -110,20 +110,24 @@ class MockInterviewService {
 
         /*
          * Determine Next Interview Number
+         * Official readiness milestone mock interviews use slots 1, 2, and 3.
+         * External mock interviews start numbering from 4 onwards (or higher)
+         * to prevent collision with the official milestone battery.
          */
 
-        const latestInterview =
+        const allInterviews =
             await mockInterviewRepository
-                .findLatest(
+                .findByCareerJourney(
                     careerJourneyId,
                     session
                 );
 
-        const interviewNumber =
-            latestInterview
-                ? latestInterview
-                    .interviewNumber + 1
-                : 1;
+        const maxNumber = allInterviews.reduce(
+            (max, i) => Math.max(max, i.interviewNumber),
+            0
+        );
+
+        const interviewNumber = Math.max(4, maxNumber + 1);
 
         /*
          * Build Persistence Input
@@ -315,7 +319,9 @@ class MockInterviewService {
         let completedCount = 0;
         const slots = slotDefinitions.map((def, index) => {
             const completedMock = completedMocks.find(
-                (m) => m.interviewNumber === def.interviewNumber
+                (m) =>
+                    m.interviewNumber === def.interviewNumber &&
+                    m.platform === "CareerSaathi AI"
             );
 
             if (completedMock) {
@@ -356,7 +362,11 @@ class MockInterviewService {
             // Check if previous slot was completed
             const isPreviousCompleted =
                 index === 0 ||
-                completedMocks.some((m) => m.interviewNumber === def.interviewNumber - 1);
+                completedMocks.some(
+                    (m) =>
+                        m.interviewNumber === def.interviewNumber - 1 &&
+                        m.platform === "CareerSaathi AI"
+                );
 
             return {
                 ...def,

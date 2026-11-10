@@ -18,6 +18,20 @@ export const errorMiddleware = (
     });
   }
 
+  if (error.name === 'CastError') {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: 'Invalid resource identifier format.',
+    });
+  }
+
+  if ((error as any).code === 11000) {
+    return res.status(HTTP_STATUS.CONFLICT).json({
+      success: false,
+      message: 'A resource with this unique identifier or name already exists.',
+    });
+  }
+
   if (error instanceof multer.MulterError) {
     const isFileTooLarge =
       error.code === 'LIMIT_FILE_SIZE';

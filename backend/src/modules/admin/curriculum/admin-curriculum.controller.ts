@@ -6,6 +6,7 @@ import { HTTP_STATUS } from "../../../core/constants/http-status.constants.js";
 import { CareerDomainModel } from "../../../master-data/career-domain/career-domain.schema.js";
 import { CareerRoleModel } from "../../../master-data/career-role/career-role.schema.js";
 import { SkillCatalogModel } from "../../../master-data/skill-catalog/skill-catalog.schema.js";
+import { SkillCategory, SkillDifficulty } from "../../../master-data/skill-catalog/skill-catalog.enums.js";
 import { SkillTopicModel } from "../../../master-data/skill-topic/skill-topic.schema.js";
 import { CareerRoleSkillModel } from "../../../master-data/career-role-skill/career-role-skill.schema.js";
 import { SkillPriority } from "../../../master-data/career-role-skill/career-role-skill.enums.js";
@@ -180,11 +181,20 @@ class AdminCurriculumController {
     if (!name) throw new AppError(HTTP_STATUS.BAD_REQUEST, "Skill name is required.");
 
     const finalSlug = (slug || name).toLowerCase().replace(/[^a-z0-9]/g, "-");
+    const validCategory = (category && Object.values(SkillCategory).includes(category as SkillCategory))
+      ? (category as SkillCategory)
+      : SkillCategory.BACKEND;
+    const validDifficulty = difficulty
+      ? (Object.values(SkillDifficulty).includes(difficulty.toLowerCase() as SkillDifficulty)
+          ? (difficulty.toLowerCase() as SkillDifficulty)
+          : SkillDifficulty.INTERMEDIATE)
+      : SkillDifficulty.INTERMEDIATE;
+
     const skill = await SkillCatalogModel.create({
       name,
       slug: finalSlug,
-      category: category || "TECHNICAL",
-      difficulty: difficulty || "INTERMEDIATE",
+      category: validCategory,
+      difficulty: validDifficulty,
       description: description || "",
     });
 
@@ -340,11 +350,20 @@ class AdminCurriculumController {
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, "-");
       let skill = await SkillCatalogModel.findOne({ slug });
       if (!skill) {
+        const validCategory = (category && Object.values(SkillCategory).includes(category as SkillCategory))
+          ? (category as SkillCategory)
+          : SkillCategory.BACKEND;
+        const validDifficulty = difficulty
+          ? (Object.values(SkillDifficulty).includes(difficulty.toLowerCase() as SkillDifficulty)
+              ? (difficulty.toLowerCase() as SkillDifficulty)
+              : SkillDifficulty.INTERMEDIATE)
+          : SkillDifficulty.INTERMEDIATE;
+
         skill = await SkillCatalogModel.create({
           name,
           slug,
-          category: category || "TECHNICAL",
-          difficulty: difficulty || "INTERMEDIATE",
+          category: validCategory,
+          difficulty: validDifficulty,
           description: description || "",
         });
       }

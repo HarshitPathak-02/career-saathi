@@ -12,6 +12,7 @@ import {
 import { assessmentRepository } from '../assessment/assessment.repository.js';
 import { AssessmentType } from '../assessment/assessment.enums.js';
 import { lookupRepository } from '../lookup/index.js';
+import { userRepository } from '../users/user.repository.js';
 import type {
   CreateDiscoveryAnswerDto,
   CreateDiscoveryCandidateDto,
@@ -755,6 +756,12 @@ Return JSON only in this exact shape:
               preferredLanguage: PreferredLanguage.ENGLISH,
               status: CareerJourneyStatus.DRAFT,
             },
+            mongoSession
+          );
+
+          await userRepository.updateById(
+            userId,
+            { activeCareerJourneyId: careerJourney._id },
             mongoSession
           );
         }

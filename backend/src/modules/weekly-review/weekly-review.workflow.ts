@@ -19,6 +19,14 @@ import {
 } from "../mission/mission.service.js";
 
 import {
+    MissionModel,
+} from "../mission/mission.model.js";
+
+import {
+    MissionStatus,
+} from "../mission/mission.enums.js";
+
+import {
     roadmapService,
 } from "../roadmap/roadmap.service.js";
 
@@ -349,6 +357,19 @@ class WeeklyReviewWorkflow {
                 );
 
         if (!mission) {
+
+            const completedMission =
+                await MissionModel.findOne({
+                    careerJourneyId: careerJourney._id,
+                    status: MissionStatus.COMPLETED,
+                }).sort({ missionNumber: -1 });
+
+            if (completedMission) {
+                throw new AppError(
+                    HTTP_STATUS.CONFLICT,
+                    "Weekly review has already been completed."
+                );
+            }
 
             throw new AppError(
                 HTTP_STATUS.NOT_FOUND,

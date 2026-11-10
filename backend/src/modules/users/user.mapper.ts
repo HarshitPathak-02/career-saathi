@@ -14,5 +14,7 @@ export const toUserResponse = (
     role: user.role,
 
     emailVerified: user.emailVerified,
+
+    phoneNumber: user.phoneNumber ?? undefined,
   };
 };

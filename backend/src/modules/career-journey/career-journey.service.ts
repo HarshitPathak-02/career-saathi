@@ -9,6 +9,7 @@ import {
 import {
     HTTP_STATUS,
 } from "../../core/constants/http-status.constants.js";
+import { userRepository } from "../users/user.repository.js";
 import { CAREER_JOURNEY_MESSAGES, CareerJourneyMapper, careerJourneyRepository, CareerJourneyStatus, CreateCareerJourneyDto, UpdateCareerJourneyDto } from "./index.js";
 
 
@@ -43,10 +44,17 @@ export class CareerJourneyService {
                 data
             );
 
-        return careerJourneyRepository
-            .create(
-                createInput
-            );
+        const careerJourney =
+            await careerJourneyRepository
+                .create(
+                    createInput
+                );
+
+        await userRepository.updateById(userId, {
+            activeCareerJourneyId: careerJourney._id,
+        });
+
+        return careerJourney;
     }
 
 
@@ -199,6 +207,10 @@ export class CareerJourneyService {
             );
 
         }
+
+        await userRepository.updateById(userId, {
+            activeCareerJourneyId: null,
+        });
     }
 }
 

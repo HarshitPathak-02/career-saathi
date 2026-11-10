@@ -78,6 +78,23 @@ class AuthController {
         }
     );
 
+    updateProfile = asyncHandler(
+        async (req: Request, res: Response) => {
+            const authUser = getAuthUser(req);
+
+            const user = await authService.updateProfile(
+                authUser.userId,
+                req.body
+            );
+
+            return successResponse({
+                res,
+                message: AUTH_MESSAGES.PROFILE_UPDATE_SUCCESS,
+                data: user,
+            });
+        }
+    );
+
     refresh = asyncHandler(
         async (req, res) => {
             const refreshToken =

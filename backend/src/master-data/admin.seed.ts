@@ -1,10 +1,8 @@
 import mongoose from "mongoose";
-import { config } from "dotenv";
+import { env } from "../config/env.js";
 import { UserModel } from "../modules/users/user.model.js";
 import { UserRole, AccountStatus } from "../modules/users/user.enums.js";
 import { hashPassword } from "../shared/utils/bcrypt.util.js";
-
-config({ path: "C:/careersaathi/backend/.env" });
 
 export const seedAdminUser = async () => {
   const email = "pathak.admin@careersaathi.com";
@@ -37,7 +35,7 @@ export const seedAdminUser = async () => {
 
 const run = async () => {
   try {
-    const uri = process.env.MONGODB_URI;
+    const uri = env.MONGODB_URI;
     if (!uri) {
       throw new Error("MONGODB_URI is not set in environment.");
     }

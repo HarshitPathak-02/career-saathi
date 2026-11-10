@@ -24,6 +24,14 @@ import {
 } from "../daily-task/daily-task.service.js";
 
 import {
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
+
+import {
+    getAuthUser,
+} from "../../shared/utils/get-auth-user.js";
+
+import {
     asyncHandler,
 } from "../../core/middleware/async-handler.js";
 
@@ -56,11 +64,28 @@ class MissionController {
             res: Response
         ) => {
 
+            const user =
+                getAuthUser(req);
+
             const {
                 careerJourneyId,
             } = req.params as {
                 careerJourneyId: string;
             };
+
+            const careerJourney =
+                await careerJourneyRepository
+                    .findByIdAndUserId(
+                        new Types.ObjectId(careerJourneyId),
+                        new Types.ObjectId(user.userId)
+                    );
+
+            if (!careerJourney) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    "Career journey not found."
+                );
+            }
 
             const mission =
                 await missionWorkflowService
@@ -109,6 +134,9 @@ class MissionController {
             res: Response
         ) => {
 
+            const user =
+                getAuthUser(req);
+
             const {
                 missionId,
             } = req.params as {
@@ -122,6 +150,20 @@ class MissionController {
                     );
 
             if (!mission) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    MissionMessages.NOT_FOUND
+                );
+            }
+
+            const careerJourney =
+                await careerJourneyRepository
+                    .findByIdAndUserId(
+                        mission.careerJourneyId,
+                        new Types.ObjectId(user.userId)
+                    );
+
+            if (!careerJourney) {
                 throw new AppError(
                     HTTP_STATUS.NOT_FOUND,
                     MissionMessages.NOT_FOUND
@@ -174,11 +216,28 @@ class MissionController {
             res: Response
         ) => {
 
+            const user =
+                getAuthUser(req);
+
             const {
                 careerJourneyId,
             } = req.params as {
                 careerJourneyId: string;
             };
+
+            const careerJourney =
+                await careerJourneyRepository
+                    .findByIdAndUserId(
+                        new Types.ObjectId(careerJourneyId),
+                        new Types.ObjectId(user.userId)
+                    );
+
+            if (!careerJourney) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    "Career journey not found."
+                );
+            }
 
             const mission =
                 await missionService
@@ -232,11 +291,28 @@ class MissionController {
             res: Response
         ) => {
 
+            const user =
+                getAuthUser(req);
+
             const {
                 careerJourneyId,
             } = req.params as {
                 careerJourneyId: string;
             };
+
+            const careerJourney =
+                await careerJourneyRepository
+                    .findByIdAndUserId(
+                        new Types.ObjectId(careerJourneyId),
+                        new Types.ObjectId(user.userId)
+                    );
+
+            if (!careerJourney) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    "Career journey not found."
+                );
+            }
 
             const mission =
                 await missionService
@@ -290,11 +366,28 @@ class MissionController {
             res: Response
         ) => {
 
+            const user =
+                getAuthUser(req);
+
             const {
                 careerJourneyId,
             } = req.params as {
                 careerJourneyId: string;
             };
+
+            const careerJourney =
+                await careerJourneyRepository
+                    .findByIdAndUserId(
+                        new Types.ObjectId(careerJourneyId),
+                        new Types.ObjectId(user.userId)
+                    );
+
+            if (!careerJourney) {
+                throw new AppError(
+                    HTTP_STATUS.NOT_FOUND,
+                    "Career journey not found."
+                );
+            }
 
             const missions =
                 await missionService

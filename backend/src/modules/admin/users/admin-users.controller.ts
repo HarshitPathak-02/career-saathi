@@ -280,6 +280,13 @@ class AdminUsersController {
       throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found.");
     }
 
+    if (user.role === UserRole.ADMIN) {
+      throw new AppError(
+        HTTP_STATUS.FORBIDDEN,
+        "Cannot impersonate an administrator."
+      );
+    }
+
     const impersonationToken = generateAccessToken({
       userId: user._id.toString(),
       email: user.email,

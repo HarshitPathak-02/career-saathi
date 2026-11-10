@@ -27,6 +27,22 @@ import {
     weeklyReportDetailsWorkflow,
 } from "./weekly-report-details.workflow.js";
 
+import {
+    careerJourneyRepository,
+} from "../career-journey/career-journey.repository.js";
+
+import {
+    getAuthUser,
+} from "../../shared/utils/get-auth-user.js";
+
+import {
+    AppError,
+} from "../../core/errors/app-error.js";
+
+import {
+    HTTP_STATUS,
+} from "../../core/constants/http-status.constants.js";
+
 class WeeklyReportController {
 
     /*
@@ -42,11 +58,28 @@ class WeeklyReportController {
                 res: Response
             ) => {
 
+                const user =
+                    getAuthUser(req);
+
                 const careerJourneyId =
                     new Types.ObjectId(
                         req.params
                             .careerJourneyId as string
                     );
+
+                const careerJourney =
+                    await careerJourneyRepository
+                        .findByIdAndUserId(
+                            careerJourneyId,
+                            new Types.ObjectId(user.userId)
+                        );
+
+                if (!careerJourney) {
+                    throw new AppError(
+                        HTTP_STATUS.NOT_FOUND,
+                        "Career journey not found."
+                    );
+                }
 
                 const weeklyReport =
                     await weeklyReportService
@@ -87,11 +120,28 @@ class WeeklyReportController {
                 res: Response
             ) => {
 
+                const user =
+                    getAuthUser(req);
+
                 const careerJourneyId =
                     new Types.ObjectId(
                         req.params
                             .careerJourneyId as string
                     );
+
+                const careerJourney =
+                    await careerJourneyRepository
+                        .findByIdAndUserId(
+                            careerJourneyId,
+                            new Types.ObjectId(user.userId)
+                        );
+
+                if (!careerJourney) {
+                    throw new AppError(
+                        HTTP_STATUS.NOT_FOUND,
+                        "Career journey not found."
+                    );
+                }
 
                 const weeklyReports =
                     await weeklyReportService
@@ -132,12 +182,29 @@ class WeeklyReportController {
                 res: Response
             ) => {
 
+                const user =
+                    getAuthUser(req);
+
                 const weeklyReport =
                     await weeklyReportDetailsWorkflow
                         .getWeeklyReportDetails(
                             req.params
                                 .reportId as string
                         );
+
+                const careerJourney =
+                    await careerJourneyRepository
+                        .findByIdAndUserId(
+                            new Types.ObjectId(weeklyReport.careerJourneyId),
+                            new Types.ObjectId(user.userId)
+                        );
+
+                if (!careerJourney) {
+                    throw new AppError(
+                        HTTP_STATUS.NOT_FOUND,
+                        "Weekly report not found."
+                    );
+                }
 
                 return successResponse({
                     res,

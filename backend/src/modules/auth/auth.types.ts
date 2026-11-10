@@ -39,3 +39,9 @@ export type RegisterResponse =
 
 export type LoginResponse =
   AuthResponse;
+
+export interface UpdateProfileInput {
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string | null;
+}
