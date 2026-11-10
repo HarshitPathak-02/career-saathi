@@ -10,6 +10,7 @@ import {
 
 import {
     useParams,
+    useNavigate,
 } from "react-router-dom";
 
 import {
@@ -90,6 +91,9 @@ const formatPercentage = (
 */
 
 export default function MonthlyReportDetailsPage() {
+
+    const navigate =
+        useNavigate();
 
     /*
     |--------------------------------------------------------------------------
@@ -379,6 +383,23 @@ export default function MonthlyReportDetailsPage() {
                             report right now.
 
                         </p>
+
+                        <div className="mt-5 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/monthly-reports")}
+                                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
+                            >
+                                Back to Monthly Reports
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/workspace")}
+                                className="inline-flex items-center gap-2 rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 transition"
+                            >
+                                Return to Workspace
+                            </button>
+                        </div>
 
                     </div>
 

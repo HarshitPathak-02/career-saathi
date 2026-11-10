@@ -7,6 +7,19 @@ import {
 } from "react-router-dom";
 
 import {
+    AlertCircle,
+} from "lucide-react";
+
+import {
+    showSuccess,
+    showError,
+} from "../../../shared/lib/toast";
+
+import {
+    getApiErrorMessage,
+} from "../../../shared/lib/getApiErrorMessage";
+
+import {
     useGetCurrentWeeklyReviewQuery,
     useSubmitWeeklyReviewMutation,
 } from "../api/weeklyReviewApi";
@@ -74,7 +87,9 @@ export default function WeeklyReviewPage() {
         error,
 
     } =
-        useGetCurrentWeeklyReviewQuery();
+        useGetCurrentWeeklyReviewQuery(undefined, {
+            refetchOnMountOrArgChange: true,
+        });
 
     const [
 
@@ -127,23 +142,53 @@ export default function WeeklyReviewPage() {
             error
         );
 
+        const errorMsg =
+            getApiErrorMessage(error) ||
+            "Your weekly review could not be loaded.";
+
+        const isNotReady =
+            errorMsg.toLowerCase().includes("not available yet") ||
+            (error as any)?.status === 409;
+
         return (
 
-            <div className="p-6">
+            <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
 
-                <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-8 text-center shadow-sm">
 
-                    <h2 className="font-semibold text-red-900">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                        <AlertCircle size={28} />
+                    </div>
 
-                        Weekly review unavailable
-
+                    <h2 className="mt-4 text-xl font-bold text-slate-900">
+                        {isNotReady
+                            ? "Weekly Review Not Yet Available"
+                            : "Weekly Review Unavailable"}
                     </h2>
 
-                    <p className="mt-1 text-sm text-red-700">
-
-                        Your weekly review could not be loaded.
-
+                    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+                        {isNotReady
+                            ? "Weekly review unlocks on Day 7 of your active weekly mission. Please complete your daily tasks first."
+                            : errorMsg}
                     </p>
+
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/workspace")}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+                        >
+                            Return to Workspace
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate("/missions")}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                        >
+                            View Missions
+                        </button>
+                    </div>
 
                 </div>
 
@@ -248,6 +293,10 @@ export default function WeeklyReviewPage() {
 
                 }).unwrap();
 
+            showSuccess(
+                "Weekly review submitted successfully!"
+            );
+
             navigate(
                 "/workspace"
             );
@@ -257,6 +306,11 @@ export default function WeeklyReviewPage() {
             console.error(
                 "Weekly review submission failed",
                 err
+            );
+
+            showError(
+                getApiErrorMessage(err) ||
+                "Weekly review submission failed."
             );
 
         }

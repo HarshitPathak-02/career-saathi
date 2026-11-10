@@ -38,6 +38,7 @@ import {
 } from "../../../app/hooks";
 
 import {
+    resetCareerSetup,
     updateCareerJourneyForm,
 } from "../slice/careerSetupSlice";
 
@@ -290,9 +291,13 @@ const CareerJourneyPage = () => {
 
             /*
             |------------------------------------------------------------------
-            | Continue To Workspace
+            | Reset Setup State & Continue To Workspace
             |------------------------------------------------------------------
             */
+
+            dispatch(
+                resetCareerSetup()
+            );
 
             navigate(
                 "/workspace",

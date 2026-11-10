@@ -13,6 +13,9 @@ import ProfileHero from "../components/ProfileHero";
 import ProfileAvatar from "../components/ProfileAvatar";
 import UpdateProfileForm from "../form/UpdateProfileForm";
 import AccountInformationCard from "../components/AccountInformationCard";
+import { showSuccess, showError } from "../../../shared/lib/toast";
+import { getApiErrorMessage } from "../../../shared/lib/getApiErrorMessage";
+import type { UpdateProfileDto } from "../../auth/types/auth.types";
 
 export default function ProfilePage() {
 
@@ -59,6 +62,15 @@ export default function ProfilePage() {
 
     const user = data.data;
 
+    const handleUpdateProfile = async (values: UpdateProfileDto) => {
+        try {
+            const res = await updateProfile(values).unwrap();
+            showSuccess(res.message || "Profile updated successfully.");
+        } catch (error) {
+            showError(getApiErrorMessage(error));
+        }
+    };
+
     return (
 
         <div className="min-h-screen bg-slate-50">
@@ -76,7 +88,7 @@ export default function ProfilePage() {
                     <UpdateProfileForm
                         user={user}
                         loading={isUpdating}
-                        onSubmit={updateProfile}
+                        onSubmit={handleUpdateProfile}
                     />
 
                 </div>

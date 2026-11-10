@@ -253,6 +253,16 @@ export default function WeeklyReportsPage() {
 
                     </p>
 
+                    <div className="mt-5 flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/workspace")}
+                            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
+                        >
+                            Return to Workspace
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
@@ -416,6 +426,16 @@ export default function WeeklyReportsPage() {
                             your first weekly review.
 
                         </p>
+
+                        <div className="mt-6 flex justify-center">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/workspace")}
+                                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+                            >
+                                Go to Workspace
+                            </button>
+                        </div>
 
                     </div>
 

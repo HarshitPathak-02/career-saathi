@@ -231,7 +231,11 @@ const CareerDiscoveryPage = () => {
       return;
     }
 
-    navigate("/initial-assessment");
+    if (careerJourneyId) {
+      navigate("/initial-assessment");
+    } else {
+      navigate("/career-journey");
+    }
   };
 
   const sessionId = session?.id ?? null;

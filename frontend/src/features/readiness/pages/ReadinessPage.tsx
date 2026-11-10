@@ -1,4 +1,6 @@
 import {
+    AlertCircle,
+    ArrowLeft,
     ArrowRight,
     BrainCircuit,
     CheckCircle2,
@@ -275,7 +277,6 @@ export default function ReadinessPage() {
         isReadinessError ||
         !careerJourneyId
     ) {
-
         console.error(
             "Failed to load readiness:",
             {
@@ -284,77 +285,90 @@ export default function ReadinessPage() {
             }
         );
 
+        const errorData = (readinessError as any)?.data;
+        const errorStatus = (readinessError as any)?.status;
+        const isConflictStage =
+            errorStatus === 409 ||
+            (typeof errorData?.message === "string" &&
+                errorData.message.toLowerCase().includes("not currently available"));
+
         return (
-
             <div className="p-6">
+                <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <div className="max-w-xl space-y-4">
+                        <div
+                            className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold ${
+                                isConflictStage
+                                    ? "border border-amber-200 bg-amber-50 text-amber-800"
+                                    : "border border-red-200 bg-red-50 text-red-800"
+                            }`}
+                        >
+                            <AlertCircle size={14} />
+                            <span>
+                                {isConflictStage
+                                    ? "Readiness Stage Locked"
+                                    : "Unable to Load Readiness"}
+                            </span>
+                        </div>
 
-                <div
-                    className="
-                        mx-auto
-                        max-w-6xl
-                        rounded-2xl
-                        border
-                        border-red-200
-                        bg-red-50
-                        p-6
-                    "
-                >
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                            {isConflictStage
+                                ? "Complete your active learning roadmap first"
+                                : "Unable to load interview readiness"}
+                        </h2>
 
-                    <h2
-                        className="
-                            font-semibold
-                            text-red-900
-                        "
-                    >
-                        Unable to load interview readiness
-                    </h2>
+                        <p className="text-sm leading-relaxed text-slate-600">
+                            {isConflictStage
+                                ? "You are currently in the active learning stage of your journey. The Official Mock Interview Battery and Job Readiness evaluation unlock once you finish your roadmap learning items."
+                                : (errorData?.message ||
+                                  "We encountered an issue checking your interview readiness. Please try refreshing or return to your workspace.")}
+                        </p>
 
-                    <p
-                        className="
-                            mt-2
-                            text-sm
-                            leading-6
-                            text-red-700
-                        "
-                    >
-                        We couldn't evaluate your interview
-                        readiness right now.
-                    </p>
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            refetchReadiness()
-                        }
-                        className="
-                            mt-5
-                            inline-flex
-                            items-center
-                            gap-2
-                            rounded-xl
-                            bg-red-600
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            text-white
-                            transition
-                            hover:bg-red-700
-                        "
-                    >
-                        <RefreshCw
-                            size={16}
-                        />
-
-                        Try Again
-                    </button>
-
+                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                            {isConflictStage ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/workspace")}
+                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                    >
+                                        <ArrowLeft size={16} />
+                                        <span>Return to Workspace</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/roadmap")}
+                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                    >
+                                        <span>View Learning Roadmap</span>
+                                        <ArrowRight size={16} />
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => refetchReadiness()}
+                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                                    >
+                                        <RefreshCw size={16} />
+                                        <span>Try Again</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/workspace")}
+                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                    >
+                                        <ArrowLeft size={16} />
+                                        <span>Return to Workspace</span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
-
             </div>
-
         );
-
     }
 
 
@@ -514,12 +528,30 @@ export default function ReadinessPage() {
                             "insufficient_data"
                             && (
 
-                                <ReadinessInterviewBatteryCard
-                                    careerJourneyId={careerJourneyId}
-                                    onOpenManualModal={() =>
-                                        setIsMockInterviewModalOpen(true)
-                                    }
-                                />
+                                <div className="space-y-8">
+                                    <ReadinessInterviewBatteryCard
+                                        careerJourneyId={careerJourneyId}
+                                        onOpenManualModal={() =>
+                                            setIsMockInterviewModalOpen(true)
+                                        }
+                                    />
+
+                                    <InsufficientDataState
+                                        available={
+                                            readiness
+                                                .availableMockInterviews
+                                        }
+                                        required={
+                                            readiness
+                                                .minimumMockInterviewsRequired
+                                        }
+                                        onAddMock={() =>
+                                            setIsMockInterviewModalOpen(
+                                                true
+                                            )
+                                        }
+                                    />
+                                </div>
 
                             )
                         }
@@ -1164,7 +1196,6 @@ function NotReadyState({
                         p-6
                     "
                 >
-
                     <Target
                         size={24}
                         className="text-indigo-600"
@@ -1178,7 +1209,7 @@ function NotReadyState({
                             text-slate-900
                         "
                     >
-                        Your next step
+                        Your next step: Focused Remediation
                     </h3>
 
                     <p
@@ -1189,54 +1220,10 @@ function NotReadyState({
                             text-slate-600
                         "
                     >
-                        CareerSaathi can create an adaptive
-                        roadmap focused on the weaknesses
-                        discovered through your recent mock
-                        interviews.
+                        CareerSaathi will synthesize a targeted, adaptive follow-up roadmap
+                        focusing exclusively on the weaknesses detected in your mock interviews
+                        and technical assessments.
                     </p>
-
-
-                    {/*
-                        We'll connect this to the adaptive
-                        roadmap mutation once we add its API.
-                    */}
-
-                    <div
-                        className="
-        rounded-xl
-        border
-        border-indigo-100
-        bg-indigo-50
-        p-4
-    "
-                    >
-
-                        <p
-                            className="
-            text-sm
-            font-semibold
-            text-indigo-900
-        "
-                        >
-                            Your next step
-                        </p>
-
-                        <p
-                            className="
-            mt-1
-            text-sm
-            leading-6
-            text-indigo-700
-        "
-                        >
-                            We'll create a focused follow-up roadmap
-                            based on your current skills, weak areas,
-                            and recent mock interview performance.
-                            You'll only revisit the areas that need
-                            improvement.
-                        </p>
-
-                    </div>
 
                     <button
                         type="button"
@@ -1244,32 +1231,26 @@ function NotReadyState({
                             onGenerateAdaptiveRoadmap
                         }
                         className="
-        mt-5
-        inline-flex
-        items-center
-        justify-center
-        gap-2
-        rounded-xl
-        bg-indigo-600
-        px-5
-        py-3
-        text-sm
-        font-semibold
-        text-white
-        shadow-sm
-        transition
-        hover:bg-indigo-700
-    "
+                            mt-5
+                            inline-flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-xl
+                            bg-indigo-600
+                            px-5
+                            py-3
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-indigo-700
+                        "
                     >
-
                         Generate Adaptive Roadmap
-
-                        <ArrowRight
-                            size={17}
-                        />
-
+                        <ArrowRight size={17} />
                     </button>
-
                 </div>
 
             </div>

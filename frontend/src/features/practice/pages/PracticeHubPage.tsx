@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Search,
   ArrowRight,
+  ArrowLeft,
   Zap,
   AlertCircle,
   RefreshCw,
@@ -198,6 +199,17 @@ export const PracticeHubPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 lg:p-8 space-y-8">
+      {/* Top Hub Navigation */}
+      <div className="flex items-center justify-between">
+        <Link
+          to="/workspace"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors py-1.5 px-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 shadow-sm"
+        >
+          <ArrowLeft size={14} />
+          <span>Back to Workspace</span>
+        </Link>
+      </div>
+
       {/* Practice Workspace Mode Switcher */}
       <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 w-fit">
         <button

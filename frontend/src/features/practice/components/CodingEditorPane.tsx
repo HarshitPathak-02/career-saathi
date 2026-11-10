@@ -26,6 +26,7 @@ export const CodingEditorPane = ({
   const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
+    (window as any).__monacoEditor = editor;
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       onRunTests();
     });
