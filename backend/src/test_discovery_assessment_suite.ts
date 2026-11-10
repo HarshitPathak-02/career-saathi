@@ -8,7 +8,7 @@ import { DiscoveryStage } from './modules/discovery/discovery.enums.js';
 const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const BASE_URL = 'http://localhost:5174';
 const SCREENSHOT_DIR = 'C:\\careersaathi\\docs\\test-reports\\assessment';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://harshitpathakhp567_db_user:TozfjR4nOXnX7VmO@cluster0.wx5w2g0.mongodb.net/?appName=Cluster0&compressors=zlib';
+const MONGODB_URI = process.env.MONGODB_URI as string
 
 fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
@@ -47,7 +47,7 @@ async function delay(ms: number) {
 }
 
 async function waitAndDismissOverlay(page: Page) {
-  await page.waitForFunction(() => !document.querySelector('.z-\\[99999\\]'), { timeout: 3500 }).catch(() => {});
+  await page.waitForFunction(() => !document.querySelector('.z-\\[99999\\]'), { timeout: 3500 }).catch(() => { });
   await delay(200);
 }
 
@@ -175,7 +175,7 @@ async function runFeature3Suite() {
     await clearAndType(discoveryPage, '#password', testPassword);
     const submitReg = await discoveryPage.$('button[type="submit"]');
     if (submitReg) await submitReg.click();
-    await discoveryPage.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {});
+    await discoveryPage.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => { });
     await delay(1200);
 
     // Arrive on /career-direction -> Select "I'm Exploring My Options"
@@ -385,7 +385,7 @@ async function runFeature3Suite() {
     await clearAndType(guardPage, '#password', testPassword);
     const guardReg = await guardPage.$('button[type="submit"]');
     if (guardReg) await guardReg.click();
-    await guardPage.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {});
+    await guardPage.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => { });
     await delay(1200);
 
     // Attempt direct navigation to /initial-assessment without a journey
@@ -416,7 +416,7 @@ async function runFeature3Suite() {
     await clearAndType(page, '#password', testPassword);
     const submitExamReg = await page.$('button[type="submit"]');
     if (submitExamReg) await submitExamReg.click();
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {});
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => { });
     await delay(1200);
 
     // Fast-path Career Setup: Direction -> Domain (Backend) -> Role (Node.js) -> Journey
@@ -437,7 +437,7 @@ async function runFeature3Suite() {
 
     // Step 4: Create Journey
     await clickButtonWithText(page, 'Create My Journey');
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }).catch(() => {});
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }).catch(() => { });
     await delay(2000);
 
     // Verify Workspace Initial Assessment Card
@@ -613,16 +613,16 @@ async function runFeature3Suite() {
     await page.waitForFunction(
       () => document.body.innerText.includes('Start section') || document.body.innerText.includes('Resume section'),
       { timeout: 10000 }
-    ).catch(() => {});
+    ).catch(() => { });
 
     // Click Start or Resume on Section 2
     await clickButtonWithText(page, 'Start section') || await clickButtonWithText(page, 'Resume section');
-    
+
     // Wait dynamically for questions to load
     await page.waitForFunction(
       () => document.querySelectorAll('label input').length > 0,
       { timeout: 15000 }
-    ).catch(() => {});
+    ).catch(() => { });
     await delay(500);
 
     // Answer Section 2 questions
@@ -642,12 +642,12 @@ async function runFeature3Suite() {
 
     // Submit Section 2
     await clickButtonWithText(page, 'Submit section');
-    
+
     // Wait for evaluation result
     await page.waitForFunction(
       () => document.body.innerText.includes('View summary') || document.body.innerText.includes('complete') || document.body.innerText.includes('Go to workspace'),
       { timeout: 15000 }
-    ).catch(() => {});
+    ).catch(() => { });
     await delay(1000);
 
     // All sections completed -> View summary
@@ -659,7 +659,7 @@ async function runFeature3Suite() {
 
     // Click "Go to workspace"
     await clickButtonWithText(page, 'Go to workspace') || await clickButtonWithText(page, 'Continue to workspace') || await clickButtonWithText(page, 'workspace');
-    await page.waitForFunction(() => window.location.pathname.includes('/workspace'), { timeout: 12000 }).catch(() => {});
+    await page.waitForFunction(() => window.location.pathname.includes('/workspace'), { timeout: 12000 }).catch(() => { });
     await delay(1500);
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '18_workspace_roadmap_pending.png') });
@@ -674,7 +674,7 @@ async function runFeature3Suite() {
 
     // 7.2 Re-entry protection: navigating back to /initial-assessment after completion
     await page.goto(`${BASE_URL}/initial-assessment`, { waitUntil: 'networkidle2' });
-    await page.waitForFunction(() => window.location.pathname.includes('/workspace'), { timeout: 8000 }).catch(() => {});
+    await page.waitForFunction(() => window.location.pathname.includes('/workspace'), { timeout: 8000 }).catch(() => { });
     await delay(500);
     const postCompAssessmentUrl = page.url();
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '19_assessment_reentry_lockout.png') });
