@@ -330,7 +330,7 @@ export default function ReadinessPage() {
                                     <button
                                         type="button"
                                         onClick={() => navigate("/workspace")}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                     >
                                         <ArrowLeft size={16} />
                                         <span>Return to Workspace</span>
@@ -349,7 +349,7 @@ export default function ReadinessPage() {
                                     <button
                                         type="button"
                                         onClick={() => refetchReadiness()}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                                     >
                                         <RefreshCw size={16} />
                                         <span>Try Again</span>
@@ -422,7 +422,7 @@ export default function ReadinessPage() {
                                 flex
                                 items-center
                                 gap-2
-                                text-indigo-600
+                                text-blue-600
                             "
                             >
 
@@ -790,8 +790,8 @@ export function InsufficientDataState({
                             items-center
                             justify-center
                             rounded-2xl
-                            bg-indigo-50
-                            text-indigo-600
+                            bg-blue-50
+                            text-blue-600
                         "
                     >
 
@@ -885,7 +885,7 @@ export function InsufficientDataState({
                                 className="
                                     text-sm
                                     font-bold
-                                    text-indigo-600
+                                    text-blue-600
                                 "
                             >
                                 {available}
@@ -910,7 +910,7 @@ export function InsufficientDataState({
                                 className="
                                     h-full
                                     rounded-full
-                                    bg-indigo-600
+                                    bg-blue-600
                                     transition-all
                                     duration-500
                                 "
@@ -956,7 +956,7 @@ export function InsufficientDataState({
                             justify-center
                             gap-2
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                             px-5
                             py-3
                             text-sm
@@ -964,7 +964,7 @@ export function InsufficientDataState({
                             text-white
                             shadow-sm
                             transition
-                            hover:bg-indigo-700
+                            hover:bg-blue-700
                         "
                     >
 
@@ -1191,14 +1191,14 @@ function NotReadyState({
                     className="
                         rounded-2xl
                         border
-                        border-indigo-200
-                        bg-indigo-50
+                        border-blue-200
+                        bg-blue-50
                         p-6
                     "
                 >
                     <Target
                         size={24}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     <h3
@@ -1237,7 +1237,7 @@ function NotReadyState({
                             justify-center
                             gap-2
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                             px-5
                             py-3
                             text-sm
@@ -1245,7 +1245,7 @@ function NotReadyState({
                             text-white
                             shadow-sm
                             transition
-                            hover:bg-indigo-700
+                            hover:bg-blue-700
                         "
                     >
                         Generate Adaptive Roadmap
@@ -1389,8 +1389,8 @@ function AdaptiveRoadmapConfirmationModal({
                             items-center
                             justify-center
                             rounded-2xl
-                            bg-indigo-50
-                            text-indigo-600
+                            bg-blue-50
+                            text-blue-600
                         "
                     >
 
@@ -1500,8 +1500,8 @@ function AdaptiveRoadmapConfirmationModal({
                             mt-6
                             rounded-2xl
                             border
-                            border-indigo-100
-                            bg-indigo-50
+                            border-blue-100
+                            bg-blue-50
                             p-4
                         "
                     >
@@ -1510,7 +1510,7 @@ function AdaptiveRoadmapConfirmationModal({
                             className="
                                 text-sm
                                 font-semibold
-                                text-indigo-900
+                                text-blue-900
                             "
                         >
                             What happens next?
@@ -1522,7 +1522,7 @@ function AdaptiveRoadmapConfirmationModal({
                                 mt-1
                                 text-sm
                                 leading-6
-                                text-indigo-700
+                                text-blue-700
                             "
                         >
                             You'll return to the learning
@@ -1591,7 +1591,7 @@ function AdaptiveRoadmapConfirmationModal({
                                 justify-center
                                 gap-2
                                 rounded-xl
-                                bg-indigo-600
+                                bg-blue-600
                                 px-5
                                 py-2.5
                                 text-sm
@@ -1599,7 +1599,7 @@ function AdaptiveRoadmapConfirmationModal({
                                 text-white
                                 shadow-sm
                                 transition
-                                hover:bg-indigo-700
+                                hover:bg-blue-700
                                 disabled:cursor-not-allowed
                                 disabled:opacity-60
                             "
@@ -1903,7 +1903,7 @@ function ReadyToEvaluateState({
                 overflow-hidden
                 rounded-3xl
                 border
-                border-indigo-200
+                border-blue-200
                 bg-white
                 shadow-sm
             "
@@ -1933,8 +1933,8 @@ function ReadyToEvaluateState({
                             items-center
                             justify-center
                             rounded-2xl
-                            bg-indigo-50
-                            text-indigo-600
+                            bg-blue-50
+                            text-blue-600
                         "
                     >
 
@@ -2078,7 +2078,7 @@ function ReadyToEvaluateState({
                                 justify-center
                                 gap-2
                                 rounded-xl
-                                bg-indigo-600
+                                bg-blue-600
                                 px-5
                                 py-3
                                 text-sm
@@ -2086,7 +2086,7 @@ function ReadyToEvaluateState({
                                 text-white
                                 shadow-sm
                                 transition
-                                hover:bg-indigo-700
+                                hover:bg-blue-700
                                 disabled:cursor-not-allowed
                                 disabled:opacity-60
                             "
@@ -2225,8 +2225,8 @@ function ReadyToEvaluateState({
                             mt-7
                             rounded-2xl
                             border
-                            border-indigo-100
-                            bg-indigo-50
+                            border-blue-100
+                            bg-blue-50
                             p-4
                         "
                     >
@@ -2235,7 +2235,7 @@ function ReadyToEvaluateState({
                             className="
                                 text-sm
                                 font-semibold
-                                text-indigo-900
+                                text-blue-900
                             "
                         >
                             One evaluation, two outcomes
@@ -2246,7 +2246,7 @@ function ReadyToEvaluateState({
                                 mt-1
                                 text-sm
                                 leading-6
-                                text-indigo-700
+                                text-blue-700
                             "
                         >
                             If you're ready, CareerSaathi
@@ -2634,7 +2634,7 @@ function EvaluationFactor({
                 className="
                     mt-0.5
                     shrink-0
-                    text-indigo-600
+                    text-blue-600
                 "
             />
 

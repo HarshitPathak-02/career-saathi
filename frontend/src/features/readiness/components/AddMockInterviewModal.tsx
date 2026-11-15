@@ -764,14 +764,14 @@ export default function AddMockInterviewModal({
                                 justify-center
                                 gap-2
                                 rounded-xl
-                                bg-indigo-600
+                                bg-blue-600
                                 px-5
                                 py-2.5
                                 text-sm
                                 font-semibold
                                 text-white
                                 transition
-                                hover:bg-indigo-700
+                                hover:bg-blue-700
                                 disabled:cursor-not-allowed
                                 disabled:opacity-60
                             "
@@ -980,7 +980,7 @@ const inputClass =
         outline-none
         transition
         placeholder:text-slate-400
-        focus:border-indigo-400
+        focus:border-blue-400
         focus:ring-4
-        focus:ring-indigo-50
+        focus:ring-blue-50
     `;

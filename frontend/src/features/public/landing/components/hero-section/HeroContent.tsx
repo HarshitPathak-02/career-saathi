@@ -22,13 +22,13 @@ const HeroContent = () => {
                     gap-2
                     rounded-full
                     border
-                    border-indigo-200
-                    bg-indigo-50
+                    border-blue-200
+                    bg-blue-50
                     px-4
                     py-2
                     text-sm
                     font-semibold
-                    text-indigo-700
+                    text-blue-700
                 "
             >
 
@@ -37,7 +37,7 @@ const HeroContent = () => {
                         h-2
                         w-2
                         rounded-full
-                        bg-indigo-600
+                        bg-blue-600
                     "
                 />
 
@@ -63,7 +63,7 @@ const HeroContent = () => {
 
                 Turn your career goal into a
 
-                <span className="text-indigo-600">
+                <span className="text-blue-600">
                     {" "}clear plan you can follow.
                 </span>
 
@@ -173,7 +173,7 @@ const HeroContent = () => {
 
                     <CheckCircle2
                         size={17}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     Personalized roadmap
@@ -184,7 +184,7 @@ const HeroContent = () => {
 
                     <CheckCircle2
                         size={17}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     Weekly execution system
@@ -195,7 +195,7 @@ const HeroContent = () => {
 
                     <CheckCircle2
                         size={17}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     Adaptive career guidance

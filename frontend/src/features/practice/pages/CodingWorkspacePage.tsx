@@ -102,18 +102,20 @@ export const CodingWorkspacePage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!challenge || !careerJourneyId) return;
+    if (!challenge || !careerJourneyId || isEvaluating) return;
 
-    // Run tests if not already run
     let currentTests = testResults;
     if (!currentTests) {
       setIsRunningTests(true);
       try {
         currentTests = await runTests(code, challenge.testCases);
         setTestResults(currentTests);
-      } finally {
+      } catch (err) {
+        console.error("Automatic test execution before submit failed:", err);
         setIsRunningTests(false);
+        return;
       }
+      setIsRunningTests(false);
     }
 
     const durationSeconds = Math.max(
@@ -155,13 +157,13 @@ export const CodingWorkspacePage = () => {
   const getDifficultyBadge = (difficulty: ChallengeDifficulty) => {
     switch (difficulty) {
       case "EASY":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "MEDIUM":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case "HARD":
-        return "bg-purple-500/10 text-purple-400 border-purple-500/20";
+        return "bg-rose-50 text-rose-700 border-rose-200";
       default:
-        return "bg-slate-800 text-slate-300 border-slate-700";
+        return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
@@ -172,9 +174,9 @@ export const CodingWorkspacePage = () => {
 
   if (isPageLoading && !challenge) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-medium">Loading Coding Workspace...</p>
         </div>
       </div>
@@ -183,16 +185,16 @@ export const CodingWorkspacePage = () => {
 
   if (workspaceError || (!careerJourneyId && !isPageLoading)) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300 p-6">
-        <div className="max-w-md text-center p-6 rounded-2xl bg-slate-900 border border-slate-800">
-          <AlertCircle size={36} className="text-amber-400 mx-auto mb-3" />
-          <h2 className="text-lg font-bold text-white mb-2">No Active Career Journey</h2>
-          <p className="text-xs text-slate-400 mb-6">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600 p-6">
+        <div className="max-w-md text-center p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <AlertCircle size={36} className="text-amber-500 mx-auto" />
+          <h2 className="text-lg font-bold text-slate-900">No Active Career Journey</h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
             Please make sure your career journey is active before attempting practice challenges.
           </p>
           <Link
             to="/workspace"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
           >
             Go to Workspace
           </Link>
@@ -203,28 +205,28 @@ export const CodingWorkspacePage = () => {
 
   if (challengeError || !challenge) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300 p-6">
-        <div className="max-w-md text-center p-6 rounded-2xl bg-slate-900 border border-slate-800">
-          <AlertCircle size={36} className="text-rose-400 mx-auto mb-3" />
-          <h2 className="text-lg font-bold text-white mb-2">Challenge Not Found</h2>
-          <p className="text-xs text-slate-400 mb-6">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600 p-6">
+        <div className="max-w-md text-center p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <AlertCircle size={36} className="text-rose-500 mx-auto" />
+          <h2 className="text-lg font-bold text-slate-900">Challenge Not Found</h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
             The requested coding challenge could not be loaded or is not unlocked for your journey.
           </p>
           <div className="flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => refetchChallenge()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
             >
               <RefreshCw size={13} />
               <span>Retry</span>
             </button>
             <Link
               to="/practice"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
             >
               <ArrowLeft size={14} />
-              Return to Practice Ground
+              <span>Return to Practice Ground</span>
             </Link>
           </div>
         </div>
@@ -233,19 +235,19 @@ export const CodingWorkspacePage = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 text-slate-900 overflow-hidden">
       {/* Workspace Header Bar */}
-      <header className="flex items-center justify-between px-5 py-3 bg-slate-950 border-b border-slate-800 shrink-0">
+      <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200 shrink-0 shadow-xs">
         <div className="flex items-center gap-3">
           <Link
             to="/practice"
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors py-1 px-2 rounded hover:bg-slate-850"
+            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors py-1 px-2 rounded hover:bg-slate-100"
           >
             <ArrowLeft size={14} />
             <span>Practice Hub</span>
           </Link>
-          <ChevronRight size={14} className="text-slate-600" />
-          <h1 className="text-sm font-bold text-white truncate max-w-sm">
+          <ChevronRight size={14} className="text-slate-400" />
+          <h1 className="text-sm font-bold text-slate-900 truncate max-w-sm">
             {challenge.title}
           </h1>
           <span
@@ -255,16 +257,16 @@ export const CodingWorkspacePage = () => {
           >
             {challenge.difficulty}
           </span>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
             {challenge.skill.name}
           </span>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800/60 text-slate-400 border border-slate-800">
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
             {challenge.topic.name}
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-slate-400">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
+          <span className="flex items-center gap-1 font-mono">
             <Clock size={13} />
             {challenge.estimatedMinutes} mins
           </span>
@@ -274,16 +276,16 @@ export const CodingWorkspacePage = () => {
       {/* Main Split Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left Pane: Problem Description / AI Feedback */}
-        <div className="w-full lg:w-1/2 flex flex-col border-r border-slate-800 bg-slate-950 overflow-hidden">
+        <div className="w-full lg:w-1/2 flex flex-col border-r border-slate-200 bg-white overflow-hidden">
           {/* Tabs */}
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-800 bg-slate-950/80">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-200 bg-slate-50">
             <button
               type="button"
               onClick={() => setLeftTab("description")}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 leftTab === "description"
-                  ? "bg-slate-850 text-indigo-400 border border-slate-700"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-blue-700 border border-slate-200 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
               <FileText size={13} />
@@ -295,54 +297,54 @@ export const CodingWorkspacePage = () => {
               disabled={!evaluationResult}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 leftTab === "feedback"
-                  ? "bg-slate-850 text-indigo-400 border border-slate-700"
+                  ? "bg-white text-blue-700 border border-slate-200 shadow-2xs"
                   : evaluationResult
-                  ? "text-slate-400 hover:text-slate-200"
-                  : "text-slate-600 cursor-not-allowed opacity-50"
+                  ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  : "text-slate-400 cursor-not-allowed opacity-50"
               }`}
             >
               <Sparkles size={13} />
               <span>AI Mentor Feedback</span>
               {evaluationResult && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 ml-1" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 ml-1" />
               )}
             </button>
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-5 text-slate-300">
+          <div className="flex-1 overflow-y-auto p-5 text-slate-700">
             {leftTab === "description" ? (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-base font-bold text-white mb-2">
+                  <h2 className="text-base font-bold text-slate-900 mb-2">
                     {challenge.title}
                   </h2>
-                  <div className="prose prose-invert prose-xs max-w-none text-slate-300 leading-relaxed whitespace-pre-wrap font-sans text-xs">
+                  <div className="prose prose-xs max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap font-sans text-xs">
                     {challenge.description}
                   </div>
                 </div>
 
                 {/* Visible Test Cases Overview */}
-                <div className="space-y-3 pt-4 border-t border-slate-800">
-                  <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers size={13} />
+                <div className="space-y-3 pt-4 border-t border-slate-200">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers size={13} className="text-blue-600" />
                     <span>Test Cases ({challenge.testCases.length})</span>
                   </h3>
                   <div className="space-y-2">
                     {challenge.testCases.map((tc, idx) => (
                       <div
                         key={tc.id}
-                        className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs space-y-1.5"
+                        className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5"
                       >
-                        <div className="font-semibold text-slate-200">
+                        <div className="font-semibold text-slate-900">
                           {idx + 1}. {tc.name}
                         </div>
                         {tc.explanation && (
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-[11px] text-slate-500 leading-relaxed">
                             {tc.explanation}
                           </p>
                         )}
-                        <div className="font-mono text-[11px] bg-slate-950 p-2 rounded border border-slate-850 text-emerald-300">
+                        <div className="font-mono text-[11px] bg-white p-2 rounded-lg border border-slate-200 text-emerald-800">
                           Expected Output: {tc.expectedOutput}
                         </div>
                       </div>
@@ -387,4 +389,5 @@ export const CodingWorkspacePage = () => {
     </div>
   );
 };
+
 export default CodingWorkspacePage;

@@ -45,9 +45,9 @@ export default function MonthlyAIInsightsCard({
                     border-b
                     border-slate-100
                     bg-gradient-to-r
-                    from-indigo-50
+                    from-blue-50
                     via-white
-                    to-violet-50
+                    to-blue-50/50
                     px-6
                     py-6
                 "
@@ -70,7 +70,7 @@ export default function MonthlyAIInsightsCard({
                             items-center
                             justify-center
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                             text-white
                             shadow-sm
                         "
@@ -106,7 +106,7 @@ export default function MonthlyAIInsightsCard({
                             <Sparkles
                                 size={16}
                                 className="
-                                    text-indigo-500
+                                    text-blue-500
                                 "
                             />
 
@@ -143,8 +143,8 @@ export default function MonthlyAIInsightsCard({
                     className="
                         rounded-xl
                         border
-                        border-indigo-100
-                        bg-indigo-50/60
+                        border-blue-100
+                        bg-blue-50/60
                         p-5
                     "
                 >
@@ -160,7 +160,7 @@ export default function MonthlyAIInsightsCard({
                         <Sparkles
                             size={17}
                             className="
-                                text-indigo-600
+                                text-blue-600
                             "
                         />
 
@@ -168,7 +168,7 @@ export default function MonthlyAIInsightsCard({
                             className="
                                 text-sm
                                 font-semibold
-                                text-indigo-950
+                                text-blue-950
                             "
                         >
                             Your Month at a Glance
@@ -345,13 +345,13 @@ function InsightColumn({
         recommendation: {
 
             container:
-                "border-indigo-100 bg-indigo-50/40",
+                "border-blue-100 bg-blue-50/40",
 
             icon:
-                "bg-indigo-100 text-indigo-700",
+                "bg-blue-100 text-blue-700",
 
             bullet:
-                "bg-indigo-500",
+                "bg-blue-500",
 
         },
 

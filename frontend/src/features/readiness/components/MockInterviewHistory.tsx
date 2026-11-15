@@ -193,13 +193,13 @@ export default function MockInterviewHistory({
                                         <span
                                             className="
                                                 rounded-full
-                                                bg-indigo-50
+                                                bg-blue-50
                                                 px-2.5
                                                 py-1
                                                 text-xs
                                                 font-semibold
                                                 capitalize
-                                                text-indigo-700
+                                                text-blue-700
                                             "
                                         >
                                             {

@@ -79,7 +79,7 @@ const RegisterPage = () => {
                         h-96
                         w-96
                         rounded-full
-                        bg-indigo-600/10
+                        bg-blue-600/10
                         blur-3xl
                     "
         />
@@ -120,7 +120,7 @@ const RegisterPage = () => {
                             items-center
                             justify-center
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                         "
           >
 
@@ -163,7 +163,7 @@ const RegisterPage = () => {
                             font-semibold
                             uppercase
                             tracking-[0.16em]
-                            text-indigo-400
+                            text-blue-400
                         "
           >
 
@@ -184,7 +184,7 @@ const RegisterPage = () => {
 
             Stop figuring out your career
 
-            <span className="text-indigo-400">
+            <span className="text-blue-400">
               {" "}one random step at a time.
             </span>
 
@@ -253,7 +253,7 @@ const RegisterPage = () => {
                       <Icon
                         size={20}
                         className="
-                                                    text-indigo-400
+                                                    text-blue-400
                                                 "
                       />
 
@@ -371,7 +371,7 @@ const RegisterPage = () => {
                                 items-center
                                 justify-center
                                 rounded-lg
-                                bg-indigo-600
+                                bg-blue-600
                                 text-white
                             "
             >

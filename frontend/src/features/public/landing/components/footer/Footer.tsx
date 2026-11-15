@@ -72,7 +72,7 @@ const Footer = () => {
                                     items-center
                                     justify-center
                                     rounded-xl
-                                    bg-indigo-600
+                                    bg-blue-600
                                 "
               >
 
@@ -127,9 +127,9 @@ const Footer = () => {
                                 gap-2
                                 text-sm
                                 font-semibold
-                                text-indigo-400
+                                text-blue-400
                                 transition
-                                hover:text-indigo-300
+                                hover:text-blue-300
                             "
             >
 

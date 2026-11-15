@@ -50,13 +50,13 @@ const WhyCareerSaathiSection = () => {
                                 inline-flex
                                 rounded-full
                                 border
-                                border-indigo-200
-                                bg-indigo-50
+                                border-blue-200
+                                bg-blue-50
                                 px-4
                                 py-2
                                 text-sm
                                 font-semibold
-                                text-indigo-700
+                                text-blue-700
                             "
             >
 
@@ -78,7 +78,7 @@ const WhyCareerSaathiSection = () => {
 
               More than a roadmap.
 
-              <span className="text-indigo-600">
+              <span className="text-blue-600">
                 {" "}A system that moves with you.
               </span>
 
@@ -137,7 +137,7 @@ const WhyCareerSaathiSection = () => {
 
             <CheckCircle2
               size={17}
-              className="text-indigo-600"
+              className="text-blue-600"
             />
 
             Built around your career goal
@@ -157,7 +157,7 @@ const WhyCareerSaathiSection = () => {
 
             <CheckCircle2
               size={17}
-              className="text-indigo-600"
+              className="text-blue-600"
             />
 
             Structured around consistent action
@@ -177,7 +177,7 @@ const WhyCareerSaathiSection = () => {
 
             <CheckCircle2
               size={17}
-              className="text-indigo-600"
+              className="text-blue-600"
             />
 
             Adapted through real performance

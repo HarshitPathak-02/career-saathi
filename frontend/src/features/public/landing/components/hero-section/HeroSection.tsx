@@ -41,7 +41,7 @@ const HeroSection = () => {
                         h-96
                         w-96
                         rounded-full
-                        bg-indigo-100/60
+                        bg-blue-100/60
                         blur-3xl
                     "
         />

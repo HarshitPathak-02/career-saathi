@@ -214,7 +214,7 @@ const QuestionField = ({
                     })
                 }
                 placeholder="Enter a number"
-                className="mt-4 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="mt-4 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
         );
     }
@@ -279,7 +279,7 @@ const QuestionField = ({
                                         event.target.value
                                     )
                                 }
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                             >
                                 <option value="">
                                     Select a match
@@ -321,8 +321,8 @@ const QuestionField = ({
                             flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition
                             ${
                                 checked
-                                    ? "border-indigo-300 bg-indigo-50"
-                                    : "border-slate-200 bg-white hover:border-indigo-200"
+                                    ? "border-blue-300 bg-blue-50"
+                                    : "border-slate-200 bg-white hover:border-blue-200"
                             }
                         `}
                     >
@@ -367,7 +367,7 @@ const QuestionField = ({
                                     ],
                                 });
                             }}
-                            className="mt-1 h-4 w-4 accent-indigo-600"
+                            className="mt-1 h-4 w-4 accent-blue-600"
                         />
 
                         <span className="text-sm leading-6 text-slate-700">
@@ -766,14 +766,14 @@ const AssessmentRunnerStep = () => {
 
         return (
             <div>
-                <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6">
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
                     <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600">
                             <Trophy size={24} />
                         </div>
 
                         <div>
-                            <p className="text-sm font-semibold text-indigo-700">
+                            <p className="text-sm font-semibold text-blue-700">
                                 Initial assessment summary
                             </p>
 
@@ -971,7 +971,7 @@ const AssessmentRunnerStep = () => {
             <div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <p className="text-sm font-semibold text-indigo-600">
+                        <p className="text-sm font-semibold text-blue-600">
                             Section{" "}
                             {activeSection?.displayOrder ??
                                 1}{" "}
@@ -1126,7 +1126,7 @@ const AssessmentRunnerStep = () => {
     return (
         <div>
             <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                     <ClipboardList size={22} />
                 </div>
 

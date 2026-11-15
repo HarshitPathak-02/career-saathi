@@ -38,7 +38,7 @@ const HeroPreview = () => {
                     -translate-x-1/2
                     -translate-y-1/2
                     rounded-full
-                    bg-indigo-200/40
+                    bg-blue-200/40
                     blur-3xl
                 "
       />

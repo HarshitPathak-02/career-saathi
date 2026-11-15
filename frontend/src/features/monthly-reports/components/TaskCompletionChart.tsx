@@ -300,7 +300,7 @@ export default function TaskCompletionChart({
                                 h-2.5
                                 w-2.5
                                 rounded-full
-                                bg-indigo-600
+                                bg-blue-600
                             "
                         />
 

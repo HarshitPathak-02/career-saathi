@@ -316,7 +316,7 @@ export default function MonthlyReportsPage() {
                             flex
                             items-center
                             gap-2
-                            text-indigo-600
+                            text-blue-600
                         "
                     >
 
@@ -401,8 +401,8 @@ export default function MonthlyReportsPage() {
                                 items-center
                                 justify-center
                                 rounded-2xl
-                                bg-indigo-50
-                                text-indigo-600
+                                bg-blue-50
+                                text-blue-600
                             "
                         >
 
@@ -562,7 +562,7 @@ function MonthlyReportCard({
                 shadow-sm
                 transition
                 hover:-translate-y-0.5
-                hover:border-indigo-200
+                hover:border-blue-200
                 hover:shadow-md
             "
         >
@@ -586,8 +586,8 @@ function MonthlyReportCard({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-indigo-50
-                        text-indigo-600
+                        bg-blue-50
+                        text-blue-600
                     "
                 >
 
@@ -632,7 +632,7 @@ function MonthlyReportCard({
                         font-semibold
                         uppercase
                         tracking-wide
-                        text-indigo-600
+                        text-blue-600
                     "
                 >
 
@@ -843,7 +843,7 @@ function MonthlyReportCard({
                         gap-1
                         text-sm
                         font-semibold
-                        text-indigo-600
+                        text-blue-600
                     "
                 >
 

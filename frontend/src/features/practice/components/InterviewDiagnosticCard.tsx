@@ -45,17 +45,17 @@ export const InterviewDiagnosticCard = ({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
-    if (score >= 60) return "text-amber-400 border-amber-500/30 bg-amber-500/10";
-    return "text-rose-400 border-rose-500/30 bg-rose-500/10";
+    if (score >= 80) return "text-emerald-700 border-emerald-200 bg-emerald-50";
+    if (score >= 60) return "text-amber-700 border-amber-200 bg-amber-50";
+    return "text-rose-700 border-rose-200 bg-rose-50";
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto p-6 lg:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl text-slate-100">
+    <div className="space-y-6 max-w-4xl mx-auto p-6 lg:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm text-slate-900">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold mb-2">
             <Award size={14} />
             <span>
               {isOfficialReadinessMock
@@ -63,21 +63,21 @@ export const InterviewDiagnosticCard = ({
                 : "Interview Drill Completed"}
             </span>
           </div>
-          <h2 className="text-2xl font-black text-white">
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
             {skillName} {isOfficialReadinessMock ? "Official Diagnosis" : "Technical Screen Diagnosis"}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Evaluated by Staff Engineer AI Mentor across 3 technical scenarios & follow-ups.
           </p>
         </div>
 
         {/* Overall Score Badge */}
-        <div className="flex items-center gap-4 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 shrink-0">
+        <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shrink-0">
           <div className="text-right">
-            <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            <span className="block text-[10px] text-slate-500 uppercase font-bold tracking-wider">
               Overall Score
             </span>
-            <span className="text-2xl font-black text-white font-mono">
+            <span className="text-2xl font-bold text-slate-900 font-mono">
               {evaluation.overallScore}%
             </span>
           </div>
@@ -97,12 +97,12 @@ export const InterviewDiagnosticCard = ({
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block font-medium">
+            <span className="text-xs text-slate-500 block font-medium">
               Conceptual Depth
             </span>
-            <span className="text-lg font-bold text-white mt-0.5 block">
+            <span className="text-xl font-bold text-slate-900 mt-0.5 block">
               {evaluation.conceptualDepthScore}%
             </span>
             <span className="text-[11px] text-slate-500">
@@ -110,7 +110,7 @@ export const InterviewDiagnosticCard = ({
             </span>
           </div>
           <span
-            className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${getScoreColor(
+            className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${getScoreColor(
               evaluation.conceptualDepthScore
             )}`}
           >
@@ -118,12 +118,12 @@ export const InterviewDiagnosticCard = ({
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block font-medium">
+            <span className="text-xs text-slate-500 block font-medium">
               Communication & Structure
             </span>
-            <span className="text-lg font-bold text-white mt-0.5 block">
+            <span className="text-xl font-bold text-slate-900 mt-0.5 block">
               {evaluation.communicationScore}%
             </span>
             <span className="text-[11px] text-slate-500">
@@ -131,7 +131,7 @@ export const InterviewDiagnosticCard = ({
             </span>
           </div>
           <span
-            className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${getScoreColor(
+            className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${getScoreColor(
               evaluation.communicationScore
             )}`}
           >
@@ -141,12 +141,12 @@ export const InterviewDiagnosticCard = ({
       </div>
 
       {/* Mentor Feedback Card */}
-      <div className="p-5 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 space-y-2">
-        <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+      <div className="p-5 rounded-xl bg-blue-50/50 border border-blue-100 space-y-2">
+        <div className="flex items-center gap-2 text-blue-700 text-xs font-bold uppercase tracking-wider">
           <Sparkles size={15} />
           <span>Staff Engineer Feedback</span>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">
+        <p className="text-sm text-slate-700 leading-relaxed">
           {evaluation.mentorFeedback}
         </p>
       </div>
@@ -155,20 +155,20 @@ export const InterviewDiagnosticCard = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
         {/* Strengths */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
-            <CheckCircle2 size={14} />
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
+            <CheckCircle2 size={14} className="text-emerald-600" />
             <span>Observed Strengths</span>
           </div>
           {evaluation.observedStrengths.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">No specific strengths logged.</p>
+            <p className="text-xs text-slate-400 italic">No specific strengths logged.</p>
           ) : (
             <ul className="space-y-2">
               {evaluation.observedStrengths.map((str, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-2.5 text-xs text-slate-300 bg-emerald-500/5 border border-emerald-500/10 p-2.5 rounded-xl"
+                  className="flex items-start gap-2.5 text-xs text-slate-700 bg-emerald-50 border border-emerald-200/60 p-3 rounded-xl"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
                   <span>{str}</span>
                 </li>
               ))}
@@ -178,20 +178,20 @@ export const InterviewDiagnosticCard = ({
 
         {/* Gaps & Misconceptions */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
-            <Zap size={14} />
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase tracking-wider">
+            <Zap size={14} className="text-amber-500" />
             <span>Knowledge Gaps & Misconceptions</span>
           </div>
           {evaluation.observedGaps.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">No significant gaps detected.</p>
+            <p className="text-xs text-slate-400 italic">No significant gaps detected.</p>
           ) : (
             <ul className="space-y-2">
               {evaluation.observedGaps.map((gap, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-2.5 text-xs text-slate-300 bg-amber-500/5 border border-amber-500/10 p-2.5 rounded-xl"
+                  className="flex items-start gap-2.5 text-xs text-slate-700 bg-amber-50 border border-amber-200/60 p-3 rounded-xl"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
                   <span>{gap}</span>
                 </li>
               ))}
@@ -202,16 +202,16 @@ export const InterviewDiagnosticCard = ({
 
       {/* Anti-Patterns (if any) */}
       {evaluation.antiPatterns && evaluation.antiPatterns.length > 0 && (
-        <div className="space-y-2 p-4 rounded-xl bg-rose-500/5 border border-rose-500/15">
-          <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider">
-            <Flame size={14} />
+        <div className="space-y-2 p-4 rounded-xl bg-rose-50 border border-rose-200">
+          <div className="flex items-center gap-2 text-rose-700 text-xs font-bold uppercase tracking-wider">
+            <Flame size={14} className="text-rose-600" />
             <span>Anti-Patterns Detected</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {evaluation.antiPatterns.map((ap, idx) => (
               <span
                 key={idx}
-                className="text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20"
+                className="text-xs px-2.5 py-1 rounded-lg bg-white text-rose-700 border border-rose-200 font-medium"
               >
                 {ap}
               </span>
@@ -222,21 +222,21 @@ export const InterviewDiagnosticCard = ({
 
       {/* Career Journey Opt-In Box */}
       {isOfficialReadinessMock ? (
-        <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center gap-3 text-emerald-200 text-xs">
-          <ShieldCheck size={20} className="text-emerald-400 shrink-0" />
+        <div className="p-5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-800 text-xs font-medium">
+          <ShieldCheck size={20} className="text-emerald-600 shrink-0" />
           <span>
             This official milestone interview has been recorded into your Job Readiness portfolio (Slot {mockInterviewNumber}/3).
           </span>
         </div>
       ) : (
-        <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+        <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-xs font-bold text-white">
-                <ShieldCheck size={16} className="text-indigo-400" />
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                <ShieldCheck size={16} className="text-blue-600" />
                 <span>Include this performance in your Career Journey?</span>
               </div>
-              <p className="text-[11px] text-slate-400 max-w-xl">
+              <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
                 By default, this interview session is zero-stakes. When included, weak topic scores (&lt;70%) will automatically adapt your upcoming Day 7 weekly missions with focused revision tasks.
               </p>
             </div>
@@ -245,15 +245,15 @@ export const InterviewDiagnosticCard = ({
               type="button"
               disabled={isUpdatingOptIn}
               onClick={() => handleToggleOptIn(!optedIn)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 shadow-sm ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center gap-2 shadow-xs ${
                 optedIn
-                  ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20"
-                  : "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20"
+                  : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-300"
               }`}
             >
               <span
                 className={`w-2 h-2 rounded-full ${
-                  optedIn ? "bg-white animate-pulse" : "bg-slate-500"
+                  optedIn ? "bg-white animate-pulse" : "bg-slate-400"
                 }`}
               />
               <span>{optedIn ? "Included in Journey" : "Include in Journey"}</span>
@@ -266,7 +266,7 @@ export const InterviewDiagnosticCard = ({
       <div className="pt-4 flex justify-end">
         <Link
           to={isOfficialReadinessMock ? "/readiness" : "/practice"}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/20"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
         >
           <span>
             {isOfficialReadinessMock

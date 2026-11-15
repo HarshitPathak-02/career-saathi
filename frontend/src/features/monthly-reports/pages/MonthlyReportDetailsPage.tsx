@@ -459,9 +459,9 @@ export default function MonthlyReportDetailsPage() {
                     <div
                         className="
                             bg-linear-to-r
-                            from-indigo-50/70
+                            from-blue-50/70
                             via-white
-                            to-violet-50/60
+                            to-blue-50/40
                             p-6
                         "
                     >
@@ -484,7 +484,7 @@ export default function MonthlyReportDetailsPage() {
                                         flex
                                         items-center
                                         gap-2
-                                        text-indigo-600
+                                        text-blue-600
                                     "
                                 >
 
@@ -913,7 +913,7 @@ export default function MonthlyReportDetailsPage() {
                                     className="
                                         h-full
                                         rounded-full
-                                        bg-indigo-600
+                                        bg-blue-600
                                         transition-all
                                     "
                                     style={{
@@ -1205,8 +1205,8 @@ function MetricCard({
                     items-center
                     justify-center
                     rounded-xl
-                    bg-indigo-50
-                    text-indigo-600
+                    bg-blue-50
+                    text-blue-600
                 "
             >
 

@@ -304,7 +304,7 @@ export default function WeeklyReportsPage() {
                             flex
                             items-center
                             gap-2
-                            text-indigo-600
+                            text-blue-600
                         "
                     >
 
@@ -386,8 +386,8 @@ export default function WeeklyReportsPage() {
                                 items-center
                                 justify-center
                                 rounded-2xl
-                                bg-indigo-50
-                                text-indigo-600
+                                bg-blue-50
+                                text-blue-600
                             "
                         >
 
@@ -544,7 +544,7 @@ function WeeklyReportCard({
                 shadow-sm
                 transition
                 hover:-translate-y-0.5
-                hover:border-indigo-200
+                hover:border-blue-200
                 hover:shadow-md
             "
         >
@@ -568,8 +568,8 @@ function WeeklyReportCard({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-indigo-50
-                        text-indigo-600
+                        bg-blue-50
+                        text-blue-600
                     "
                 >
 
@@ -613,7 +613,7 @@ function WeeklyReportCard({
                         font-semibold
                         uppercase
                         tracking-wide
-                        text-indigo-600
+                        text-blue-600
                     "
                 >
 
@@ -697,7 +697,7 @@ function WeeklyReportCard({
                         gap-1
                         text-sm
                         font-semibold
-                        text-indigo-600
+                        text-blue-600
                     "
                 >
 

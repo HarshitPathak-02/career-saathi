@@ -75,7 +75,7 @@ export default function WeeklyReviewStepper({
                                         transition
 
                                         ${completed || active
-                                            ? "bg-slate-900 text-white"
+                                            ? "bg-blue-600 text-white shadow-xs"
                                             : "bg-slate-100 text-slate-500"
                                         }
                                     `}
@@ -127,7 +127,7 @@ export default function WeeklyReviewStepper({
 
                                         ${currentStep >
                                                 step.number
-                                                ? "bg-slate-900"
+                                                ? "bg-blue-600"
                                                 : "bg-slate-200"
                                             }
                                     `}

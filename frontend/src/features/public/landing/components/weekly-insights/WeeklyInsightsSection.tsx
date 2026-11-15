@@ -50,12 +50,12 @@ const WeeklyInsightsSection = () => {
                         className="
                             inline-flex
                             rounded-full
-                            bg-indigo-100
+                            bg-blue-100
                             px-4
                             py-2
                             text-sm
                             font-semibold
-                            text-indigo-700
+                            text-blue-700
                         "
                     >
 
@@ -76,7 +76,7 @@ const WeeklyInsightsSection = () => {
 
                         Every Week Teaches CareerSaathi
 
-                        <span className="text-indigo-600">
+                        <span className="text-blue-600">
                             {" "}How to Guide You Better.
                         </span>
 
@@ -149,14 +149,14 @@ const WeeklyInsightsSection = () => {
                                             items-center
                                             justify-center
                                             rounded-xl
-                                            bg-indigo-50
+                                            bg-blue-50
                                         "
                                     >
 
                                         <Icon
                                             size={21}
                                             className="
-                                                text-indigo-600
+                                                text-blue-600
                                             "
                                         />
 
@@ -211,7 +211,7 @@ const WeeklyInsightsSection = () => {
                         max-w-5xl
                         rounded-3xl
                         border
-                        border-indigo-100
+                        border-blue-100
                         bg-white
                         px-6
                         py-10
@@ -232,7 +232,7 @@ const WeeklyInsightsSection = () => {
                                 font-semibold
                                 uppercase
                                 tracking-wider
-                                text-indigo-600
+                                text-blue-600
                             "
                         >
 

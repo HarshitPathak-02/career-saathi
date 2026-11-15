@@ -33,7 +33,7 @@ const WeeklyInsightsPreview = () => {
                     top-16
                     bottom-10
                     rounded-[3rem]
-                    bg-indigo-50/70
+                    bg-blue-50/70
                     blur-3xl
                 "
             />

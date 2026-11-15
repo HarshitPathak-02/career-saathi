@@ -139,14 +139,14 @@ const ReadinessStageCard = () => {
                         items-center
                         gap-2
                         rounded-xl
-                        bg-indigo-600
+                        bg-blue-600
                         px-5
                         py-3
                         text-sm
                         font-semibold
                         text-white
                         transition
-                        hover:bg-indigo-700
+                        hover:bg-blue-700
                     "
                 >
 

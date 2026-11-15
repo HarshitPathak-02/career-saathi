@@ -38,8 +38,8 @@ const SkillSelectionCard = ({
                 duration-200
 
                 ${selected
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50"
                 }
             `}
         >
@@ -63,7 +63,7 @@ const SkillSelectionCard = ({
                         )}
 
                         {skill.isMandatory && (
-                            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
                                 Required
                             </span>
                         )}
@@ -82,7 +82,7 @@ const SkillSelectionCard = ({
                         border
 
                         ${selected
-                            ? "border-indigo-600 bg-indigo-600 text-white"
+                            ? "border-blue-600 bg-blue-600 text-white"
                             : "border-slate-300 bg-white"
                         }
                     `}

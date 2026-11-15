@@ -94,7 +94,7 @@ const LoginForm = () => {
           className="
                         text-sm
                         font-semibold
-                        text-indigo-600
+                        text-blue-600
                     "
         >
           Welcome back
@@ -224,9 +224,9 @@ const LoginForm = () => {
             to="/register"
             className="
                             font-semibold
-                            text-indigo-600
+                            text-blue-600
                             transition
-                            hover:text-indigo-700
+                            hover:text-blue-700
                         "
           >
             Start your journey

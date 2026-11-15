@@ -175,7 +175,7 @@ const MonthlyReportDueCard = ({
                 overflow-hidden
                 rounded-2xl
                 border
-                border-indigo-200
+                border-blue-200
                 bg-white
                 shadow-sm
             "
@@ -184,9 +184,9 @@ const MonthlyReportDueCard = ({
             <div
                 className="
                     bg-linear-to-r
-                    from-indigo-50
+                    from-blue-50
                     via-white
-                    to-violet-50
+                    to-blue-50/50
                     p-5
                     sm:p-6
                 "
@@ -220,8 +220,8 @@ const MonthlyReportDueCard = ({
                                 items-center
                                 justify-center
                                 rounded-xl
-                                bg-indigo-100
-                                text-indigo-600
+                                bg-blue-100
+                                text-blue-600
                             "
                         >
 
@@ -243,7 +243,7 @@ const MonthlyReportDueCard = ({
                                     font-semibold
                                     uppercase
                                     tracking-wide
-                                    text-indigo-600
+                                    text-blue-600
                                 "
                             >
 
@@ -344,14 +344,14 @@ const MonthlyReportDueCard = ({
                             justify-center
                             gap-2
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                             px-5
                             py-3
                             text-sm
                             font-semibold
                             text-white
                             transition
-                            hover:bg-indigo-700
+                            hover:bg-blue-700
                             disabled:cursor-not-allowed
                             disabled:opacity-60
                         "

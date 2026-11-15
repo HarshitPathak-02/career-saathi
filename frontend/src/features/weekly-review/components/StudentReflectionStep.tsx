@@ -328,7 +328,7 @@ export default function StudentReflectionStep({
                             border-slate-300
                             p-2.5
                             outline-none
-                            focus:border-indigo-500
+                            focus:border-blue-500
                         "
 
                             value={
@@ -412,7 +412,7 @@ export default function StudentReflectionStep({
                         border-slate-300
                         p-2.5
                         outline-none
-                        focus:border-indigo-500
+                        focus:border-blue-500
                     "
 
                     value={
@@ -484,7 +484,7 @@ export default function StudentReflectionStep({
 
                     </label>
 
-                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
 
                         {
                             value.learningReflection
@@ -871,12 +871,12 @@ export default function StudentReflectionStep({
                     }
                     className="
                         rounded-lg
-                        bg-slate-900
+                        bg-blue-600
                         px-6
                         py-2.5
                         font-medium
                         text-white
-                        hover:bg-slate-800
+                        hover:bg-blue-700
                         disabled:cursor-not-allowed
                         disabled:opacity-50
                     "

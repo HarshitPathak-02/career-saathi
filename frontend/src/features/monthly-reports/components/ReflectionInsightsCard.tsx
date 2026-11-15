@@ -146,8 +146,8 @@ export default function ReflectionInsightsCard({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-violet-50
-                        text-violet-600
+                        bg-blue-50
+                        text-blue-600
                     "
                 >
 

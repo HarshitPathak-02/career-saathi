@@ -53,7 +53,7 @@ const CTASection = () => {
                             h-80
                             w-80
                             rounded-full
-                            bg-indigo-600/20
+                            bg-blue-600/20
                             blur-3xl
                         "
           />
@@ -67,7 +67,7 @@ const CTASection = () => {
                             h-72
                             w-72
                             rounded-full
-                            bg-indigo-500/10
+                            bg-blue-500/10
                             blur-3xl
                         "
           />
@@ -95,7 +95,7 @@ const CTASection = () => {
                                 py-2
                                 text-sm
                                 font-semibold
-                                text-indigo-200
+                                text-blue-200
                             "
             >
 
@@ -119,7 +119,7 @@ const CTASection = () => {
 
               Stop guessing what to do next.
 
-              <span className="text-indigo-300">
+              <span className="text-blue-300">
                 {" "}Start building toward where you want to go.
               </span>
 
@@ -173,7 +173,7 @@ const CTASection = () => {
 
                 <CheckCircle2
                   size={17}
-                  className="text-indigo-300"
+                  className="text-blue-300"
                 />
 
                 Personalized roadmap
@@ -193,7 +193,7 @@ const CTASection = () => {
 
                 <CheckCircle2
                   size={17}
-                  className="text-indigo-300"
+                  className="text-blue-300"
                 />
 
                 Weekly missions
@@ -213,7 +213,7 @@ const CTASection = () => {
 
                 <CheckCircle2
                   size={17}
-                  className="text-indigo-300"
+                  className="text-blue-300"
                 />
 
                 Adaptive progress

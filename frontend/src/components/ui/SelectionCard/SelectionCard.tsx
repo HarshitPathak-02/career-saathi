@@ -73,11 +73,11 @@ const SelectionCard = ({
 
                 ${selected
           ? `
-                            border-indigo-500
-                            bg-indigo-50/60
+                            border-blue-500
+                            bg-blue-50/60
                             shadow-sm
                             ring-1
-                            ring-indigo-500
+                            ring-blue-500
                         `
           : `
                             border-slate-200
@@ -95,11 +95,11 @@ const SelectionCard = ({
           : `
                             cursor-pointer
                             hover:-translate-y-0.5
-                            hover:border-indigo-300
+                            hover:border-blue-300
                             hover:shadow-md
                             focus:outline-none
                             focus:ring-2
-                            focus:ring-indigo-500
+                            focus:ring-blue-500
                             focus:ring-offset-2
                         `
         }
@@ -121,7 +121,7 @@ const SelectionCard = ({
                         items-center
                         justify-center
                         rounded-full
-                        bg-indigo-600
+                        bg-blue-600
                         text-xs
                         font-bold
                         text-white
@@ -158,14 +158,14 @@ const SelectionCard = ({
                                 `
               : selected
                 ? `
-                                        bg-indigo-100
-                                        text-indigo-600
+                                        bg-blue-100
+                                        text-blue-600
                                     `
                 : `
                                         bg-slate-50
                                         text-slate-600
-                                        group-hover:bg-indigo-50
-                                        group-hover:text-indigo-600
+                                        group-hover:bg-blue-50
+                                        group-hover:text-blue-600
                                     `
             }
                     `}

@@ -36,7 +36,7 @@ const FeatureCard = ({
                 transition-all
                 duration-300
                 hover:-translate-y-1
-                hover:border-indigo-200
+                hover:border-blue-200
                 hover:shadow-xl
                 hover:shadow-slate-200/60
                 sm:p-8
@@ -62,11 +62,11 @@ const FeatureCard = ({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-indigo-50
-                        text-indigo-600
+                        bg-blue-50
+                        text-blue-600
                         transition
                         duration-300
-                        group-hover:bg-indigo-600
+                        group-hover:bg-blue-600
                         group-hover:text-white
                     "
         >
@@ -86,7 +86,7 @@ const FeatureCard = ({
                         duration-300
                         group-hover:-translate-y-0.5
                         group-hover:translate-x-0.5
-                        group-hover:text-indigo-600
+                        group-hover:text-blue-600
                     "
         />
 
@@ -102,7 +102,7 @@ const FeatureCard = ({
                         font-semibold
                         uppercase
                         tracking-[0.14em]
-                        text-indigo-600
+                        text-blue-600
                     "
         >
 
@@ -148,7 +148,7 @@ const FeatureCard = ({
                     left-0
                     h-1
                     w-0
-                    bg-indigo-600
+                    bg-blue-600
                     transition-all
                     duration-300
                     group-hover:w-full

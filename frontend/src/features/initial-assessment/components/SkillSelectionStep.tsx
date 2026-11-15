@@ -134,7 +134,7 @@ const SkillSelectionStep = ({
         <div>
             <div className="mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                         <Brain size={22} />
                     </div>
 

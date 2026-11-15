@@ -93,7 +93,7 @@ const RegisterForm = () => {
           className="
                         text-sm
                         font-semibold
-                        text-indigo-600
+                        text-blue-600
                     "
         >
 
@@ -236,9 +236,9 @@ const RegisterForm = () => {
             to="/login"
             className="
                             font-semibold
-                            text-indigo-600
+                            text-blue-600
                             transition
-                            hover:text-indigo-700
+                            hover:text-blue-700
                         "
           >
 

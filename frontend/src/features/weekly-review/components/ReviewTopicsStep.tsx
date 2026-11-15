@@ -119,7 +119,7 @@ export default function ReviewTopicsStep({
 
                                                     ${isRevision
                                                         ? "bg-amber-100 text-amber-700"
-                                                        : "bg-indigo-100 text-indigo-700"
+                                                        : "bg-blue-100 text-blue-700"
                                                     }
                                                 `}
                                             >
@@ -492,14 +492,14 @@ export default function ReviewTopicsStep({
                         items-center
                         gap-2
                         rounded-lg
-                        bg-slate-900
+                        bg-blue-600
                         px-5
                         py-3
                         text-sm
                         font-semibold
                         text-white
                         transition
-                        hover:bg-slate-800
+                        hover:bg-blue-700
                     "
                 >
 

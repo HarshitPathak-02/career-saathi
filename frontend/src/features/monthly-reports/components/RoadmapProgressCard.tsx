@@ -100,7 +100,7 @@ export default function RoadmapProgressCard({
 
                         <Map
                             size={19}
-                            className="text-indigo-600"
+                            className="text-blue-600"
                         />
 
                         <h2
@@ -132,12 +132,12 @@ export default function RoadmapProgressCard({
                 <span
                     className="
                         rounded-full
-                        bg-indigo-50
+                        bg-blue-50
                         px-3
                         py-1
                         text-sm
                         font-bold
-                        text-indigo-700
+                        text-blue-700
                     "
                 >
                     {roadmap.completionRate}%
@@ -220,7 +220,7 @@ export default function RoadmapProgressCard({
                         className="
                             h-full
                             rounded-full
-                            bg-indigo-600
+                            bg-blue-600
                             transition-all
                             duration-500
                         "
@@ -351,7 +351,7 @@ export default function RoadmapProgressCard({
 
                     <CalendarClock
                         size={18}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     <h3

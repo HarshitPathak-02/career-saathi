@@ -331,7 +331,7 @@ export default function WeeklyReviewPage() {
 
             <div className="mt-6">
 
-                <p className="text-sm font-medium text-indigo-600">
+                <p className="text-sm font-medium text-blue-600">
 
                     Mission {review.missionNumber}
                     {" • "}

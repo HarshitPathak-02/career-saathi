@@ -239,7 +239,7 @@ export default function AssessmentScoresStep({
                                                     font-semibold
                                                     ${isRevision
                                                         ? "bg-amber-100 text-amber-700"
-                                                        : "bg-indigo-100 text-indigo-700"
+                                                        : "bg-blue-100 text-blue-700"
                                                     }
                                                 `}
                                             >
@@ -454,9 +454,9 @@ export default function AssessmentScoresStep({
                                                 py-2.5
                                                 outline-none
                                                 transition
-                                                focus:border-indigo-500
+                                                focus:border-blue-500
                                                 focus:ring-2
-                                                focus:ring-indigo-100
+                                                focus:ring-blue-100
                                             "
 
                                         />
@@ -508,9 +508,9 @@ export default function AssessmentScoresStep({
                                                 py-2.5
                                                 outline-none
                                                 transition
-                                                focus:border-indigo-500
+                                                focus:border-blue-500
                                                 focus:ring-2
-                                                focus:ring-indigo-100
+                                                focus:ring-blue-100
                                             "
 
                                         />
@@ -582,12 +582,12 @@ export default function AssessmentScoresStep({
                     }
                     className="
                         rounded-lg
-                        bg-slate-900
+                        bg-blue-600
                         px-5
                         py-2.5
                         font-medium
                         text-white
-                        hover:bg-slate-800
+                        hover:bg-blue-700
                         disabled:cursor-not-allowed
                         disabled:opacity-50
                     "

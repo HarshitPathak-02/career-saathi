@@ -96,9 +96,9 @@ export const InterviewWorkspacePage = () => {
 
   if (isPageLoading && !session) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-medium">Preparing Technical Interview...</p>
         </div>
       </div>
@@ -107,16 +107,16 @@ export const InterviewWorkspacePage = () => {
 
   if (workspaceError || (!careerJourneyId && !isPageLoading)) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300 p-6">
-        <div className="max-w-md text-center p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-          <AlertCircle size={36} className="text-amber-400 mx-auto" />
-          <h2 className="text-lg font-bold text-white">No Active Career Journey</h2>
-          <p className="text-xs text-slate-400">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600 p-6">
+        <div className="max-w-md text-center p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <AlertCircle size={36} className="text-amber-500 mx-auto" />
+          <h2 className="text-lg font-bold text-slate-900">No Active Career Journey</h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
             Please make sure your career journey is active before starting technical interviews.
           </p>
           <Link
             to="/workspace"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
           >
             Go to Workspace
           </Link>
@@ -127,25 +127,25 @@ export const InterviewWorkspacePage = () => {
 
   if (sessionError || !session) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-950 text-slate-300 p-6">
-        <div className="max-w-md text-center p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-          <AlertCircle size={36} className="text-rose-400 mx-auto" />
-          <h2 className="text-lg font-bold text-white">Interview Session Not Found</h2>
-          <p className="text-xs text-slate-400">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-600 p-6">
+        <div className="max-w-md text-center p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <AlertCircle size={36} className="text-rose-500 mx-auto" />
+          <h2 className="text-lg font-bold text-slate-900">Interview Session Not Found</h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
             Could not load this interview session. It may have expired or been moved.
           </p>
           <div className="flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => refetchSession()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
             >
               <RefreshCw size={13} />
               <span>Retry</span>
             </button>
             <Link
               to="/practice"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
             >
               <ArrowLeft size={14} />
               <span>Practice Ground</span>
@@ -161,33 +161,33 @@ export const InterviewWorkspacePage = () => {
   const isSessionCompleted = session.status === "COMPLETED";
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 text-slate-900 overflow-hidden">
       {/* Top Header */}
-      <header className="flex items-center justify-between px-5 py-3.5 bg-slate-950 border-b border-slate-800 shrink-0">
+      <header className="flex items-center justify-between px-5 py-3.5 bg-white border-b border-slate-200 shrink-0 shadow-xs">
         <div className="flex items-center gap-3">
           <Link
             to={session.isOfficialReadinessMock ? "/readiness" : "/practice"}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors py-1 px-2 rounded hover:bg-slate-800"
+            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors py-1 px-2 rounded hover:bg-slate-100"
           >
             <ArrowLeft size={14} />
             <span>{session.isOfficialReadinessMock ? "Job Readiness" : "Practice Hub"}</span>
           </Link>
-          <span className="text-slate-700">/</span>
+          <span className="text-slate-300">/</span>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white">
+            <span className="text-xs font-bold text-slate-900">
               {session.isOfficialReadinessMock
                 ? `Official Mock Interview #${session.mockInterviewNumber}`
                 : `${session.skillName} Technical Drill`}
             </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
               Question {session.currentQuestionIndex + 1} of 3
             </span>
             {activeTurn && !isSessionCompleted && (
               <span
                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                   activeTurn.turnType === "FOLLOW_UP"
-                    ? "bg-amber-500/10 text-amber-300 border-amber-500/20"
-                    : "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
                 }`}
               >
                 {activeTurn.turnType === "FOLLOW_UP"
@@ -199,17 +199,17 @@ export const InterviewWorkspacePage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+          <span className="flex items-center gap-1 text-[11px] text-slate-500 font-mono">
             <Clock size={12} />
             <span>10–15m Drill</span>
           </span>
           <span
             className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
               session.isOfficialReadinessMock
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                 : session.optedInToJourney
-                ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                : "bg-slate-800 text-slate-400"
+                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                : "bg-slate-100 text-slate-600 border border-slate-200"
             }`}
           >
             {session.isOfficialReadinessMock
@@ -237,8 +237,8 @@ export const InterviewWorkspacePage = () => {
           /* Live Interview Chat Stream */
           <div className="space-y-6 pb-24">
             {/* Philosophical Banner */}
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-3 text-xs text-slate-400">
-              <Sparkles size={16} className="text-indigo-400 shrink-0 mt-0.5" />
+            <div className="p-4 rounded-xl bg-white border border-slate-200 flex items-start gap-3 text-xs text-slate-600 shadow-xs">
+              <Sparkles size={16} className="text-blue-600 shrink-0 mt-0.5" />
               <span>
                 Your AI Interviewer evaluates conceptual depth, technical trade-offs, and communication clarity. Speak naturally using your microphone or type your response below.
               </span>
@@ -252,21 +252,21 @@ export const InterviewWorkspacePage = () => {
                 <div key={index} className="space-y-4">
                   {/* Interviewer Message */}
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shrink-0 mt-0.5">
                       <Bot size={16} />
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-bold text-slate-900">
                           Staff Interviewer
                         </span>
-                        <span className="text-[10px] font-mono text-slate-500">
+                        <span className="text-[10px] font-mono text-slate-400">
                           {turn.turnType === "FOLLOW_UP"
                             ? "Dynamic Follow-Up"
                             : `Question ${turn.questionIndex + 1}`}
                         </span>
                       </div>
-                      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-sm text-slate-200 leading-relaxed shadow-sm">
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-800 leading-relaxed shadow-xs">
                         {turn.questionText}
                       </div>
                     </div>
@@ -277,7 +277,7 @@ export const InterviewWorkspacePage = () => {
                     <div className="flex items-start gap-3 justify-end pl-8">
                       <div className="flex-1 space-y-1 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <span className="text-[10px] font-mono text-slate-500">
+                          <span className="text-[10px] font-mono text-slate-400">
                             {turn.answeredAt
                               ? new Date(turn.answeredAt).toLocaleTimeString([], {
                                   hour: "2-digit",
@@ -285,15 +285,15 @@ export const InterviewWorkspacePage = () => {
                                 })
                               : "Answered"}
                           </span>
-                          <span className="text-xs font-bold text-indigo-300">
+                          <span className="text-xs font-bold text-blue-700">
                             You
                           </span>
                         </div>
-                        <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-sm text-indigo-100 leading-relaxed text-left inline-block max-w-2xl shadow-sm">
+                        <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-sm text-slate-900 leading-relaxed text-left inline-block max-w-2xl shadow-xs">
                           {turn.candidateAnswer}
                         </div>
                       </div>
-                      <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                      <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                         <User size={16} />
                       </div>
                     </div>
@@ -305,11 +305,11 @@ export const InterviewWorkspacePage = () => {
             {/* In-Flight Thinking Indicator */}
             {isSubmitting && (
               <div className="flex items-start gap-3 animate-pulse">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shrink-0">
                   <Bot size={16} />
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-indigo-300 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs text-blue-700 flex items-center gap-2 shadow-xs">
+                  <div className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
                   <span>
                     Staff Engineer is evaluating your answer and preparing the next turn...
                   </span>
@@ -324,9 +324,9 @@ export const InterviewWorkspacePage = () => {
 
       {/* Candidate Response Pane (Only when in progress) */}
       {!isSessionCompleted && (
-        <div className="p-4 bg-slate-950 border-t border-slate-800 shrink-0">
+        <div className="p-4 bg-white border-t border-slate-200 shrink-0 shadow-sm">
           <div className="max-w-4xl mx-auto space-y-3">
-            <div className="relative rounded-2xl bg-slate-900 border border-slate-800 focus-within:border-indigo-500/60 transition-all shadow-lg">
+            <div className="relative rounded-2xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-xs">
               <textarea
                 value={candidateText}
                 onChange={(e) => setCandidateText(e.target.value)}
@@ -337,7 +337,7 @@ export const InterviewWorkspacePage = () => {
                 }
                 rows={3}
                 disabled={isSubmitting}
-                className="w-full bg-transparent p-4 text-xs sm:text-sm text-slate-100 placeholder-slate-500 outline-none resize-none leading-relaxed"
+                className="w-full bg-transparent p-4 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none resize-none leading-relaxed"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                     e.preventDefault();
@@ -348,14 +348,14 @@ export const InterviewWorkspacePage = () => {
 
               {/* Dictation Pulsing Indicator */}
               {isListening && (
-                <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[11px] font-semibold animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold animate-pulse">
+                  <span className="w-2 h-2 rounded-full bg-rose-600" />
                   <span>Recording voice...</span>
                 </div>
               )}
 
               {/* Input Action Toolbar */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950/60 rounded-b-2xl border-t border-slate-800/80">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-100/70 rounded-b-2xl border-t border-slate-200">
                 <div className="flex items-center gap-2">
                   {/* Microphone Dictation Button */}
                   {isSupported ? (
@@ -365,8 +365,8 @@ export const InterviewWorkspacePage = () => {
                       disabled={isSubmitting}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         isListening
-                          ? "bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/30"
-                          : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700"
+                          ? "bg-rose-600 hover:bg-rose-700 text-white shadow-xs"
+                          : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200"
                       }`}
                     >
                       {isListening ? <MicOff size={13} /> : <Mic size={13} />}
@@ -383,7 +383,7 @@ export const InterviewWorkspacePage = () => {
                     <button
                       type="button"
                       onClick={() => setCandidateText("")}
-                      className="text-xs text-slate-400 hover:text-slate-200 transition-colors px-2 py-1"
+                      className="text-xs text-slate-500 hover:text-slate-800 transition-colors px-2 py-1"
                     >
                       Clear
                     </button>
@@ -391,14 +391,14 @@ export const InterviewWorkspacePage = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-[11px] text-slate-500 hidden sm:inline">
+                  <span className="text-[11px] text-slate-400 hidden sm:inline">
                     Ctrl + Enter to send
                   </span>
                   <button
                     type="button"
                     disabled={isSubmitting || !candidateText.trim()}
                     onClick={handleSubmit}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-indigo-600/20"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs"
                   >
                     <span>Submit Answer</span>
                     <Send size={13} />

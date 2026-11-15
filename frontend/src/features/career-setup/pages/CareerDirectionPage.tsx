@@ -27,7 +27,7 @@ const careerDirections = [
     description:
       "I already know the role or career path I want to pursue and need a structured plan to reach it.",
 
-    icon: <Target size={32} className="text-indigo-600" />,
+    icon: <Target size={32} className="text-blue-600" />,
   },
 
   {
@@ -38,7 +38,7 @@ const careerDirections = [
     description:
       "I'm not sure which career path is right for me and want guidance based on my interests and strengths.",
 
-    icon: <Compass size={32} className="text-indigo-600" />,
+    icon: <Compass size={32} className="text-blue-600" />,
   },
 ] as const;
 

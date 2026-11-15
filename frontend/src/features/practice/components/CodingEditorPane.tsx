@@ -23,7 +23,7 @@ export const CodingEditorPane = ({
   isSubmitting,
   hasRunTests,
 }: CodingEditorPaneProps) => {
-  const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
+  const [theme, setTheme] = useState<"vs-dark" | "light">("light");
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     (window as any).__monacoEditor = editor;
@@ -33,21 +33,21 @@ export const CodingEditorPane = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border-l border-slate-800">
+    <div className="flex flex-col h-full bg-white border-l border-slate-200">
       {/* Editor toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-950">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 shadow-2xs">
             JavaScript / TypeScript
           </span>
           <button
             type="button"
             onClick={onReset}
             title="Reset code to starter template"
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors"
           >
             <RotateCcw size={12} />
-            Reset
+            <span>Reset</span>
           </button>
         </div>
 
@@ -55,8 +55,8 @@ export const CodingEditorPane = ({
           <button
             type="button"
             onClick={() => setTheme(theme === "vs-dark" ? "light" : "vs-dark")}
-            title="Toggle editor theme"
-            className="p-1.5 text-slate-400 hover:text-slate-200 rounded transition-colors"
+            title="Toggle editor theme (Light / Dark)"
+            className="p-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-200/60 transition-colors"
           >
             {theme === "vs-dark" ? <Sun size={14} /> : <Moon size={14} />}
           </button>
@@ -65,10 +65,10 @@ export const CodingEditorPane = ({
             type="button"
             onClick={onRunTests}
             disabled={isRunning || isSubmitting}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded transition-colors border border-slate-700 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 rounded-lg transition-colors border border-slate-300 disabled:opacity-50 shadow-2xs"
           >
-            <Play size={12} className="text-emerald-400" />
-            {isRunning ? "Running..." : "Run Tests"}
+            <Play size={12} className="text-emerald-600" />
+            <span>{isRunning ? "Running..." : "Run Tests"}</span>
             <span className="hidden sm:inline text-[10px] text-slate-400 ml-1">
               (Ctrl+Enter)
             </span>
@@ -79,7 +79,7 @@ export const CodingEditorPane = ({
             onClick={onSubmit}
             disabled={isSubmitting || isRunning}
             title={!hasRunTests ? "Tip: Run tests first to verify your solution" : "Submit for AI mentor review"}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded transition-colors disabled:opacity-50 shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 shadow-2xs"
           >
             {isSubmitting ? (
               <>
@@ -112,7 +112,7 @@ export const CodingEditorPane = ({
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
-            fontFamily: "Fira Code, Menlo, Monaco, 'Courier New', monospace",
+            fontFamily: "JetBrains Mono, Menlo, Monaco, Consolas, monospace",
             bracketPairColorization: { enabled: true },
             lineDecorationsWidth: 6,
             wordWrap: "on",

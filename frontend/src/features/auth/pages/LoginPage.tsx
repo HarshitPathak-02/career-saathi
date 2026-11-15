@@ -74,7 +74,7 @@ const LoginPage = () => {
                         h-96
                         w-96
                         rounded-full
-                        bg-indigo-600/10
+                        bg-blue-600/10
                         blur-3xl
                     "
         />
@@ -115,7 +115,7 @@ const LoginPage = () => {
                             items-center
                             justify-center
                             rounded-xl
-                            bg-indigo-600
+                            bg-blue-600
                         "
           >
             <GraduationCap
@@ -154,7 +154,7 @@ const LoginPage = () => {
                             font-semibold
                             uppercase
                             tracking-[0.16em]
-                            text-indigo-400
+                            text-blue-400
                         "
           >
             Welcome Back
@@ -172,7 +172,7 @@ const LoginPage = () => {
           >
             Your career journey
 
-            <span className="text-indigo-400">
+            <span className="text-blue-400">
               {" "}continues from where you left it.
             </span>
           </h1>
@@ -234,7 +234,7 @@ const LoginPage = () => {
                       <Icon
                         size={20}
                         className="
-                                                    text-indigo-400
+                                                    text-blue-400
                                                 "
                       />
                     </div>
@@ -340,7 +340,7 @@ const LoginPage = () => {
                                 items-center
                                 justify-center
                                 rounded-lg
-                                bg-indigo-600
+                                bg-blue-600
                                 text-white
                             "
             >

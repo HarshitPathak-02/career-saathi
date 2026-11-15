@@ -55,13 +55,13 @@ const HowItWorksSection = () => {
                             inline-flex
                             rounded-full
                             border
-                            border-indigo-200
-                            bg-indigo-50
+                            border-blue-200
+                            bg-blue-50
                             px-4
                             py-2
                             text-sm
                             font-semibold
-                            text-indigo-700
+                            text-blue-700
                         "
           >
 
@@ -82,7 +82,7 @@ const HowItWorksSection = () => {
 
             From career confusion to a
 
-            <span className="text-indigo-600">
+            <span className="text-blue-600">
               {" "}clear weekly direction.
             </span>
 
@@ -232,8 +232,8 @@ const HowItWorksSection = () => {
                         max-w-3xl
                         rounded-2xl
                         border
-                        border-indigo-100
-                        bg-indigo-50/70
+                        border-blue-100
+                        bg-blue-50/70
                         px-6
                         py-5
                         text-center

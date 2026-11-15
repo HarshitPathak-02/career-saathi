@@ -104,7 +104,7 @@ const CareerSetupLayout = ({
                                 font-semibold
                                 uppercase
                                 tracking-[0.12em]
-                                text-indigo-600
+                                text-blue-600
                             "
             >
 

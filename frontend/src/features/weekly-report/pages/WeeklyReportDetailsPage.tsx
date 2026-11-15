@@ -254,7 +254,7 @@ export default function WeeklyReportDetailsPage() {
                                 font-semibold
                                 uppercase
                                 tracking-wide
-                                text-indigo-600
+                                text-blue-600
                             "
                         >
 
@@ -330,8 +330,8 @@ export default function WeeklyReportDetailsPage() {
                             items-center
                             justify-center
                             rounded-xl
-                            bg-indigo-50
-                            text-indigo-600
+                            bg-blue-50
+                            text-blue-600
                         "
                     >
 
@@ -432,7 +432,7 @@ export default function WeeklyReportDetailsPage() {
 
                         <Brain
                             size={22}
-                            className="text-indigo-600"
+                            className="text-blue-600"
                         />
 
                         <p className="mt-4 text-sm text-slate-500">
@@ -670,7 +670,7 @@ export default function WeeklyReportDetailsPage() {
                                             className="
                                                 h-full
                                                 rounded-full
-                                                bg-indigo-600
+                                                bg-blue-600
                                                 transition-all
                                                 duration-500
                                             "
@@ -872,7 +872,7 @@ export default function WeeklyReportDetailsPage() {
 
                     <MessageSquareText
                         size={22}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     <div>
@@ -1043,8 +1043,8 @@ export default function WeeklyReportDetailsPage() {
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-indigo-200
-                    bg-indigo-50/40
+                    border-blue-200
+                    bg-blue-50/40
                 "
             >
 
@@ -1060,8 +1060,8 @@ export default function WeeklyReportDetailsPage() {
                                 items-center
                                 justify-center
                                 rounded-xl
-                                bg-indigo-100
-                                text-indigo-600
+                                bg-blue-100
+                                text-blue-600
                             "
                         >
 
@@ -1088,20 +1088,20 @@ export default function WeeklyReportDetailsPage() {
                 <div
                     className="
                         border-t
-                        border-indigo-200
-                        bg-indigo-100/40
+                        border-blue-200
+                        bg-blue-100/40
                         px-7
                         py-5
                     "
                 >
 
-                    <p className="text-sm font-semibold text-indigo-900">
+                    <p className="text-sm font-semibold text-blue-900">
 
                         Mentor Message
 
                     </p>
 
-                    <p className="mt-2 leading-6 text-indigo-800">
+                    <p className="mt-2 leading-6 text-blue-800">
 
                         {mentorFeedback.motivationMessage}
 
@@ -1131,7 +1131,7 @@ export default function WeeklyReportDetailsPage() {
 
                     <Target
                         size={22}
-                        className="text-indigo-600"
+                        className="text-blue-600"
                     />
 
                     <div>
@@ -1367,7 +1367,7 @@ function BookOpenIcon() {
                 justify-center
                 text-xs
                 font-bold
-                text-indigo-600
+                text-blue-600
             "
         >
 

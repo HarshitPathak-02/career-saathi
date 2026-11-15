@@ -131,7 +131,7 @@ const InitialAssessmentPage = () => {
                     <button
                         type="button"
                         onClick={() => refetch()}
-                        className="mt-5 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white"
+                        className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white"
                     >
                         Retry
                     </button>
@@ -172,7 +172,7 @@ const InitialAssessmentPage = () => {
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <span className="text-sm font-semibold text-indigo-600">
+                            <span className="text-sm font-semibold text-blue-600">
                                 Initial Assessment
                             </span>
 

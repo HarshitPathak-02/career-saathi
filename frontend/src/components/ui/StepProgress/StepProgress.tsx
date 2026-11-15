@@ -94,12 +94,12 @@ const StepProgress = ({
         <span
           className="
                         rounded-full
-                        bg-indigo-50
+                        bg-blue-50
                         px-3
                         py-1
                         text-xs
                         font-semibold
-                        text-indigo-700
+                        text-blue-700
                     "
         >
 
@@ -135,7 +135,7 @@ const StepProgress = ({
           className="
                         h-full
                         rounded-full
-                        bg-indigo-600
+                        bg-blue-600
                         transition-[width]
                         duration-500
                         ease-out

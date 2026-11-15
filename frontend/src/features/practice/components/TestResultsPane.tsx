@@ -19,17 +19,17 @@ export const TestResultsPane = ({
   const allLogs = testSuiteResult?.results.flatMap((r) => r.logs) ?? [];
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border-t border-slate-800 text-slate-200">
+    <div className="flex flex-col h-full bg-white border-t border-slate-200 text-slate-800">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-950/60">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 bg-slate-50 shrink-0">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("results")}
-            className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${
+            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${
               activeTab === "results"
-                ? "bg-indigo-600/30 text-indigo-400 border border-indigo-500/40"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
             Test Cases {testSuiteResult ? `(${testSuiteResult.passed}/${testSuiteResult.total})` : ""}
@@ -37,10 +37,10 @@ export const TestResultsPane = ({
           <button
             type="button"
             onClick={() => setActiveTab("console")}
-            className={`px-3 py-1 text-xs font-semibold rounded transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
               activeTab === "console"
-                ? "bg-indigo-600/30 text-indigo-400 border border-indigo-500/40"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
             <Terminal size={12} />
@@ -51,17 +51,17 @@ export const TestResultsPane = ({
         {testSuiteResult && (
           <div className="flex items-center gap-3 text-xs">
             <span
-              className={`font-semibold px-2 py-0.5 rounded ${
+              className={`font-semibold px-2 py-0.5 rounded-full ${
                 testSuiteResult.failed === 0
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-rose-50 text-rose-700 border border-rose-200"
               }`}
             >
               {testSuiteResult.failed === 0
                 ? "All Tests Passed"
                 : `${testSuiteResult.failed} Failed`}
             </span>
-            <span className="flex items-center gap-1 text-slate-400">
+            <span className="flex items-center gap-1 text-slate-500 font-mono">
               <Clock size={12} />
               {testSuiteResult.executionTimeMs}ms
             </span>
@@ -72,17 +72,17 @@ export const TestResultsPane = ({
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 font-mono text-xs">
         {isRunning ? (
-          <div className="flex items-center justify-center h-full text-slate-400 space-x-2">
-            <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span>Running test suite...</span>
+          <div className="flex items-center justify-center h-full text-slate-500 space-x-2">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <span className="font-sans font-medium text-xs">Running test suite...</span>
           </div>
         ) : !testSuiteResult ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-slate-500">
-            <p className="mb-2">Click "Run Tests" or press Ctrl+Enter to execute tests</p>
+          <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 space-y-2">
+            <p className="font-sans text-xs">Click "Run Tests" or press Ctrl+Enter to execute test suite.</p>
             <button
               type="button"
               onClick={onRunTests}
-              className="px-3 py-1.5 text-xs font-sans font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700"
+              className="px-3.5 py-1.5 text-xs font-sans font-semibold bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-300 shadow-xs transition-colors"
             >
               Run Test Suite
             </button>
@@ -90,10 +90,10 @@ export const TestResultsPane = ({
         ) : activeTab === "console" ? (
           <div className="space-y-1">
             {allLogs.length === 0 ? (
-              <p className="text-slate-500 italic">No output logged to console.</p>
+              <p className="text-slate-400 font-sans italic text-xs">No output logged to console.</p>
             ) : (
               allLogs.map((log, idx) => (
-                <div key={idx} className="text-slate-300 whitespace-pre-wrap">
+                <div key={idx} className="text-slate-800 whitespace-pre-wrap font-mono text-xs">
                   {log}
                 </div>
               ))
@@ -106,10 +106,10 @@ export const TestResultsPane = ({
               return (
                 <div
                   key={result.id}
-                  className={`border rounded-lg p-3 transition-colors ${
+                  className={`border rounded-xl p-3.5 transition-colors ${
                     result.passed
-                      ? "border-emerald-500/30 bg-emerald-950/10"
-                      : "border-rose-500/40 bg-rose-950/20"
+                      ? "border-emerald-200 bg-emerald-50/30"
+                      : "border-rose-200 bg-rose-50/40"
                   }`}
                 >
                   <div
@@ -118,11 +118,11 @@ export const TestResultsPane = ({
                   >
                     <div className="flex items-center gap-2">
                       {result.passed ? (
-                        <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+                        <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
                       ) : (
-                        <XCircle size={15} className="text-rose-400 shrink-0" />
+                        <XCircle size={15} className="text-rose-600 shrink-0" />
                       )}
-                      <span className="font-sans font-medium text-slate-200">
+                      <span className="font-sans font-semibold text-slate-900 text-xs">
                         {result.name}
                       </span>
                     </div>
@@ -132,19 +132,19 @@ export const TestResultsPane = ({
                   </div>
 
                   {isSelected && (
-                    <div className="mt-3 pt-3 border-t border-slate-800 space-y-2 text-[11px]">
+                    <div className="mt-3 pt-3 border-t border-slate-200 space-y-2 text-[11px]">
                       <div>
-                        <span className="text-slate-400 block mb-0.5">Expected:</span>
-                        <pre className="p-1.5 rounded bg-slate-950 text-emerald-300 overflow-x-auto">
+                        <span className="text-slate-500 font-sans block mb-0.5 font-medium">Expected:</span>
+                        <pre className="p-2 rounded-lg bg-slate-100 text-emerald-800 overflow-x-auto border border-slate-200/80">
                           {result.expectedOutput}
                         </pre>
                       </div>
 
                       <div>
-                        <span className="text-slate-400 block mb-0.5">Actual:</span>
+                        <span className="text-slate-500 font-sans block mb-0.5 font-medium">Actual:</span>
                         <pre
-                          className={`p-1.5 rounded bg-slate-950 overflow-x-auto ${
-                            result.passed ? "text-emerald-300" : "text-rose-300"
+                          className={`p-2 rounded-lg bg-slate-100 overflow-x-auto border border-slate-200/80 ${
+                            result.passed ? "text-emerald-800" : "text-rose-800"
                           }`}
                         >
                           {result.actualOutput}
@@ -152,9 +152,9 @@ export const TestResultsPane = ({
                       </div>
 
                       {result.error && (
-                        <div className="flex items-start gap-1.5 text-rose-400 mt-2 bg-rose-900/20 p-2 rounded border border-rose-800/40">
-                          <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                          <span className="break-all">{result.error}</span>
+                        <div className="flex items-start gap-1.5 text-rose-700 mt-2 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+                          <AlertCircle size={14} className="shrink-0 mt-0.5 text-rose-600" />
+                          <span className="break-all font-mono text-xs">{result.error}</span>
                         </div>
                       )}
                     </div>

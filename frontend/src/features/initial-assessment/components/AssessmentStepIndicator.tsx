@@ -60,9 +60,9 @@ const AssessmentStepIndicator = ({
                       transition
 
                       ${completed
-                                                ? "bg-indigo-600 text-white"
+                                                ? "bg-blue-600 text-white"
                                                 : active
-                                                    ? "border-2 border-indigo-600 bg-indigo-50 text-indigo-700"
+                                                    ? "border-2 border-blue-600 bg-blue-50 text-blue-700"
                                                     : "border border-slate-300 bg-white text-slate-500"
                                             }
                     `}
@@ -82,7 +82,7 @@ const AssessmentStepIndicator = ({
                       font-medium
 
                       ${active
-                                                ? "text-indigo-700"
+                                                ? "text-blue-700"
                                                 : completed
                                                     ? "text-slate-800"
                                                     : "text-slate-400"
@@ -103,7 +103,7 @@ const AssessmentStepIndicator = ({
 
                       ${step <
                                                     currentStep
-                                                    ? "bg-indigo-500"
+                                                    ? "bg-blue-500"
                                                     : "bg-slate-200"
                                                 }
                     `}

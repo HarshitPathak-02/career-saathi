@@ -35,7 +35,7 @@ const StepCard = ({
                 transition-all
                 duration-300
                 hover:-translate-y-1
-                hover:border-indigo-200
+                hover:border-blue-200
                 hover:shadow-xl
                 hover:shadow-slate-200/60
             "
@@ -59,10 +59,10 @@ const StepCard = ({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-indigo-50
-                        text-indigo-600
+                        bg-blue-50
+                        text-blue-600
                         transition
-                        group-hover:bg-indigo-600
+                        group-hover:bg-blue-600
                         group-hover:text-white
                     "
         >
@@ -98,7 +98,7 @@ const StepCard = ({
                         font-semibold
                         uppercase
                         tracking-[0.14em]
-                        text-indigo-600
+                        text-blue-600
                     "
         >
 
