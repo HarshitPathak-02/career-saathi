@@ -5,6 +5,12 @@ import {
   UserRole,
 } from './user.enums.js';
 
+export interface IUserPushToken {
+  token: string;
+  platform: 'android' | 'ios';
+  updatedAt: Date;
+}
+
 export interface IUser {
   fullName: string;
 
@@ -28,6 +34,8 @@ export interface IUser {
    * detect refresh-token reuse.
    */
   refreshTokenHashes?: string[];
+
+  pushTokens?: IUserPushToken[];
 
   lastLogin?: Date | null;
 
@@ -58,6 +66,8 @@ export interface UpdateUserInput {
   activeCareerJourneyId?: Types.ObjectId | null;
 
   refreshTokenHashes?: string[];
+
+  pushTokens?: IUserPushToken[];
 
   emailVerified?: boolean;
 

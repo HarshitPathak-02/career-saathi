@@ -20,6 +20,7 @@ import readinessRoutes from '../modules/readiness/readiness.routes.js'
 import monthlyReportRoutes from '../modules/monthly-report/monthly-report.routes.js'
 import practiceRoutes from '../modules/practice/practice.routes.js';
 import { adminRoutes } from '../modules/admin/index.js';
+import notificationRoutes from '../modules/notifications/notification.routes.js';
 
 const router = Router();
 
@@ -146,6 +147,11 @@ router.use(
 router.use(
     "/admin",
     adminRoutes
+);
+
+router.use(
+    "/notifications",
+    notificationRoutes
 );
 
 export default router;

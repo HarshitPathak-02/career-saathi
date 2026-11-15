@@ -16,6 +16,7 @@ This document maintains a living, feature-by-feature record of all functional bu
 | 6 | **Daily Missions, Tasks & Skill Progress** | 43 | 43 | 2 | **Verified & Ready** |
 | 7 | **Weekly Review, Reports & Monthly Audit** | 37 | 37 | 4 | **Verified & Ready** |
 | 8 | **Admin Panel & Master Data Management** | 50 | 50 | 3 | **Verified & Ready** |
+| 9 | **Mobile Companion & Voice AI Chamber** | 26 | 26 | 2 | **Verified & Ready** |
 
 ---
 
@@ -580,3 +581,48 @@ This document maintains a living, feature-by-feature record of all functional bu
 - **Status**: **RESOLVED & VERIFIED** (Automated Suite 10 test 2 verifies HTTP 403 Forbidden rejection when attempting admin-on-admin impersonation).
 
 ---
+
+## 🔍 Feature 9: Mobile App Companion & Voice Interview Chamber
+
+### Overview
+- **Scope**: Mobile Authentication & Session Hydration (`/auth/login`, `/auth/register`, `/auth/me`), Today Tab & Daily Tech Habit Engine (`StreakBadge` 🔥, `DailyDrillCard`, `ActiveMissionCard`), Habit Streak Synchronization (`PATCH /daily-tasks/:id/complete`), Desktop Handoff (`Send Mission to Laptop`), Conversational Voice AI Mock Interview Chamber (`POST /practice/interviews/start`), Concentric `AudioVisualizer` & Real-Time Spoken Transcription, Turn-by-Turn Spoken Answer Evaluation & Dynamic AI Follow-ups (`POST /practice/interviews/:id/answer`), Multi-Axis Rubric Scorecard & `FeedbackModal`, Pocket Roadmap Phased Milestones (`/roadmaps/career-journey/:id`), Competency Passport & Skill Percentiles (`/readiness/:id`, `/user-skills/career-journeys/:id`), Social Proof Shareable Card (`react-native-view-shot` Digital Badge & Share Sheet intent), FCM Push Notification Device Registration & Sync (`POST /notifications/push-token`), and Defensive Edge Cases.
+- **Target Surfaces**:
+  - Mobile App Repo: `C:\career-saathi-app` (React Native CLI 0.88.1, TypeScript, NativeWind v4)
+  - Backend API: `http://localhost:5000/api/v1`
+  - Headless Browser: Microsoft Edge (`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`) in mobile viewport (`393 x 852` px, DPR: 2.0, touch enabled)
+- **Automation Test Suite**: [`backend/src/test_mobile_e2e_suite.ts`](file:///C:/careersaathi/backend/src/test_mobile_e2e_suite.ts) & [`career-saathi-app/test_mobile_e2e_suite.ts`](file:///C:/career-saathi-app/test_mobile_e2e_suite.ts)
+- **Visual Artifacts**: 19 screenshots in [`docs/test-reports/mobile/`](file:///C:/careersaathi/docs/test-reports/mobile/) and [`career-saathi-app/docs/test-reports/mobile/`](file:///C:/career-saathi-app/docs/test-reports/mobile/)
+- **Total Tested**: 26 | **Passed**: 26 (100.0%) | **Identified Issues**: 2
+
+---
+
+### 🐛 Identified Bugs & Edge-Case Traps
+
+#### Bug 9.1: Missing Backend `POST /api/v1/notifications/push-token` Endpoint
+- **Severity**: **Critical (P0)**
+- **Type**: Functional / API Disconnect
+- **Description**: The mobile application's FCM notification service (`fcmService.ts`) and RTK Query slice (`notificationsApi.ts`) call `POST /notifications/push-token` with `{ fcmToken, platform }` upon app startup to register device push notification tokens. However, the backend router lacked any `/notifications` route mounted on `/api/v1`, resulting in HTTP 404 (Route not found) and preventing background study reminders.
+- **Impact**: Candidates using the mobile app were unable to register device push notification tokens, breaking study habit reminders and streak retention alerts.
+- **Root Cause**: Backend notifications module was scoped solely to admin broadcast history without candidate push-token registration endpoints.
+- **Resolution**:
+  - Implemented `NotificationModel` in [`backend/src/modules/notifications/notification.model.ts`](file:///C:/careersaathi/backend/src/modules/notifications/notification.model.ts).
+  - Created `registerPushToken` and `getNotifications` controllers in [`backend/src/modules/notifications/notification.controller.ts`](file:///C:/careersaathi/backend/src/modules/notifications/notification.controller.ts).
+  - Created `notification.routes.ts` with JWT authentication and mounted it at `router.use('/notifications', notificationRoutes)` in [`backend/src/routes/index.ts`](file:///C:/careersaathi/backend/src/routes/index.ts).
+- **Status**: **RESOLVED & VERIFIED** (Automated Suite 6 tests verify HTTP 200 registration, MongoDB persistence, and iOS platform switching).
+
+---
+
+#### Bug 9.2: Missing `pushTokens` Array in MongoDB User Schema
+- **Severity**: **High (P1)**
+- **Type**: Data Persistence / Schema Mismatch
+- **Description**: When receiving an FCM device registration request, the backend needed to store the device tokens associated with the candidate's user profile for push notification delivery. However, `UserModel` in Mongoose and the `IUser` interface in `user.types.ts` did not define the `pushTokens` field. Mongoose in strict mode would discard device tokens on save.
+- **Impact**: Device tokens were lost upon registration; FCM push notification triggers could not target the candidate's devices.
+- **Root Cause**: Schema drift between mobile notification requirements and backend user schema definition.
+- **Resolution**:
+  - Added `IUserPushToken` interface to [`backend/src/modules/users/user.types.ts`](file:///C:/careersaathi/backend/src/modules/users/user.types.ts).
+  - Added `pushTokens: [{ token: String, platform: ['android', 'ios'], updatedAt: Date }]` to [`backend/src/modules/users/user.model.ts`](file:///C:/careersaathi/backend/src/modules/users/user.model.ts).
+  - Implemented atomic `$pull` and `$push` in `registerPushToken` to prevent duplicate device token entries while tracking the latest device platform.
+- **Status**: **RESOLVED & VERIFIED** (Automated Suite 6 tests verify direct MongoDB document persistence in `UserModel`).
+
+---
+

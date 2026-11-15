@@ -61,6 +61,17 @@ const userSchema = new Schema<IUser>(
       default: [],
     },
 
+    pushTokens: {
+      type: [
+        {
+          token: { type: String, required: true },
+          platform: { type: String, enum: ['android', 'ios'], default: 'android' },
+          updatedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+
     lastLogin: {
       type: Date,
     },
