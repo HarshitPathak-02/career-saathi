@@ -30,9 +30,8 @@ const isLocalDevelopmentOrigin = (
   origin: string
 ): boolean =>
   env.NODE_ENV !== 'production' &&
-  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(
-    origin
-  );
+  (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+   /^https?:\/\/(10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin));
 
 app.use(httpLogger);
 
