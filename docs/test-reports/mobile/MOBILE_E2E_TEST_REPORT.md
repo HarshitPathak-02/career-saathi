@@ -2,7 +2,7 @@
 
 ## 📱 Feature 9: Mobile Companion & Voice AI Interview Chamber
 
-- **Date & Timestamp**: 2026-11-15T07:39:08.417Z
+- **Date & Timestamp**: 2026-11-15T08:41:30.668Z
 - **Framework**: Bare React Native CLI (TypeScript) + Headless Microsoft Edge (C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe)
 - **Viewport**: 393 x 852 px (iPhone 15 Pro / Flagship Mobile ratio, DPR: 2.0, Touch Enabled)
 - **Target Backend**: `http://localhost:5000/api/v1` (MongoDB Atlas Connected)
@@ -23,7 +23,7 @@
 
 ### 1. [Setup & Seeding] Master Data, Candidate Journey, Mission & Drill seeded
 - **Status**: ✅ **PASS**
-- **Details**: Candidate: mobile.engineer.1794728324535@example.com
+- **Details**: Candidate: mobile.engineer.1794732069324@example.com
 
 
 ### 2. [Mobile Auth] Unauthenticated landing displays Mobile Login screen
@@ -123,7 +123,7 @@
 
 ### 21. [Push Notifications] FCM device token persisted in MongoDB User pushTokens array
 - **Status**: ✅ **PASS**
-- **Details**: Token: fcm_device_token_1794728324535
+- **Details**: Token: fcm_device_token_1794732069324
 
 
 ### 22. [Push Notifications] Device platform token updated cleanly upon iOS device switch
