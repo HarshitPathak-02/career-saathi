@@ -3,7 +3,6 @@ import {
     Building2,
     CalendarRange,
     Clock3,
-    Menu,
     Target,
 } from "lucide-react";
 
@@ -13,28 +12,15 @@ import type {
 } from "../types/workspace.types";
 
 interface WorkspaceHeaderProps {
-
     user: WorkspaceUser;
-
-    careerJourney:
-    WorkspaceCareerJourney;
-
-    onOpenMenu: () => void;
-
+    careerJourney: WorkspaceCareerJourney;
 }
 
 const WorkspaceHeader = ({
-
     user,
-
     careerJourney,
-
-    onOpenMenu,
-
 }: WorkspaceHeaderProps) => {
-
     return (
-
         <section
             className="
                 overflow-hidden
@@ -42,83 +28,10 @@ const WorkspaceHeader = ({
                 border
                 border-slate-200
                 bg-white
-                shadow-sm
+                shadow-xs
             "
         >
-
-            {/* Mobile Product Header */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    justify-between
-                    border-b
-                    border-slate-200
-                    px-4
-                    py-3
-                    sm:px-6
-                    lg:hidden
-                "
-            >
-
-                <div>
-
-                    <p
-                        className="
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-[0.12em]
-                            text-blue-600
-                        "
-                    >
-                        CareerSaathi
-                    </p>
-
-                    <p
-                        className="
-                            mt-0.5
-                            text-sm
-                            font-semibold
-                            text-slate-900
-                        "
-                    >
-                        Your Workspace
-                    </p>
-
-                </div>
-
-                <button
-                    type="button"
-                    aria-label="Open navigation"
-                    onClick={
-                        onOpenMenu
-                    }
-                    className="
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        text-slate-600
-                        transition
-                        hover:bg-slate-50
-                    "
-                >
-
-                    <Menu size={21} />
-
-                </button>
-
-            </div>
-
             {/* Welcome */}
-
             <div
                 className="
                     relative

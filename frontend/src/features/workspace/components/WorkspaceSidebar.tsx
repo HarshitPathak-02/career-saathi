@@ -1,4 +1,5 @@
 import {
+    Award,
     BarChart3,
     ClipboardCheck,
     Code2,
@@ -12,6 +13,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import {
+    Link,
     useLocation,
     useNavigate,
 } from "react-router-dom";
@@ -95,6 +97,13 @@ const sidebarItems:
             label: "Monthly Reports",
             icon: BarChart3,
             path: "/monthly-reports",
+            disabled: false,
+        },
+
+        {
+            label: "Job Readiness",
+            icon: Award,
+            path: "/readiness",
             disabled: false,
         },
 
@@ -213,7 +222,9 @@ const WorkspaceSidebar = ({
                     mt-9
                 "
             >
-                <img src={logo} alt="CareerSaathi LogoF" />
+                <Link to="/workspace" className="block transition hover:opacity-90">
+                    <img src={logo} alt="CareerSaathi Logo" />
+                </Link>
 
             </div>
 

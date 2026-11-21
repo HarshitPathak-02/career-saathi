@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import PublicLayout from "../../layouts/PublicLayout";
 import ProtectedLayout from "../../layouts/ProtectedLayout";
+import AppLayout from "../../layouts/AppLayout";
 import OnboardingGuard from "../../routes/OnboardingGuard";
 import WorkspaceGuard from "../../routes/WorkspaceGuard";
 
@@ -93,29 +94,69 @@ export const router = createBrowserRouter([
         element: <WorkspaceGuard />,
         children: [
           {
-            path: "/workspace",
-            element: <WorkspacePage />,
+            element: <AppLayout />,
+            children: [
+              {
+                path: "/workspace",
+                element: <WorkspacePage />,
+              },
+              {
+                path: "/roadmap",
+                element: <RoadmapPage />,
+              },
+              {
+                path: "/assessments",
+                element: <AssessmentsPage />,
+              },
+              {
+                path: "/assessments/:assessmentId",
+                element: <AssessmentDetailPage />,
+              },
+              {
+                path: "/practice",
+                element: <PracticeHubPage />,
+              },
+              {
+                path: "/missions",
+                element: <MissionsPage />,
+              },
+              {
+                path: "/missions/:missionId",
+                element: <MissionDetailsPage />,
+              },
+              {
+                path: "/weekly-review",
+                element: <WeeklyReviewPage />,
+              },
+              {
+                path: "/weekly-reports",
+                element: <WeeklyReportsPage />,
+              },
+              {
+                path: "/weekly-reports/:reportId",
+                element: <WeeklyReportDetailsPage />,
+              },
+              {
+                path: "/monthly-reports",
+                element: <MonthlyReportsPage />,
+              },
+              {
+                path: "/monthly-reports/:reportNumber",
+                element: <MonthlyReportDetailsPage />,
+              },
+              {
+                path: "/readiness",
+                element: <ReadinessPage />,
+              },
+              {
+                path: "/profile",
+                element: <ProfilePage />,
+              },
+            ],
           },
           {
             path: "/initial-assessment",
             element: <InitialAssessmentPage />,
-          },
-          {
-            path: "/roadmap",
-            element: <RoadmapPage />,
-          },
-          {
-            path: "/assessments",
-            element: <AssessmentsPage />,
-          },
-
-          {
-            path: "/assessments/:assessmentId",
-            element: <AssessmentDetailPage />,
-          },
-          {
-            path: "/practice",
-            element: <PracticeHubPage />,
           },
           {
             path: "/practice/coding/:slug",
@@ -124,42 +165,6 @@ export const router = createBrowserRouter([
           {
             path: "/practice/interview/:sessionId",
             element: <InterviewWorkspacePage />,
-          },
-          {
-            path: "/missions",
-            element: <MissionsPage />,
-          },
-          {
-            path: "/missions/:missionId",
-            element: <MissionDetailsPage />,
-          },
-          {
-            path: "/weekly-review",
-            element: <WeeklyReviewPage />,
-          },
-          {
-            path: "/weekly-reports",
-            element: <WeeklyReportsPage />,
-          },
-          {
-            path: "/weekly-reports/:reportId",
-            element: <WeeklyReportDetailsPage />,
-          },
-          {
-            path: "/monthly-reports",
-            element: <MonthlyReportsPage />,
-          },
-          {
-            path: "/monthly-reports/:reportNumber",
-            element: <MonthlyReportDetailsPage />,
-          },
-          {
-            path: "/readiness",
-            element: <ReadinessPage />,
-          },
-          {
-            path: "/profile",
-            element: <ProfilePage />,
           },
         ],
       },

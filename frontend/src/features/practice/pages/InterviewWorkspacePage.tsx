@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -56,13 +56,23 @@ export const InterviewWorkspacePage = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.turns.length, isSubmitting]);
 
-  // Voice dictation hook
-  const handleTranscript = (chunk: string) => {
-    setCandidateText((prev) => (prev ? `${prev} ${chunk}` : chunk));
-  };
+  // Voice dictation hook - memoized to prevent re-instantiation
+  const handleTranscript = useCallback((chunk: string) => {
+    setCandidateText((prev) => {
+      const trimmedPrev = prev.trim();
+      const trimmedChunk = chunk.trim();
+      if (!trimmedPrev) return trimmedChunk;
+      return `${trimmedPrev} ${trimmedChunk}`;
+    });
+  }, []);
 
-  const { isSupported, isListening, toggleListening, stopListening } =
-    useSpeechRecognition(handleTranscript);
+  const {
+    isSupported,
+    isListening,
+    toggleListening,
+    stopListening,
+    error: speechError,
+  } = useSpeechRecognition(handleTranscript);
 
   const handleSubmit = async () => {
     if (!sessionId || !candidateText.trim() || isSubmitting) return;
@@ -326,6 +336,14 @@ export const InterviewWorkspacePage = () => {
       {!isSessionCompleted && (
         <div className="p-4 bg-white border-t border-slate-200 shrink-0 shadow-sm">
           <div className="max-w-4xl mx-auto space-y-3">
+            {/* Speech error notification if permission or microphone issues occur */}
+            {speechError && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                <AlertCircle size={14} className="shrink-0 text-amber-600" />
+                <span>{speechError}</span>
+              </div>
+            )}
+
             <div className="relative rounded-2xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-xs">
               <textarea
                 value={candidateText}
@@ -339,7 +357,8 @@ export const InterviewWorkspacePage = () => {
                 disabled={isSubmitting}
                 className="w-full bg-transparent p-4 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none resize-none leading-relaxed"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                  // Enter without Shift submits; Shift+Enter creates a new line
+                  if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleSubmit();
                   }
@@ -348,7 +367,7 @@ export const InterviewWorkspacePage = () => {
 
               {/* Dictation Pulsing Indicator */}
               {isListening && (
-                <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold animate-pulse">
+                <div className="pointer-events-none absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold animate-pulse shadow-xs">
                   <span className="w-2 h-2 rounded-full bg-rose-600" />
                   <span>Recording voice...</span>
                 </div>
@@ -392,7 +411,7 @@ export const InterviewWorkspacePage = () => {
 
                 <div className="flex items-center gap-3">
                   <span className="text-[11px] text-slate-400 hidden sm:inline">
-                    Ctrl + Enter to send
+                    Press Enter to send (Shift + Enter for new line)
                   </span>
                   <button
                     type="button"
