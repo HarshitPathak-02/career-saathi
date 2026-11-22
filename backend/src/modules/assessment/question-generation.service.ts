@@ -20,6 +20,9 @@ import {
   questionRepository,
 } from "./question.repository.js";
 import {
+  fallbackQuestionService,
+} from "./fallback-question.service.js";
+import {
   buildQuestionContentHash,
   validateQuestionContent,
 } from "./question.validator.js";
@@ -586,10 +589,24 @@ class QuestionGenerationService {
     }
 
     if (servable.length < questionCount) {
-      throw new AppError(
-        HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        `Could not prepare enough questions for skill '${skill.name}'.`
+      logger.warn(
+        { skill: skill.name, available: servable.length, required: questionCount },
+        "AI question generation did not yield enough questions. Activating Fallback Question Engine."
       );
+
+      await fallbackQuestionService.seedFallbackQuestions(
+        skillCatalogId,
+        skill.name,
+        topics,
+        questionCount - servable.length
+      );
+
+      servable =
+        await questionRepository
+          .findServableBySkill(
+            skillCatalogId,
+            questionCount
+          );
     }
 
     return servable;

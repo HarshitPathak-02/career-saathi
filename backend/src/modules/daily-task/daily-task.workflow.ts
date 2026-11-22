@@ -33,6 +33,10 @@ import {
 } from "./task-resource.service.js";
 
 import {
+    algorithmicDailyTaskService,
+} from "./algorithmic-daily-task.service.js";
+
+import {
     AppError,
 } from "../../core/errors/app-error.js";
 
@@ -116,12 +120,25 @@ class DailyTaskWorkflow {
         |----------------------------------------------------------------------
         */
 
-        const tasks =
-            await this.generateAndValidateTasks(
+        let tasks: DailyTaskGenerationOutput;
+
+        try {
+            tasks = await this.generateAndValidateTasks(
                 prompt,
                 allowedRoadmapItemIds,
                 allowedRevisionSkillIds
             );
+        } catch (error) {
+            logger.warn(
+                { error: error instanceof Error ? error.message : String(error) },
+                "AI daily task generation failed. Activating deterministic Algorithmic Task Planner Fallback."
+            );
+            tasks = algorithmicDailyTaskService.planSixDaySchedule({
+                roadmapItems,
+                revisionPlans: input.revisionPlans,
+                dailyStudyHours: input.dailyStudyHours,
+            });
+        }
 
         /*
         |----------------------------------------------------------------------

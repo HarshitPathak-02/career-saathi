@@ -1,0 +1,44 @@
+{
+  "skillSlug": "javascript",
+  "questions": [
+    {
+      "topicSlug": "closures",
+      "difficulty": "EASY",
+      "stem": "Which of the following best describes a closure in JavaScript?",
+      "options": [
+        { "key": "A", "text": "A function that has access to its outer lexical scope even after the outer function has closed." },
+        { "key": "B", "text": "A method to forcibly terminate an infinite loop." },
+        { "key": "C", "text": "A built-in data type used for storing encrypted keys." },
+        { "key": "D", "text": "A private variable declared with the private keyword." }
+      ],
+      "correctOptionKeys": ["A"],
+      "explanation": "A closure is the combination of a function bundled together with references to its surrounding state (the lexical environment)."
+    },
+    {
+      "topicSlug": "async-await",
+      "difficulty": "MEDIUM",
+      "stem": "What does an async function in JavaScript always return?",
+      "options": [
+        { "key": "A", "text": "A Promise" },
+        { "key": "B", "text": "A callback function" },
+        { "key": "C", "text": "Undefined" },
+        { "key": "D", "text": "A generator iterator" }
+      ],
+      "correctOptionKeys": ["A"],
+      "explanation": "Async functions always return a promise. If the return value is not explicitly a promise, it is automatically wrapped in a resolved promise."
+    },
+    {
+      "topicSlug": "event-loop",
+      "difficulty": "HARD",
+      "stem": "In the JavaScript Event Loop, which queue is checked and processed before the Macrotask (Callback) queue?",
+      "options": [
+        { "key": "A", "text": "The Microtask queue (e.g., Promise callbacks, queueMicrotask)" },
+        { "key": "B", "text": "The setTimeout timer queue" },
+        { "key": "C", "text": "The setInterval recurring queue" },
+        { "key": "D", "text": "The file I/O thread pool queue" }
+      ],
+      "correctOptionKeys": ["A"],
+      "explanation": "All microtasks in the microtask queue must be completely executed and drained before the event loop proceeds to the next macrotask."
+    }
+  ]
+}

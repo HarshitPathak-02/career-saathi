@@ -55,6 +55,12 @@ import {
     aiValidator,
 } from "../../shared/ai/ai.validator.js";
 
+import logger from "../../config/logger.js";
+
+import {
+    masterRoadmapTemplateService,
+} from "./master-roadmap-template.service.js";
+
 import {
     RoadmapDocument,
 } from "./roadmap.model.js";
@@ -93,7 +99,8 @@ export class RoadmapWorkflowService {
 
         const output =
             await this.generateRoadmapOutput(
-                input
+                input,
+                context
             );
 
         return this.saveRoadmap(
@@ -383,27 +390,47 @@ export class RoadmapWorkflowService {
     }
 
     private async generateRoadmapOutput(
-        input: RoadmapGenerationInput
+        input: RoadmapGenerationInput,
+        context?: RoadmapWorkflowContext
     ): Promise<RoadmapGenerationOutput> {
 
-        const prompt =
-            roadmapPromptBuilder.build(
-                input
-            );
+        try {
+            const prompt =
+                roadmapPromptBuilder.build(
+                    input
+                );
 
-        const aiResponse =
-            await aiService.generate({
-                prompt,
-            });
+            const aiResponse =
+                await aiService.generate({
+                    prompt,
+                });
 
-        const parsedResponse =
-            aiParser.parse<RoadmapGenerationOutput>(
-                aiResponse.text
-            );
+            const parsedResponse =
+                aiParser.parse<RoadmapGenerationOutput>(
+                    aiResponse.text
+                );
 
-        return aiValidator.validateRoadmap(
-            parsedResponse
-        ) as RoadmapGenerationOutput;
+            return aiValidator.validateRoadmap(
+                parsedResponse
+            ) as RoadmapGenerationOutput;
+        } catch (error) {
+            if (context) {
+                logger.warn(
+                    {
+                        error: error instanceof Error ? error.message : String(error),
+                        role: context.role.name,
+                    },
+                    "AI roadmap generation failed. Activating deterministic Master Template Fallback Engine."
+                );
+
+                return masterRoadmapTemplateService.buildDeterministicRoadmap(
+                    context
+                );
+            }
+
+            throw error;
+        }
+
     }
 
     private async saveRoadmap(

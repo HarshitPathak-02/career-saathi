@@ -1,0 +1,95 @@
+{
+  "roleSlug": "react-frontend-developer",
+  "title": "React Frontend Developer - Master Track",
+  "description": "Comprehensive, battle-tested learning path for becoming an industry-ready Frontend Engineer with React.",
+  "version": 1,
+  "roadmapItems": [
+    {
+      "order": 1,
+      "type": "TOPIC",
+      "skillSlug": "html",
+      "title": "HTML5 & Semantic Web Architecture",
+      "description": "Semantic markup, modern forms, accessibility standards (a11y), and document object tree.",
+      "estimatedHours": 15,
+      "aiReason": "Foundational cornerstone of all web development."
+    },
+    {
+      "order": 2,
+      "type": "TOPIC",
+      "skillSlug": "css",
+      "title": "CSS3 Styling, Flexbox & CSS Grid",
+      "description": "Box model, responsive design principles, Flexbox layouts, Grid systems, and CSS variables.",
+      "estimatedHours": 20,
+      "aiReason": "Essential for creating responsive, modern user interfaces across all screen sizes."
+    },
+    {
+      "order": 3,
+      "type": "TOPIC",
+      "skillSlug": "tailwind-css",
+      "title": "Tailwind CSS & Utility-First Styling",
+      "description": "Utility classes, responsive variants, typography, and dark mode configuration.",
+      "estimatedHours": 15,
+      "aiReason": "Industry standard CSS framework for high-speed modern UI development."
+    },
+    {
+      "order": 4,
+      "type": "PROJECT",
+      "title": "Responsive Landing Page & Component Library",
+      "description": "Build an end-to-end responsive landing page using semantic HTML, CSS Grid, and Tailwind CSS.",
+      "estimatedHours": 20,
+      "aiReason": "First hands-on portfolio asset cementing layout mastery."
+    },
+    {
+      "order": 5,
+      "type": "TOPIC",
+      "skillSlug": "javascript",
+      "title": "Modern JavaScript (ES6+) & DOM Manipulation",
+      "description": "Closures, prototypes, destructuring, promises, async/await, and event handling.",
+      "estimatedHours": 35,
+      "aiReason": "Core programming engine powering React and all modern web interactions."
+    },
+    {
+      "order": 6,
+      "type": "PROJECT",
+      "title": "Frontend Foundations Diagnostic Checkpoint",
+      "description": "Comprehensive evaluation covering HTML, CSS, Responsive Layouts, and JavaScript basics.",
+      "estimatedHours": 5,
+      "aiReason": "Verifies technical readiness before moving into React framework engineering."
+    },
+    {
+      "order": 7,
+      "type": "TOPIC",
+      "skillSlug": "git",
+      "title": "Git & GitHub Version Control",
+      "description": "Branching strategies, pull requests, merge conflict resolution, and collaborative workflow.",
+      "estimatedHours": 10,
+      "aiReason": "Crucial engineering tool required for teamwork and production code deployment."
+    },
+    {
+      "order": 8,
+      "type": "TOPIC",
+      "skillSlug": "react",
+      "title": "React Core Fundamentals, Hooks & State",
+      "description": "JSX, props, useState, useEffect, custom hooks, and unidirectional data flow.",
+      "estimatedHours": 40,
+      "aiReason": "Primary frontend UI library required for modern industry roles."
+    },
+    {
+      "order": 9,
+      "type": "TOPIC",
+      "skillSlug": "typescript",
+      "title": "TypeScript with React",
+      "description": "Type interfaces, generics, props typing, and strict type checking in React applications.",
+      "estimatedHours": 25,
+      "aiReason": "Significantly reduces runtime bugs and improves code maintainability in production."
+    },
+    {
+      "order": 10,
+      "type": "PROJECT",
+      "title": "Production-Grade React SaaS Dashboard",
+      "description": "Build a multi-page interactive dashboard with state management, API integration, and charts.",
+      "estimatedHours": 35,
+      "aiReason": "Flagship portfolio project demonstrating full frontend engineering capability."
+    }
+  ]
+}
