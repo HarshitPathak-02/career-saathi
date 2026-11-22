@@ -7,6 +7,31 @@ export const DailyTaskStatus = {
 export type DailyTaskStatus =
     typeof DailyTaskStatus[keyof typeof DailyTaskStatus];
 
+export const TaskResourceType = {
+    VIDEO: "VIDEO",
+    DOCUMENTATION: "DOCUMENTATION",
+    ARTICLE: "ARTICLE",
+    PDF: "PDF",
+    CHEATSHEET: "CHEATSHEET",
+    PRACTICE: "PRACTICE",
+    COURSE: "COURSE",
+} as const;
+
+export type TaskResourceType =
+    typeof TaskResourceType[keyof typeof TaskResourceType];
+
+export interface TaskResource {
+    title: string;
+    url: string;
+    type: TaskResourceType;
+    provider: string;
+    description?: string;
+    isCareerSaathiOfficial?: boolean;
+    isPartner?: boolean;
+    partnerName?: string;
+    estimatedMinutes?: number;
+}
+
 export interface DailyTask {
 
     taskId: string;
@@ -24,6 +49,8 @@ export interface DailyTask {
     estimatedMinutes: number;
 
     status: DailyTaskStatus;
+
+    resources?: TaskResource[];
 
     completedAt: string | null;
 

@@ -4,6 +4,12 @@ import {
     Circle,
     XCircle,
     X,
+    BookOpen,
+    Video,
+    FileText,
+    ExternalLink,
+    GraduationCap,
+    Sparkles,
 } from "lucide-react";
 
 import type {
@@ -170,6 +176,23 @@ const DailyTaskDrawer = ({
 
         }
 
+    };
+
+    const renderResourceIcon = (type: string) => {
+        switch (type) {
+            case "VIDEO":
+                return <Video size={16} className="text-red-500" />;
+            case "PDF":
+            case "CHEATSHEET":
+                return <FileText size={16} className="text-emerald-600" />;
+            case "DOCUMENTATION":
+            case "ARTICLE":
+                return <BookOpen size={16} className="text-blue-500" />;
+            case "COURSE":
+                return <GraduationCap size={16} className="text-amber-500" />;
+            default:
+                return <Sparkles size={16} className="text-purple-500" />;
+        }
     };
 
     /*
@@ -458,6 +481,209 @@ const DailyTaskDrawer = ({
                             </p>
 
                         </div>
+
+                    </section>
+
+                    {/* Learning Resources & Study Materials */}
+                    <section className="mt-7">
+
+                        <div className="flex items-center justify-between">
+                            <h3
+                                className="
+                                    flex
+                                    items-center
+                                    gap-2
+                                    text-sm
+                                    font-semibold
+                                    text-slate-900
+                                "
+                            >
+                                <BookOpen size={16} className="text-blue-600" />
+                                Recommended Resources
+                            </h3>
+
+                            {task.resources && task.resources.length > 0 && (
+                                <span
+                                    className="
+                                        rounded-full
+                                        bg-slate-100
+                                        px-2.5
+                                        py-0.5
+                                        text-xs
+                                        font-medium
+                                        text-slate-600
+                                    "
+                                >
+                                    {task.resources.length} materials
+                                </span>
+                            )}
+                        </div>
+
+                        {task.resources && task.resources.length > 0 ? (
+                            <div className="mt-3.5 space-y-2.5">
+                                {task.resources.map((resource, idx) => (
+                                    <a
+                                        key={`${resource.url}-${idx}`}
+                                        href={resource.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="
+                                            group
+                                            flex
+                                            items-start
+                                            justify-between
+                                            gap-3
+                                            rounded-xl
+                                            border
+                                            border-slate-200
+                                            bg-white
+                                            p-3.5
+                                            shadow-sm
+                                            transition
+                                            hover:border-blue-300
+                                            hover:bg-slate-50/50
+                                            hover:shadow
+                                        "
+                                    >
+                                        <div className="flex min-w-0 items-start gap-3">
+                                            <div
+                                                className="
+                                                    mt-0.5
+                                                    flex
+                                                    h-8
+                                                    w-8
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
+                                                    rounded-lg
+                                                    bg-slate-50
+                                                    border
+                                                    border-slate-100
+                                                    group-hover:border-blue-100
+                                                    group-hover:bg-blue-50
+                                                    transition
+                                                "
+                                            >
+                                                {renderResourceIcon(resource.type)}
+                                            </div>
+
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-[11px] font-semibold text-slate-500">
+                                                        {resource.provider}
+                                                    </span>
+
+                                                    {resource.isCareerSaathiOfficial && (
+                                                        <span
+                                                            className="
+                                                                inline-flex
+                                                                items-center
+                                                                gap-1
+                                                                rounded-md
+                                                                bg-emerald-50
+                                                                px-1.5
+                                                                py-0.5
+                                                                text-[10px]
+                                                                font-semibold
+                                                                text-emerald-700
+                                                                border
+                                                                border-emerald-200/60
+                                                            "
+                                                        >
+                                                            CareerSaathi PDF
+                                                        </span>
+                                                    )}
+
+                                                    {resource.isPartner && (
+                                                        <span
+                                                            className="
+                                                                inline-flex
+                                                                items-center
+                                                                gap-1
+                                                                rounded-md
+                                                                bg-amber-50
+                                                                px-1.5
+                                                                py-0.5
+                                                                text-[10px]
+                                                                font-semibold
+                                                                text-amber-800
+                                                                border
+                                                                border-amber-200/60
+                                                            "
+                                                        >
+                                                            Verified Partner
+                                                        </span>
+                                                    )}
+
+                                                    {resource.estimatedMinutes && (
+                                                        <span className="text-[10px] text-slate-400">
+                                                            • {resource.estimatedMinutes}m read/watch
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <p
+                                                    className="
+                                                        mt-1
+                                                        text-sm
+                                                        font-semibold
+                                                        text-slate-800
+                                                        line-clamp-1
+                                                        group-hover:text-blue-600
+                                                        transition
+                                                    "
+                                                >
+                                                    {resource.title}
+                                                </p>
+
+                                                {resource.description && (
+                                                    <p
+                                                        className="
+                                                            mt-0.5
+                                                            text-xs
+                                                            leading-relaxed
+                                                            text-slate-500
+                                                            line-clamp-2
+                                                        "
+                                                    >
+                                                        {resource.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="
+                                                shrink-0
+                                                pt-1
+                                                text-slate-400
+                                                group-hover:text-blue-600
+                                                transition
+                                            "
+                                        >
+                                            <ExternalLink size={15} />
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        ) : (
+                            <div
+                                className="
+                                    mt-3
+                                    rounded-xl
+                                    border
+                                    border-dashed
+                                    border-slate-200
+                                    bg-slate-50/60
+                                    p-4
+                                    text-center
+                                "
+                            >
+                                <p className="text-xs text-slate-500">
+                                    Curated video tutorials, documentation links, and CareerSaathi revision guides will appear here.
+                                </p>
+                            </div>
+                        )}
 
                     </section>
 

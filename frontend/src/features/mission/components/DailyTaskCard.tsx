@@ -3,6 +3,7 @@ import {
     Circle,
     Clock3,
     XCircle,
+    BookOpen,
 } from "lucide-react";
 
 import type {
@@ -207,6 +208,7 @@ const DailyTaskCard = ({
                     mt-5
                     flex
                     items-center
+                    justify-between
                     gap-2
                     border-t
                     border-slate-100
@@ -215,9 +217,30 @@ const DailyTaskCard = ({
                     text-slate-500
                 "
             >
-                <Clock3 size={16} />
+                <div className="flex items-center gap-2">
+                    <Clock3 size={16} />
+                    <span>{task.estimatedMinutes} minutes</span>
+                </div>
 
-                {task.estimatedMinutes} minutes
+                {task.resources && task.resources.length > 0 && (
+                    <span
+                        className="
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            rounded-full
+                            bg-blue-50
+                            px-2.5
+                            py-0.5
+                            text-xs
+                            font-semibold
+                            text-blue-700
+                        "
+                    >
+                        <BookOpen size={13} />
+                        {task.resources.length} resources
+                    </span>
+                )}
             </div>
 
         </button>
