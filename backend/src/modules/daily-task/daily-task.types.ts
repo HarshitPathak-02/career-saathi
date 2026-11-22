@@ -7,7 +7,20 @@ import {
 import {
     DailyTaskStatus,
     DailyTaskType,
+    TaskResourceType,
 } from "./daily-task.enums.js";
+
+export interface TaskResource {
+    title: string;
+    url: string;
+    type: TaskResourceType;
+    provider: string;
+    description?: string;
+    isCareerSaathiOfficial?: boolean;
+    isPartner?: boolean;
+    partnerName?: string;
+    estimatedMinutes?: number;
+}
 
 export interface CreateDailyTaskDTO {
 
@@ -26,6 +39,8 @@ export interface CreateDailyTaskDTO {
     topics: string[];
 
     estimatedMinutes: number;
+
+    resources?: TaskResource[];
 
 }
 
@@ -77,6 +92,8 @@ export interface GeneratedDailyTask {
 
     estimatedMinutes: number;
 
+    resources?: TaskResource[];
+
 }
 
 export interface DailyTaskGenerationResult {
@@ -94,6 +111,7 @@ export interface DailyTaskOutput {
     description: string;
     topics: string[];
     estimatedMinutes: number;
+    resources?: TaskResource[];
 }
 
 export type DailyTaskGenerationOutput =

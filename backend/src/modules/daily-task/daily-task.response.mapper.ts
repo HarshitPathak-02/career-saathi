@@ -1,12 +1,21 @@
 import {
     DailyTaskDocument,
 } from "./daily-task.model.js";
+import {
+    taskResourceService,
+} from "./task-resource.service.js";
 
 class DailyTaskResponseMapper {
 
     toTaskResponse(
         task: DailyTaskDocument
     ) {
+
+        const existingResources = (task as any).resources;
+        const resources =
+            Array.isArray(existingResources) && existingResources.length > 0
+                ? existingResources
+                : taskResourceService.resolveResourcesForTask(task as any);
 
         return {
 
@@ -33,6 +42,8 @@ class DailyTaskResponseMapper {
 
             status:
                 task.status,
+
+            resources,
 
             completedAt:
                 task.completedAt,

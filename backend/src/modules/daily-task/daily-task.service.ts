@@ -88,11 +88,14 @@ class DailyTaskService {
                 estimatedMinutes:
                     task.estimatedMinutes,
 
+                resources:
+                    task.resources ?? [],
+
             }));
 
         return dailyTaskRepository
             .createMany(
-                dailyTasks,
+                dailyTasks as any,
                 session
             );
 

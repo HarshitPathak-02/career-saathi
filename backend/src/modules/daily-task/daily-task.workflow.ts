@@ -29,6 +29,10 @@ import {
 } from "./daily-task.types.js";
 
 import {
+    taskResourceService,
+} from "./task-resource.service.js";
+
+import {
     AppError,
 } from "../../core/errors/app-error.js";
 
@@ -129,7 +133,10 @@ class DailyTaskWorkflow {
             createReviewDay()
         );
 
-        return tasks;
+        return taskResourceService.enrichTasksWithResources(
+            tasks,
+            roadmapItems
+        );
 
     }
 

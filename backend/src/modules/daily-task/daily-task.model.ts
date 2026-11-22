@@ -13,6 +13,7 @@ import {
 import {
     DailyTaskStatus,
     DailyTaskType,
+    TaskResourceType,
 } from "./daily-task.enums.js";
 
 import {
@@ -26,6 +27,54 @@ import {
 import {
     SKILL_CATALOG_MODEL,
 } from "../../master-data/skill-catalog/skill-catalog.constants.js";
+
+const TaskResourceSchema = new Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        url: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        type: {
+            type: String,
+            enum: Object.values(TaskResourceType),
+            required: true,
+        },
+        provider: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        description: {
+            type: String,
+            trim: true,
+            default: "",
+        },
+        isCareerSaathiOfficial: {
+            type: Boolean,
+            default: false,
+        },
+        isPartner: {
+            type: Boolean,
+            default: false,
+        },
+        partnerName: {
+            type: String,
+            trim: true,
+            default: "",
+        },
+        estimatedMinutes: {
+            type: Number,
+            min: 1,
+        },
+    },
+    { _id: false }
+);
 
 const DailyTaskSchema =
     new Schema(
@@ -100,6 +149,11 @@ const DailyTaskSchema =
                 ),
                 default:
                     DailyTaskType.STUDY,
+            },
+
+            resources: {
+                type: [TaskResourceSchema],
+                default: [],
             },
 
             completedAt: {
